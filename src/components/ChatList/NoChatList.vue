@@ -1,0 +1,71 @@
+<template>
+  <div class="robin-side-container">
+    <header class="robin-header">
+      <RText
+        text="Settings"
+        fontWeight="400"
+        color="rgba(83, 95, 137, 1)"
+        :fontSize="17"
+      />
+      <REditButton @edit="$emit('changesidebartype', 'newchat')" />
+    </header>
+    <div class="robin-wrapper robin-w-100">
+      <RSearchBar />
+    </div>
+    <div
+      class="robin-wrapper robin-flex robin-flex-column robin-flex-align-center robin-h-100 robin-w-100 robin-flex-1 robin-pt-100"
+    >
+      <RNoChatIcon />
+      <div class="robin-mb-13 robin-mt-33">
+        <RText text="No Messages Yet" fontWeight="normal" color="#535F89" />
+      </div>
+      <RTextButton
+        text="Start a chat"
+        emit="newchat"
+        @newchat="$emit('changesidebartype', 'newchat')"
+      />
+    </div>
+  </div>
+</template>
+
+<script lang="ts">
+import Vue from 'vue'
+import RText from './RText/RText.vue'
+import REditButton from './REditButton/REditButton.vue'
+import RSearchBar from './RSearchBar/RSearchBar.vue'
+import RTextButton from './RTextButton/RTextButton.vue'
+import RNoChatIcon from './RNoChatIcon/RNoChatIcon.vue'
+
+export default Vue.extend({
+  name: 'RSideContainer',
+  components: {
+    RText,
+    REditButton,
+    RSearchBar,
+    RTextButton,
+    RNoChatIcon
+  }
+})
+</script>
+
+<style scoped>
+.robin-side-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  box-shadow: 0px 2px 20px rgba(0, 104, 255, 0.06);
+}
+
+header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 3.563rem 1.5rem 1.5rem;
+}
+
+.robin-wrapper {
+  padding: 0 1.5rem;
+}
+</style>

@@ -1,0 +1,59 @@
+{
+  "name": "robin",
+  "version": "0.0.0",
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/robin.umd.js",
+  "module": "./dist/robin.es.js",
+  "exports": {
+    ".": {
+      "import": "./dist/robin.es.js",
+      "require": "./dist/robin.umd.js"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "serve": "vite preview --port 8080",
+    "prepare": "husky install",
+    "lint": "prettier --write *.{js,ts,vue} --no-error-on-unmatched-pattern . && eslint --fix --ext .js,.ts,.vue --no-error-on-unmatched-pattern .",
+    "test": "jest",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
+  },
+  "dependencies": {
+    "vue": "^2.6.14"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.15.0",
+    "@babel/preset-env": "^7.15.0",
+    "@storybook/addon-actions": "^6.3.7",
+    "@storybook/addon-essentials": "^6.3.7",
+    "@storybook/addon-links": "^6.3.7",
+    "@storybook/vue": "^6.3.7",
+    "@types/jest": "^26.0.24",
+    "@types/node": "^16.6.1",
+    "@typescript-eslint/eslint-plugin": "^4.29.1",
+    "@typescript-eslint/parser": "^4.29.1",
+    "@vue/compiler-sfc": "^3.0.5",
+    "@vue/test-utils": "^1.2.2",
+    "babel-loader": "^8.2.2",
+    "eslint": "^7.32.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-plugin-import": "^2.24.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^5.1.0",
+    "eslint-plugin-vue": "^7.16.0",
+    "husky": "^7.0.0",
+    "jest": "^26.6.3",
+    "ts-jest": "^26.5.6",
+    "typescript": "^4.3.2",
+    "vite": "^2.4.4",
+    "vite-plugin-vue2": "^1.8.1",
+    "vue-jest": "^3.0.7",
+    "vue-loader": "^15.9.8",
+    "vue-template-compiler": "^2.6.14",
+    "vue-tsc": "^0.2.2"
+  }
+}
