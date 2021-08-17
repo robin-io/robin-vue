@@ -107,7 +107,7 @@ export default Vue.extend({
     })
     EventBus.$on('new-message', (message: any) => {
       this.messages.push(message)
-      document.getElementById('focus')?.scrollIntoView()
+      window.document.getElementById('focus')?.scrollIntoView()
     })
   },
   methods: {
@@ -116,7 +116,7 @@ export default Vue.extend({
       if (!res.error) {
         this.messages = res.data
         setTimeout(() => {
-          document.getElementById('focus')?.scrollIntoView()
+          window.document.getElementById('focus')?.scrollIntoView()
         }, 2)
       }
       console.log(res)
