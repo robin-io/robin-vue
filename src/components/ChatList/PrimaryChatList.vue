@@ -18,7 +18,12 @@
     <div
       class="robin-wrapper robin-card-container robin-flex robin-flex-column"
     >
-      <div class="robin-card robin-flex robin-flex-align-center">
+      <div
+        class="robin-card robin-flex robin-flex-align-center"
+        v-for="conversation in conversations"
+        :key="conversation._id"
+        @click="openConversation(conversation)"
+      >
         <div class="robin-card-info robin-mr-12">
           <RAvatar />
         </div>
@@ -27,7 +32,11 @@
         >
           <div class="robin-flex robin-flex-space-between">
             <RText
-              text="Users Name"
+              :text="
+                conversation.sender_token != $user_token
+                  ? conversation.sender_name
+                  : conversation.receiver_name
+              "
               fontWeight="normal"
               color="#000000"
               :fontSize="16"
@@ -78,6 +87,7 @@ import RTextButton from './RTextButton/RTextButton.vue'
 import RAvatar from './RAvatar/RAvatar.vue'
 // import RGroupAvatar from './RGroupAvatar/RGroupAvatar.vue'
 import RUnreadMessageCount from './RUnreadMessageCount/RUnreadMessageCount.vue'
+import { EventBus } from '@/App.vue'
 
 export default Vue.extend({
   name: 'RSideContainer',
@@ -89,6 +99,23 @@ export default Vue.extend({
     RAvatar,
     // RGroupAvatar,
     RUnreadMessageCount
+  },
+  // data () {
+  //   return {
+  //     user_token: this.$use
+  //     }
+  // },
+  props: {
+    conversations: {
+      type: Array,
+      default: (): Array<any> => []
+    }
+  },
+  methods: {
+    openConversation (conversation: object): void {
+      console.log(conversation)
+      EventBus.$emit('conversation-opened', conversation)
+    }
   }
 })
 </script>

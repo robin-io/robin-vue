@@ -2,6 +2,7 @@
   <div class="robin-chat-list-container">
     <PrimaryChatList
       v-show="sideBarType == 'primary'"
+      :conversations="conversations"
       @changesidebartype="changeSideBarType"
     />
     <NewChatList
@@ -40,12 +41,31 @@ export default Vue.extend({
     NewGroupChatList,
     ArchivedChatList
   },
+  created () {
+    this.getUserToken()
+  },
+  props: {
+    user_token: {
+      type: String,
+      default: () => ''
+    }
+  },
   data: () => ({
-    sideBarType: 'primary'
+    sideBarType: 'primary',
+    conversations: []
   }),
   methods: {
-    changeSideBarType(val: string): void {
+    changeSideBarType (val: string): void {
       this.sideBarType = val
+    },
+    async getUserToken () {
+      const res = await this.$robin.getUserToken({
+        user_token: this.user_token
+      })
+      if (!res.error) {
+        this.conversations = res.data.conversations
+      }
+      console.log(res)
     }
   }
 })

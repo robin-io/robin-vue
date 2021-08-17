@@ -4,13 +4,15 @@
       <REmojiButton />
     </div>
     <div class="robin-input-wrapper" tabindex="1" @focus="handleFocus()">
-      <div
-        class="robin-input"
+      <input
+        v-model="text"
         contenteditable="true"
+        placeholder="Type a message..."
         ref="input"
-        @input="userTyping($event)"
-      ></div>
-      <div class="robin-placeholder">Type a message...</div>
+        class="robin-input"
+        @keypress.enter="sendMessage()"
+      />
+      <!-- <div class="robin-placeholder">Type a message...</div> -->
     </div>
   </div>
 </template>
@@ -27,14 +29,42 @@ export default Vue.extend({
   data: () => ({
     text: '' as string
   }),
+  props: {
+    conversation_id: {
+      type: String,
+      default: (): string => ''
+    },
+    receiver_token: {
+      type: String,
+      default: (): string => ''
+    }
+  },
   methods: {
-    userTyping(event: any): void {
+    userTyping (event: any): void {
       const element = event.target as HTMLElement
       this.text = element?.innerText
     },
-    handleFocus(): void {
+    handleFocus (): void {
       const input = this.$refs.input as HTMLElement
       input?.focus()
+    },
+    sendMessage () {
+      if (this.text.replace(' ', '').length === 0) {
+        return
+      }
+      const msg = {
+        sender_token: this.$user_token,
+        receiver_token: this.receiver_token,
+        msg: this.text,
+        timestamp: new Date()
+      }
+      this.$robin.sendMessageToConversation(
+        msg,
+        this.$conn,
+        this.$channel,
+        this.conversation_id
+      )
+      this.text = ''
     }
   }
 })
@@ -74,6 +104,7 @@ export default Vue.extend({
   overflow-x: hidden;
   white-space: pre-wrap;
   word-wrap: break-word;
+  margin-top: -9px;
 }
 
 .robin-placeholder {

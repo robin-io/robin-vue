@@ -9,7 +9,11 @@
       >
         <div class="robin-mt-6">
           <RText
-            text="Number One Rulers"
+            :text="
+              conversation.sender_token != $user_token
+                ? conversation.sender_name
+                : conversation.receiver_name
+            "
             fontWeight="normal"
             color="#000000"
             :fontSize="16"
@@ -19,7 +23,7 @@
         <div class="robin-mt-6">
           <RText
             as="p"
-            text="53 Members"
+            :text="conversation.is_group ? conversation.participants : 'Online'"
             fontWeight="normal"
             color="#7A7A7A"
             :fontSize="14"
@@ -39,6 +43,7 @@ import Vue from 'vue'
 import RGroupAvatar from '@/components/ChatList/RGroupAvatar/RGroupAvatar.vue'
 import RText from '@/components/ChatList/RText/RText.vue'
 import ROptionButton from '../ROptionButton/ROptionButton.vue'
+import { EventBus } from '@/App.vue'
 
 export default Vue.extend({
   name: 'RGroupChatHeader',
@@ -46,6 +51,16 @@ export default Vue.extend({
     RGroupAvatar,
     RText,
     ROptionButton
+  },
+  data: () => {
+    return {
+      conversation: {} as any
+    }
+  },
+  created () {
+    EventBus.$on('conversation-opened', (conversation: any) => {
+      this.conversation = conversation
+    })
   }
 })
 </script>

@@ -5,47 +5,59 @@
       class="robin-wrapper robin-flex robin-flex-column robin-flex-space-between"
     >
       <div class="robin-inner-wrapper">
-        <div
-          class="robin-message-bubble robin-message-sender robin-flex robin-flex-wrap"
-        >
-          <RText
-            text="Precious Ogar"
-            :fontSize="12"
-            color="#15AE73"
-            as="span"
-            :lineHeight="20"
-          />
-          <RText
-            text="Some very long text here to test
-how far this bubble can go.  😂 😂 😂"
-            :fontSize="16"
-            :textWrap="'normal'"
-            as="span"
-          />
-          <span
-            class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto"
+        <div v-for="message in messages" :key="message._id">
+          <div
+            v-if="message.content.sender_token != $user_token"
+            class="robin-message-bubble robin-message-sender robin-flex robin-flex-wrap"
           >
-            <RText text="3:00PM" :fontSize="14" color="#7a7a7a" as="p" />
-          </span>
-        </div>
-        <RUnreadMessageBar :number="1" />
-        <div
-          class="robin-message-bubble robin-message-receiver robin-flex robin-flex-wrap robin-ml-auto"
-        >
-          <RText
-            text="Some very long text here to test.  😂"
-            :fontSize="16"
-            as="span"
-          />
-          <span
-            class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto"
+            <!-- <RText
+              text="Precious Ogar"
+              :fontSize="12"
+              color="#15AE73"
+              as="span"
+              :lineHeight="20"
+            /> -->
+            <RText
+              :text="message.content.msg"
+              :fontSize="16"
+              :textWrap="'normal'"
+              as="span"
+            />
+            <span
+              class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto"
+            >
+              <RText text="3:00PM" :fontSize="14" color="#7a7a7a" as="p" />
+            </span>
+          </div>
+          <!-- <RUnreadMessageBar :number="1" /> -->
+          <div
+            v-else
+            class="robin-message-bubble robin-message-receiver robin-flex robin-flex-wrap robin-ml-auto"
           >
-            <RText text="3:00PM" :fontSize="14" color="#7a7a7a" as="p" />
-          </span>
+            <RText :text="message.content.msg" :fontSize="16" as="span" />
+            <span
+              class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto"
+            >
+              <RText
+                :text="formatTimeStamp(message.content.timestamp)"
+                :fontSize="14"
+                color="#7a7a7a"
+                as="p"
+              />
+            </span>
+          </div>
         </div>
+        <div id="focus"></div>
       </div>
       <div class="robin-message-box">
-        <RMessageInputBar />
+        <RMessageInputBar
+          :conversation_id="conversation._id"
+          :receiver_token="
+            conversation.sender_token != $user_token
+              ? conversation.sender_token
+              : conversation.receiver_token
+          "
+        />
         <div class="robin-pl-25">
           <RAttachFileButton />
         </div>
@@ -65,8 +77,10 @@ import RMessageInputBar from '../RMessageInputBar/RMessageInputBar.vue'
 import RVoiceRecorderButton from '../RVoiceRecorderButton/RVoiceRecorderButton.vue'
 import RAttachFileButton from '../RAttachFileButton/RAttachFileButton.vue'
 import RText from '@/components/ChatList/RText/RText.vue'
-import RUnreadMessageBar from '../RUnreadMessagesBar/RUnreadMessagesBar.vue'
+// import RUnreadMessageBar from '../RUnreadMessagesBar/RUnreadMessagesBar.vue'
 // import RForwardMessage from '../RForwardMessage/RForwardMessage.vue'
+import { EventBus } from '@/App.vue'
+import moment from 'moment'
 
 export default Vue.extend({
   name: 'RMessageContainer',
@@ -75,14 +89,49 @@ export default Vue.extend({
     RText,
     RMessageInputBar,
     RAttachFileButton,
-    RVoiceRecorderButton,
-    RUnreadMessageBar
+    RVoiceRecorderButton
+    // RUnreadMessageBar
     // RForwardMessage
+  },
+  data: () => {
+    return {
+      messages: [] as any,
+      conversation: {} as any
+    }
+  },
+  created () {
+    EventBus.$on('conversation-opened', (conversation: any) => {
+      this.conversation = conversation
+      this.messages = []
+      this.getConversationMessages(conversation._id)
+    })
+    EventBus.$on('new-message', (message: any) => {
+      this.messages.push(message)
+      document.getElementById('focus')?.scrollIntoView()
+    })
+  },
+  methods: {
+    async getConversationMessages (id: string) {
+      const res = await this.$robin.getConversationMessages(id)
+      if (!res.error) {
+        this.messages = res.data
+        setTimeout(() => {
+          document.getElementById('focus')?.scrollIntoView()
+        }, 2)
+      }
+      console.log(res)
+    },
+    formatTimeStamp (value: string) {
+      return moment(String(value)).format('h:mma').toUpperCase()
+    }
   }
 })
 </script>
 
 <style scoped>
+#focus {
+  margin-top: 30px;
+}
 .robin-message-container {
   flex: 1;
   width: 100%;
@@ -95,7 +144,7 @@ export default Vue.extend({
 
 .robin-wrapper {
   flex: 1;
-  height: 100%;
+  height: 80vh;
 }
 
 .robin-inner-wrapper {
@@ -106,10 +155,11 @@ export default Vue.extend({
   height: 100%;
   background-color: #fafafa;
   padding: 2.688rem 2.688rem 1.25rem 3.125rem;
+  overflow: scroll;
 }
 
 .robin-message-box {
-  width: 100%;
+  /* width: 100%; */
   height: 44px;
   background-color: #fff;
   display: flex;
@@ -158,9 +208,9 @@ export default Vue.extend({
   position: relative;
   box-sizing: border-box;
   border-radius: 16px;
-  width: 100%;
   max-width: 325px;
   padding: 0.5rem 1rem;
+  margin-top: 10px;
 }
 
 .robin-message-text {
