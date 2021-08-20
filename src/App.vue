@@ -31,6 +31,31 @@ const ComponentProps = Vue.extend({
     channel: {
       type: String as PropType<string>,
       default: 'robin-chat'
+    },
+    users: {
+      type: Array as PropType<Array<any>>,
+      default: (): Array<any> => [
+        {
+          userToken: 'OOGAUYpPJZCNMAsSisiyiYjU',
+          userName: 'Elvis',
+          profileImage: ''
+        },
+        {
+          userToken: 'dWvoxobuJSepnEXYOVWtvzBO',
+          userName: 'Enoch',
+          profileImage: ''
+        }
+      ]
+    },
+    keys: {
+      type: Object as PropType<any>,
+      default: (): any => {
+        return {
+          userToken: 'userToken',
+          userName: 'userName',
+          profileImage: 'profileImage'
+        }
+      }
     }
   }
 })
@@ -51,6 +76,16 @@ export default class App extends ComponentProps {
   conn = null as any
 
   created (): void {
+    const filteredUsers: Array<any> = []
+    this.users.forEach(user => {
+      const newUser = {
+        userToken: user[this.keys?.userToken],
+        profileImage: user[this.keys?.profileImage],
+        userName: user[this.keys?.userName]
+      }
+      filteredUsers.push(newUser)
+    })
+    Vue.prototype.$robin_users = filteredUsers
     this.initiateRobin()
   }
 
@@ -66,7 +101,6 @@ export default class App extends ComponentProps {
   }
 
   setPrototypes () {
-    Vue.prototype.$conn = this.conn
     Vue.prototype.$robin = this.robin
     Vue.prototype.$user_token = this.user_token
     Vue.prototype.$channel = this.channel
@@ -78,10 +112,12 @@ export default class App extends ComponentProps {
     this.conn = this.robin.connect(this.user_token)
 
     this.conn.onopen = () => {
+      console.log('connected')
       this.robin.subscribe(this.channel, this.conn)
     }
 
     this.conn.onmessage = (evt: any) => {
+      console.log('new message', evt.data)
       const message = JSON.parse(evt.data)
       console.log(message)
       if (message.is_event !== true) {
@@ -95,6 +131,8 @@ export default class App extends ComponentProps {
     this.conn.onclosed = () => {
       this.connect()
     }
+
+    Vue.prototype.$conn = this.conn
   }
 }
 </script>

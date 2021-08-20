@@ -7,5 +7,7 @@ declare module 'vue/types/vue' {
     $conn: WebSocket
     $user_token: string
     $channel: string
+    $robin_users: Array<any>
+    $conversations: Array<any>
   }
 }

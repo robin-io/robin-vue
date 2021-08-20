@@ -2,14 +2,15 @@
   <header>
     <div class="robin-card robin-flex robin-flex-align-center">
       <div class="robin-card-info robin-mr-16">
-        <RGroupAvatar />
+        <RGroupAvatar v-if="conversation.isGroup" />
+        <RAvatar v-else />
       </div>
       <div
         class="robin-card-info robin-h-100 robin-flex robin-flex-column robin-flex-space-between robin-flex-1"
       >
         <div class="robin-mt-6">
           <RText
-            text="Number One Rulers"
+            :text="conversation.senderToken == $userToken ? conversation.receiver_name : conversation.sender_name"
             fontWeight="normal"
             color="#000000"
             :fontSize="16"
@@ -18,6 +19,7 @@
         </div>
         <div class="robin-mt-6">
           <RText
+          v-if="conversation.isGroup"
             as="p"
             text="53 Members"
             fontWeight="normal"
@@ -37,6 +39,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import RGroupAvatar from '@/components/ChatList/RGroupAvatar/RGroupAvatar.vue'
+import RAvatar from '@/components/ChatList/RAvatar/RAvatar.vue'
 import RText from '@/components/ChatList/RText/RText.vue'
 import ROptionButton from '../ROptionButton/ROptionButton.vue'
 
@@ -45,7 +48,14 @@ export default Vue.extend({
   components: {
     RGroupAvatar,
     RText,
-    ROptionButton
+    ROptionButton,
+    RAvatar
+  },
+  props: {
+    conversation: {
+      type: Object as any,
+      default: () => {}
+    }
   }
 })
 </script>

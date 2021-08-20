@@ -4,13 +4,15 @@
       <REmojiButton />
     </div>
     <div class="robin-input-wrapper" tabindex="1" @focus="handleFocus()">
-      <div
+      <input
         class="robin-input"
         contenteditable="true"
         ref="input"
-        @input="userTyping($event)"
-      ></div>
-      <div class="robin-placeholder">Type a message...</div>
+        @keypress.enter="sendMessage()"
+        v-model="text"
+        placeholder="Type a message..."
+      >
+      <div class="robin-placeholder"></div>
     </div>
   </div>
 </template>
@@ -20,22 +22,45 @@ import Vue from 'vue'
 import Component from 'vue-class-component'
 import REmojiButton from '../REmojiButton/REmojiButton.vue'
 
+const ComponentProps = Vue.extend({
+  props: {
+    conversation: {
+      type: Object as any,
+      default: (): any => {}
+    }
+  }
+})
+
 @Component({
   name: 'RMessageInputBar',
   components: {
     REmojiButton
   }
 })
-export default class RMessageInputBar extends Vue {
+
+export default class RMessageInputBar extends ComponentProps {
   text = '' as string
 
-  userTyping(event: any): void {
-    const element = event.target as HTMLElement
-    this.text = element?.innerText
-    this.$emit('usertyping', this.text)
+  sendMessage () {
+    this.$robin.sendMessageToConversation(
+      {
+        msg: this.text,
+        sender_token: this.$user_token,
+        receiver_token: this.conversation.receiver_token,
+        timestamp: new Date()
+      },
+      this.$conn, this.$channel, this.conversation._id)
+    console.log(this.text)
+    this.text = ''
   }
 
-  handleFocus(): void {
+  userTyping (event: any): void {
+    const element = event.target as HTMLElement
+    this.text = element?.innerText
+    // this.$emit('usertyping', this.text)
+  }
+
+  handleFocus (): void {
     const input = this.$refs.input as HTMLElement
     input?.focus()
   }

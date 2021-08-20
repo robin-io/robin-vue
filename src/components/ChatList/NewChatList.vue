@@ -35,7 +35,7 @@
         </div>
       </div>
     </div>
-    <div
+    <!-- <div
       class="robin-wrapper robin-card-container robin-flex robin-flex-column"
     >
       <div class="robin-card robin-flex robin-flex-align-center">
@@ -55,10 +55,13 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
     <RAlphabetBlock />
     <div
       class="robin-wrapper robin-card-container robin-flex robin-flex-column robin-grey-200"
+      v-for="user in $robin_users"
+      :key="user.userToken"
+      @click="createConversation(user)"
     >
       <div
         class="robin-card robin-flex robin-flex-align-center robin-clickable"
@@ -70,13 +73,13 @@
           class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4˝ robin-flex-1"
         >
           <div class="robin-flex">
-            <RText text="Temi Obadofin" :fontSize="14" :lineHeight="18" />
+            <RText :text="user.userName" :fontSize="14" :lineHeight="18" />
           </div>
         </div>
       </div>
     </div>
-    <RAlphabetBlock text="B" />
-    <div
+    <!-- <RAlphabetBlock text="B" /> -->
+    <!-- <div
       class="robin-wrapper robin-card-container robin-flex robin-flex-column robin-grey-200"
     >
       <div
@@ -93,7 +96,7 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -105,8 +108,9 @@ import RCloseButton from './RCloseButton/RCloseButton.vue'
 import RTextButton from './RTextButton/RTextButton.vue'
 import RGroupAvatar from './RGroupAvatar/RGroupAvatar.vue'
 import RAvatar from './RAvatar/RAvatar.vue'
-import RNewContactAvatar from './RNewContactAvatar/RNewContactAvatar.vue'
+// import RNewContactAvatar from './RNewContactAvatar/RNewContactAvatar.vue'
 import RAlphabetBlock from './RAlphabetBlock/RAlphabetBlock.vue'
+import EventBus from '@/event-bus'
 
 export default Vue.extend({
   name: 'RSideContainer',
@@ -115,10 +119,33 @@ export default Vue.extend({
     RSearchBar,
     RTextButton,
     RGroupAvatar,
-    RNewContactAvatar,
+    // RNewContactAvatar,
     RCloseButton,
     RAvatar,
     RAlphabetBlock
+  },
+  methods: {
+    async createConversation (user: any) {
+      const resp = await this.$robin.createConversation({ sender_name: 'vue test', sender_token: this.$user_token, receiver_token: user.userToken, receiver_name: user.userName })
+      console.log(resp)
+
+      if (!resp.error) {
+        if (!this.checkConversations(resp.data)) {
+          this.$conversations.push(resp.data)
+        }
+        this.$emit('changesidebartype', 'primary')
+        EventBus.$emit('conversation-opened', resp.data)
+      }
+    },
+    checkConversations (convo: any): Boolean {
+      let res = false
+      this.$conversations.forEach(conversation => {
+        if (conversation._id === convo._id) {
+          res = true
+        }
+      })
+      return res
+    }
   }
 })
 </script>

@@ -55,7 +55,7 @@
           <div class="robin-flex robin-flex-space-between">
             <RText
               as="p"
-              text="We believe life is vast, and..."
+              :text="conversation.last_message == undefined ? '' : conversation.last_message.substring(0, 20) + ' ...'"
               fontWeight="normal"
               color="#7A7A7A"
               :fontSize="14"
@@ -68,7 +68,7 @@
             </div> -->
               <!-- use when mention icon is present robin-ml-8 -->
               <div class="mini-info robin-ml-auto">
-                <RUnreadMessageCount :count="100" />
+                <RUnreadMessageCount :count="0" />
               </div>
             </div>
           </div>
@@ -108,11 +108,11 @@ export default Vue.extend({
     }
   },
   methods: {
-    openConversation(conversation: object): void {
+    openConversation (conversation: object): void {
       console.log(conversation)
       EventBus.$emit('conversation-opened', conversation)
     },
-    recentMessageTime(time: string): string {
+    recentMessageTime (time: string): string {
       // const datetime = new Date(time)
       const datetime = moment(time)
       return datetime.calendar(null, {
