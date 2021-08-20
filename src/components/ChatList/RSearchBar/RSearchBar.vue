@@ -34,24 +34,27 @@
 
 <script lang="ts">
 import Vue, { PropType } from 'vue'
+import Component from 'vue-class-component'
 
-export default Vue.extend({
-  name: 'RSearchBar',
+const ComponentProps = Vue.extend({
   props: {
     placeholder: {
       type: String as PropType<string>,
       default: 'Search Messages...'
     }
-  },
-  data: () => ({
-    text: ''
-  }),
-  methods: {
-    userTyping(val: string): void {
-      this.text = val
-    }
   }
 })
+
+@Component({
+  name: 'RSearchBar'
+})
+export default class RSeachBar extends ComponentProps {
+  text = ''
+
+  userTyping(val: string): void {
+    this.text = val
+  }
+}
 </script>
 
 <style scoped>

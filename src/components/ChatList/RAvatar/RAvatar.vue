@@ -32,9 +32,9 @@
 
 <script lang="ts">
 import Vue, { PropType } from 'vue'
+import Component from 'vue-class-component'
 
-export default Vue.extend({
-  name: 'RAvatar',
+const ComponentProps = Vue.extend({
   props: {
     imgUrl: {
       type: String as PropType<string>,
@@ -42,6 +42,11 @@ export default Vue.extend({
     }
   }
 })
+
+@Component({
+  name: 'RAvatar'
+})
+export default class RAvatar extends ComponentProps {}
 </script>
 
 <style scoped>

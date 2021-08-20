@@ -7,9 +7,9 @@
 
 <script lang="ts">
 import Vue, { PropType } from 'vue'
+import Component from 'vue-class-component'
 
-export default Vue.extend({
-  name: 'RUnreadMessageBar',
+const ComponentProps = Vue.extend({
   props: {
     number: {
       type: Number as PropType<number>,
@@ -17,6 +17,11 @@ export default Vue.extend({
     }
   }
 })
+
+@Component({
+  name: 'RUnreadMessageBar'
+})
+export default class RUnreadMessageBar extends ComponentProps {}
 </script>
 
 <style scoped>

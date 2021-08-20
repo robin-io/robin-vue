@@ -5,7 +5,7 @@ import RMessageInputBar from '@/components/Message/RMessageInputBar/RMessageInpu
 import RVoiceRecorderButton from '@/components/Message/RVoiceRecorderButton/RVoiceRecorderButton.vue'
 import RAttachFileButton from '@/components/Message/RAttachFileButton/RAttachFileButton.vue'
 import RText from '@/components/ChatList/RText/RText.vue'
-import RUnreadMessageBar from '@/components/Message/RUnreadMessagesBar/RUnreadMessagesBar.vue'
+// import RUnreadMessageBar from '@/components/Message/RUnreadMessagesBar/RUnreadMessagesBar.vue'
 
 describe('RGroupMessageContainer', () => {
   it('should have RGroupChatHeader Component in parent component', () => {
@@ -43,10 +43,10 @@ describe('RGroupMessageContainer', () => {
     expect(childComponent.exists()).toBe(true)
   })
 
-  it('should have RUnreadMessageBar Component in parent component', () => {
-    const wrapper = mount(RGroupMessageContainer)
-    const childComponent = wrapper.findComponent(RUnreadMessageBar)
+  // it('should have RUnreadMessageBar Component in parent component', () => {
+  //   const wrapper = mount(RGroupMessageContainer)
+  //   const childComponent = wrapper.findComponent(RUnreadMessageBar)
 
-    expect(childComponent.exists()).toBe(true)
-  })
+  //   expect(childComponent.exists()).toBe(true)
+  // })
 })

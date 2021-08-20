@@ -11,12 +11,9 @@
 
 <script lang="ts">
 import Vue, { PropType } from 'vue'
+import Component from 'vue-class-component'
 
-export default Vue.extend({
-  name: 'RInput',
-  data: () => ({
-    text: ''
-  }),
+const ComponentProps = Vue.extend({
   props: {
     placeholder: {
       type: String as PropType<string>,
@@ -38,22 +35,27 @@ export default Vue.extend({
         return regex.test(value) || value.includes('fullWidth')
       }
     }
-  },
-  methods: {
-    userTyping(val: string): void {
-      this.text = val
-    }
-  },
-  computed: {
-    getStyles(): Object {
-      return {
-        'border-radius': this.borderRadius + 'px',
-        'min-height': this.height + 'px',
-        width: this.width === 'fullWidth' ? '100%' : this.width + 'px'
-      }
-    }
   }
 })
+
+@Component({
+  name: 'RInput'
+})
+export default class RInput extends ComponentProps {
+  text = ''
+
+  get getStyles(): Object {
+    return {
+      'border-radius': this.borderRadius + 'px',
+      'min-height': this.height + 'px',
+      width: this.width === 'fullWidth' ? '100%' : this.width + 'px'
+    }
+  }
+
+  userTyping(val: string): void {
+    this.text = val
+  }
+}
 </script>
 
 <style scoped>

@@ -1,8 +1,12 @@
 import Vue from 'vue'
-import App from './App.vue'
+import RobinChat from './App.vue'
+import store from './utils/index'
 
-const app = new Vue({
-  render: (h) => h(App)
+const robinChat = new Vue({
+  store,
+  render: (h) => h(RobinChat)
 })
 
-app.$mount('#app')
+robinChat.$mount('#app')
+
+export { RobinChat }

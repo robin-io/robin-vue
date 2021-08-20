@@ -20,9 +20,9 @@
 
 <script lang="ts">
 import Vue, { PropType } from 'vue'
+import Component from 'vue-class-component'
 
-export default Vue.extend({
-  name: 'RAttachFileButton',
+const ComponentProps = Vue.extend({
   props: {
     color: {
       type: String as PropType<string>,
@@ -30,6 +30,11 @@ export default Vue.extend({
     }
   }
 })
+
+@Component({
+  name: 'RAttachFileButton'
+})
+export default class RAttachFileButton extends ComponentProps {}
 </script>
 
 <style scoped>

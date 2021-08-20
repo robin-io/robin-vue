@@ -17,9 +17,9 @@
 
 <script lang="ts">
 import Vue, { PropType } from 'vue'
+import Component from 'vue-class-component'
 
-export default Vue.extend({
-  name: 'REmojiButton',
+const ComponentProps = Vue.extend({
   props: {
     color: {
       type: String as PropType<string>,
@@ -27,6 +27,11 @@ export default Vue.extend({
     }
   }
 })
+
+@Component({
+  name: 'REmojiButton'
+})
+export default class REmojiButton extends ComponentProps {}
 </script>
 
 <style scoped>

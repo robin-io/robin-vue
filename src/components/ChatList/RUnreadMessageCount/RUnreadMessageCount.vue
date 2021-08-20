@@ -7,9 +7,9 @@
 
 <script lang="ts">
 import Vue, { PropType } from 'vue'
+import Component from 'vue-class-component'
 
-export default Vue.extend({
-  name: 'RUnreadMessageCount',
+const ComponentProps = Vue.extend({
   props: {
     count: {
       type: Number as PropType<number>,
@@ -19,25 +19,30 @@ export default Vue.extend({
       type: String as PropType<string>,
       default: '#15AE73'
     }
-  },
-  data: () => ({
-    root: null as any
-  }),
-  mounted(): void {
-    this.root = document.documentElement
-    this.setRootVariables()
-  },
+  }
+})
+
+// eslint-disable-next-line
+@Component<RUnreadMessageCount>({
+  name: 'RUnreadMessageCount',
   watch: {
     backgroundColor(): void {
       this.setRootVariables()
     }
-  },
-  methods: {
-    setRootVariables(): void {
-      this.root.style.setProperty('--bg-color', this.backgroundColor)
-    }
   }
 })
+export default class RUnreadMessageCount extends ComponentProps {
+  root = null as any
+
+  mounted(): void {
+    this.root = document.documentElement
+    this.setRootVariables()
+  }
+
+  setRootVariables(): void {
+    this.root.style.setProperty('--bg-color', this.backgroundColor)
+  }
+}
 </script>
 
 <style scoped>

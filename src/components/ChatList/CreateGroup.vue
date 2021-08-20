@@ -88,7 +88,7 @@ export default Vue.extend({
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 100;
+  z-index: 999;
   display: flex;
   padding: 8vh 20vw 3rem 0;
   align-items: flex-start;

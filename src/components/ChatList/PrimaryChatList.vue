@@ -18,7 +18,12 @@
     <div
       class="robin-wrapper robin-card-container robin-flex robin-flex-column"
     >
-      <div class="robin-card robin-flex robin-flex-align-center">
+      <div
+        class="robin-card robin-flex robin-flex-align-center"
+        v-for="conversation in conversations"
+        :key="conversation._id"
+        @click="openConversation(conversation)"
+      >
         <div class="robin-card-info robin-mr-12">
           <RAvatar />
         </div>
@@ -27,7 +32,11 @@
         >
           <div class="robin-flex robin-flex-space-between">
             <RText
-              text="Users Name"
+              :text="
+                conversation.sender_token != $user_token
+                  ? conversation.sender_name
+                  : conversation.receiver_name
+              "
               fontWeight="normal"
               color="#000000"
               :fontSize="16"
@@ -36,7 +45,7 @@
 
             <RText
               as="p"
-              text="Just Now"
+              :text="recentMessageTime(conversation.updated_at)"
               fontWeight="normal"
               color="#566BA0"
               :fontSize="14"
@@ -71,6 +80,8 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import moment from 'moment'
+import EventBus from '@/event-bus'
 import RText from './RText/RText.vue'
 import REditButton from './REditButton/REditButton.vue'
 import RSearchBar from './RSearchBar/RSearchBar.vue'
@@ -89,6 +100,27 @@ export default Vue.extend({
     RAvatar,
     // RGroupAvatar,
     RUnreadMessageCount
+  },
+  props: {
+    conversations: {
+      type: Array,
+      default: (): Array<any> => []
+    }
+  },
+  methods: {
+    openConversation(conversation: object): void {
+      console.log(conversation)
+      EventBus.$emit('conversation-opened', conversation)
+    },
+    recentMessageTime(time: string): string {
+      // const datetime = new Date(time)
+      const datetime = moment(time)
+      return datetime.calendar(null, {
+        sameDay: 'hh:ss a',
+        lastDay: '[Yesterday]',
+        sameElse: 'DD/MM/YYYY'
+      })
+    }
   }
 })
 </script>

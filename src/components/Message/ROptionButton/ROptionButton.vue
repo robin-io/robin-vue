@@ -17,9 +17,9 @@
 
 <script lang="ts">
 import Vue, { PropType } from 'vue'
+import Component from 'vue-class-component'
 
-export default Vue.extend({
-  name: 'ROptionButton',
+const ComponentProps = Vue.extend({
   props: {
     color: {
       type: String as PropType<string>,
@@ -27,6 +27,11 @@ export default Vue.extend({
     }
   }
 })
+
+@Component({
+  name: 'ROptionButton'
+})
+export default class RUnreadMessageCount extends ComponentProps {}
 </script>
 
 <style scoped>

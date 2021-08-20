@@ -6,9 +6,9 @@
 
 <script lang="ts">
 import Vue, { PropType } from 'vue'
+import Component from 'vue-class-component'
 
-export default Vue.extend({
-  name: 'RForwardMessage',
+const ComponentProps = Vue.extend({
   props: {
     text: {
       type: String as PropType<string>,
@@ -16,6 +16,11 @@ export default Vue.extend({
     }
   }
 })
+
+@Component({
+  name: 'RForwardMessage'
+})
+export default class RAlphabetBlock extends ComponentProps {}
 </script>
 
 <style scoped>

@@ -11,6 +11,7 @@ module.exports = {
   },
   plugins: ['vue', '@typescript-eslint'],
   rules: {
-    'no-undef': 'off'
+    'no-undef': 'off',
+    camelcase: 'off'
   }
 }

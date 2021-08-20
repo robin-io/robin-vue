@@ -7,33 +7,38 @@
 
 <script lang="ts">
 import Vue, { PropType } from 'vue'
+import Component from 'vue-class-component'
 
-export default Vue.extend({
-  name: 'RMessageCheckBox',
+const ComponentProps = Vue.extend({
   props: {
     color: {
       type: String as PropType<string>,
       default: '#15AE73'
     }
-  },
-  data: () => ({
-    root: null as any
-  }),
-  mounted(): void {
-    this.root = document.documentElement
-    this.setRootVariables()
-  },
+  }
+})
+
+// eslint-disable-next-line
+@Component<RMessageCheckBox>({
+  name: 'RMessageCheckBox',
   watch: {
     color(): void {
       this.setRootVariables()
     }
-  },
-  methods: {
-    setRootVariables(): void {
-      this.root.style.setProperty('--checkbox-color', this.color)
-    }
   }
 })
+export default class RMessageCheckBox extends ComponentProps {
+  root = null as any
+
+  mounted(): void {
+    this.root = document.documentElement
+    this.setRootVariables()
+  }
+
+  setRootVariables(): void {
+    this.root.style.setProperty('--checkbox-color', this.color)
+  }
+}
 </script>
 
 <style scoped>

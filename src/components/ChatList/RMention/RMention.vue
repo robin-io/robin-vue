@@ -15,31 +15,36 @@
 
 <script lang="ts">
 import Vue, { PropType } from 'vue'
+import Component from 'vue-class-component'
 
-export default Vue.extend({
-  name: 'RMention',
+const ComponentProps = Vue.extend({
   props: {
     color: {
       type: String as PropType<string>,
       default: '#15AE73'
     }
-  },
-  data: () => ({
-    root: null as any
-  }),
-  mounted(): void {
-    this.root = document.documentElement
-    this.setRootVariables()
-  },
+  }
+})
+
+// eslint-disable-next-line
+@Component<RMention>({
+  name: 'RMention',
   watch: {
     color(): void {
       this.setRootVariables()
     }
-  },
-  methods: {
-    setRootVariables(): void {
-      this.root.style.setProperty('--color', this.color)
-    }
   }
 })
+export default class RMention extends ComponentProps {
+  root = null as any
+
+  mounted(): void {
+    this.root = document.documentElement
+    this.setRootVariables()
+  }
+
+  setRootVariables(): void {
+    this.root.style.setProperty('--color', this.color)
+  }
+}
 </script>

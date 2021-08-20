@@ -1,5 +1,10 @@
 <template>
-  <svg viewBox="0 0 687 534" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg
+    viewBox="0 0 687 534"
+    fill="none"
+    class="robin-bounceIn"
+    xmlns="http://www.w3.org/2000/svg"
+  >
     <g id="No Chat History">
       <path
         id="Fill 1"
@@ -154,33 +159,38 @@
 
 <script lang="ts">
 import Vue, { PropType } from 'vue'
+import Component from 'vue-class-component'
 
-export default Vue.extend({
-  name: 'RNoChatIcon',
+const ComponentProps = Vue.extend({
   props: {
     color: {
       type: String as PropType<string>,
       default: '#15AE73'
     }
-  },
-  data: () => ({
-    root: null as any
-  }),
-  mounted(): void {
-    this.root = document.documentElement
-    this.setRootVariables()
-  },
+  }
+})
+
+// eslint-disable-next-line
+@Component<RNoChatIcon>({
+  name: 'RNoChatIcon',
   watch: {
     color(): void {
       this.setRootVariables()
     }
-  },
-  methods: {
-    setRootVariables(): void {
-      this.root.style.setProperty('--color', this.color)
-    }
   }
 })
+export default class RNoChatIcon extends ComponentProps {
+  root = null as any
+
+  mounted(): void {
+    this.root = document.documentElement
+    this.setRootVariables()
+  }
+
+  setRootVariables(): void {
+    this.root.style.setProperty('--color', this.color)
+  }
+}
 </script>
 
 <style scoped>

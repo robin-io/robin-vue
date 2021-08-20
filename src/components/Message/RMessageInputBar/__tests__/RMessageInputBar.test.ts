@@ -26,6 +26,18 @@ describe('RMessageInputBar', () => {
     await input.trigger('input')
     expect(wrapper.vm.$data.text).toBe('N')
   })
+
+  it('When input  is trigger in component, check if text is emitted in component.', async () => {
+    const wrapper = mount(RMessageInputBar, {
+      attachTo: document.body
+    })
+    const input = wrapper.find('.robin-input')
+    const inputEl = input.element as HTMLElement
+
+    inputEl.innerText = 'N'
+    await input.trigger('input')
+    expect(wrapper.emitted('usertyping')![0][0]).toBe('N')
+  })
 })
 
 // let input = wrapper.find('input').element

@@ -48,11 +48,16 @@
         </div>
       </div>
       <div class="robin-message-box">
-        <RMessageInputBar />
-        <div class="robin-pl-25">
+        <RMessageInputBar @usertyping="userTyping" />
+
+        <div class="robin-pl-21" v-show="text != ''">
+          <RSendButton />
+        </div>
+
+        <div class="robin-pl-25" v-show="text == ''">
           <RAttachFileButton />
         </div>
-        <div class="robin-pl-21">
+        <div class="robin-pl-21" v-show="text == ''">
           <RVoiceRecorderButton />
         </div>
       </div>
@@ -62,26 +67,36 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
 import RPersonalChatHeader from '../RPersonalChatHeader/RPersonalChatHeader.vue'
 import RMessageInputBar from '../RMessageInputBar/RMessageInputBar.vue'
+import RSendButton from '../RSendButton/RSendButton.vue'
 import RVoiceRecorderButton from '../RVoiceRecorderButton/RVoiceRecorderButton.vue'
 import RAttachFileButton from '../RAttachFileButton/RAttachFileButton.vue'
 import RText from '@/components/ChatList/RText/RText.vue'
 import RUnreadMessageBar from '../RUnreadMessagesBar/RUnreadMessagesBar.vue'
 import RMessageCheckBox from '../RMessageCheckBox/RMessageCheckBox.vue'
 
-export default Vue.extend({
-  name: 'RMessageContainer',
+@Component({
+  name: 'RPersonalMessageContainer',
   components: {
     RPersonalChatHeader,
     RText,
     RMessageInputBar,
+    RSendButton,
     RAttachFileButton,
     RVoiceRecorderButton,
     RUnreadMessageBar,
     RMessageCheckBox
   }
 })
+export default class RPersonalMessageContainer extends Vue {
+  text = ''
+
+  userTyping(val: string): void {
+    this.text = val
+  }
+}
 </script>
 
 <style scoped>

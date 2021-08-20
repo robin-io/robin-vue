@@ -11,9 +11,9 @@
 
 <script lang="ts">
 import Vue, { PropType } from 'vue'
+import Component from 'vue-class-component'
 
-export default Vue.extend({
-  name: 'RTextButton',
+const ComponentProps = Vue.extend({
   props: {
     text: {
       type: String as PropType<string>,
@@ -35,30 +35,34 @@ export default Vue.extend({
       type: String as PropType<string>,
       default: 'archived'
     }
-  },
-  data: () => ({
-    root: null as any
-  }),
+  }
+})
+
+@Component({
+  name: 'RTextButton'
+})
+export default class RTextButton extends ComponentProps {
+  root = null as any
+
   mounted(): void {
     this.root = document.documentElement
     // this.getStyles()
-  },
-  computed: {
-    getStyles(): Object {
-      let rootFontSize = 16 // default
+  }
 
-      if (this.root && this.root.style.fontSize !== '') {
-        rootFontSize = this.root.style.fontSize
-      }
+  get getStyles(): Object {
+    let rootFontSize = 16 // default
 
-      return {
-        'font-size': this.fontSize / rootFontSize + 'rem',
-        color: this.color,
-        'font-weight': this.fontWeight
-      }
+    if (this.root && this.root.style.fontSize !== '') {
+      rootFontSize = this.root.style.fontSize
+    }
+
+    return {
+      'font-size': this.fontSize / rootFontSize + 'rem',
+      color: this.color,
+      'font-weight': this.fontWeight
     }
   }
-})
+}
 </script>
 
 <style scoped>

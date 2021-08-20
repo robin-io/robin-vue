@@ -21,9 +21,9 @@
 
 <script lang="ts">
 import Vue, { PropType } from 'vue'
+import Component from 'vue-class-component'
 
-export default Vue.extend({
-  name: 'RText',
+const ComponentProps = Vue.extend({
   props: {
     as: {
       type: String as PropType<string>,
@@ -60,37 +60,41 @@ export default Vue.extend({
       type: String as PropType<string>,
       default: 'max-content'
     }
-  },
-  data: () => ({
-    root: null as any
-  }),
+  }
+})
+
+@Component({
+  name: 'RText'
+})
+export default class RText extends ComponentProps {
+  root = null as any
+
   mounted(): void {
     this.root = document.documentElement
     // this.getStyles()
-  },
-  computed: {
-    getStyles(): Object {
-      let rootFontSize = 16 // default
+  }
 
-      if (this.root && this.root.style.fontSize !== '') {
-        rootFontSize = this.root.style.fontSize
-      }
+  get getStyles(): Object {
+    let rootFontSize = 16 // default
 
-      return {
-        'font-size': this.fontSize / rootFontSize + 'rem',
-        color: this.color,
-        'font-weight': this.fontWeight,
-        'line-height':
-          this.lineHeight === 0
-            ? 'initial'
-            : this.lineHeight / rootFontSize + 'rem',
-        'white-space': this.textWrap,
-        'max-width':
-          this.maxWidth === 'max-content' ? this.maxWidth : this.maxWidth + 'px'
-      }
+    if (this.root && this.root.style.fontSize !== '') {
+      rootFontSize = this.root.style.fontSize
+    }
+
+    return {
+      'font-size': this.fontSize / rootFontSize + 'rem',
+      color: this.color,
+      'font-weight': this.fontWeight,
+      'line-height':
+        this.lineHeight === 0
+          ? 'initial'
+          : this.lineHeight / rootFontSize + 'rem',
+      'white-space': this.textWrap,
+      'max-width':
+        this.maxWidth === 'max-content' ? this.maxWidth : this.maxWidth + 'px'
     }
   }
-})
+}
 </script>
 
 <style scoped>

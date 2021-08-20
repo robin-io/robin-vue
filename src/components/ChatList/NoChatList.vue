@@ -66,6 +66,7 @@ header {
 }
 
 .robin-wrapper {
-  padding: 0 1.5rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
 }
 </style>

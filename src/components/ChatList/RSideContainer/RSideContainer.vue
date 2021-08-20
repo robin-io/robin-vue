@@ -1,7 +1,10 @@
 <template>
   <div class="robin-chat-list-container">
     <PrimaryChatList
-      v-show="sideBarType == 'primary'"
+      v-show="
+        conversations && conversations.length > 0 && sideBarType == 'primary'
+      "
+      :conversations="conversations"
       @changesidebartype="changeSideBarType"
     />
     <NewChatList
@@ -9,7 +12,9 @@
       @changesidebartype="changeSideBarType"
     />
     <NoChatList
-      v-show="sideBarType == 'nochat'"
+      v-show="
+        (!conversations || conversations.length < 1) && sideBarType == 'primary'
+      "
       @changesidebartype="changeSideBarType"
     />
     <NewGroupChatList
@@ -25,13 +30,23 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
 import PrimaryChatList from '../PrimaryChatList.vue'
 import NewChatList from '../NewChatList.vue'
 import NoChatList from '../NoChatList.vue'
 import NewGroupChatList from '../NewGroupChatList.vue'
 import ArchivedChatList from '../ArchivedChatList.vue'
 
-export default Vue.extend({
+const ComponentProps = Vue.extend({
+  props: {
+    user_token: {
+      type: String,
+      default: () => ''
+    }
+  }
+})
+
+@Component({
   name: 'RSideContainer',
   components: {
     PrimaryChatList,
@@ -39,16 +54,31 @@ export default Vue.extend({
     NoChatList,
     NewGroupChatList,
     ArchivedChatList
-  },
-  data: () => ({
-    sideBarType: 'primary'
-  }),
-  methods: {
-    changeSideBarType(val: string): void {
-      this.sideBarType = val
-    }
   }
 })
+export default class RSideContainer extends ComponentProps {
+  created() {
+    this.getUserToken()
+  }
+
+  sideBarType = 'primary'
+  conversations = []
+
+  changeSideBarType(val: string): void {
+    this.sideBarType = val
+  }
+
+  async getUserToken() {
+    console.log(this.$robin)
+    const res = await this.$robin.getUserToken({
+      user_token: this.user_token
+    })
+    if (!res.error) {
+      this.conversations = res.data.conversations
+    }
+    console.log(res)
+  }
+}
 </script>
 
 <style scoped>

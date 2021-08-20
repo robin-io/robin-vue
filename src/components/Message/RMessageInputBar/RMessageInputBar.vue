@@ -17,27 +17,29 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
 import REmojiButton from '../REmojiButton/REmojiButton.vue'
 
-export default Vue.extend({
+@Component({
   name: 'RMessageInputBar',
   components: {
     REmojiButton
-  },
-  data: () => ({
-    text: '' as string
-  }),
-  methods: {
-    userTyping(event: any): void {
-      const element = event.target as HTMLElement
-      this.text = element?.innerText
-    },
-    handleFocus(): void {
-      const input = this.$refs.input as HTMLElement
-      input?.focus()
-    }
   }
 })
+export default class RMessageInputBar extends Vue {
+  text = '' as string
+
+  userTyping(event: any): void {
+    const element = event.target as HTMLElement
+    this.text = element?.innerText
+    this.$emit('usertyping', this.text)
+  }
+
+  handleFocus(): void {
+    const input = this.$refs.input as HTMLElement
+    input?.focus()
+  }
+}
 </script>
 
 <style scoped>
@@ -74,6 +76,7 @@ export default Vue.extend({
   overflow-x: hidden;
   white-space: pre-wrap;
   word-wrap: break-word;
+  text-align: left;
 }
 
 .robin-placeholder {
