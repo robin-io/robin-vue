@@ -46,6 +46,6 @@ export default class RVoiceRecorderButton extends ComponentProps {}
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background-color: var(--bg-color);
+  background-color: var(--primary-color);
 } */
 </style>

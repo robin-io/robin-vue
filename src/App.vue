@@ -1,7 +1,8 @@
 <template>
   <div class="robin-container">
-    <RSideContainer v-show="!isPageLoading" :user_token="user_token" />
-    <RGroupMessageContainer v-show="!isPageLoading" />
+    <RSideContainer @coversationopened="conversationOpened = true" v-show="!isPageLoading" :user_token="user_token" />
+    <RGroupMessageContainer v-show="!isPageLoading && conversationOpened" />
+    <RNoMessageSelected v-show="!isPageLoading && !conversationOpened" />
     <RPageLoader v-show="isPageLoading" />
   </div>
 </template>
@@ -10,9 +11,10 @@
 import Vue, { PropType } from 'vue'
 import RSideContainer from './components/ChatList/RSideContainer/RSideContainer.vue'
 import RGroupMessageContainer from './components/Message/RGroupMessageContainer/RGroupMessageContainer.vue'
+import RNoMessageSelected from './components/Message/RNoMessageSelected.vue'
 import RPageLoader from './components/RPageLoader.vue'
 import Component from 'vue-class-component'
-import { State, Mutation } from 'vuex-class'
+import { State } from 'vuex-class'
 import { RootState } from './utils/types'
 import { Robin } from 'robin.io-js'
 import EventBus from './event-bus'
@@ -65,15 +67,16 @@ const ComponentProps = Vue.extend({
   components: {
     RSideContainer,
     RGroupMessageContainer,
-    RPageLoader
+    RPageLoader,
+    RNoMessageSelected
   }
 })
 export default class App extends ComponentProps {
   @State('isPageLoading') isPageLoading?: RootState
-  @Mutation('setPageLoading') setPageLoading: any
 
   robin = null as any
   conn = null as any
+  conversationOpened = false as boolean
 
   created (): void {
     const filteredUsers: Array<any> = []
@@ -90,20 +93,16 @@ export default class App extends ComponentProps {
   }
 
   initiateRobin () {
-    this.setPageLoading(true)
     this.robin = new Robin(this.api_key, true)
     this.connect()
     this.setPrototypes()
-
-    if (this.robin) {
-      this.setPageLoading(false)
-    }
   }
 
   setPrototypes () {
     Vue.prototype.$robin = this.robin
     Vue.prototype.$user_token = this.user_token
     Vue.prototype.$channel = this.channel
+    Vue.prototype.$conversations = []
 
     console.log(this.robin, this.$robin, this.conn)
   }

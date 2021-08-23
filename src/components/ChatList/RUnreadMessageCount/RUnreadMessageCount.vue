@@ -26,7 +26,7 @@ const ComponentProps = Vue.extend({
 @Component<RUnreadMessageCount>({
   name: 'RUnreadMessageCount',
   watch: {
-    backgroundColor(): void {
+    backgroundColor (): void {
       this.setRootVariables()
     }
   }
@@ -34,20 +34,20 @@ const ComponentProps = Vue.extend({
 export default class RUnreadMessageCount extends ComponentProps {
   root = null as any
 
-  mounted(): void {
+  mounted (): void {
     this.root = document.documentElement
     this.setRootVariables()
   }
 
-  setRootVariables(): void {
-    this.root.style.setProperty('--bg-color', this.backgroundColor)
+  setRootVariables (): void {
+    this.root.style.setProperty('--primary-color', this.backgroundColor)
   }
 }
 </script>
 
 <style scoped>
 .robin-unread-messages {
-  background-color: var(--bg-color);
+  background-color: var(--primary-color);
   font-size: 0.875rem;
   border-radius: 20px;
   font-weight: 100;

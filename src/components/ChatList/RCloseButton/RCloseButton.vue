@@ -16,12 +16,16 @@
   </button>
 </template>
 
-<script>
+<script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
 
-export default Vue.extend({
+@Component({
   name: 'RCloseButton'
 })
+
+export default class RCloseButton extends Vue {
+}
 </script>
 
 <style scoped>

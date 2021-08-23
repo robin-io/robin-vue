@@ -116,6 +116,6 @@ header {
   background-color: #f0f3f5;
   border-radius: 4px;
   cursor: pointer;
-  padding: 1rem 0.75rem 1.1rem;
+  /* padding: 1rem 0.75rem 1.1rem; */
 }
 </style>

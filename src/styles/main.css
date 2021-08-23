@@ -1,3 +1,10 @@
+:root {
+  --primary-focus-color: rgba(21, 174, 115, 0.1);
+  --secondary-focus-color: rgba(83, 95, 137, 0.1);
+  --checkbox-color: rgba(21, 174, 115, 1);
+  --primary-color: rgba(21, 174, 115, 1);
+}
+
 @font-face {
   font-family: 'Google Sans';
   font-style: normal;
@@ -98,6 +105,10 @@
   margin-left: auto;
 }
 
+.robin-ml-10 {
+  margin-left: 0.625rem;
+}
+
 .robin-mr-12 {
   margin-right: 0.75rem;
 }
@@ -132,6 +143,10 @@
 
 .robin-flex-justify-end {
   justify-content: flex-end;
+}
+
+.robin-flex-justify-center {
+  justify-content: center;
 }
 
 .robin-w-100 {
@@ -222,6 +237,30 @@
   margin-top: 1.125rem;
 }
 
+.robin-pl-10 {
+  padding-left: 0.625rem;
+}
+
+.robin-pl-3 {
+  padding-left: 0.188rem;
+}
+
+.robin-pr-3 {
+ padding-right: 0.188rem;
+}
+
+.robin-pr-2 {
+ padding-right: 0.125rem;
+}
+
+.robin-hidden {
+  display: none;
+}
+
+.robin-relative {
+  position: relative;
+}
+
 /* animations */
 
 @keyframes bounceIn {
@@ -272,6 +311,15 @@
   }
 }
 
+@keyframes spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
 @-webkit-keyframes spin {
   0% {
     -webkit-transform: rotate(0deg);
@@ -281,11 +329,8 @@
   }
 }
 
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
+@keyframes spinner {
+  to {
     transform: rotate(360deg);
   }
 }
@@ -302,6 +347,37 @@
   }
 }
 
+@keyframes slideInRight {
+  from {
+    transform: translate3d(100%, 0, 0);
+    visibility: visible;
+  }
+
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes zoom-in {
+  from {
+    transform: scale(0);
+  }
+
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes zoom-out {
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(0);
+  }
+}
+
 .robin-bounceIn {
   animation: bounceIn 0.9s;
   -webkit-animation: bounceIn 0.9s;
@@ -310,4 +386,22 @@
 .robin-come-up {
   animation: come-up 0.3s ease-in-out;
   -webkit-animation: come-up 0.3s ease-in-out;
+}
+
+.robin-spinner {
+  animation: spinner 600ms linear infinite;
+  height: 40px;
+  width: 40px;
+  background: transparent;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: var(--primary-color);
+}
+
+.robin-zoomIn {
+  animation: zoom-in 300ms ease-in-out forwards;
+}
+
+.robin-zoomOut {
+  animation: zoom-out 300ms ease-in-out forwards;
 }

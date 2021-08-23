@@ -1,18 +1,33 @@
 <template>
-  <div class="robin-message-input">
-    <div class="robin-mt-4">
-      <REmojiButton />
+  <div class="robin-message-box">
+    <div class="robin-message-input">
+      <div class="robin-mt-4">
+        <REmojiButton />
+      </div>
+      <div class="robin-input-wrapper" tabindex="1" @focus="handleFocus()">
+        <textarea
+          class="robin-input"
+          ref="input"
+          v-model="text"
+          @keydown.enter.exact.prevent
+          @keyup.enter="sendMessage($event)"
+          placeholder="Type a message..."
+        ></textarea>
+      </div>
     </div>
-    <div class="robin-input-wrapper" tabindex="1" @focus="handleFocus()">
-      <input
-        class="robin-input"
-        contenteditable="true"
-        ref="input"
-        @keypress.enter="sendMessage()"
-        v-model="text"
-        placeholder="Type a message..."
-      >
-      <div class="robin-placeholder"></div>
+
+    <div class="robin-pl-21" v-show="text != ''">
+      <RSendButton @sendmessage="sendMessage()" />
+    </div>
+
+    <div class="robin-pl-25" v-show="text == ''" @click="handleOpenPopUp()">
+      <RAttachFileButton @clickoutside="handleClosePopUp()" />
+    </div>
+    <div class="robin-pl-21" v-show="text == ''">
+      <RVoiceRecorderButton />
+    </div>
+    <div class="robin-popup-container" v-show="popUpState.opened">
+      <RAttachFilePopOver ref="popup-1" />
     </div>
   </div>
 </template>
@@ -20,7 +35,11 @@
 <script lang="ts">
 import Vue from 'vue'
 import Component from 'vue-class-component'
+import RSendButton from '../RSendButton/RSendButton.vue'
+import RVoiceRecorderButton from '../RVoiceRecorderButton/RVoiceRecorderButton.vue'
+import RAttachFileButton from '../RAttachFileButton/RAttachFileButton.vue'
 import REmojiButton from '../REmojiButton/REmojiButton.vue'
+import RAttachFilePopOver from '../RAttachFilePopOver/RAttachFilePopOver.vue'
 
 const ComponentProps = Vue.extend({
   props: {
@@ -34,40 +53,80 @@ const ComponentProps = Vue.extend({
 @Component({
   name: 'RMessageInputBar',
   components: {
-    REmojiButton
+    REmojiButton,
+    RSendButton,
+    RAttachFileButton,
+    RVoiceRecorderButton,
+    RAttachFilePopOver
   }
 })
-
 export default class RMessageInputBar extends ComponentProps {
   text = '' as string
-
-  sendMessage () {
-    this.$robin.sendMessageToConversation(
-      {
-        msg: this.text,
-        sender_token: this.$user_token,
-        receiver_token: this.conversation.receiver_token,
-        timestamp: new Date()
-      },
-      this.$conn, this.$channel, this.conversation._id)
-    console.log(this.text)
-    this.text = ''
+  popUpState = {
+    opened: false
   }
 
-  userTyping (event: any): void {
-    const element = event.target as HTMLElement
-    this.text = element?.innerText
-    // this.$emit('usertyping', this.text)
+  sendMessage (event: any) {
+    if (event.ctrlKey) {
+      console.log(event, 'ctrl')
+      this.addNewLine()
+    } else {
+      console.log(event, 'none')
+      this.$robin.sendMessageToConversation(
+        {
+          msg: this.text,
+          sender_token: this.$user_token,
+          receiver_token: this.conversation.receiver_token,
+          timestamp: new Date()
+        },
+        this.$conn,
+        this.$channel,
+        this.conversation._id
+      )
+      this.text = ''
+    }
   }
 
-  handleFocus (): void {
-    const input = this.$refs.input as HTMLElement
-    input?.focus()
+  addNewLine (): void {
+    const input = this.$refs.input as HTMLInputElement
+    if (input) {
+      input.innerHTML += '&#13;&#10;'
+    }
+  }
+
+  handleOpenPopUp (): void {
+    const popup = this.$refs['popup-1'] as any
+    popup.$refs['popup-body'].classList.remove('robin-zoomOut')
+
+    this.popUpState.opened = true
+  }
+
+  handleClosePopUp (): void {
+    const popup = this.$refs['popup-1'] as any
+    popup.$refs['popup-body'].classList.add('robin-zoomOut')
+
+    window.setTimeout(() => {
+      const popup = this.$refs['popup-1'] as any
+      popup.$refs['popup-body'].classList.remove('robin-zoomOut')
+
+      this.popUpState.opened = false
+    }, 300)
   }
 }
 </script>
 
 <style scoped>
+.robin-message-box {
+  width: 100%;
+  height: 44px;
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  box-shadow: 0px 0px 20px rgba(0, 104, 255, 0.07);
+  padding: 2.875rem 2.688rem 2.875rem 3.125rem;
+  position: relative;
+}
+
 /* Input styles */
 .robin-message-input {
   flex: 1;
@@ -77,7 +136,7 @@ export default class RMessageInputBar extends ComponentProps {
   display: flex;
   align-items: center;
   padding: 0 0 0 2.063rem;
-  transition: background-color 0.1s;
+  transition: background-color 200ms;
 }
 
 .robin-message-input:focus-within {
@@ -91,17 +150,22 @@ export default class RMessageInputBar extends ComponentProps {
 
 .robin-input {
   width: 100%;
+  min-width: 100%;
   min-height: 44px;
   max-height: 44px;
   background-color: transparent;
   border: none;
   font-size: 0.875rem;
-  padding: 0.9rem 0 0 0.625rem;
+  /* padding: 0.9rem 0 0 0.625rem; */
   overflow-y: auto;
   overflow-x: hidden;
   white-space: pre-wrap;
   word-wrap: break-word;
   text-align: left;
+
+  /* textarea */
+  resize: none;
+  padding: 1rem 0 0 0.625rem;
 }
 
 .robin-placeholder {
@@ -116,9 +180,16 @@ export default class RMessageInputBar extends ComponentProps {
   color: #bbc1d6;
 }
 
-.robin-input:empty + .robin-placeholder {
-  opacity: 1;
+.robin-popup-container {
+  position: absolute;
+  top: -140px;
+  right: 89px;
+  z-index: 100;
 }
+
+/* .robin-input:empty + .robin-placeholder {
+  opacity: 1;
+} */
 
 /* Input focus */
 .robin-input:focus {

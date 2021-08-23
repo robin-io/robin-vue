@@ -1,5 +1,5 @@
 <template>
-  <Button class="robin-button">
+  <Button class="robin-button" @click="$emit('sendmessage')">
     <svg
       width="20"
       height="20"

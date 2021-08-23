@@ -7,7 +7,7 @@ Vue.use(Vuex)
 
 const store: StoreOptions<RootState> = {
   state: {
-    isPageLoading: false
+    isPageLoading: true
   },
   mutations
 }

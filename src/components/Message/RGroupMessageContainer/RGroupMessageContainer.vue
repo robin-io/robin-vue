@@ -4,79 +4,67 @@
     <div
       class="robin-wrapper robin-flex robin-flex-column robin-flex-space-between"
     >
-      <div class="robin-inner-wrapper">
-        <div v-for="message in messages"
-        :key="message._id">
-          <div
-            class="robin-message-bubble robin-message-sender robin-flex robin-flex-wrap"
-            v-if="message.content.receiver_token === $userToken"
+      <Promised :promise="promise">
+        <template v-slot:pending
           >
-            <RText
-            v-if="conversation.isGroup"
-              text="Precious Ogar"
-              :fontSize="12"
-              color="#15AE73"
-              as="span"
-              :lineHeight="20"
-            />
-            <RText
-              :text="message.content.msg"
-              :fontSize="16"
-              :textWrap="'normal'"
-              as="span"
-            />
-            <span
-              class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto"
-            >
-              <RText :text="formatTimeStamp(message.content.timestamp)" :fontSize="14" color="#7a7a7a" as="p" />
-            </span>
+          <div class="robin-inner-wrapper robin-flex robin-flex-align-center">
+            <div class="robin-spinner"></div>
           </div>
-          <!-- <RUnreadMessageBar :number="1" /> -->
-          <div
-            class="robin-message-bubble robin-message-receiver robin-flex robin-flex-wrap robin-ml-auto"
-            v-else
-          >
-            <RText
-              :text="message.content.msg"
-              :fontSize="16"
-              as="span"
-            />
-            <span
-              class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto"
+        </template>
+        <template v-slot:default>
+          <div class="robin-inner-wrapper" ref="messages">
+            <div
+              class="robin-message-bubble robin-flex robin-flex-wrap"
+              :class="
+                message.content.receiver_token === $user_token
+                  ? 'robin-message-sender'
+                  : 'robin-message-receiver robin-ml-auto'
+              "
+              v-for="message in messages"
+              :key="message._id"
             >
-              <RText :text="formatTimeStamp(message.content.timestamp)" :fontSize="14" color="#7a7a7a" as="p" />
-            </span>
+              <RText
+                v-if="conversation.isGroup"
+                text="Precious Ogar"
+                :fontSize="12"
+                color="#15AE73"
+                as="span"
+                :lineHeight="20"
+              />
+              <RText
+                :text="message.content.msg"
+                :fontSize="16"
+                :textWrap="'normal'"
+                as="span"
+              />
+              <span
+                class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto"
+              >
+                <RText
+                  :text="formatTimeStamp(message.content.timestamp)"
+                  :fontSize="14"
+                  color="#7a7a7a"
+                  as="p"
+                />
+              </span>
+            </div>
           </div>
-        </div>
-      </div>
+        </template>
+      </Promised>
+      <!-- <RUnreadMessageBar :number="1" /> -->
     </div>
-    <div class="robin-message-box">
-        <RMessageInputBar @usertyping="userTyping" :conversation="conversation" />
-
-        <div class="robin-pl-21" v-show="text != ''">
-          <RSendButton />
-        </div>
-
-        <div class="robin-pl-25" v-show="text == ''">
-          <RAttachFileButton />
-        </div>
-        <div class="robin-pl-21" v-show="text == ''">
-          <RVoiceRecorderButton />
-        </div>
-      </div>
+    <RMessageInputBar :conversation="conversation" />
     <!-- <RForwardMessage /> -->
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
+import { Promised } from 'vue-promised'
 import EventBus from '@/event-bus'
 import Component from 'vue-class-component'
 import RGroupChatHeader from '../RGroupChatHeader/RGroupChatHeader.vue'
 import RMessageInputBar from '../RMessageInputBar/RMessageInputBar.vue'
-import RSendButton from '../RSendButton/RSendButton.vue'
-import RVoiceRecorderButton from '../RVoiceRecorderButton/RVoiceRecorderButton.vue'
-import RAttachFileButton from '../RAttachFileButton/RAttachFileButton.vue'
 import RText from '@/components/ChatList/RText/RText.vue'
 import moment from 'moment'
 // import RUnreadMessageBar from '../RUnreadMessagesBar/RUnreadMessagesBar.vue'
@@ -88,9 +76,7 @@ import moment from 'moment'
     RGroupChatHeader,
     RText,
     RMessageInputBar,
-    RSendButton,
-    RAttachFileButton,
-    RVoiceRecorderButton
+    Promised
     // RUnreadMessageBar
     // RForwardMessage
   }
@@ -99,12 +85,13 @@ export default class RGroupMessageContainer extends Vue {
   text = ''
   conversation = {} as any
   messages = [] as any
+  promise = null as any
 
   created () {
     EventBus.$on('conversation-opened', (conversation: any) => {
       this.messages = []
       this.conversation = conversation
-      this.getConversationMessages(conversation._id)
+      this.promise = this.getConversationMessages(conversation._id)
     })
     EventBus.$on('new-message', (message: any) => {
       if (message.conversation_id === this.conversation._id) {
@@ -123,9 +110,7 @@ export default class RGroupMessageContainer extends Vue {
   }
 
   formatTimeStamp (value: any) {
-    return moment(String(value))
-      .format('h:mma')
-      .toUpperCase()
+    return moment(String(value)).format('h:mma').toUpperCase()
   }
 
   async getConversationMessages (id: string) {
@@ -136,11 +121,14 @@ export default class RGroupMessageContainer extends Vue {
     }
 
     console.log(this.messages)
+    this.scrollToBottom()
   }
 
-  userTyping (val: string): void {
-    this.text = val
-    console.log(val)
+  scrollToBottom () {
+    window.setTimeout(() => {
+      const messages = this.$refs.messages as HTMLElement
+      messages.scrollTop = 10000000
+    }, 100)
   }
 }
 </script>
@@ -152,6 +140,7 @@ export default class RGroupMessageContainer extends Vue {
   height: 100%;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   position: relative;
   /* box-shadow: 0px 0px 20px rgba(0, 104, 255, 0.07); */
 }
@@ -159,7 +148,8 @@ export default class RGroupMessageContainer extends Vue {
 .robin-wrapper {
   flex: 1;
   height: 100%;
-  overflow: scroll;
+  overflow-y: hidden;
+  background-color: #fafafa;
 }
 
 .robin-inner-wrapper {
@@ -167,20 +157,10 @@ export default class RGroupMessageContainer extends Vue {
   flex-direction: column;
   flex: 1;
   width: 100%;
-  height: 100vh;
-  background-color: #fafafa;
+  height: 100%;
   padding: 2.688rem 2.688rem 1.25rem 3.125rem;
+  overflow-y: auto;
   scroll-behavior: smooth;
-}
-
-.robin-message-box {
-  width: 100%;
-  height: 44px;
-  background-color: #fff;
-  display: flex;
-  align-items: center;
-  box-shadow: 0px 0px 20px rgba(0, 104, 255, 0.07);
-  padding: 2.875rem 2.688rem 2.875rem 3.125rem;
 }
 
 /* Bubble styles */

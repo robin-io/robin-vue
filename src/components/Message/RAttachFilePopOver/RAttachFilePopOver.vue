@@ -1,5 +1,5 @@
 <template>
-  <div class="robin-popup-container">
+  <div class="robin-popup robin-zoomIn" ref="popup-body">
     <div class="robin-wrapper robin-w-100">
       <div class="robin-mr-9">
         <RPhotoButton />
@@ -40,9 +40,9 @@ export default Vue.extend({
 </script>
 
 <style scoped>
-.robin-popup-container {
-  width: 100%;
-  max-width: 178px;
+.robin-popup {
+  width: 178px;
+  /* max-width: 178px; */
   padding: 0.5rem 0.75rem;
   border: 1px solid rgba(35, 107, 248, 0.2);
   border-radius: 24px;
@@ -54,9 +54,18 @@ export default Vue.extend({
   padding: 0.813rem 0.5rem;
   display: flex;
   align-items: center;
+  cursor: pointer;
+}
+
+.robin-wrapper:hover {
+  background-color: rgba(244, 246, 248, 0.8);
 }
 
 .robin-wrapper:first-child {
   border: none;
+}
+
+.robin-zoomIn, .robin-zoomOut {
+  transform-origin: bottom right;
 }
 </style>

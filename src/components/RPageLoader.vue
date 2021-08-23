@@ -11,7 +11,7 @@
           as="h2"
           color="#fff"
           fontWeight="'bold'"
-          :fontSize="20"
+          :fontSize="24"
         />
       </div>
     </div>

@@ -1,5 +1,5 @@
 <template>
-  <button class="robin-button" type="button" @click="$emit('close')">
+  <button class="robin-button" type="button" @click="$emit('open')" v-on-clickaway="emitClickAway">
     <svg
       width="20"
       height="20"
@@ -20,6 +20,7 @@
 
 <script lang="ts">
 import Vue, { PropType } from 'vue'
+import { mixin as clickaway } from 'vue-clickaway'
 import Component from 'vue-class-component'
 
 const ComponentProps = Vue.extend({
@@ -27,21 +28,59 @@ const ComponentProps = Vue.extend({
     color: {
       type: String as PropType<string>,
       default: '#535F89'
+    },
+    focusColor: {
+      type: String as PropType<string>,
+      default: 'rgba(83, 95, 137, 0.1)'
     }
   }
 })
 
 @Component({
-  name: 'RAttachFileButton'
+  name: 'RAttachFileButton',
+  mixins: [clickaway]
 })
-export default class RAttachFileButton extends ComponentProps {}
+export default class RAttachFileButton extends ComponentProps {
+  root = null as any
+
+  mounted (): void {
+    this.root = document.documentElement
+    this.setRootVariables()
+  }
+
+  setRootVariables (): void {
+    this.root.style.setProperty('--primary-focus-color', this.focusColor)
+  }
+
+  emitClickAway (): void {
+    this.$emit('clickoutside')
+  }
+}
 </script>
 
 <style scoped>
 .robin-button {
   cursor: pointer;
+  width: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: none;
+  border-radius: 50%;
+  height: 30px;
   background-color: transparent;
-  width: max-content;
+  transition: background-color 0.1s;
+}
+
+button:focus {
+  background-color: var(--primary-focus-color);
+}
+
+svg path {
+  transition: stroke 0.1s;
+}
+
+button:focus svg path {
+  stroke: var(--primary-color);
 }
 </style>
