@@ -69,12 +69,12 @@ const ComponentProps = Vue.extend({
 export default class RText extends ComponentProps {
   root = null as any
 
-  mounted (): void {
+  mounted(): void {
     this.root = document.documentElement
     // this.getStyles()
   }
 
-  get getStyles (): Object {
+  get getStyles(): Object {
     let rootFontSize = 16 // default
 
     if (this.root && this.root.style.fontSize !== '') {

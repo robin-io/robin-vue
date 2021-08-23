@@ -23,9 +23,7 @@ import Component from 'vue-class-component'
 @Component({
   name: 'RCloseButton'
 })
-
-export default class RCloseButton extends Vue {
-}
+export default class RCloseButton extends Vue {}
 </script>
 
 <style scoped>

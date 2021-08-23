@@ -41,6 +41,10 @@ import RAttachFileButton from '../RAttachFileButton/RAttachFileButton.vue'
 import REmojiButton from '../REmojiButton/REmojiButton.vue'
 import RAttachFilePopOver from '../RAttachFilePopOver/RAttachFilePopOver.vue'
 
+interface PopUpState {
+  opened: boolean
+}
+
 const ComponentProps = Vue.extend({
   props: {
     conversation: {
@@ -62,7 +66,7 @@ const ComponentProps = Vue.extend({
 })
 export default class RMessageInputBar extends ComponentProps {
   text = '' as string
-  popUpState = {
+  popUpState: PopUpState= {
     opened: false
   }
 

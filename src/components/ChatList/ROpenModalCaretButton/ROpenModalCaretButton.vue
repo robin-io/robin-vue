@@ -1,5 +1,10 @@
 <template>
-  <button class="robin-button" type="button" @click="$emit('open')" v-on-clickaway="emitClickAway">
+  <button
+    class="robin-button"
+    type="button"
+    @click="$emit('open')"
+    v-on-clickaway="emitClickAway"
+  >
     <svg
       width="8"
       height="5"
@@ -25,7 +30,7 @@ import Component from 'vue-class-component'
   mixins: [clickaway]
 })
 export default class ROpenModalCaretButton extends Vue {
-  emitClickAway (): void {
+  emitClickAway(): void {
     this.$emit('clickoutside')
   }
 }

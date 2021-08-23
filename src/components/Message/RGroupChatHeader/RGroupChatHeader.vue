@@ -54,6 +54,10 @@ import ROptionButton from '../ROptionButton/ROptionButton.vue'
 import RGroupMessagePopOver from '../RGroupMessagePopOver/RGroupMessagePopOver.vue'
 import RPersonalMessagePopOver from '../RPersonalMessagePopOver/RPersonalMessagePopOver.vue'
 
+interface PopUpState {
+  opened: boolean
+}
+
 const ComponentProps = Vue.extend({
   props: {
     conversation: {
@@ -75,7 +79,7 @@ const ComponentProps = Vue.extend({
   }
 })
 export default class RGroupChatHeader extends ComponentProps {
-  popUpState = {
+  popUpState: PopUpState = {
     opened: false
   }
 

@@ -1,14 +1,11 @@
 <template>
-  <div class="robin-message-container">
-
-  </div>
+  <div class="robin-message-container"></div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
 
-export default class RNoMessageSelected extends Vue {
-}
+export default class RNoMessageSelected extends Vue {}
 </script>
 
 <style scoped>

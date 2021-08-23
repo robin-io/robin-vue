@@ -23,8 +23,7 @@ import RText from '../RText/RText.vue'
     RText
   }
 })
-export default class RChatListPopOver extends Vue {
-}
+export default class RChatListPopOver extends Vue {}
 </script>
 
 <style scoped>
@@ -54,7 +53,8 @@ export default class RChatListPopOver extends Vue {
   border: none;
 }
 
-.robin-zoomIn, .robin-zoomOut {
+.robin-zoomIn,
+.robin-zoomOut {
   transform-origin: top right;
 }
 </style>

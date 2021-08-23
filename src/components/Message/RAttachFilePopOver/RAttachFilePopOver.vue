@@ -65,7 +65,8 @@ export default Vue.extend({
   border: none;
 }
 
-.robin-zoomIn, .robin-zoomOut {
+.robin-zoomIn,
+.robin-zoomOut {
   transform-origin: bottom right;
 }
 </style>

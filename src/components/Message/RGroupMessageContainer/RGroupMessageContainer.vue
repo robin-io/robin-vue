@@ -5,8 +5,7 @@
       class="robin-wrapper robin-flex robin-flex-column robin-flex-space-between"
     >
       <Promised :promise="promise">
-        <template v-slot:pending
-          >
+        <template v-slot:pending>
           <div class="robin-inner-wrapper robin-flex robin-flex-align-center">
             <div class="robin-spinner"></div>
           </div>
@@ -87,7 +86,7 @@ export default class RGroupMessageContainer extends Vue {
   messages = [] as any
   promise = null as any
 
-  created () {
+  created() {
     EventBus.$on('conversation-opened', (conversation: any) => {
       this.messages = []
       this.conversation = conversation
@@ -109,11 +108,11 @@ export default class RGroupMessageContainer extends Vue {
     })
   }
 
-  formatTimeStamp (value: any) {
+  formatTimeStamp(value: any) {
     return moment(String(value)).format('h:mma').toUpperCase()
   }
 
-  async getConversationMessages (id: string) {
+  async getConversationMessages(id: string) {
     const resp = await this.$robin.getConversationMessages(id)
 
     if (!resp.error) {
@@ -124,7 +123,7 @@ export default class RGroupMessageContainer extends Vue {
     this.scrollToBottom()
   }
 
-  scrollToBottom () {
+  scrollToBottom() {
     window.setTimeout(() => {
       const messages = this.$refs.messages as HTMLElement
       messages.scrollTop = 10000000

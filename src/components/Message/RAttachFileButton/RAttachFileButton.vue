@@ -1,5 +1,10 @@
 <template>
-  <button class="robin-button" type="button" @click="$emit('open')" v-on-clickaway="emitClickAway">
+  <button
+    class="robin-button"
+    type="button"
+    @click="$emit('open')"
+    v-on-clickaway="emitClickAway"
+  >
     <svg
       width="20"
       height="20"
@@ -43,16 +48,16 @@ const ComponentProps = Vue.extend({
 export default class RAttachFileButton extends ComponentProps {
   root = null as any
 
-  mounted (): void {
+  mounted(): void {
     this.root = document.documentElement
     this.setRootVariables()
   }
 
-  setRootVariables (): void {
+  setRootVariables(): void {
     this.root.style.setProperty('--primary-focus-color', this.focusColor)
   }
 
-  emitClickAway (): void {
+  emitClickAway(): void {
     this.$emit('clickoutside')
   }
 }

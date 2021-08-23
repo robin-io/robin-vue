@@ -127,7 +127,7 @@ import EventBus from '@/event-bus'
   }
 })
 export default class NewChatList extends Vue {
-  async createConversation (user: any) {
+  async createConversation(user: any) {
     const resp = await this.$robin.createConversation({
       sender_name: 'vue test',
       sender_token: this.$user_token,
@@ -145,7 +145,7 @@ export default class NewChatList extends Vue {
     }
   }
 
-  checkConversations (convo: any): Boolean {
+  checkConversations(convo: any): Boolean {
     let res = false
     this.$conversations.forEach((conversation) => {
       if (conversation._id === convo._id) {

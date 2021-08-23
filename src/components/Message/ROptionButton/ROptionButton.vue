@@ -1,5 +1,10 @@
 <template>
-  <button type="button" @click="$emit('open')" v-on-clickaway="emitClickAway" class="robin-button">
+  <button
+    type="button"
+    @click="$emit('open')"
+    v-on-clickaway="emitClickAway"
+    class="robin-button"
+  >
     <svg
       width="20"
       height="20"
@@ -37,7 +42,7 @@ const ComponentProps = Vue.extend({
   name: 'ROptionButton',
   mixins: [clickaway],
   watch: {
-    focusColor (): void {
+    focusColor(): void {
       this.setRootVariables()
     }
   }
@@ -45,16 +50,16 @@ const ComponentProps = Vue.extend({
 export default class ROptionButton extends ComponentProps {
   root = null as any
 
-  mounted (): void {
+  mounted(): void {
     this.root = document.documentElement
     this.setRootVariables()
   }
 
-  setRootVariables (): void {
+  setRootVariables(): void {
     this.root.style.setProperty('--primary-focus-color', this.focusColor)
   }
 
-  emitClickAway (): void {
+  emitClickAway(): void {
     this.$emit('clickoutside')
   }
 }

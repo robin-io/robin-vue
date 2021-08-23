@@ -43,6 +43,7 @@ export default Vue.extend({
   display: flex;
   align-items: center;
   justify-content: space-between;
+  cursor: pointer;
 }
 
 .robin-wrapper:hover {
@@ -57,7 +58,8 @@ export default Vue.extend({
   width: 100%;
 }
 
-.robin-zoomIn, .robin-zoomOut {
+.robin-zoomIn,
+.robin-zoomOut {
   transform-origin: top right;
 }
 </style>
