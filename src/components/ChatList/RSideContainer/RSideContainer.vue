@@ -59,18 +59,18 @@ export default class RSideContainer extends ComponentProps {
   @State('isPageLoading') isPageLoading?: RootState
   @Mutation('setPageLoading') setPageLoading: any
 
-  created() {
+  created () {
     this.getUserToken()
   }
 
   sideBarType = 'primary'
   conversations = []
 
-  changeSideBarType(val: string): void {
+  changeSideBarType (val: string): void {
     this.sideBarType = val
   }
 
-  async getUserToken() {
+  async getUserToken () {
     console.log(this.$robin)
     const res = await this.$robin.getUserToken({
       user_token: this.user_token

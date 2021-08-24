@@ -12,7 +12,10 @@
       "@/*": ["./*"]
     },
     "resolveJsonModule": true,
+    /* Experimental Options */
+    "experimentalDecorators": true, 
     "esModuleInterop": true,
+    "skipLibCheck": true,
     "lib": ["esnext", "dom"]
   },
   "include": [

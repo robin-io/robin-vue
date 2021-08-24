@@ -40,23 +40,6 @@
   src: url('../assets/GoogleSans-Bold.woff') format('woff');
 }
 
-*,
-*::before,
-*::after {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Google Sans', sans-serif;
-  font-kerning: normal;
-  -moz-font-feature-settings: 'kern', 'liga', 'clig', 'calt';
-  -ms-font-feature-settings: 'kern', 'liga', 'clig', 'calt';
-  -webkit-font-feature-settings: 'kern', 'liga', 'clig', 'calt';
-  font-feature-settings: 'kern', 'liga', 'clig', 'calt';
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  scroll-behavior: smooth;
-}
-
 .robin-pt-10 {
   padding-top: 0.625rem;
 }
@@ -378,6 +361,26 @@
   }
 }
 
+@keyframes squeeze-in {
+  from {
+    transform: scaleY(1);
+  }
+
+  to {
+    transform: scaleY(0);
+  }
+}
+
+@keyframes squeeze-out {
+  from {
+    transform: scaleY(0);
+  }
+
+  to {
+    transform: scaleY(1);
+  }
+}
+
 .robin-bounceIn {
   animation: bounceIn 0.9s;
   -webkit-animation: bounceIn 0.9s;
@@ -404,4 +407,12 @@
 
 .robin-zoomOut {
   animation: zoom-out 300ms ease-in-out forwards;
+}
+
+.robin-squeezeIn {
+  animation: squeeze-in 300ms ease-in-out forwards;
+}
+
+.robin-squeezeOut {
+  animation: squeeze-out 300ms ease-in-out forwards;
 }

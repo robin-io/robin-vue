@@ -1,5 +1,5 @@
 <template>
-  <button class="robin-button" type="button" @click="$emit('close')">
+  <button class="robin-button" type="button" @click="$emit('clicked')">
     <svg
       width="20"
       height="20"

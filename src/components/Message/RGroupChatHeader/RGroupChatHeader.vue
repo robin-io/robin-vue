@@ -61,8 +61,8 @@ interface PopUpState {
 const ComponentProps = Vue.extend({
   props: {
     conversation: {
-      type: Object as any,
-      default: () => {}
+      type: Object,
+      default: () => ({})
     }
   }
 })

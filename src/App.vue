@@ -82,7 +82,7 @@ export default class App extends ComponentProps {
   conn = null as any
   conversationOpened = false as boolean
 
-  created(): void {
+  created (): void {
     const filteredUsers: Array<any> = []
     this.users.forEach((user) => {
       const newUser = {
@@ -96,13 +96,13 @@ export default class App extends ComponentProps {
     this.initiateRobin()
   }
 
-  initiateRobin() {
+  initiateRobin () {
     this.robin = new Robin(this.api_key, true)
     this.connect()
     this.setPrototypes()
   }
 
-  setPrototypes() {
+  setPrototypes () {
     Vue.prototype.$robin = this.robin
     Vue.prototype.$user_token = this.user_token
     Vue.prototype.$channel = this.channel
@@ -111,7 +111,7 @@ export default class App extends ComponentProps {
     console.log(this.robin, this.$robin, this.conn)
   }
 
-  connect() {
+  connect () {
     this.conn = this.robin.connect(this.user_token)
 
     this.conn.onopen = () => {
@@ -141,6 +141,23 @@ export default class App extends ComponentProps {
 </script>
 
 <style>
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Google Sans', sans-serif;
+  font-kerning: normal;
+  -moz-font-feature-settings: 'kern', 'liga', 'clig', 'calt';
+  -ms-font-feature-settings: 'kern', 'liga', 'clig', 'calt';
+  -webkit-font-feature-settings: 'kern', 'liga', 'clig', 'calt';
+  font-feature-settings: 'kern', 'liga', 'clig', 'calt';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+}
+
 .robin-container {
   width: 100vw;
   height: 100vh;

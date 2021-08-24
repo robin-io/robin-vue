@@ -151,7 +151,9 @@ const ComponentProps = Vue.extend({
   },
   watch: {
     conversations: {
-      handler(val: Array<any>): void {
+      handler (val: Array<any>): void {
+        this.popUpStates = []
+
         ;[...val].forEach((val) => {
           this.popUpStates.push({
             opened: false,
@@ -166,13 +168,13 @@ const ComponentProps = Vue.extend({
 export default class PrimaryChatList extends ComponentProps {
   popUpStates: Array<any> = []
 
-  openConversation(conversation: object): void {
+  openConversation (conversation: object): void {
     console.log(conversation)
     EventBus.$emit('conversation-opened', conversation)
     this.$emit('coversationopened')
   }
 
-  formatRecentMessageTime(time: string): string {
+  formatRecentMessageTime (time: string): string {
     // const datetime = new Date(time)
     const datetime = moment(time)
     return datetime.calendar(null, {
@@ -183,7 +185,7 @@ export default class PrimaryChatList extends ComponentProps {
     })
   }
 
-  handleOpenPopUp(_id: string, refKey: string): void {
+  handleOpenPopUp (_id: string, refKey: string): void {
     const popup = this.$refs[refKey] as any
     popup[0].$refs['popup-body'].classList.remove('robin-zoomOut')
 
@@ -197,7 +199,7 @@ export default class PrimaryChatList extends ComponentProps {
     })
   }
 
-  handleClosePopUp(_id: string, refKey: string): void {
+  handleClosePopUp (_id: string, refKey: string): void {
     const popup = this.$refs[refKey] as any
     popup[0].$refs['popup-body'].classList.add('robin-zoomOut')
 

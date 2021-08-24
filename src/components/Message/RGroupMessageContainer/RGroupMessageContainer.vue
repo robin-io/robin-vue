@@ -12,41 +12,41 @@
         </template>
         <template v-slot:default>
           <div class="robin-inner-wrapper" ref="messages">
-            <div
-              class="robin-message-bubble robin-flex robin-flex-wrap"
-              :class="
-                message.content.receiver_token === $user_token
-                  ? 'robin-message-sender'
-                  : 'robin-message-receiver robin-ml-auto'
-              "
-              v-for="message in messages"
-              :key="message._id"
-            >
-              <RText
-                v-if="conversation.isGroup"
-                text="Precious Ogar"
-                :fontSize="12"
-                color="#15AE73"
-                as="span"
-                :lineHeight="20"
-              />
-              <RText
-                :text="message.content.msg"
-                :fontSize="16"
-                :textWrap="'normal'"
-                as="span"
-              />
-              <span
-                class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto"
+              <div
+                class="robin-message-bubble robin-flex robin-flex-wrap"
+                :class="
+                  message.content.receiver_token === $user_token
+                    ? 'robin-message-sender'
+                    : 'robin-message-receiver robin-ml-auto'
+                "
+                v-for="message in messages"
+                :key="message._id"
               >
                 <RText
-                  :text="formatTimeStamp(message.content.timestamp)"
-                  :fontSize="14"
-                  color="#7a7a7a"
-                  as="p"
+                  v-if="conversation.isGroup"
+                  text="Precious Ogar"
+                  :fontSize="12"
+                  color="#15AE73"
+                  as="span"
+                  :lineHeight="20"
                 />
-              </span>
-            </div>
+                <RText
+                  :text="message.content.msg"
+                  :fontSize="16"
+                  textWrap="pre-line"
+                  as="span"
+                />
+                <span
+                  class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto"
+                >
+                  <RText
+                    :text="formatTimeStamp(message.content.timestamp)"
+                    :fontSize="14"
+                    color="#7a7a7a"
+                    as="p"
+                  />
+                </span>
+              </div>
           </div>
         </template>
       </Promised>
@@ -69,7 +69,8 @@ import moment from 'moment'
 // import RUnreadMessageBar from '../RUnreadMessagesBar/RUnreadMessagesBar.vue'
 // import RForwardMessage from '../RForwardMessage/RForwardMessage.vue'
 
-@Component({
+// eslint-disable-next-line
+@Component<RGroupMessageContainer>({
   name: 'RGroupMessageContainer',
   components: {
     RGroupChatHeader,
@@ -78,6 +79,14 @@ import moment from 'moment'
     Promised
     // RUnreadMessageBar
     // RForwardMessage
+  },
+  watch: {
+    messages: {
+      handler (val: any): void {
+        this.scrollToBottom()
+      },
+      deep: true
+    }
   }
 })
 export default class RGroupMessageContainer extends Vue {
@@ -86,10 +95,10 @@ export default class RGroupMessageContainer extends Vue {
   messages = [] as any
   promise = null as any
 
-  created() {
+  created () {
     EventBus.$on('conversation-opened', (conversation: any) => {
       this.messages = []
-      this.conversation = conversation
+      this.conversation = conversation || []
       this.promise = this.getConversationMessages(conversation._id)
     })
     EventBus.$on('new-message', (message: any) => {
@@ -108,11 +117,11 @@ export default class RGroupMessageContainer extends Vue {
     })
   }
 
-  formatTimeStamp(value: any) {
+  formatTimeStamp (value: any): string {
     return moment(String(value)).format('h:mma').toUpperCase()
   }
 
-  async getConversationMessages(id: string) {
+  async getConversationMessages (id: string): Promise<void> {
     const resp = await this.$robin.getConversationMessages(id)
 
     if (!resp.error) {
@@ -123,10 +132,12 @@ export default class RGroupMessageContainer extends Vue {
     this.scrollToBottom()
   }
 
-  scrollToBottom() {
+  scrollToBottom (): void {
     window.setTimeout(() => {
       const messages = this.$refs.messages as HTMLElement
-      messages.scrollTop = 10000000
+      if (messages) {
+        messages.scrollTop = 10000000
+      }
     }, 100)
   }
 }
@@ -159,7 +170,6 @@ export default class RGroupMessageContainer extends Vue {
   height: 100%;
   padding: 2.688rem 2.688rem 1.25rem 3.125rem;
   overflow-y: auto;
-  scroll-behavior: smooth;
 }
 
 /* Bubble styles */
@@ -204,16 +214,17 @@ export default class RGroupMessageContainer extends Vue {
   border-radius: 16px;
   width: 100%;
   max-width: 325px;
-  padding: 0.5rem 1rem;
-  margin-top: 10px;
+  padding: 0.5rem 1rem 1.3rem 1rem;
+  /* margin-top: 10px; */
 }
 
 .robin-message-text {
   font-size: 1rem;
 }
 
-.robin-message-time {
-  font-size: 0.75rem;
-  color: #7a7a7a;
+.robin-side-text {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 1rem;
 }
 </style>
