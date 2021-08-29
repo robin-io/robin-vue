@@ -13,16 +13,10 @@
     },
     "resolveJsonModule": true,
     /* Experimental Options */
-    "experimentalDecorators": true, 
+    "experimentalDecorators": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "lib": ["esnext", "dom"]
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.d.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue",
-    "types/*.d.ts"
-  ]
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "types/*.d.ts"]
 }

@@ -1,11 +1,11 @@
 <template>
   <div class="robin-container">
-    <RSideContainer
-      @coversationopened="conversationOpened = true"
-      v-show="!isPageLoading"
-      :user_token="user_token"
-    />
-    <RGroupMessageContainer v-show="!isPageLoading && conversationOpened" />
+    <transition name="robin-fadeIn">
+      <RSideContainer @coversationopened="conversationOpened = true" v-show="!isPageLoading" :user_token="user_token" />
+    </transition>
+    <transition name="robin-fadeIn">
+      <RGroupMessageContainer v-show="!isPageLoading && conversationOpened" />
+    </transition>
     <RNoMessageSelected v-show="!isPageLoading && !conversationOpened" />
     <RPageLoader v-show="isPageLoading" />
   </div>
@@ -22,7 +22,6 @@ import { State } from 'vuex-class'
 import { RootState } from './utils/types'
 import { Robin } from 'robin.io-js'
 import EventBus from './event-bus'
-import './styles/main.css'
 
 const ComponentProps = Vue.extend({
   props: {
@@ -167,7 +166,7 @@ export default class App extends ComponentProps {
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 100000;
+  z-index: 2000;
   overflow: hidden;
 }
 </style>

@@ -1,34 +1,37 @@
 <template>
   <div class="robin-popup robin-zoomIn" ref="popup-body">
-    <div class="robin-wrapper robin-w-100">
+    <RText class="robin-wrapper robin-w-100" max-width="100%" :font-size="14" color="#101010" as="label" for-ref="camera-upload" @click.native="$emit('open-camera')">
       <div class="robin-mr-9">
         <RPhotoButton />
       </div>
-      <RText text="Camera" :fontSize="14" color="#101010" />
-    </div>
-    <div class="robin-wrapper robin-w-100">
+      Camera
+    </RText>
+    <RText class="robin-wrapper robin-w-100" max-width="100%" as="label" :font-size="14" color="#101010" for-ref="photo-upload" ref="photo-upload">
       <div class="robin-mr-9">
-        <RGalleryButton />
+        <RGalleryButton @clicked="openFileDialog('photo-upload')" />
       </div>
-      <RText text="Photos & Videos" :fontSize="14" color="#101010" />
-    </div>
-    <div class="robin-wrapper robin-w-100">
+      <input type="file" multiple :accept="acceptedVisualFiles" @change="handleFileChange($event.target.files)" @click="resetFileTarget($event)" id="photo-upload" />
+      Photos & Videos
+    </RText>
+    <RText as="label" for-ref="document-upload" :font-size="14" max-width="100%" color="#101010" class="robin-wrapper robin-w-100" ref="document-upload">
       <div class="robin-mr-9">
-        <RDocumentButton />
+        <RDocumentButton @clicked="openFileDialog('document-upload')" />
       </div>
-      <RText text="Document" :fontSize="14" color="#101010" />
-    </div>
+      <input type="file" multiple :accept="acceptedDocFiles" @change="handleFileChange($event.target.files)" @click="resetFileTarget($event)" id="document-upload" />
+      Document
+    </RText>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
 import RText from '@/components/ChatList/RText/RText.vue'
 import RPhotoButton from '../RPhotoButton/RPhotoButton.vue'
 import RGalleryButton from '../RGalleryButton/RGalleryButton.vue'
 import RDocumentButton from '../RDocumentButton/RDocumentButton.vue'
 
-export default Vue.extend({
+@Component({
   name: 'RAttachFilePopOver',
   components: {
     RText,
@@ -37,6 +40,40 @@ export default Vue.extend({
     RDocumentButton
   }
 })
+export default class RAttachFilePopOver extends Vue {
+  acceptedDocFiles = '.csv, .xlsx, .xls, .doc, .docx, .ppt, .pptx, .txt, .pdf' as string
+  acceptedVisualFiles = 'image/*, video/*, video/mp4' as string
+
+  resetFileTarget (event: any): void {
+    event.target.value = ''
+    // console.log(files, files.value, files.files)
+  }
+
+  handleFileChange (files: any): void {
+    ;[...files].forEach(async (file: any) => {
+      const fileURL = URL.createObjectURL(file)
+      const typeIndex = file.name.lastIndexOf('.')
+
+      if (file.size < 5000001) {
+        this.$emit('file-upload', {
+          name: file.name.substring(0, typeIndex),
+          size: file.size,
+          type: file.type,
+          extension: file.name.substring(typeIndex + 1),
+          localUrl: fileURL,
+          file: file
+        })
+      } else {
+        console.log('Image more than 5mb')
+      }
+    })
+  }
+
+  openFileDialog (id: string) {
+    const label = this.$refs[id] as any
+    label.$el.click()
+  }
+}
 </script>
 
 <style scoped>
@@ -55,6 +92,7 @@ export default Vue.extend({
   display: flex;
   align-items: center;
   cursor: pointer;
+  position: relative;
 }
 
 .robin-wrapper:hover {
@@ -68,5 +106,21 @@ export default Vue.extend({
 .robin-zoomIn,
 .robin-zoomOut {
   transform-origin: bottom right;
+}
+
+input[type='file'] {
+  display: none;
+}
+
+input[type='file']::file-upload-button {
+  display: none;
+}
+
+input[type='file']::-webkit-file-upload-button {
+  display: none;
+}
+
+input[type='file']::-moz-file-upload-button {
+  display: none;
 }
 </style>

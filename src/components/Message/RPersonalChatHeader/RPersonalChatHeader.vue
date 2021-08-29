@@ -4,27 +4,12 @@
       <div class="robin-card-info robin-mr-16">
         <RAvatar />
       </div>
-      <div
-        class="robin-card-info robin-h-100 robin-flex robin-flex-column robin-flex-space-between robin-flex-1"
-      >
+      <div class="robin-card-info robin-h-100 robin-flex robin-flex-column robin-flex-space-between robin-flex-1">
         <div class="robin-mt-6">
-          <RText
-            text="Adunoluwa Adeyemi"
-            fontWeight="normal"
-            color="#000000"
-            :fontSize="16"
-            :lineHeight="20"
-          />
+          <RText font-weight="normal" color="#000000" :font-size="16" :line-height="20">Adunoluwa Adeyemi</RText>
         </div>
         <div class="robin-mt-6">
-          <RText
-            as="p"
-            text="Online"
-            fontWeight="normal"
-            color="#7A7A7A"
-            :fontSize="14"
-            :lineHeight="18"
-          />
+          <RText as="p" font-weight="normal" color="#7A7A7A" :font-size="14" :line-height="18">Online</RText>
         </div>
       </div>
     </div>

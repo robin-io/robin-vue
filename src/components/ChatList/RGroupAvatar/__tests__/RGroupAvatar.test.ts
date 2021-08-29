@@ -10,8 +10,6 @@ describe('RGroupAvatar', () => {
     } as any)
     const img = wrapper.find('img')
 
-    expect(img.attributes('src')).toBe(
-      'https://miro.medium.com/max/730/1*VdBcLoFkYarD4XpJLf9tXw.png'
-    )
+    expect(img.attributes('src')).toBe('https://miro.medium.com/max/730/1*VdBcLoFkYarD4XpJLf9tXw.png')
   })
 })

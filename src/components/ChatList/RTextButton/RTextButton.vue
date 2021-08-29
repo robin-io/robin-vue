@@ -1,10 +1,5 @@
 <template>
-  <button
-    type="button"
-    @click="$emit(emit)"
-    class="robin-button"
-    :style="getStyles"
-  >
+  <button type="button" @click="$emit(emit)" class="robin-button" :style="getStyles">
     {{ text }}
   </button>
 </template>

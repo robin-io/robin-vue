@@ -1,13 +1,13 @@
 <template>
   <div class="robin-popup robin-zoomIn" ref="popup-body">
     <div class="robin-wrapper robin-w-100">
-      <RText text="Archive Chat" :fontSize="14" color="#101010" />
+      <RText :font-size="14" color="#101010">Archive Chat</RText>
     </div>
     <div class="robin-wrapper robin-w-100">
-      <RText text="Mute Notifications" :fontSize="14" color="#101010" />
+      <RText :font-size="14" color="#101010">Mute Notifications</RText>
     </div>
     <div class="robin-wrapper robin-w-100">
-      <RText text="Delete Chat" :fontSize="14" color="#101010" />
+      <RText :font-size="14" color="#101010">Delete Chat</RText>
     </div>
   </div>
 </template>

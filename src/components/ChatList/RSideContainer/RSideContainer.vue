@@ -1,27 +1,10 @@
 <template>
   <div class="robin-chat-list-container">
-    <PrimaryChatList
-      v-show="$conversations.length > 0 && sideBarType == 'primary'"
-      :conversations="$conversations"
-      @changesidebartype="changeSideBarType"
-      @coversationopened="$emit('coversationopened')"
-    />
-    <NewChatList
-      v-show="sideBarType == 'newchat'"
-      @changesidebartype="changeSideBarType"
-    />
-    <NoChatList
-      v-show="$conversations.length < 1 && sideBarType == 'primary'"
-      @changesidebartype="changeSideBarType"
-    />
-    <NewGroupChatList
-      v-show="sideBarType == 'newgroupchat'"
-      @changesidebartype="changeSideBarType"
-    />
-    <ArchivedChatList
-      v-show="sideBarType == 'archivedchat'"
-      @changesidebartype="changeSideBarType"
-    />
+    <PrimaryChatList v-show="$conversations.length > 0 && sideBarType == 'primary'" :conversations="$conversations" @changesidebartype="changeSideBarType" @coversationopened="$emit('coversationopened')" />
+    <NewChatList v-show="sideBarType == 'newchat'" @changesidebartype="changeSideBarType" />
+    <NoChatList v-show="$conversations.length < 1 && sideBarType == 'primary'" @changesidebartype="changeSideBarType" />
+    <NewGroupChatList v-show="sideBarType == 'newgroupchat'" @changesidebartype="changeSideBarType" />
+    <ArchivedChatList v-show="sideBarType == 'archivedchat'" @changesidebartype="changeSideBarType" />
   </div>
 </template>
 
@@ -59,25 +42,24 @@ export default class RSideContainer extends ComponentProps {
   @State('isPageLoading') isPageLoading?: RootState
   @Mutation('setPageLoading') setPageLoading: any
 
-  created () {
+  created() {
     this.getUserToken()
   }
 
   sideBarType = 'primary'
   conversations = []
 
-  changeSideBarType (val: string): void {
+  changeSideBarType(val: string): void {
     this.sideBarType = val
   }
 
-  async getUserToken () {
+  async getUserToken() {
     console.log(this.$robin)
     const res = await this.$robin.getUserToken({
       user_token: this.user_token
     })
     if (!res.error) {
-      this.conversations =
-        res.data.conversations == null ? [] : res.data.conversations
+      this.conversations = res.data.conversations == null ? [] : res.data.conversations
       Vue.prototype.$conversations = this.conversations
       this.setPageLoading(false)
       console.log(this.$conversations)

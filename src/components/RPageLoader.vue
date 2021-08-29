@@ -6,13 +6,7 @@
         <img src="@/assets/robin_icon.png" alt="logo" />
       </div>
       <div class="robin-come-up robin-mt-18">
-        <RText
-          text="Getting messages..."
-          as="h2"
-          color="#fff"
-          fontWeight="'bold'"
-          :fontSize="24"
-        />
+        <RText as="h2" color="#fff" font-weight="'bold'" :font-size="24"> Getting messages... </RText>
       </div>
     </div>
   </div>

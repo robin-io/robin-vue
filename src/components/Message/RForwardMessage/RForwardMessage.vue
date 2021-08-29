@@ -3,7 +3,7 @@
     <div class="robin-modal-container robin-flex">
       <div class="robin-inner-container robin-flex robin-flex-column">
         <header class="robin-wrapper robin-mt-26 robin-mb-10">
-          <RText text="Forward Message" />
+          <RText>Forward Message</RText>
         </header>
 
         <div class="robin-wrapper robin-mb-10">
@@ -14,18 +14,14 @@
           <RAlphabetBlock />
         </div>
 
-        <div
-          class="robin-card-container robin-flex robin-flex-column robin-grey-200"
-        >
+        <div class="robin-card-container robin-flex robin-flex-column robin-grey-200">
           <div class="robin-card robin-flex robin-flex-align-center">
             <div class="robin-card-info robin-mr-12">
               <RAvatar />
             </div>
-            <div
-              class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4 robin-flex-1"
-            >
+            <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4 robin-flex-1">
               <div class="robin-flex">
-                <RText text="Temi Obadofin" :fontSize="14" :lineHeight="18" />
+                <RText :font-size="14" :line-height="18">Temi Obadofin</RText>
               </div>
               <div class="robin-ml-auto">
                 <RCheckBox />
@@ -36,11 +32,9 @@
             <div class="robin-card-info robin-mr-12">
               <RAvatar />
             </div>
-            <div
-              class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4 robin-flex-1"
-            >
+            <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4 robin-flex-1">
               <div class="robin-flex">
-                <RText text="Temi Obadofin" :fontSize="14" :lineHeight="18" />
+                <RText :font-size="14" :line-height="18">Temi Obadofin</RText>
               </div>
               <div class="robin-ml-auto">
                 <RCheckBox />
@@ -52,18 +46,14 @@
           <RAlphabetBlock text="B" />
         </div>
 
-        <div
-          class="robin-card-container robin-flex robin-flex-column robin-grey-200"
-        >
+        <div class="robin-card-container robin-flex robin-flex-column robin-grey-200">
           <div class="robin-card robin-flex robin-flex-align-center">
             <div class="robin-card-info robin-mr-12">
               <RAvatar />
             </div>
-            <div
-              class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4 robin-flex-1"
-            >
+            <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4 robin-flex-1">
               <div class="robin-flex">
-                <RText text="Temi Obadofin" :fontSize="14" :lineHeight="18" />
+                <RText :font-size="14" :line-height="18">Temi Obadofin</RText>
               </div>
               <div class="robin-ml-auto">
                 <RCheckBox />
@@ -74,11 +64,9 @@
             <div class="robin-card-info robin-mr-12">
               <RAvatar />
             </div>
-            <div
-              class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4 robin-flex-1"
-            >
+            <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4 robin-flex-1">
               <div class="robin-flex">
-                <RText text="Temi Obadofin" :fontSize="14" :lineHeight="18" />
+                <RText :font-size="14" :line-height="18">Temi Obadofin</RText>
               </div>
               <div class="robin-ml-auto">
                 <RCheckBox />

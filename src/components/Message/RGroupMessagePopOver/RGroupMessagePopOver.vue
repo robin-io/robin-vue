@@ -1,16 +1,16 @@
 <template>
   <div class="robin-popup robin-zoomIn" ref="popup-body">
     <div class="robin-wrapper robin-w-100">
-      <RText text="Group Info" :fontSize="14" color="#101010" />
+      <RText :font-size="14" as="span" color="#101010">Group Info</RText>
     </div>
     <div class="robin-wrapper robin-w-100">
-      <RText text="Select Messages" :fontSize="14" color="#101010" />
+      <RText :font-size="14" as="span" color="#101010">Select Messages</RText>
     </div>
     <div class="robin-wrapper robin-w-100">
-      <RText text="Mute Group" :fontSize="14" color="#101010" />
+      <RText :font-size="14" as="span" color="#101010">Mute Group</RText>
     </div>
     <div class="robin-wrapper robin-w-100">
-      <RText text="Leave Group" :fontSize="14" color="#101010" />
+      <RText :font-size="14" as="span" color="#101010">Leave Group</RText>
     </div>
   </div>
 </template>

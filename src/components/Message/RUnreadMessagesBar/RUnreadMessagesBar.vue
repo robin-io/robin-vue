@@ -1,7 +1,5 @@
 <template>
-  <div v-if="number > 1" class="robin-unread-message-bar">
-    {{ number }} Unread Messages
-  </div>
+  <div v-if="number > 1" class="robin-unread-message-bar">{{ number }} Unread Messages</div>
   <div v-else class="robin-unread-message-bar">{{ number }} Unread Message</div>
 </template>
 

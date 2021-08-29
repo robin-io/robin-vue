@@ -5,32 +5,14 @@
         <RGroupAvatar v-if="conversation.isGroup" />
         <RAvatar v-else />
       </div>
-      <div
-        class="robin-card-info robin-h-100 robin-flex robin-flex-column robin-flex-space-between robin-flex-1"
-      >
+      <div class="robin-card-info robin-h-100 robin-flex robin-flex-column robin-flex-space-between robin-flex-1">
         <div class="robin-mt-6">
-          <RText
-            :text="
-              conversation.senderToken == $user_token
-                ? conversation.sender_name
-                : conversation.receiver_name
-            "
-            fontWeight="normal"
-            color="#000000"
-            :fontSize="16"
-            :lineHeight="20"
-          />
+          <RText font-weight="normal" color="#000000" :font-size="16" :line-height="20">
+            {{ conversation.senderToken == $user_token ? conversation.sender_name : conversation.receiver_name }}
+          </RText>
         </div>
         <div class="robin-mt-6">
-          <RText
-            v-if="conversation.isGroup"
-            as="p"
-            text="53 Members"
-            fontWeight="normal"
-            color="#7A7A7A"
-            :fontSize="14"
-            :lineHeight="18"
-          />
+          <RText v-if="conversation.isGroup" as="p" font-weight="normal" color="#7A7A7A" :font-size="14" :line-height="18">53 Members</RText>
         </div>
       </div>
     </div>
@@ -83,14 +65,14 @@ export default class RGroupChatHeader extends ComponentProps {
     opened: false
   }
 
-  handleOpenPopUp (): void {
+  handleOpenPopUp(): void {
     const popup = this.$refs['popup-1'] as any
     popup.$refs['popup-body'].classList.remove('robin-zoomOut')
 
     this.popUpState.opened = true
   }
 
-  handleClosePopUp (): void {
+  handleClosePopUp(): void {
     const popup = this.$refs['popup-1'] as any
     popup.$refs['popup-body'].classList.add('robin-zoomOut')
 

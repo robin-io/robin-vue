@@ -1,48 +1,28 @@
 <template>
   <div class="robin-message-container">
     <RPersonalChatHeader />
-    <div
-      class="robin-wrapper robin-flex robin-flex-column robin-flex-space-between"
-    >
+    <div class="robin-wrapper robin-flex robin-flex-column robin-flex-space-between">
       <div class="robin-inner-wrapper">
         <div class="robin-message-wrapper robin-flex robin-flex-align-center">
           <div class="robin-mr-16">
             <RMessageCheckBox />
           </div>
-          <div
-            class="robin-message-bubble robin-message-sender robin-flex robin-flex-wrap"
-          >
-            <RText
-              text="Some very long text here to test."
-              :fontSize="16"
-              as="span"
-            />
-            <span
-              class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto"
-            >
-              <RText text="3:00PM" :fontSize="14" color="#7a7a7a" as="p" />
+          <div class="robin-message-bubble robin-message-sender robin-flex robin-flex-wrap">
+            <RText :font-size="16" as="span"> Some very long text here to test. </RText>
+            <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
+              <RText :font-size="14" color="#7a7a7a" as="p">3:00PM</RText>
             </span>
           </div>
         </div>
         <RUnreadMessageBar :number="1" />
-        <div
-          class="robin-message-wrapper robin-flex robin-flex-row-reversed robin-ml-auto robin-flex-align-center"
-        >
+        <div class="robin-message-wrapper robin-flex robin-flex-row-reversed robin-ml-auto robin-flex-align-center">
           <div class="robin-ml-16">
             <RMessageCheckBox />
           </div>
-          <div
-            class="robin-message-bubble robin-message-receiver robin-flex robin-flex-wrap"
-          >
-            <RText
-              text="Some very long text here to test.  😂"
-              :fontSize="16"
-              as="span"
-            />
-            <span
-              class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto"
-            >
-              <RText text="3:00PM" :fontSize="14" color="#7a7a7a" as="p" />
+          <div class="robin-message-bubble robin-message-receiver robin-flex robin-flex-wrap">
+            <RText :font-size="16" as="span">Some very long text here to test. 😂</RText>
+            <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
+              <RText :font-size="14" color="#7a7a7a" as="p">3:00PM</RText>
             </span>
           </div>
         </div>

@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+@import url('https://fonts.googleapis.com/css2?family=Material+Icons');
+
 :root {
   --primary-focus-color: rgba(21, 174, 115, 0.1);
   --secondary-focus-color: rgba(83, 95, 137, 0.1);
@@ -38,6 +41,10 @@
   font-style: normal;
   font-weight: bold;
   src: url('../assets/GoogleSans-Bold.woff') format('woff');
+}
+
+.material-icon {
+  font-family: 'Material Icons';
 }
 
 .robin-pt-10 {
@@ -180,6 +187,10 @@
   padding-left: 1.313rem;
 }
 
+.robin-ml-21 {
+  margin-left: 1.313rem;
+}
+
 .robin-flex-wrap {
   flex-wrap: wrap;
 }
@@ -242,6 +253,34 @@
 
 .robin-relative {
   position: relative;
+}
+
+.robin-pt-24 {
+  padding-top: 1.5rem;
+}
+
+.robin-pb-24 {
+  padding-bottom: 1.5rem;
+}
+
+.robin-pl-24 {
+  padding-left: 1.5rem;
+}
+
+.robin-pr-24 {
+  padding-right: 1.5rem;
+}
+
+.robin-absolute {
+  position: absolute;
+}
+
+.robin-material-icon {
+  font-family: 'Material Icons';
+}
+
+.robin-overflow-y-auto {
+  overflow-y: auto;
 }
 
 /* animations */
@@ -381,6 +420,16 @@
   }
 }
 
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
 .robin-bounceIn {
   animation: bounceIn 0.9s;
   -webkit-animation: bounceIn 0.9s;
@@ -401,6 +450,17 @@
   border-top-color: var(--primary-color);
 }
 
+.robin-spinner2 {
+  animation: spinner 600ms linear infinite;
+  height: 15px;
+  width: 15px;
+  background: transparent;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  transform-origin: center;
+  border-top-color: #fff;
+}
+
 .robin-zoomIn {
   animation: zoom-in 300ms ease-in-out forwards;
 }
@@ -415,4 +475,8 @@
 
 .robin-squeezeOut {
   animation: squeeze-out 300ms ease-in-out forwards;
+}
+
+.robin-fadeIn-enter-active {
+  animation: fade-in 300ms;
 }

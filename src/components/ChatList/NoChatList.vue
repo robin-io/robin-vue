@@ -1,29 +1,18 @@
 <template>
   <div class="robin-side-container">
     <header class="robin-header">
-      <RText
-        text="Settings"
-        fontWeight="400"
-        color="rgba(83, 95, 137, 1)"
-        :fontSize="17"
-      />
+      <RText font-weight="400" color="rgba(83, 95, 137, 1)" :font-size="17"> Settings </RText>
       <REditButton @edit="$emit('changesidebartype', 'newchat')" />
     </header>
     <div class="robin-wrapper robin-w-100">
       <RSearchBar />
     </div>
-    <div
-      class="robin-wrapper robin-flex robin-flex-column robin-flex-align-center robin-h-100 robin-w-100 robin-flex-1 robin-pt-100"
-    >
+    <div class="robin-wrapper robin-flex robin-flex-column robin-flex-align-center robin-h-100 robin-w-100 robin-flex-1 robin-pt-100">
       <RNoChatIcon />
       <div class="robin-mb-13 robin-mt-33">
-        <RText text="No Messages Yet" fontWeight="normal" color="#535F89" />
+        <RText fontWeight="normal" color="#535F89">No Messages Yet</RText>
       </div>
-      <RTextButton
-        text="Start a chat"
-        emit="newchat"
-        @newchat="$emit('changesidebartype', 'newchat')"
-      />
+      <RTextButton text="Start a chat" emit="newchat" @newchat="$emit('changesidebartype', 'newchat')" />
     </div>
   </div>
 </template>

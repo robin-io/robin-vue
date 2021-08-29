@@ -1,12 +1,5 @@
 <template>
-  <input
-    type="text"
-    :placeholder="placeholder"
-    autocomplete="off"
-    class="robin-input"
-    v-model="text"
-    :style="getStyles"
-  />
+  <input type="text" :placeholder="placeholder" autocomplete="off" class="robin-input" v-model="text" :style="getStyles" />
 </template>
 
 <script lang="ts">

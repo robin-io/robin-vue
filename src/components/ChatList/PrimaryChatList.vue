@@ -1,12 +1,7 @@
 <template>
   <div class="robin-side-container">
     <header class="robin-header">
-      <RText
-        text="Settings"
-        fontWeight="400"
-        color="rgba(83, 95, 137, 1)"
-        :fontSize="17"
-      />
+      <RText font-weight="400" color="rgba(83, 95, 137, 1)" :font-size="17"> Settings </RText>
       <REditButton @edit="$emit('changesidebartype', 'newchat')" />
     </header>
     <div class="robin-wrapper robin-w-100">
@@ -15,88 +10,36 @@
     <div class="robin-wrapper robin-pt-10 robin-pb-11">
       <RTextButton @archived="$emit('changesidebartype', 'archivedchat')" />
     </div>
-    <div
-      class="robin-wrapper robin-card-container robin-flex robin-flex-column"
-    >
-      <div
-        class="robin-card robin-relative robin-flex robin-flex-align-center"
-        v-for="(conversation, index) in conversations"
-        :key="conversation._id"
-        @click.self="openConversation(conversation)"
-      >
-        <div
-          class="robin-card-info robin-mr-12"
-          @click="openConversation(conversation)"
-        >
+    <div class="robin-wrapper robin-card-container robin-flex robin-flex-column">
+      <div class="robin-card robin-relative robin-flex robin-flex-align-center" :class="{ 'robin-card-active': isConversationActive(conversation) }" v-for="(conversation, index) in conversations" :key="`conversation-${index}`" @click.self="openConversation(conversation)">
+        <div class="robin-card-info robin-mr-12" @click="openConversation(conversation)">
           <RAvatar />
         </div>
-        <div
-          class="robin-card-info robin-h-100 robin-flex robin-flex-column robin-flex-space-between robin-pt-4 robin-pb-4˝ robin-flex-1"
-        >
-          <div
-            class="robin-flex robin-flex-space-between"
-            @click="openConversation(conversation)"
-          >
-            <RText
-              :text="
-                conversation.sender_token != $user_token
-                  ? conversation.sender_name
-                  : conversation.receiver_name
-              "
-              fontWeight="normal"
-              color="#000000"
-              :fontSize="16"
-              :lineHeight="20"
-            />
+        <div class="robin-card-info robin-h-100 robin-flex robin-flex-column robin-flex-space-between robin-pt-4 robin-pb-4˝ robin-flex-1">
+          <div class="robin-flex robin-flex-space-between" @click="openConversation(conversation)">
+            <RText font-weight="normal" color="#000000" :font-size="16" :line-height="20">
+              {{ conversation.sender_token != $user_token ? conversation.sender_name : conversation.receiver_name }}
+            </RText>
 
-            <RText
-              as="p"
-              :text="formatRecentMessageTime(conversation.updated_at)"
-              fontWeight="normal"
-              color="#566BA0"
-              :fontSize="14"
-              :lineHeight="18"
-            />
+            <RText as="p" fontWeight="normal" color="#566BA0" :fontSize="14" :lineHeight="18">
+              {{ formatRecentMessageTime(conversation.updated_at) }}
+            </RText>
           </div>
           <div class="robin-flex robin-flex-space-between">
-            <div
-              class="robin-mini-info-container robin-flex-1"
-              @click="openConversation(conversation)"
-            >
-              <RText
-                as="p"
-                :text="
-                  conversation.last_message == undefined
-                    ? ''
-                    : conversation.last_message.substring(0, 20) + ' ...'
-                "
-                fontWeight="normal"
-                color="#7A7A7A"
-                :fontSize="14"
-                :lineHeight="18"
-              />
+            <div class="robin-mini-info-container robin-flex-1" @click="openConversation(conversation)">
+              <RText as="p" font-weight="normal" color="#7A7A7A" :font-size="14" :line-height="18">
+                {{ conversation.last_message == undefined ? '' : conversation.last_message.substring(0, 20) + ' ...' }}
+              </RText>
             </div>
 
-            <div
-              class="robin-mini-info-container robin-flex robin-flex-align-center"
-            >
+            <div class="robin-mini-info-container robin-flex robin-flex-align-center">
               <RMention @click.native="openConversation(conversation)" />
               <!-- use when mention icon is present robin-ml-8 -->
-              <div
-                class="mini-info robin-ml-10"
-                @click="openConversation(conversation)"
-              >
+              <div class="mini-info robin-ml-10" @click="openConversation(conversation)">
                 <RUnreadMessageCount :count="10" />
               </div>
-              <div
-                class="robin-hidden robin-ml-10"
-                @click="handleOpenPopUp(conversation._id, `popup-${index}`)"
-              >
-                <ROpenModalCaretButton
-                  @clickoutside="
-                    handleClosePopUp(conversation._id, `popup-${index}`)
-                  "
-                />
+              <div class="robin-hidden robin-ml-10" @click="handleOpenPopUp(conversation._id, `popup-${index}`)">
+                <ROpenModalCaretButton @clickoutside="handleClosePopUp(conversation._id, `popup-${index}`)" />
               </div>
             </div>
           </div>
@@ -153,7 +96,6 @@ const ComponentProps = Vue.extend({
     conversations: {
       handler (val: Array<any>): void {
         this.popUpStates = []
-
         ;[...val].forEach((val) => {
           this.popUpStates.push({
             opened: false,
@@ -167,11 +109,15 @@ const ComponentProps = Vue.extend({
 })
 export default class PrimaryChatList extends ComponentProps {
   popUpStates: Array<any> = []
+  activeConversation = {}
 
   openConversation (conversation: object): void {
-    console.log(conversation)
-    EventBus.$emit('conversation-opened', conversation)
-    this.$emit('coversationopened')
+    if (!this.isConversationActive(conversation)) {
+      console.log(conversation)
+      this.activeConversation = conversation
+      EventBus.$emit('conversation-opened', conversation)
+      this.$emit('coversationopened')
+    }
   }
 
   formatRecentMessageTime (time: string): string {
@@ -213,6 +159,10 @@ export default class PrimaryChatList extends ComponentProps {
       }
     }, 300)
   }
+
+  isConversationActive (object: Object) {
+    return Object.is(this.activeConversation, object)
+  }
 }
 </script>
 
@@ -241,20 +191,30 @@ header {
   width: 100%;
 }
 
-.robin-card-container .robin-card {
+.robin-card {
   border-bottom: 1px solid #f4f6f8;
   padding: 1rem 0.2rem 1.1rem 0.2rem;
   transition: all 0.2s;
+  cursor: pointer;
 }
 
-.robin-card-container:last-child .robin-card {
+.robin-card-active {
+  background-color: #f0f3f5;
+  cursor: default;
+}
+
+.robin-card-active:hover {
+  cursor: default;
+  border-radius: 4px;
+}
+
+.robin-card-container .robin-card:nth-last-child(1) {
   border-bottom: none;
 }
 
 .robin-card:hover {
   background-color: #f0f3f5;
   border-radius: 4px;
-  cursor: pointer;
 }
 
 .robin-card:hover .robin-hidden {

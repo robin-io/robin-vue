@@ -1,10 +1,10 @@
 <template>
   <div class="robin-popup-container">
     <div class="robin-wrapper robin-w-100">
-      <RText text="Unarchive Chat" :fontSize="14" color="#101010" />
+      <RText :font-size="14" color="#101010"> Unarchive Chat </RText>
     </div>
     <div class="robin-wrapper robin-w-100">
-      <RText text="Delete Chat" :fontSize="14" color="#101010" />
+      <RText :font-size="14" color="#101010"> Delete Chat </RText>
     </div>
   </div>
 </template>

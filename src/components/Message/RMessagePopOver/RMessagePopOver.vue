@@ -1,19 +1,19 @@
 <template>
   <div class="robin-popup-container">
     <div class="robin-wrapper robin-w-100">
-      <RText text="Reply" :fontSize="14" color="#101010" />
+      <RText :font-size="14" color="#101010">Reply</RText>
       <RReplyButton />
     </div>
     <div class="robin-wrapper robin-w-100">
-      <RText text="Forward" :fontSize="14" color="#101010" />
+      <RText :font-size="14" color="#101010">Forward</RText>
       <RForwardButton />
     </div>
     <div class="robin-wrapper robin-w-100">
-      <RText text="Star" :fontSize="14" color="#101010" />
+      <RText :font-size="14" color="#101010">Star</RText>
       <RStarButton />
     </div>
     <div class="robin-wrapper robin-w-100">
-      <RText text="Delete" :fontSize="14" color="#101010" />
+      <RText :font-size="14" color="#101010">Delete</RText>
       <RDeleteButton />
     </div>
   </div>
