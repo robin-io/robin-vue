@@ -44,12 +44,12 @@ export default class RAttachFilePopOver extends Vue {
   acceptedDocFiles = '.csv, .xlsx, .xls, .doc, .docx, .ppt, .pptx, .txt, .pdf' as string
   acceptedVisualFiles = 'image/*, video/*, video/mp4' as string
 
-  resetFileTarget (event: any): void {
+  resetFileTarget(event: any): void {
     event.target.value = ''
     // console.log(files, files.value, files.files)
   }
 
-  handleFileChange (files: any): void {
+  handleFileChange(files: any): void {
     ;[...files].forEach(async (file: any) => {
       const fileURL = URL.createObjectURL(file)
       const typeIndex = file.name.lastIndexOf('.')
@@ -69,7 +69,7 @@ export default class RAttachFilePopOver extends Vue {
     })
   }
 
-  openFileDialog (id: string) {
+  openFileDialog(id: string) {
     const label = this.$refs[id] as any
     label.$el.click()
   }
