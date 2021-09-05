@@ -40,15 +40,17 @@
         </div>
       </div>
     </div> -->
-    <RAlphabetBlock />
-    <div class="robin-wrapper robin-card-container robin-flex robin-flex-column robin-grey-200">
-      <div class="robin-card robin-flex robin-flex-align-center robin-clickable" v-for="user in $robin_users" :key="user.userToken" @click="createConversation(user)">
-        <div class="robin-card-info robin-mr-12">
-          <RAvatar />
-        </div>
-        <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4˝ robin-flex-1">
-          <div class="robin-flex">
-            <RText :font-size="14" :line-height="18">{{ user.userName }}</RText>
+    <div class="robin-contact-container" v-for="(contact, key, index) in contacts" :key="`contact-${index}`">
+      <RAlphabetBlock :text="key"/>
+      <div class="robin-wrapper robin-card-container robin-flex robin-flex-column robin-grey-200">
+        <div class="robin-card robin-flex robin-flex-align-center robin-clickable" v-for="user in contact" :key="user.userToken" @click="createConversation(user)">
+          <div class="robin-card-info robin-mr-12">
+            <RAvatar />
+          </div>
+          <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4˝ robin-flex-1">
+            <div class="robin-flex">
+              <RText :font-size="14" :line-height="18">{{ user.userName }}</RText>
+            </div>
           </div>
         </div>
       </div>
@@ -102,7 +104,13 @@ import EventBus from '@/event-bus'
   }
 })
 export default class NewChatList extends Vue {
-  async createConversation(user: any) {
+  contacts = {} as any
+
+  created () {
+    this.getContacts(this.$robin_users)
+  }
+
+  async createConversation (user: any) {
     const resp = await this.$robin.createConversation({
       sender_name: 'vue test',
       sender_token: this.$user_token,
@@ -120,7 +128,7 @@ export default class NewChatList extends Vue {
     }
   }
 
-  checkConversations(convo: any): Boolean {
+  checkConversations (convo: any): Boolean {
     let res = false
     this.$conversations.forEach((conversation) => {
       if (conversation._id === convo._id) {
@@ -128,6 +136,12 @@ export default class NewChatList extends Vue {
       }
     })
     return res
+  }
+
+  getContacts (users: Array<any>): void {
+    this.$robin_users.forEach((user) => {
+      this.contacts[user.userName[0]] = this.$robin_users.filter((item) => item.userName[0] === user.userName[0])
+    })
   }
 }
 </script>
@@ -147,6 +161,10 @@ header {
   display: flex;
   justify-content: space-between;
   padding: 3.563rem 1.5rem 1.5rem;
+}
+
+.robin-contact-container {
+  width: 100%;
 }
 
 .robin-wrapper {
@@ -177,5 +195,27 @@ header {
 .robin-alphabet-block + .robin-card-container .robin-card:hover {
   background-color: #c8c8c8;
   /* padding: 1rem 0.75rem 1.1rem; */
+}
+
+@media (min-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    /* border: 1px solid #00000017; */
+    border-radius: 24px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    width: 2px;
+    background-color: #d6d6d6;
+    border-radius: 24px;
+    -webkit-border-radius: 24px;
+    -moz-border-radius: 24px;
+    -ms-border-radius: 24px;
+    -o-border-radius: 24px;
+  }
 }
 </style>

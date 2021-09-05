@@ -9,72 +9,19 @@
           </div>
         </template>
         <template v-slot:default>
-          <div class="robin-inner-wrapper" ref="messages">
-            <div class="robin-message-bubble robin-flex robin-flex-wrap" :class="message.content.receiver_token === $user_token ? 'robin-message-sender' : 'robin-message-receiver robin-ml-auto'" v-for="message in messages" :key="message._id">
-              <div class="robin-message-bubble-inner" v-if="!message.has_attachment">
-                <RText v-if="conversation.isGroup" :font-size="12" color="#15AE73" as="span" :line-height="20"> Precious Ogar </RText>
-                <RText :font-size="16" textWrap="pre-line" as="span" v-if="!emailRegex.test(message.content.msg) && !websiteRegex.test(message.content.msg)">
-                  {{ message.content.msg }}
-                </RText>
-                <RText :font-size="14" textWrap="pre-line" as="span" v-else-if="emailRegex.test(message.content.msg) && !websiteRegex.test(message.content.msg)">
-                  <a target="_blank" :href="`mailto:${message.content.msg}`">{{ message.content.msg }}</a>
-                </RText>
-                <RText :font-size="14" textWrap="pre-line" as="span" v-else>
-                  <a target="_blank" :href="message.content.msg.includes('http') || message.content.msg.includes('https') ? message.content.msg : `https://${message.content.msg}`">{{ message.content.msg }}</a>
-                </RText>
-                <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
-                  <RText :font-size="12" color="#7a7a7a" as="p">
-                    {{ formatTimeStamp(message.content.timestamp) }}
-                  </RText>
-                </span>
-              </div>
-              <div v-viewer class="robin-message-bubble-image" v-if="message.content.is_attachment && imageRegex.test(checkAttachmentType(message.content.attachment))">
-                <v-lazy-image class="robin-uploaded-image" :src="message.content.attachment" />
-                <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
-                  <RText :font-size="12" color="#7a7a7a" as="p">
-                    {{ formatTimeStamp(message.content.timestamp) }}
-                  </RText>
-                </span>
-              </div>
-              <div class="robin-message-bubble-video" v-if="message.content.is_attachment && videoRegex.test(checkAttachmentType(message.content.attachment))">
-                <video controls>
-                  <source :src="message.content.attachment" />
-                  Your browser does not support the video tag.
-                </video>
-                <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
-                  <RText :font-size="12" color="#7a7a7a" as="p">
-                    {{ formatTimeStamp(message.content.timestamp) }}
-                  </RText>
-                </span>
-              </div>
-              <div class="robin-message-bubble-document" v-if="message.content.is_attachment && documentRegex.test(checkAttachmentType(message.content.attachment))">
-                <RFileIcon />
-                <RText as="span"> File </RText>
-              </div>
-              <!-- <div class="robin-message-bubble-document" v-if="message.content.is_attachment && documentRegex.test(checkAttachmentType(message.content.attachment))">
-                <div class="robin-file">
-                  <span class="material-icon material-icons-outlined"> article </span>
-                  <RText as="span">
-                    {{ getFileDetails(message.content.attachment).name.length > 6 ? getFileDetails(message.content.attachment).name.substring(0, 6) + '..' : getFileDetails(message.content.attachment).name }}
-                  </RText>
-                  <RText as="span">
-                    {{ '.' + getFileDetails(message.content.attachment).extension }}
-                  </RText>
-                </div>
-                <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
-                  <RText :font-size="12" color="#7a7a7a" as="p">
-                    {{ formatTimeStamp(message.content.timestamp) }}
-                  </RText>
-                </span>
-              </div> -->
-            </div>
+          <div class="robin-inner-wrapper" ref="message" @scroll="onScroll()">
+            <MessageContent v-for="(message, index) in messages" @open-preview="openImagePreview($event)" :key="`message-${index}`" v-show="!message.is_deleted" :message="message" :conversation="conversation" :message-popup="popUpState.messagePopUp[index]" :scroll="scroll" :last-id="!Array.isArray(message) && index > messages.length - 3 ? message._id : ''" />
           </div>
+        </template>
+        <template v-slot:rejected>
+          <div>please check your connection</div>
         </template>
       </Promised>
       <!-- <RUnreadMessageBar :number="1" /> -->
     </div>
     <RMessageInputBar :conversation="conversation" @open-camera="openCamera()" :captured-image="capturedImage" />
     <RCamera ref="popup-1" :camera-opened="popUpState.cameraOpened" @close="closeCamera()" @captured-image="handleCapturedImage" v-show="popUpState.cameraOpened" />
+    <MessageImagePreviewer ref="popup-2" v-show="popUpState.imagePreviewerOpened" @close="closeImagePreview()" :images-to-preview="imagesToPreview" />
     <!-- <RForwardMessage /> -->
   </div>
 </template>
@@ -82,18 +29,18 @@
 <script lang="ts">
 import Vue from 'vue'
 import { Promised } from 'vue-promised'
-import VLazyImage from 'v-lazy-image/v2'
-import 'viewerjs/dist/viewer.css'
-import { directive as viewer } from 'v-viewer'
 import EventBus from '@/event-bus'
 import Component from 'vue-class-component'
 import RGroupChatHeader from '../RGroupChatHeader/RGroupChatHeader.vue'
 import RMessageInputBar from '../RMessageInputBar/RMessageInputBar.vue'
+import RDownloadButton from '../RDownloadButton/RDownloadButton.vue'
 import RText from '@/components/ChatList/RText/RText.vue'
-import RFileIcon from '../RFileIcon.vue'
 import RCamera from '../RCamera/RCamera.vue'
-import moment from 'moment'
 import mime from 'mime'
+import MessageContent from '../MessageContent/MessageContent.vue'
+import MessageGrid from '../MessageGrid/MessageGrid.vue'
+import MessageImagePreviewer from '../MessageImagePreviewer/MessageImagePreviewer.vue'
+import RMessagePopOver from '../RMessagePopOver/RMessagePopOver.vue'
 // import RUnreadMessageBar from '../RUnreadMessagesBar/RUnreadMessagesBar.vue'
 // import RForwardMessage from '../RForwardMessage/RForwardMessage.vue'
 
@@ -105,52 +52,102 @@ import mime from 'mime'
     RText,
     RMessageInputBar,
     RCamera,
-    RFileIcon,
+    RDownloadButton,
     Promised,
-    VLazyImage
+    MessageContent,
+    MessageGrid,
+    MessageImagePreviewer,
+    RMessagePopOver
     // RUnreadMessageBar
     // RForwardMessage
   },
   watch: {
     messages: {
       handler (val: any): void {
-        this.scrollToBottom()
+        this.popUpState.messagePopUp = []
+        ;[...val].forEach((val) => {
+          this.popUpState.messagePopUp.push({
+            opened: false,
+            _id: val._id
+          })
+        })
       },
-      deep: true
+      immediate: true
     }
-  },
-  directives: { viewer: viewer({ debug: true }) }
+  }
 })
 export default class RGroupMessageContainer extends Vue {
-  text = ''
   conversation = {} as any
   messages = [] as any
+  imagesToPreview = [] as any
   promise = null as any
   capturedImage = null as any
+  scroll = false as boolean
   popUpState = {
-    cameraOpened: false
+    cameraOpened: false,
+    imagePreviewerOpened: false,
+    messagePopUp: [] as Array<any>
+  }
+
+  loading = true as boolean
+
+  messagePopUpIndex = 0 as number
+
+  images = {
+    pdf: 'pdf.png',
+    doc: 'doc.png',
+    docx: 'docx.png',
+    csv: 'csv.csv',
+    ppt: 'ppt.png',
+    rtf: 'rtf.png',
+    rar: 'rar.png',
+    tar: 'tar.png',
+    xls: 'xls.png',
+    xlsx: 'xlsx.png',
+    txt: 'txt.png',
+    odt: 'odt.png',
+    md: 'md.png',
+    '7z': '7z.png',
+    zip: 'zip.png',
+    html: 'html.png'
   }
 
   imageRegex = /^image/ as any
   videoRegex = /^video/ as any
-  documentRegex = /(csv|xlsx|xls|doc|docx|ppt|pptx|txt|pdf)$/
+  documentRegex = /(csv|xlsx|xls|doc|docx|ppt|pptx|txt|pdf|ppt|rtf|rar|tar|odt|md|zip|7z|zip|html)$/
   emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   websiteRegex = /[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/
 
   created () {
+    this.handleConversationOpen()
+    this.onNewMessage()
+    this.onMessageDelete()
+    this.onImageDelete()
+  }
+
+  handleConversationOpen (): void {
     EventBus.$on('conversation-opened', (conversation: any) => {
       this.messages = []
       this.conversation = conversation || []
+      this.scroll = false
       this.promise = this.getConversationMessages(conversation._id)
+      this.promise.then(() => {
+        this.scrollToBottom()
+      })
+      console.log(this.promise)
     })
+  }
+
+  onNewMessage () {
     EventBus.$on('new-message', (message: any) => {
+      console.log('new-message: ' + message)
       if (message.conversation_id === this.conversation._id) {
         this.messages.push(message)
       }
       this.$conversations.forEach((conversation, index) => {
         if (conversation._id === this.conversation._id) {
           this.$conversations[index].updated_at = message.content.timestamp
-          this.$conversations[index].last_message = message.content.msg
+          this.$conversations[index].last_message = message.content
           const newConv = this.$conversations[index]
           this.$conversations.splice(index, 1)
           this.$conversations.unshift(newConv)
@@ -159,27 +156,45 @@ export default class RGroupMessageContainer extends Vue {
     })
   }
 
-  formatTimeStamp (value: any): string {
-    return moment(String(value)).format('h:mma').toUpperCase()
+  onMessageDelete () {
+    EventBus.$on('message-deleted', (message: any) => {
+      const index = this.messages.findIndex((item: any) => item._id === message._id) as number
+      this.messages[index].is_deleted = true
+    })
+  }
+
+  onImageDelete () {
+    EventBus.$on('image-deleted', (message: any) => {
+      console.log(message)
+      const messageIndex = this.messages.findIndex((item: any) => {
+        if (Array.isArray(item)) return item.some(image => image._id === message._id)
+        return false
+      }) as number
+
+      const index = this.messages[messageIndex].findIndex((item: any) => item._id === message._id) as number
+      this.messages[messageIndex][index].is_deleted = true
+    })
   }
 
   async getConversationMessages (id: string): Promise<void> {
-    const resp = await this.$robin.getConversationMessages(id)
+    const resp = await this.$robin.getConversationMessages(id, this.$user_token)
 
     if (!resp.error) {
-      this.messages = resp.data == null ? [] : resp.data
+      // this.messages = resp.data == null ? [] : resp.data
+      this.testMessages(resp.data == null ? [] : resp.data)
+      // this.getMutatedMessages(resp.data == null ? [] : resp.data)
+      // console.log(this.getMutatedMessages(resp.data == null ? [] : resp.data))
     }
 
-    console.log(this.messages)
+    // console.log(this.messages)
     this.scrollToBottom()
   }
 
   scrollToBottom (): void {
     window.setTimeout(() => {
-      const messages = this.$refs.messages as HTMLElement
-
-      if (messages) {
-        messages.scrollTop = 10000000
+      const message = this.$refs.message as HTMLElement
+      if (message) {
+        message.scrollTop = message.scrollHeight
       }
     }, 100)
   }
@@ -190,7 +205,6 @@ export default class RGroupMessageContainer extends Vue {
 
   closeCamera (): void {
     const popup = this.$refs['popup-1'] as any
-    console.log(popup)
     popup.$refs['popup-body'].classList.remove('robin-squeezeOut')
     popup.$refs['popup-body'].classList.add('robin-squeezeIn')
 
@@ -202,6 +216,36 @@ export default class RGroupMessageContainer extends Vue {
     }, 300)
   }
 
+  openImagePreview ($event: any): void {
+    this.popUpState.imagePreviewerOpened = true
+    this.imagesToPreview = $event
+  }
+
+  closeImagePreview (): void {
+    const popup = this.$refs['popup-2'] as any
+    popup.$refs['popup-body'].classList.remove('robin-squeezeOut')
+    popup.$refs['popup-body'].classList.add('robin-squeezeIn')
+
+    window.setTimeout(() => {
+      popup.$refs['popup-body'].classList.remove('robin-squeezeIn')
+      popup.$refs['popup-body'].classList.add('robin-squeezeOut')
+
+      this.popUpState.imagePreviewerOpened = false
+      this.imagesToPreview = []
+    }, 300)
+  }
+
+  openMessagePopup (val: number): void {
+    this.messagePopUpIndex = val
+    this.popUpState.messagePopUp[this.messagePopUpIndex].opened = true
+  }
+
+  closeMessagePopup (event: any): void {
+    console.log(event)
+    this.popUpState.messagePopUp[this.messagePopUpIndex].opened = false
+    this.messagePopUpIndex = 0
+  }
+
   handleCapturedImage (val: Object): void {
     this.capturedImage = val
   }
@@ -211,14 +255,44 @@ export default class RGroupMessageContainer extends Vue {
     return `${mime.getType(strArr[strArr.length - 1])}`
   }
 
-  getFileDetails (attachmentUrl: String): Object {
-    const fileName = attachmentUrl.substring(attachmentUrl.lastIndexOf('/') + 1)
-    const strArr = fileName.split('.')
+  testMessages (messages: Array<any>) {
+    // const imageGrids = [] as any
+    const newMessages = []
+    let temp = [] as any
 
-    return {
-      name: strArr[strArr.length - 2],
-      extension: strArr[strArr.length - 1]
+    for (let index = 0; index < messages.length; index += 1) {
+      const fileMimeType = this.checkAttachmentType(messages[index].content.attachment || '') as any
+      const isImage = this.imageRegex.test(fileMimeType) as any
+
+      const nextFileMimeType = this.checkAttachmentType(messages[index + 1] ? messages[index + 1].content.attachment || '' : '') as any
+      const isImageNext = this.imageRegex.test(nextFileMimeType) as any
+
+      if (isImage) {
+        temp.push(messages[index])
+      }
+
+      if (temp.length > 1) {
+        if (!Array.isArray(newMessages[newMessages.length - 1])) {
+          newMessages[newMessages.length] = temp
+        }
+      }
+
+      if (!isImageNext || !isImage) {
+        // eslint-disable-next-line
+        if (Array.isArray(newMessages[newMessages.length - 1]) && isImage) {
+        } else {
+          temp = []
+          newMessages.push(messages[index])
+        }
+      }
     }
+
+    console.log(newMessages)
+    this.messages = newMessages
+  }
+
+  onScroll (): void {
+    this.scroll = true
   }
 }
 </script>
@@ -252,33 +326,6 @@ export default class RGroupMessageContainer extends Vue {
   overflow-y: auto;
 }
 
-/* Bubble styles */
-
-.robin-message-sender + .robin-message-receiver {
-  margin-top: 1rem;
-}
-
-.robin-message-sender + .robin-message-sender,
-.robin-message-receiver + .robin-message-receiver {
-  margin-top: 0.25rem;
-}
-
-.robin-message-sender + .robin-message-receiver {
-  border-radius: 16px 16px 0px 16px;
-}
-
-.robin-message-receiver + .robin-message-sender {
-  border-radius: 16px 16px 16px 0px;
-}
-
-.robin-inner-wrapper .robin-message-sender:last-child {
-  border-radius: 16px 16px 16px 0px;
-}
-
-.robin-inner-wrapper .robin-message-receiver:last-child {
-  border-radius: 16px 16px 0px 16px;
-}
-
 /* .robin-message-sender {
   background-color: #f4f6f8;
   border: 1px solid rgba(35, 107, 248, 0.2);
@@ -289,12 +336,7 @@ export default class RGroupMessageContainer extends Vue {
 } */
 
 /* Default bubble styles */
-
-.robin-message-bubble {
-  border-radius: 16px;
-  /* margin-top: 10px; */
-}
-
+/*
 .robin-message-receiver .robin-side-text {
   flex: 1;
   display: flex;
@@ -305,191 +347,27 @@ export default class RGroupMessageContainer extends Vue {
   flex: 1;
   display: flex;
   justify-content: flex-start;
-}
-
-/* Text */
-
-.robin-message-sender .robin-message-bubble-inner {
-  background-color: #f4f6f8;
-  border: 1px solid rgba(35, 107, 248, 0.2);
-}
-
-.robin-message-receiver .robin-message-bubble-inner {
-  background-color: #d3d7ea;
-}
-
-.robin-message-bubble-inner {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.375rem 0.5rem;
-  min-width: 60px;
-  width: max-content;
-  max-width: 290px;
-  padding: 0.5rem 1rem 0.5rem 1rem;
-  border-radius: inherit;
-}
-
-/* Image */
-
-.robin-message-sender .robin-message-bubble-image {
-  background-color: #f4f6f8;
-  border: 1px solid rgba(35, 107, 248, 0.2);
-}
-
-.robin-message-receiver .robin-message-bubble-image {
-  background-color: #d3d7ea;
-}
-
-.robin-message-bubble-image {
-  display: flex;
-  flex-direction: column;
-  max-width: 300px;
-  padding: 0 0 0.5rem 0;
-  border-radius: inherit;
-}
-
-.robin-uploaded-image {
-  width: 100%;
-  min-width: 170px;
-  max-width: 291px;
-  height: 200px;
-  border-radius: inherit;
-}
-
-.robin-message-sender .robin-message-bubble-image .robin-side-text {
-  margin: 0.375rem 0.3rem 0;
-}
-
-.robin-message-receiver .robin-message-bubble-image .robin-side-text {
-  margin: 0.375rem 1rem 0;
-}
-
-.robin-message-bubble-image img {
-  cursor: pointer;
-}
-
-/* Video */
-
-.robin-message-sender .robin-message-bubble-video {
-  background-color: #f4f6f8;
-  border: 1px solid rgba(35, 107, 248, 0.2);
-}
-
-.robin-message-receiver .robin-message-bubble-video {
-  background-color: #d3d7ea;
-}
-
-.robin-message-bubble-video {
-  display: flex;
-  flex-direction: column;
-  max-width: 300px;
-  padding: 0 0 0.5rem 0;
-  border-radius: inherit;
-}
-
-.robin-message-sender .robin-message-bubble-video .robin-side-text {
-  margin: 0.375rem 0.3rem 0;
-}
-
-.robin-message-receiver .robin-message-bubble-video .robin-side-text {
-  margin: 0.375rem 1rem 0;
-}
-
-video {
-  width: 100%;
-  height: 100%;
-  border-radius: inherit;
-}
-
-.v-lazy-image {
-  filter: blur(5px);
-  transition: filter 1.6s;
-  will-change: filter;
-}
-
-.v-lazy-image-loaded {
-  filter: blur(0);
-}
-
-/* Document */
-
-.robin-message-sender .robin-message-bubble-document {
-  background-color: #f4f6f8;
-  border: 1px solid rgba(35, 107, 248, 0.2);
-}
-
-.robin-message-receiver .robin-message-bubble-document {
-  background-color: #d3d7ea;
-}
-
-.robin-message-receiver .robin-message-bubble-document {
-  display: flex;
-  align-items: center;
-  padding: 0.5rem 1rem 0.5rem 1rem;
-  border: 1px solid rgba(21, 174, 115, 0.2);
-  border-radius: inherit;
-  background-color: #fafafa;
-}
-
-.robin-message-receiver .robin-message-bubble-document >>> .robin-text {
-  color: #8fbfad !important;
-}
-
-.robin-message-sender .robin-message-bubble-document >>> .robin-text {
-  color: #4568d1 !important;
-}
-
-.robin-message-sender .robin-message-bubble-document {
-  display: flex;
-  align-items: center;
-  padding: 0.5rem 1rem 0.5rem 1rem;
-  border: 1px solid rgba(35, 107, 248, 0.2);
-  border-radius: inherit;
-  background-color: #fafafa;
-}
-
-.robin-message-bubble-document >>> .robin-text {
-  margin-left: 0.75rem;
-}
-
-/* Website & Email */
-
-a {
-  display: block;
-  text-decoration: none;
-  color: #4568d1;
-  max-width: 220px;
-}
-
-/* .robin-message-sender .robin-message-bubble-document .robin-side-text {
-  margin: 0.375rem 0.3rem 0;
-}
-
-.robin-message-receiver .robin-message-bubble-document .robin-side-text {
-  margin: 0.375rem 1rem 0;
 } */
 
-/* .robin-message-bubble-document {
-  display: flex;
-  flex-direction: column;
-  max-width: 325px;
-  width: 178px;
-  height: 130px;
-  padding: 0 0 0.5rem 0;
-}
+@media (min-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
 
-.robin-message-bubble-document .robin-file {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  background-color: transparent;
-}
+  ::-webkit-scrollbar-track {
+    /* border: 1px solid #00000017; */
+    border-radius: 24px;
+  }
 
-.robin-message-bubble-document .robin-file > .material-icon {
-  color: var(--primary-color);
-  font-size: 1.3rem;
-} */
+  ::-webkit-scrollbar-thumb {
+    width: 2px;
+    background-color: #d6d6d6;
+    border-radius: 24px;
+    -webkit-border-radius: 24px;
+    -moz-border-radius: 24px;
+    -ms-border-radius: 24px;
+    -o-border-radius: 24px;
+  }
+}
 </style>

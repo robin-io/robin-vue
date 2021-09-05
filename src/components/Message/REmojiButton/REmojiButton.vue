@@ -29,12 +29,12 @@ const ComponentProps = Vue.extend({
 export default class REmojiButton extends ComponentProps {
   root = null as any
 
-  mounted(): void {
+  mounted (): void {
     this.root = getComputedStyle(document.body)
     this.getActiveColor()
   }
 
-  getActiveColor(): string {
+  getActiveColor (): string {
     return this.root.getPropertyValue('--primary-color')
   }
 }

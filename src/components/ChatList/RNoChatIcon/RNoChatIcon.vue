@@ -52,7 +52,7 @@ const ComponentProps = Vue.extend({
 @Component<RNoChatIcon>({
   name: 'RNoChatIcon',
   watch: {
-    color(): void {
+    color (): void {
       this.setRootVariables()
     }
   }
@@ -60,12 +60,12 @@ const ComponentProps = Vue.extend({
 export default class RNoChatIcon extends ComponentProps {
   root = null as any
 
-  mounted(): void {
+  mounted (): void {
     this.root = document.documentElement
     this.setRootVariables()
   }
 
-  setRootVariables(): void {
+  setRootVariables (): void {
     this.root.style.setProperty('--color', this.color)
   }
 }

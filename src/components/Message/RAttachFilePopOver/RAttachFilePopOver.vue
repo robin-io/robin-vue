@@ -41,15 +41,14 @@ import RDocumentButton from '../RDocumentButton/RDocumentButton.vue'
   }
 })
 export default class RAttachFilePopOver extends Vue {
-  acceptedDocFiles = '.csv, .xlsx, .xls, .doc, .docx, .ppt, .pptx, .txt, .pdf' as string
+  acceptedDocFiles = '.csv, .xlsx, .xls, .doc, .docx, .ppt, .pptx, .txt, .pdf, .html, .7z, .zip, .rtf, .rar, .tar, .odt, .md' as string
   acceptedVisualFiles = 'image/*, video/*, video/mp4' as string
 
-  resetFileTarget(event: any): void {
+  resetFileTarget (event: any): void {
     event.target.value = ''
-    // console.log(files, files.value, files.files)
   }
 
-  handleFileChange(files: any): void {
+  handleFileChange (files: any): void {
     ;[...files].forEach(async (file: any) => {
       const fileURL = URL.createObjectURL(file)
       const typeIndex = file.name.lastIndexOf('.')
@@ -64,12 +63,12 @@ export default class RAttachFilePopOver extends Vue {
           file: file
         })
       } else {
-        console.log('Image more than 5mb')
+        this.$toasted.global.custom_error('Image upload cannot be more than 5mb')
       }
     })
   }
 
-  openFileDialog(id: string) {
+  openFileDialog (id: string) {
     const label = this.$refs[id] as any
     label.$el.click()
   }

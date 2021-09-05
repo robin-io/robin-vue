@@ -1,6 +1,6 @@
 <template>
   <label class="robin-checkbox-container">
-    <input type="checkbox" name="checkbox" class="robin-checkbox-button" />
+    <input type="checkbox" name="checkbox" class="robin-checkbox-button" v-model="checked" @click="$emit('clicked', checked)" />
     <span class="robin-checkbox-control"></span>
   </label>
 </template>
@@ -22,20 +22,21 @@ const ComponentProps = Vue.extend({
 @Component<RCheckBox>({
   name: 'RCheckBox',
   watch: {
-    color(): void {
+    color (): void {
       this.setRootVariables()
     }
   }
 })
 export default class RCheckBox extends ComponentProps {
   root = null as any
+  checked = false as boolean
 
-  mounted(): void {
+  mounted (): void {
     this.root = document.documentElement
     this.setRootVariables()
   }
 
-  setRootVariables(): void {
+  setRootVariables (): void {
     this.root.style.setProperty('--checkbox-color', this.color)
   }
 }
@@ -52,10 +53,10 @@ input[type='checkbox'] {
   height: 0;
 }
 
-/* .robin-checkbox-control {
-  display: grid;
-  place-items: center;
-} */
+.robin-checkbox-control {
+  /* display: grid;
+  place-items: center; */
+}
 
 .robin-checkbox-control {
   display: grid;
@@ -65,23 +66,47 @@ input[type='checkbox'] {
   border-radius: 50%;
   border: 0.1rem solid #bbc1d6;
   cursor: pointer;
+  position: relative;
 }
 
 input[type='checkbox'] + .robin-checkbox-control::before {
   content: '';
-  width: 0.5rem;
-  height: 0.5rem;
-  box-shadow: inset 0.5em 0.5em var(--checkbox-color);
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
-  transition: 180ms transform ease-in-out;
+  background-color: var(--checkbox-color);
   transform: scale(0);
+  transform-origin: center;
+  transition: transform 0.2s;
+}
+
+input[type='checkbox'] + .robin-checkbox-control::after {
+  content: '';
+  width: 0px;
+  height: 0px;
+  border: solid #fff;
+  border-width: 0;
+  border-radius: 0px 1px 1px 1px;
+  transform: rotate(0) scale(0);
+  transition: transform 0.3s;
+  transform-origin: center;
+  position: absolute;
+  top: 3px;
 }
 
 input[type='checkbox']:checked + .robin-checkbox-control {
-  border: 0.1rem solid var(--checkbox-color);
+  /* border: 0.1px solid var(--checkbox-color); */
+  border: 0px solid var(--checkbox-color);
 }
 
 input[type='checkbox']:checked + .robin-checkbox-control::before {
   transform: scale(1);
+}
+
+input[type='checkbox']:checked + .robin-checkbox-control::after {
+  width: 3.5px;
+  height: 7px;
+  border-width: 0 1px 1px 0;
+  transform: rotate(45deg) scale(1);
 }
 </style>

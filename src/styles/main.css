@@ -51,12 +51,12 @@
   padding-top: 0.625rem;
 }
 
-.robin-pt-4 {
-  padding-top: 0.25rem;
+.robin-pt-8 {
+  padding-top: 0.5rem;
 }
 
-.robin-pb-4 {
-  padding-bottom: 0.25rem;
+.robin-pb-8 {
+  padding-bottom: 0.5rem;
 }
 
 .robin-pb-11 {
@@ -69,6 +69,10 @@
 
 .robin-mt-75 {
   margin-top: 4.688rem;
+}
+
+.robin-m-auto {
+  margin: 0 auto;
 }
 
 .robin-pb-10 {
@@ -251,12 +255,24 @@
   display: none;
 }
 
+.robin-invisible {
+  visibility: hidden;
+}
+
 .robin-relative {
   position: relative;
 }
 
 .robin-pt-24 {
   padding-top: 1.5rem;
+}
+
+.robin-pt-4 {
+  padding-top: 0.25rem;
+}
+
+.robin-pb-4 {
+  padding-bottom: 0.25rem;
 }
 
 .robin-pb-24 {
@@ -281,6 +297,55 @@
 
 .robin-overflow-y-auto {
   overflow-y: auto;
+}
+
+.robin-mr-10 {
+  margin-right: 0.625rem;
+}
+
+.robin-pb-16 {
+  padding-bottom: 1rem;
+}
+
+.robin-flex-end {
+  align-items: flex-end;
+}
+
+.robin-toasted .robin-toasted-container .action.icon {
+  color: #fff !important;
+}
+
+.robin-toasted .primary.error, .toasted.toasted-primary.error {
+  background: rgba(255, 0, 0, 1) !important;
+  color: #fff !important;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.robin-toasted .primary.success, .toasted.toasted-primary.success {
+  background: #09ab5d !important;
+  color: #fff !important;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.carousel-3d-container {
+  height: 400px !important;
+  margin: 2rem 0 1.5rem;
+}
+
+.carousel-3d-slider {
+  height: 100% !important;
+}
+
+.carousel-3d-slide {
+  height: 100% !important;
+  background-color: transparent !important;
+  border-width: 0 !important;
+}
+
+.carousel-3d-slide img {
+  height: 100%;
 }
 
 /* animations */
@@ -430,6 +495,28 @@
   }
 }
 
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes pulse {
+  from {
+    transform: scale3d(1, 1, 1);
+  }
+  50% {
+    transform: scale3d(1.02, 1.02, 1.02);
+  }
+  to {
+    transform: scale3d(1, 1, 1);
+  }
+}
+
 .robin-bounceIn {
   animation: bounceIn 0.9s;
   -webkit-animation: bounceIn 0.9s;
@@ -479,4 +566,16 @@
 
 .robin-fadeIn-enter-active {
   animation: fade-in 300ms;
+}
+
+.robin-fadeIn {
+  animation: fade-in 100ms ease-in-out forwards;
+}
+
+.robin-fadeOut {
+  animation: fade-out 100ms ease-in-out forwards;
+}
+
+.robin-pulse {
+  animation: pulse 100ms ease-in-out;
 }

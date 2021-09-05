@@ -1,5 +1,5 @@
 <template>
-  <input type="text" :placeholder="placeholder" autocomplete="off" class="robin-input" v-model="text" :style="getStyles" />
+  <input type="text" :placeholder="placeholder" @input="userTyping($event.target.value)" autocomplete="off" class="robin-input" v-model="text" :style="getStyles" />
 </template>
 
 <script lang="ts">
@@ -37,7 +37,7 @@ const ComponentProps = Vue.extend({
 export default class RInput extends ComponentProps {
   text = ''
 
-  get getStyles(): Object {
+  get getStyles (): Object {
     return {
       'border-radius': this.borderRadius + 'px',
       'min-height': this.height + 'px',
@@ -45,8 +45,8 @@ export default class RInput extends ComponentProps {
     }
   }
 
-  userTyping(val: string): void {
-    this.text = val
+  userTyping (val: string): void {
+    this.$emit('user-typing', val)
   }
 }
 </script>

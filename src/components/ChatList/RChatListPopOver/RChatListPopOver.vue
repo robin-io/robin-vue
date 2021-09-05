@@ -1,12 +1,12 @@
 <template>
   <div class="robin-popup robin-zoomIn" ref="popup-body">
-    <div class="robin-wrapper robin-w-100">
+    <div class="robin-wrapper robin-w-100" @click="$emit('archive-chat')">
       <RText :font-size="14" color="#101010">Archive Chat</RText>
     </div>
-    <div class="robin-wrapper robin-w-100">
+    <!-- <div class="robin-wrapper robin-w-100" @click="$emit('mute-chat')">
       <RText :font-size="14" color="#101010">Mute Notifications</RText>
-    </div>
-    <div class="robin-wrapper robin-w-100">
+    </div> -->
+    <div class="robin-wrapper robin-w-100" @click="$emit('delete-chat')">
       <RText :font-size="14" color="#101010">Delete Chat</RText>
     </div>
   </div>
@@ -51,6 +51,10 @@ export default class RChatListPopOver extends Vue {}
 
 .robin-wrapper:first-child {
   border: none;
+}
+
+.top.robin-zoomIn, .top.robin-zoomOut {
+  transform-origin: bottom right;
 }
 
 .robin-zoomIn,

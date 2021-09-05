@@ -83,4 +83,26 @@ header {
   cursor: pointer;
   /* padding: 1rem 0.75rem 1.1rem; */
 }
+
+@media (min-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    /* border: 1px solid #00000017; */
+    border-radius: 24px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    width: 2px;
+    background-color: #d6d6d6;
+    border-radius: 24px;
+    -webkit-border-radius: 24px;
+    -moz-border-radius: 24px;
+    -ms-border-radius: 24px;
+    -o-border-radius: 24px;
+  }
+}
 </style>

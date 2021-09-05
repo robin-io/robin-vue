@@ -1,8 +1,8 @@
 <template>
   <div class="robin-popup robin-zoomIn" ref="popup-body">
-    <div class="robin-wrapper robin-w-100">
+    <!-- <div class="robin-wrapper robin-w-100">
       <RText :font-size="14" color="#101010">Contact Info</RText>
-    </div>
+    </div> -->
     <div class="robin-wrapper robin-w-100">
       <RText :font-size="14" color="#101010">Select Messages</RText>
     </div>

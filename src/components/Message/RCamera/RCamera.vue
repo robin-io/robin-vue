@@ -1,13 +1,15 @@
 <template>
   <div class="robin-camera-box robin-squeezeOut" ref="popup-body">
     <header class="robin-head">
-      <div class="robin-wrapper robin-mr-12" @click="closeCamera()">
-        <RRemoveButton />
-      </div>
-      <RText as="h3" :font-size="18"> Take photo </RText>
+        <div class="robin-wrapper robin-mr-12" @click="closeCamera()">
+          <RRemoveButton />
+        </div>
+        <RText as="h3" :font-size="18"> Take photo </RText>
     </header>
-    <video v-show="!isPhotoTaken" ref="camera" width="100%" height="500px" autoplay></video>
+    <div class="robin-body">
+      <video v-show="!isPhotoTaken" ref="camera" width="100%" height="500px" autoplay></video>
     <RCameraButton @clicked="takePhoto()" />
+    </div>
   </div>
 </template>
 
@@ -37,7 +39,7 @@ const ComponentProps = Vue.extend({
   },
   watch: {
     cameraOpened: {
-      handler(val) {
+      handler (val) {
         console.log(val)
         if (val) {
           this.setupMedia()
@@ -53,7 +55,7 @@ export default class RCamera extends ComponentProps {
   isPhotoTaken = false as boolean
   isShotPhoto = false as boolean
 
-  setupMedia() {
+  setupMedia () {
     const navigatorExtended = navigator as any
     if (navigatorExtended.mediaDevices === undefined) {
       navigatorExtended.mediaDevices = {}
@@ -64,7 +66,7 @@ export default class RCamera extends ComponentProps {
     this.createCameraElement()
   }
 
-  legacyGetUserMediaSupport() {
+  legacyGetUserMediaSupport () {
     const navigatorExtended = navigator as any
 
     return (constraints: MediaStreamConstraints) => {
@@ -78,7 +80,7 @@ export default class RCamera extends ComponentProps {
     }
   }
 
-  createCameraElement() {
+  createCameraElement () {
     const camera = this.$refs.camera as any
     const windowEl = window as any
 
@@ -97,7 +99,7 @@ export default class RCamera extends ComponentProps {
       })
   }
 
-  closeCamera() {
+  closeCamera () {
     const camera = this.$refs.camera as any
     const tracks = camera.srcObject.getTracks()
 
@@ -108,7 +110,7 @@ export default class RCamera extends ComponentProps {
     this.$emit('close')
   }
 
-  takePhoto() {
+  takePhoto () {
     const capture = this.getCanvas().toDataURL('image/jpeg')
     this.convertBase64ToFile(capture).then((res) => {
       this.$emit('captured-image', {
@@ -120,7 +122,7 @@ export default class RCamera extends ComponentProps {
     this.closeCamera()
   }
 
-  getCanvas() {
+  getCanvas () {
     const camera = this.$refs.camera as any
     const canvas = document.createElement('canvas')
     canvas.height = camera.height
@@ -133,10 +135,20 @@ export default class RCamera extends ComponentProps {
     return canvas
   }
 
-  async convertBase64ToFile(base64: string): Promise<File> {
+  createUuid (length: number) {
+    let result = ''
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+    const charactersLength = characters.length
+    for (let i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength))
+    }
+    return result
+  }
+
+  async convertBase64ToFile (base64: string): Promise<File> {
     const res: Response = await fetch(base64)
     const blob: Blob = await res.blob()
-    return new File([blob], 'file.jpeg', { type: 'image/jpeg' })
+    return new File([blob], `${this.createUuid(30)}.jpeg`, { type: 'image/jpeg' })
   }
 
   // handleCapture (): void {
@@ -186,18 +198,12 @@ export default class RCamera extends ComponentProps {
   z-index: 2;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
   transform-origin: bottom;
-  padding: 5rem 2.688rem 1rem 3.125rem;
-  overflow-y: auto;
 }
 
 .robin-head {
-  position: sticky;
-  top: 0;
   width: 100%;
-  height: 50px;
+  min-height: 50px;
   display: flex;
   align-items: center;
   background-color: #fff;
@@ -205,7 +211,16 @@ export default class RCamera extends ComponentProps {
   box-shadow: 0 0px 0px rgba(0, 104, 255, 0.07), 0px -1px 10px rgba(0, 104, 255, 0.07);
 }
 
+.robin-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 2.688rem 1rem 3.125rem;
+  overflow-y: auto;
+}
+
 video {
-  margin: 0 0 1.5rem;
+  margin: 2rem 0 1.5rem;
 }
 </style>

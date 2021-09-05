@@ -1,13 +1,40 @@
 <template>
   <div class="robin-side-container">
     <header class="robin-header">
-      <RText font-weight="400" color="rgba(83, 95, 137, 1)" :font-size="17">New Chat</RText>
-      <RTextButton text="Done" emit="done" @done="modalOpen = true" />
+      <div class="robin-mr-10" @click="$emit('changesidebartype', 'newchat')">
+        <RCloseButton />
+      </div>
+      <div class="robin-mb-5">
+       <RText font-weight="400" color="rgba(83, 95, 137, 1)" :font-size="16">New Group Chat</RText>
+      </div>
+      <div class="robin-ml-auto">
+        <RTextButton text="Done" emit="done" @done="openModal()" v-show="users.length > 0" class="robin-pulse" />
+      </div>
     </header>
     <div class="robin-wrapper robin-w-100">
       <RSearchBar />
     </div>
-    <div class="robin-w-100 robin-mt-38">
+    <div class="robin-contact-container" v-for="(contact, key, index) in contacts" :key="`contact-${index}`">
+      <div class="robin-w-100 robin-mt-38">
+        <RAlphabetBlock :text="key" />
+      </div>
+      <div class="robin-wrapper robin-card-container robin-flex robin-flex-column robin-grey-200">
+        <div class="robin-card robin-flex robin-flex-align-center" v-for="(user, userIndex) in contact" :key="user.userToken">
+          <div class="robin-card-info robin-mr-12">
+            <RAvatar />
+          </div>
+          <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4˝ robin-flex-1">
+            <div class="robin-flex">
+              <RText :font-size="14" :line-height="18">{{ user.userName }}</RText>
+            </div>
+            <div class="robin-ml-auto">
+              <RCheckBox :key="userIndex + checkBoxKeyState" @clicked="toggleCheckAction($event, user)" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- <div class="robin-w-100 robin-mt-38">
       <RAlphabetBlock />
     </div>
     <div class="robin-wrapper robin-card-container robin-flex robin-flex-column robin-grey-200">
@@ -40,13 +67,16 @@
           </div>
         </div>
       </div>
-    </div>
-    <CreateGroup v-show="modalOpen" @closemodal="closeModal()" />
+    </div> -->
+    <CreateGroup v-show="modalOpen" @closemodal="closeModal()" :users="users" @remove-user="removeUser($event)" @changesidebartype="$emit('changesidebartype', $event)" />
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
+// import * as _ from 'lodash'
+import Component from 'vue-class-component'
+import RCloseButton from './RCloseButton/RCloseButton.vue'
 import RText from './RText/RText.vue'
 import RSearchBar from './RSearchBar/RSearchBar.vue'
 import RTextButton from './RTextButton/RTextButton.vue'
@@ -55,27 +85,63 @@ import RCheckBox from './RCheckBox/RCheckBox.vue'
 import CreateGroup from './CreateGroup.vue'
 import RAlphabetBlock from './RAlphabetBlock/RAlphabetBlock.vue'
 
-export default Vue.extend({
-  name: 'RSideContainer',
+@Component({
+  name: 'NewGroupChatList',
   components: {
     RText,
     RSearchBar,
     RTextButton,
     RAvatar,
+    RCloseButton,
     RCheckBox,
     CreateGroup,
     RAlphabetBlock
-  },
-  data: () => ({
-    modalOpen: false
-  }),
-  methods: {
-    closeModal(): void {
-      this.$emit('changesidebartype', 'primary')
-      this.modalOpen = false
-    }
   }
 })
+export default class NewGroupChatList extends Vue {
+  modalOpen = false as boolean
+  contacts = {} as any
+  checkBoxKeyState = 0 as number
+  users = [] as Array<any>
+
+  created () {
+    this.getContacts(this.$robin_users)
+  }
+
+  closeModal (): void {
+    this.modalOpen = false
+    this.users = []
+    this.checkBoxKeyState += 1
+  }
+
+  openModal (): void {
+    this.modalOpen = true
+  }
+
+  getContacts (users: Array<any>): void {
+    this.$robin_users.forEach((user) => {
+      this.contacts[user.userName[0]] = this.$robin_users.filter((item) => item.userName[0] === user.userName[0])
+    })
+  }
+
+  toggleCheckAction (val: boolean, user: Object): void {
+    if (!val) {
+      this.addUser(user)
+    } else {
+      this.removeUser(user)
+    }
+  }
+
+  addUser (user: Object): void {
+    this.users.push(user)
+  }
+
+  removeUser (user: any): void {
+    const userIndex = this.users.findIndex(item => item.userToken === user.userToken)
+    console.log(userIndex)
+    this.users.splice(userIndex, 1)
+  }
+}
 </script>
 
 <style scoped>
@@ -91,8 +157,12 @@ export default Vue.extend({
 header {
   width: 100%;
   display: flex;
-  justify-content: space-between;
+  align-items: center;
   padding: 3.563rem 1.5rem 1.5rem;
+}
+
+.robin-contact-container {
+  width: 100%;
 }
 
 .robin-wrapper {
@@ -118,5 +188,27 @@ header {
   padding: 0 1.5rem;
   height: 28px;
   background-color: #f3f3f3;
+}
+
+@media (min-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    /* border: 1px solid #00000017; */
+    border-radius: 24px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    width: 2px;
+    background-color: #d6d6d6;
+    border-radius: 24px;
+    -webkit-border-radius: 24px;
+    -moz-border-radius: 24px;
+    -ms-border-radius: 24px;
+    -o-border-radius: 24px;
+  }
 }
 </style>

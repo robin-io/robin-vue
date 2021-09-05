@@ -1,10 +1,10 @@
 <template>
   <div class="robin-chat-list-container">
-    <PrimaryChatList v-show="$conversations.length > 0 && sideBarType == 'primary'" :conversations="$conversations" @changesidebartype="changeSideBarType" @coversationopened="$emit('coversationopened')" />
-    <NewChatList v-show="sideBarType == 'newchat'" @changesidebartype="changeSideBarType" />
-    <NoChatList v-show="$conversations.length < 1 && sideBarType == 'primary'" @changesidebartype="changeSideBarType" />
-    <NewGroupChatList v-show="sideBarType == 'newgroupchat'" @changesidebartype="changeSideBarType" />
-    <ArchivedChatList v-show="sideBarType == 'archivedchat'" @changesidebartype="changeSideBarType" />
+    <PrimaryChatList v-show="$conversations.length > 0 && sideBarType == 'primary'" :conversations="$conversations" @changesidebartype="changeSideBarType" />
+    <NewChatList v-if="sideBarType == 'newchat'" @changesidebartype="changeSideBarType" />
+    <NoChatList v-if="$conversations.length < 1 && sideBarType == 'primary'" @changesidebartype="changeSideBarType" />
+    <NewGroupChatList v-if="sideBarType == 'newgroupchat'" @changesidebartype="changeSideBarType" />
+    <ArchivedChatList v-if="sideBarType == 'archivedchat'" @changesidebartype="changeSideBarType" />
   </div>
 </template>
 
@@ -12,6 +12,7 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import { State, Mutation } from 'vuex-class'
+import EventBus from '@/event-bus'
 import { RootState } from '@/utils/types'
 import PrimaryChatList from '../PrimaryChatList.vue'
 import NewChatList from '../NewChatList.vue'
@@ -42,18 +43,26 @@ export default class RSideContainer extends ComponentProps {
   @State('isPageLoading') isPageLoading?: RootState
   @Mutation('setPageLoading') setPageLoading: any
 
-  created() {
+  created () {
     this.getUserToken()
+
+    this.onGroupConversationCreated()
   }
 
   sideBarType = 'primary'
-  conversations = []
+  conversations = [] as Array<any>
 
-  changeSideBarType(val: string): void {
+  changeSideBarType (val: string): void {
     this.sideBarType = val
   }
 
-  async getUserToken() {
+  onGroupConversationCreated () {
+    EventBus.$on('group-conversation-created', (conversation: object) => {
+      Vue.prototype.$conversations.unshift(conversation)
+    })
+  }
+
+  async getUserToken () {
     console.log(this.$robin)
     const res = await this.$robin.getUserToken({
       user_token: this.user_token
@@ -73,7 +82,7 @@ export default class RSideContainer extends ComponentProps {
 <style scoped>
 .robin-chat-list-container {
   position: relative;
-  z-index: 3;
+  z-index: 4;
   flex-basis: 30%;
   max-width: 450px;
   height: 100%;

@@ -1,7 +1,7 @@
 <template>
   <div class="robin-container">
     <transition name="robin-fadeIn">
-      <RSideContainer @coversationopened="conversationOpened = true" v-show="!isPageLoading" :user_token="user_token" />
+      <RSideContainer v-show="!isPageLoading" :user_token="user_token" />
     </transition>
     <transition name="robin-fadeIn">
       <RGroupMessageContainer v-show="!isPageLoading && conversationOpened" />
@@ -49,6 +49,11 @@ const ComponentProps = Vue.extend({
           userToken: 'dWvoxobuJSepnEXYOVWtvzBO',
           userName: 'Enoch',
           profileImage: ''
+        },
+        {
+          userToken: 'TyGMUkyuEAqOqEVliBEqdCQH',
+          userName: 'Bashir',
+          profileImage: ''
         }
       ]
     },
@@ -81,7 +86,21 @@ export default class App extends ComponentProps {
   conn = null as any
   conversationOpened = false as boolean
 
-  created(): void {
+  created (): void {
+    this.filterUsers()
+    this.initiateRobin()
+
+    this.openConversation()
+    this.onGroupConversationCreated()
+  }
+
+  initiateRobin () {
+    this.robin = new Robin(this.api_key, true)
+    this.connect()
+    this.setPrototypes()
+  }
+
+  filterUsers (): void {
     const filteredUsers: Array<any> = []
     this.users.forEach((user) => {
       const newUser = {
@@ -91,17 +110,11 @@ export default class App extends ComponentProps {
       }
       filteredUsers.push(newUser)
     })
+
     Vue.prototype.$robin_users = filteredUsers
-    this.initiateRobin()
   }
 
-  initiateRobin() {
-    this.robin = new Robin(this.api_key, true)
-    this.connect()
-    this.setPrototypes()
-  }
-
-  setPrototypes() {
+  setPrototypes () {
     Vue.prototype.$robin = this.robin
     Vue.prototype.$user_token = this.user_token
     Vue.prototype.$channel = this.channel
@@ -110,7 +123,7 @@ export default class App extends ComponentProps {
     console.log(this.robin, this.$robin, this.conn)
   }
 
-  connect() {
+  connect () {
     this.conn = this.robin.connect(this.user_token)
 
     this.conn.onopen = () => {
@@ -126,6 +139,7 @@ export default class App extends ComponentProps {
         EventBus.$emit('new-message', message)
       } else {
         // move new conversation to the top
+        console.log('new conversation')
         EventBus.$emit('new-conversation', message)
       }
     }
@@ -135,6 +149,18 @@ export default class App extends ComponentProps {
     }
 
     Vue.prototype.$conn = this.conn
+  }
+
+  openConversation (): void {
+    EventBus.$on('open-conversation', () => {
+      this.conversationOpened = true
+    })
+  }
+
+  onGroupConversationCreated (): void {
+    EventBus.$on('group-conversation-created', (conversation: object) => {
+      this.conversationOpened = true
+    })
   }
 }
 </script>

@@ -2,13 +2,16 @@
   <header>
     <div class="robin-card robin-flex robin-flex-align-center">
       <div class="robin-card-info robin-mr-16">
-        <RGroupAvatar v-if="conversation.isGroup" />
+        <RGroupAvatar v-if="conversation.is_group" />
         <RAvatar v-else />
       </div>
       <div class="robin-card-info robin-h-100 robin-flex robin-flex-column robin-flex-space-between robin-flex-1">
         <div class="robin-mt-6">
-          <RText font-weight="normal" color="#000000" :font-size="16" :line-height="20">
+          <RText font-weight="normal" color="#000000" :font-size="16" :line-height="20" v-if="!conversation.is_group">
             {{ conversation.senderToken == $user_token ? conversation.sender_name : conversation.receiver_name }}
+          </RText>
+          <RText font-weight="normal" color="#000000" :font-size="16" :line-height="20" v-else>
+            {{ conversation.name }}
           </RText>
         </div>
         <div class="robin-mt-6">
@@ -20,7 +23,7 @@
       <ROptionButton @clickoutside="handleClosePopUp()" />
     </div>
     <div class="robin-popup-container" v-show="popUpState.opened">
-      <RGroupMessagePopOver ref="popup-1" v-if="conversation.isGroup" />
+      <RGroupMessagePopOver ref="popup-1" v-if="conversation.is_group" />
       <RPersonalMessagePopOver ref="popup-1" v-else />
     </div>
   </header>
@@ -65,14 +68,14 @@ export default class RGroupChatHeader extends ComponentProps {
     opened: false
   }
 
-  handleOpenPopUp(): void {
+  handleOpenPopUp (): void {
     const popup = this.$refs['popup-1'] as any
     popup.$refs['popup-body'].classList.remove('robin-zoomOut')
 
     this.popUpState.opened = true
   }
 
-  handleClosePopUp(): void {
+  handleClosePopUp (): void {
     const popup = this.$refs['popup-1'] as any
     popup.$refs['popup-body'].classList.add('robin-zoomOut')
 
@@ -94,7 +97,7 @@ header {
   align-items: center;
   padding: 1.938rem 2.688rem 1.375rem 3.125rem;
   position: relative;
-  z-index: 2;
+  z-index: 3;
 }
 
 .robin-card-container {

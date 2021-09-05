@@ -5,7 +5,7 @@
     </div>
 
     <div class="robin-file-upload-container robin-squeezeOut" ref="popup-2" v-show="files && files.length > 0">
-      <div class="robin-wrapper robin-flex robin-flex-1 robin-pt-24 robin-pb-24 robin-pl-24 robin-pr-24 robin-overflow-y-auto">
+      <div class="robin-wrapper robin-flex robin-flex-1 robin-pt-8 robin-pb-8 robin-pl-24 robin-pr-24 robin-overflow-y-auto">
         <div class="robin-file-upload" v-for="(file, index) in files" :key="`image-${index}`">
           <div class="robin-file-upload-delete" @click="removeFile(index)">
             <RCloseButton />
@@ -26,23 +26,10 @@
               {{ '.' + file.extension }}
             </RText>
           </div>
-          <!-- <div class="file" v-if="!file.type.includes('image')">
-            <span class="material-icon material-icons-outlined"> article </span>
-            <RText as="span">
-              {{
-                file.name.length > 6
-                  ? file.name.substring(0, 6) + '..'
-                  : file.name
-              }}
-            </RText>
-            <RText as="span">
-              {{ file.extension }}
-            </RText>
-          </div> -->
         </div>
       </div>
       <div class="robin-file-upload-close">
-        <RRemoveButton @remove="handleFileUploadClose" />
+        <RRemoveButton @clicked="handleFileUploadClose" />
       </div>
     </div>
 
@@ -55,7 +42,7 @@
           <textarea class="robin-input" ref="input" v-model="text" @keydown.esc="escapeText()" @keydown.enter.exact.prevent="sendMessage()" placeholder="Type a message..."></textarea>
         </div>
       </div>
-      <div class="robin-pl-21" v-show="(text.trim().length > 0 || files.length > 0) && !isUploading">
+      <div class="robin-pl-21 robin-come-up" v-show="(text.trim().length > 0 || files.length > 0) && !isUploading">
         <RSendButton @sendmessage="sendMessage()" />
       </div>
       <div class="robin-send-button-loader robin-ml-21" v-show="isUploading">
@@ -138,7 +125,7 @@ const ComponentProps = Vue.extend({
 export default class RMessageInputBar extends ComponentProps {
   text = '' as string
   files = [] as Array<any>
-  acceptedDocFiles = '.csv, .xlsx, .xls, .doc, .docx, .ppt, .pptx, .txt, .pdf' as string
+  acceptedDocFiles = '.csv, .xlsx, .xls, .doc, .docx, .ppt, .pptx, .txt, .pdf, .html, .7z, .zip, .rtf, .rar, .tar, .odt, .md' as string
   isUploading = false as boolean
 
   popUpState: PopUpState = {
@@ -308,12 +295,13 @@ export default class RMessageInputBar extends ComponentProps {
   box-shadow: 0px 0px 20px rgba(0, 104, 255, 0.07);
   width: 100%;
   flex: 1;
-  height: max-content;
-  top: -152px;
+  height: 140px;
+  top: -151%;
   left: 0;
   bottom: 0;
   transform-origin: bottom;
   display: flex;
+  align-items: center;
   background-color: #fff;
   position: absolute;
   z-index: 1;
@@ -470,5 +458,32 @@ export default class RMessageInputBar extends ComponentProps {
 
 ::-ms-input-placeholder {
   color: #bbc1d6;
+}
+
+@media (min-width: 768px) {
+  .robin-file-upload-container .robin-wrapper::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    /* border: 1px solid #00000017; */
+    border-radius: 24px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    width: 2px;
+    background-color: #d6d6d6;
+    border-radius: 24px;
+    -webkit-border-radius: 24px;
+    -moz-border-radius: 24px;
+    -ms-border-radius: 24px;
+    -o-border-radius: 24px;
+  }
 }
 </style>

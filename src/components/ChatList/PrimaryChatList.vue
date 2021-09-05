@@ -10,15 +10,19 @@
     <div class="robin-wrapper robin-pt-10 robin-pb-11">
       <RTextButton @archived="$emit('changesidebartype', 'archivedchat')" />
     </div>
-    <div class="robin-wrapper robin-card-container robin-flex robin-flex-column">
-      <div class="robin-card robin-relative robin-flex robin-flex-align-center" :class="{ 'robin-card-active': isConversationActive(conversation) }" v-for="(conversation, index) in conversations" :key="`conversation-${index}`" @click.self="openConversation(conversation)">
+    <div class="robin-wrapper robin-card-container robin-pb-16 robin-flex robin-flex-column" @scroll="onScroll()" >
+      <div class="robin-card robin-flex robin-flex-align-center" :class="{ 'robin-card-active': isConversationActive(conversation) }" v-for="(conversation, index) in conversations" :key="`conversation-${index}`" @click.self="openConversation(conversation)">
         <div class="robin-card-info robin-mr-12" @click="openConversation(conversation)">
-          <RAvatar />
+          <RAvatar v-if="!conversation.is_group" />
+          <RGroupAvatar v-else />
         </div>
         <div class="robin-card-info robin-h-100 robin-flex robin-flex-column robin-flex-space-between robin-pt-4 robin-pb-4˝ robin-flex-1">
           <div class="robin-flex robin-flex-space-between" @click="openConversation(conversation)">
-            <RText font-weight="normal" color="#000000" :font-size="16" :line-height="20">
+            <RText font-weight="normal" color="#000000" :font-size="16" :line-height="20" v-if="!conversation.is_group">
               {{ conversation.sender_token != $user_token ? conversation.sender_name : conversation.receiver_name }}
+            </RText>
+            <RText font-weight="normal" color="#000000" :font-size="16" :line-height="20" v-else>
+              {{ conversation.name }}
             </RText>
 
             <RText as="p" fontWeight="normal" color="#566BA0" :fontSize="14" :lineHeight="18">
@@ -28,7 +32,7 @@
           <div class="robin-flex robin-flex-space-between">
             <div class="robin-mini-info-container robin-flex-1" @click="openConversation(conversation)">
               <RText as="p" font-weight="normal" color="#7A7A7A" :font-size="14" :line-height="18">
-                {{ conversation.last_message == undefined ? '' : conversation.last_message.substring(0, 20) + ' ...' }}
+                {{ conversation.last_message && conversation.last_message.msg.length &lt; 20 ? conversation.last_message.msg : conversation.last_message ? conversation.last_message.msg.substring(0, 20) + ' ...' : '' }}
               </RText>
             </div>
 
@@ -44,8 +48,8 @@
             </div>
           </div>
         </div>
-        <div class="robin-popup-container" v-show="popUpStates[index].opened">
-          <RChatListPopOver :ref="`popup-${index}`" />
+        <div class="robin-popup-container" :class="{'top': scroll && conversations.length - 2 == index || conversations.length - 1 == index}" v-show="popUpStates[index].opened">
+          <RChatListPopOver :ref="`popup-${index}`" :class="{'top': scroll && conversations.length - 2 == index || conversations.length - 1 == index}" @archive-chat="archiveChat(conversation._id)" />
         </div>
       </div>
     </div>
@@ -65,7 +69,7 @@ import RAvatar from './RAvatar/RAvatar.vue'
 import ROpenModalCaretButton from './ROpenModalCaretButton/ROpenModalCaretButton.vue'
 import RMention from './RMention/RMention.vue'
 import RChatListPopOver from './RChatListPopOver/RChatListPopOver.vue'
-// import RGroupAvatar from './RGroupAvatar/RGroupAvatar.vue'
+import RGroupAvatar from './RGroupAvatar/RGroupAvatar.vue'
 import RUnreadMessageCount from './RUnreadMessageCount/RUnreadMessageCount.vue'
 
 const ComponentProps = Vue.extend({
@@ -88,13 +92,13 @@ const ComponentProps = Vue.extend({
     RAvatar,
     RMention,
     ROpenModalCaretButton,
-    // RGroupAvatar,
+    RGroupAvatar,
     RUnreadMessageCount,
     RChatListPopOver
   },
   watch: {
     conversations: {
-      handler(val: Array<any>): void {
+      handler (val: Array<any>): void {
         this.popUpStates = []
         ;[...val].forEach((val) => {
           this.popUpStates.push({
@@ -110,17 +114,28 @@ const ComponentProps = Vue.extend({
 export default class PrimaryChatList extends ComponentProps {
   popUpStates: Array<any> = []
   activeConversation = {}
+  scroll = false as boolean
 
-  openConversation(conversation: object): void {
+  created () {
+    this.onGroupConversationCreated()
+  }
+
+  onGroupConversationCreated (): void {
+    EventBus.$on('group-conversation-created', (conversation: object) => {
+      this.openConversation(conversation)
+    })
+  }
+
+  openConversation (conversation: object): void {
     if (!this.isConversationActive(conversation)) {
-      console.log(conversation)
       this.activeConversation = conversation
       EventBus.$emit('conversation-opened', conversation)
-      this.$emit('coversationopened')
+      EventBus.$emit('open-conversation')
+      // this.$emit('coversationopened')
     }
   }
 
-  formatRecentMessageTime(time: string): string {
+  formatRecentMessageTime (time: string): string {
     // const datetime = new Date(time)
     const datetime = moment(time)
     return datetime.calendar(null, {
@@ -131,7 +146,11 @@ export default class PrimaryChatList extends ComponentProps {
     })
   }
 
-  handleOpenPopUp(_id: string, refKey: string): void {
+  onScroll (): void {
+    this.scroll = true
+  }
+
+  handleOpenPopUp (_id: string, refKey: string): void {
     const popup = this.$refs[refKey] as any
     popup[0].$refs['popup-body'].classList.remove('robin-zoomOut')
 
@@ -145,7 +164,7 @@ export default class PrimaryChatList extends ComponentProps {
     })
   }
 
-  handleClosePopUp(_id: string, refKey: string): void {
+  handleClosePopUp (_id: string, refKey: string): void {
     const popup = this.$refs[refKey] as any
     popup[0].$refs['popup-body'].classList.add('robin-zoomOut')
 
@@ -160,8 +179,17 @@ export default class PrimaryChatList extends ComponentProps {
     }, 300)
   }
 
-  isConversationActive(object: Object) {
+  isConversationActive (object: Object) {
     return Object.is(this.activeConversation, object)
+  }
+
+  async archiveChat (id: string):Promise<void> {
+    const res = await this.$robin.archiveConversation(id, this.$user_token)
+
+    if (!res.error) {
+      this.$toasted.global.custom_success('Chat Archived')
+      console.log(res)
+    }
   }
 }
 </script>
@@ -189,6 +217,7 @@ header {
 
 .robin-card-container {
   width: 100%;
+  overflow-y: auto;
 }
 
 .robin-card {
@@ -196,6 +225,7 @@ header {
   padding: 1rem 0.2rem 1.1rem 0.2rem;
   transition: all 0.2s;
   cursor: pointer;
+  position: relative;
 }
 
 .robin-card-active {
@@ -227,5 +257,31 @@ header {
   top: 58px;
   right: -5px;
   z-index: 100;
+}
+
+.robin-popup-container.top {
+  top: -95%;
+}
+
+@media (min-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    /* border: 1px solid #00000017; */
+    border-radius: 24px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    width: 2px;
+    background-color: #d6d6d6;
+    border-radius: 24px;
+    -webkit-border-radius: 24px;
+    -moz-border-radius: 24px;
+    -ms-border-radius: 24px;
+    -o-border-radius: 24px;
+  }
 }
 </style>

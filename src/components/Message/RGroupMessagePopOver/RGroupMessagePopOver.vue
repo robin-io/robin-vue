@@ -6,9 +6,9 @@
     <div class="robin-wrapper robin-w-100">
       <RText :font-size="14" as="span" color="#101010">Select Messages</RText>
     </div>
-    <div class="robin-wrapper robin-w-100">
+    <!-- <div class="robin-wrapper robin-w-100">
       <RText :font-size="14" as="span" color="#101010">Mute Group</RText>
-    </div>
+    </div> -->
     <div class="robin-wrapper robin-w-100">
       <RText :font-size="14" as="span" color="#101010">Leave Group</RText>
     </div>
