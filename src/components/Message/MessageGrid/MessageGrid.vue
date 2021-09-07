@@ -3,10 +3,8 @@
     <div class="robin-message-bubble-image" v-for="(image, index) in message.slice(0, 4)" :key="image._id" :class="validateMessageClass(message, index)">
       <v-lazy-image class="robin-uploaded-image" :src="image.content.attachment" />
     </div>
-    <span :class="message.length > 4 ? 'back-drop robin-flex-column robin-flex-space-between' : 'robin-flex-end'"  class="robin-side-text robin-flex">
-      <RText v-show="message.length > 4"  :font-size="26" color="#fff" as="p" class="robin-message-count">
-        {{ message.length - 4 }}+
-      </RText>
+    <span :class="message.length > 4 ? 'back-drop robin-flex-column robin-flex-space-between' : 'robin-flex-end'" class="robin-side-text robin-flex">
+      <RText v-show="message.length > 4" :font-size="26" color="#fff" as="p" class="robin-message-count"> {{ message.length - 4 }}+ </RText>
       <RText :font-size="12" color="#fff" as="p" class="robin-ml-auto">
         {{ formatTimeStamp(message[0].content.timestamp) }}
       </RText>

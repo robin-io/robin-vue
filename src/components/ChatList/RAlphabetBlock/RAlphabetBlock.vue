@@ -30,5 +30,6 @@ export default class RAlphabetBlock extends ComponentProps {}
   height: 28px;
   background-color: #f3f3f3;
   font-size: 1rem;
+  text-transform: uppercase;
 }
 </style>

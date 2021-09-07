@@ -123,6 +123,14 @@
   margin-bottom: 0.313rem;
 }
 
+.robin-ml-5 {
+  margin-left: 0.313rem;
+}
+
+.robin-mr-5 {
+  margin-right: 0.313rem;
+}
+
 .robin-h-100 {
   height: 100%;
 }
@@ -311,18 +319,24 @@
   align-items: flex-end;
 }
 
+.robin-flex-row-reversed {
+  flex-direction: row-reverse;
+}
+
 .robin-toasted .robin-toasted-container .action.icon {
   color: #fff !important;
 }
 
-.robin-toasted .primary.error, .toasted.toasted-primary.error {
+.robin-toasted .primary.error,
+.toasted.toasted-primary.error {
   background: rgba(255, 0, 0, 1) !important;
   color: #fff !important;
   font-size: 0.8rem;
   font-weight: 600;
 }
 
-.robin-toasted .primary.success, .toasted.toasted-primary.success {
+.robin-toasted .primary.success,
+.toasted.toasted-primary.success {
   background: #09ab5d !important;
   color: #fff !important;
   font-size: 0.8rem;

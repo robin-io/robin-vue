@@ -8,9 +8,9 @@
       <RSearchBar />
     </div>
     <div class="robin-wrapper robin-pt-10 robin-pb-11">
-      <RTextButton @archived="$emit('changesidebartype', 'archivedchat')" />
+      <RButton @archived="$emit('changesidebartype', 'archivedchat')" />
     </div>
-    <div class="robin-wrapper robin-card-container robin-pb-16 robin-flex robin-flex-column" @scroll="onScroll()" >
+    <div class="robin-wrapper robin-card-container robin-pb-16 robin-flex robin-flex-column" @scroll="onScroll()">
       <div class="robin-card robin-flex robin-flex-align-center" :class="{ 'robin-card-active': isConversationActive(conversation) }" v-for="(conversation, index) in conversations" :key="`conversation-${index}`" @click.self="openConversation(conversation)">
         <div class="robin-card-info robin-mr-12" @click="openConversation(conversation)">
           <RAvatar v-if="!conversation.is_group" />
@@ -26,7 +26,7 @@
             </RText>
 
             <RText as="p" fontWeight="normal" color="#566BA0" :fontSize="14" :lineHeight="18">
-              {{ formatRecentMessageTime(conversation.updated_at) }}
+              {{ formatRecentMessageTime(conversation.last_message ? conversation.last_message.timestamp : conversation.updated_at) }}
             </RText>
           </div>
           <div class="robin-flex robin-flex-space-between">
@@ -48,8 +48,8 @@
             </div>
           </div>
         </div>
-        <div class="robin-popup-container" :class="{'top': scroll && conversations.length - 2 == index || conversations.length - 1 == index}" v-show="popUpStates[index].opened">
-          <RChatListPopOver :ref="`popup-${index}`" :class="{'top': scroll && conversations.length - 2 == index || conversations.length - 1 == index}" @archive-chat="archiveChat(conversation._id)" />
+        <div class="robin-popup-container" :class="{ top: (scroll && conversations.length - 2 == index) || conversations.length - 1 == index }" v-show="popUpStates[index].opened">
+          <RChatListPopOver :ref="`popup-${index}`" :class="{ top: (scroll && conversations.length - 2 == index) || conversations.length - 1 == index }" @archive-chat="archiveChat(conversation._id)" />
         </div>
       </div>
     </div>
@@ -64,7 +64,7 @@ import EventBus from '@/event-bus'
 import RText from './RText/RText.vue'
 import REditButton from './REditButton/REditButton.vue'
 import RSearchBar from './RSearchBar/RSearchBar.vue'
-import RTextButton from './RTextButton/RTextButton.vue'
+import RButton from './RButton/RButton.vue'
 import RAvatar from './RAvatar/RAvatar.vue'
 import ROpenModalCaretButton from './ROpenModalCaretButton/ROpenModalCaretButton.vue'
 import RMention from './RMention/RMention.vue'
@@ -88,7 +88,7 @@ const ComponentProps = Vue.extend({
     RText,
     REditButton,
     RSearchBar,
-    RTextButton,
+    RButton,
     RAvatar,
     RMention,
     ROpenModalCaretButton,
@@ -139,7 +139,7 @@ export default class PrimaryChatList extends ComponentProps {
     // const datetime = new Date(time)
     const datetime = moment(time)
     return datetime.calendar(null, {
-      sameDay: 'hh:ss a',
+      sameDay: 'hh:mm a',
       lastDay: '[Yesterday]',
       lastWeek: 'DD/MM/YYYY',
       sameElse: 'DD/MM/YYYY'
@@ -183,7 +183,7 @@ export default class PrimaryChatList extends ComponentProps {
     return Object.is(this.activeConversation, object)
   }
 
-  async archiveChat (id: string):Promise<void> {
+  async archiveChat (id: string): Promise<void> {
     const res = await this.$robin.archiveConversation(id, this.$user_token)
 
     if (!res.error) {
@@ -260,7 +260,7 @@ header {
 }
 
 .robin-popup-container.top {
-  top: -95%;
+  top: -60%;
 }
 
 @media (min-width: 768px) {

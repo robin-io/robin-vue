@@ -37,7 +37,7 @@ const ComponentProps = Vue.extend({
 export default class RInput extends ComponentProps {
   text = ''
 
-  get getStyles (): Object {
+  get getStyles(): Object {
     return {
       'border-radius': this.borderRadius + 'px',
       'min-height': this.height + 'px',
@@ -45,7 +45,7 @@ export default class RInput extends ComponentProps {
     }
   }
 
-  userTyping (val: string): void {
+  userTyping(val: string): void {
     this.$emit('user-typing', val)
   }
 }

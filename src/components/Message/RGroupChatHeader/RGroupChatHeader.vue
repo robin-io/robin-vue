@@ -1,6 +1,6 @@
 <template>
   <header>
-    <div class="robin-card robin-flex robin-flex-align-center">
+    <div class="robin-card robin-flex robin-flex-align-center" v-show="!selectMessagesOpen">
       <div class="robin-card-info robin-mr-16">
         <RGroupAvatar v-if="conversation.is_group" />
         <RAvatar v-else />
@@ -19,12 +19,16 @@
         </div>
       </div>
     </div>
-    <div class="robin-ml-auto" @click="handleOpenPopUp()">
-      <ROptionButton @clickoutside="handleClosePopUp()" />
+    <RButton v-show="selectMessagesOpen" color="#7A7A7A" class="robin-pulse" emit="clicked" @clicked="cancelSelect()">Cancel</RButton>
+    <div class="robin-ml-auto" @click="handleOpenPopUp(conversation.is_group ? 'popup-1' : 'popup-2')" v-show="!selectMessagesOpen">
+      <ROptionButton @clickoutside="handleClosePopUp(conversation.is_group ? 'popup-1' : 'popup-2')" />
     </div>
-    <div class="robin-popup-container" v-show="popUpState.opened">
-      <RGroupMessagePopOver ref="popup-1" v-if="conversation.is_group" />
-      <RPersonalMessagePopOver ref="popup-1" v-else />
+    <div class="robin-ml-auto robin-pulse" v-show="selectMessagesOpen && selectedMessages.length > 0" @click="$emit('forward-message')">
+      <RButton text="Forward" />
+    </div>
+    <div class="robin-popup-container" v-show="popUpState.opened && !selectMessagesOpen">
+      <RGroupMessagePopOver ref="popup-1" v-show="conversation.is_group" />
+      <RPersonalMessagePopOver ref="popup-2" v-show="!conversation.is_group" />
     </div>
   </header>
 </template>
@@ -32,9 +36,12 @@
 <script lang="ts">
 import Vue from 'vue'
 import Component from 'vue-class-component'
+import { State, Mutation } from 'vuex-class'
+import { RootState } from '@/utils/types'
 import RGroupAvatar from '@/components/ChatList/RGroupAvatar/RGroupAvatar.vue'
 import RAvatar from '@/components/ChatList/RAvatar/RAvatar.vue'
 import RText from '@/components/ChatList/RText/RText.vue'
+import RButton from '@/components/ChatList/RButton/RButton.vue'
 import ROptionButton from '../ROptionButton/ROptionButton.vue'
 import RGroupMessagePopOver from '../RGroupMessagePopOver/RGroupMessagePopOver.vue'
 import RPersonalMessagePopOver from '../RPersonalMessagePopOver/RPersonalMessagePopOver.vue'
@@ -48,6 +55,10 @@ const ComponentProps = Vue.extend({
     conversation: {
       type: Object,
       default: () => ({})
+    },
+    selectedMessages: {
+      type: Array,
+      default: () => []
     }
   }
 })
@@ -57,6 +68,7 @@ const ComponentProps = Vue.extend({
   components: {
     RGroupAvatar,
     RText,
+    RButton,
     ROptionButton,
     RAvatar,
     RGroupMessagePopOver,
@@ -64,27 +76,36 @@ const ComponentProps = Vue.extend({
   }
 })
 export default class RGroupChatHeader extends ComponentProps {
+  @State('selectMessagesOpen') selectMessagesOpen?: RootState
+  @Mutation('setSelectMessagesOpen') setSelectMessagesOpen: any
+
   popUpState: PopUpState = {
     opened: false
   }
 
-  handleOpenPopUp (): void {
-    const popup = this.$refs['popup-1'] as any
+  handleOpenPopUp (refKey: string): void {
+    const popup = this.$refs[refKey] as any
     popup.$refs['popup-body'].classList.remove('robin-zoomOut')
 
     this.popUpState.opened = true
   }
 
-  handleClosePopUp (): void {
-    const popup = this.$refs['popup-1'] as any
+  handleClosePopUp (refKey: string): void {
+    const popup = this.$refs[refKey] as any
+    popup.$refs['popup-body'].classList.remove('robin-zoomIn')
     popup.$refs['popup-body'].classList.add('robin-zoomOut')
 
     window.setTimeout(() => {
-      const popup = this.$refs['popup-1'] as any
+      const popup = this.$refs[refKey] as any
+      popup.$refs['popup-body'].classList.add('robin-zoomIn')
       popup.$refs['popup-body'].classList.remove('robin-zoomOut')
 
       this.popUpState.opened = false
     }, 300)
+  }
+
+  cancelSelect (): void {
+    this.setSelectMessagesOpen(false)
   }
 }
 </script>
@@ -98,6 +119,7 @@ header {
   padding: 1.938rem 2.688rem 1.375rem 3.125rem;
   position: relative;
   z-index: 3;
+  min-height: 100px;
 }
 
 .robin-card-container {

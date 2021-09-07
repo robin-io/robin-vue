@@ -1,10 +1,10 @@
 <template>
   <div class="robin-chat-list-container">
-    <PrimaryChatList v-show="$conversations.length > 0 && sideBarType == 'primary'" :conversations="$conversations" @changesidebartype="changeSideBarType" />
+    <PrimaryChatList v-show="$conversations.length > 0 && sideBarType == 'primary'" :conversations="regularConversations" @changesidebartype="changeSideBarType" />
     <NewChatList v-if="sideBarType == 'newchat'" @changesidebartype="changeSideBarType" />
     <NoChatList v-if="$conversations.length < 1 && sideBarType == 'primary'" @changesidebartype="changeSideBarType" />
     <NewGroupChatList v-if="sideBarType == 'newgroupchat'" @changesidebartype="changeSideBarType" />
-    <ArchivedChatList v-if="sideBarType == 'archivedchat'" @changesidebartype="changeSideBarType" />
+    <ArchivedChatList v-if="sideBarType == 'archivedchat'" @changesidebartype="changeSideBarType" :conversations="archivedConversations" />
   </div>
 </template>
 
@@ -43,6 +43,9 @@ export default class RSideContainer extends ComponentProps {
   @State('isPageLoading') isPageLoading?: RootState
   @Mutation('setPageLoading') setPageLoading: any
 
+  archivedConversations = [] as Array<any>
+  regularConversations = [] as Array<any>
+
   created () {
     this.getUserToken()
 
@@ -69,12 +72,30 @@ export default class RSideContainer extends ComponentProps {
     })
     if (!res.error) {
       this.conversations = res.data.conversations == null ? [] : res.data.conversations
-      Vue.prototype.$conversations = this.conversations
+      Vue.prototype.$conversations = res.data.conversations == null ? [] : res.data.conversations
+      this.getRegularConversations()
+      this.getArchivedConversations()
       this.setPageLoading(false)
-      console.log(this.$conversations)
+      console.log('getconversations -> ', this.$conversations)
       this.$forceUpdate()
     }
     console.log(res)
+  }
+
+  getArchivedConversations (): void {
+    this.archivedConversations = this.$conversations.filter((user: any) => {
+      if (!user.archived_for) return false
+      return user.archived_for.every((item: string) => {
+        return item === this.$user_token
+      })
+    })
+  }
+
+  getRegularConversations ():void {
+    this.regularConversations = this.$conversations.filter((user: any) => {
+      if (!user.archived_for) return true
+      return false
+    })
   }
 }
 </script>

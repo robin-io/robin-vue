@@ -1,15 +1,15 @@
 <template>
   <div class="robin-popup robin-zoomIn" ref="popup-body">
-    <div class="robin-wrapper robin-w-100">
+    <!-- <div class="robin-wrapper robin-w-100">
       <RText :font-size="14" as="span" color="#101010">Group Info</RText>
-    </div>
-    <div class="robin-wrapper robin-w-100">
+    </div> -->
+    <div class="robin-wrapper robin-w-100" @click="handleSelectMessages()">
       <RText :font-size="14" as="span" color="#101010">Select Messages</RText>
     </div>
     <!-- <div class="robin-wrapper robin-w-100">
       <RText :font-size="14" as="span" color="#101010">Mute Group</RText>
     </div> -->
-    <div class="robin-wrapper robin-w-100">
+    <div class="robin-wrapper robin-w-100" @click="handleLeaveGroup()">
       <RText :font-size="14" as="span" color="#101010">Leave Group</RText>
     </div>
   </div>
@@ -17,14 +17,28 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
+import { Mutation } from 'vuex-class'
 import RText from '@/components/ChatList/RText/RText.vue'
 
-export default Vue.extend({
+@Component({
   name: 'RGroupMessagePopOver',
   components: {
     RText
   }
 })
+
+export default class RGroupMessagePopOver extends Vue {
+  @Mutation('setSelectMessagesOpen') setSelectMessagesOpen: any
+
+  handleSelectMessages () {
+    this.setSelectMessagesOpen(true)
+  }
+
+  handleLeaveGroup () {
+
+  }
+}
 </script>
 
 <style scoped>

@@ -7,7 +7,9 @@ Vue.use(Vuex)
 
 const store: StoreOptions<RootState> = {
   state: {
-    isPageLoading: true
+    isPageLoading: true,
+    selectMessagesOpen: false,
+    clearMessages: false
   },
   mutations
 }

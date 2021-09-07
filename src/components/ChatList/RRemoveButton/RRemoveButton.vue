@@ -13,9 +13,7 @@ import Component from 'vue-class-component'
 @Component({
   name: 'RRemoveButton'
 })
-export default class RRemoveButton extends Vue {
-
-}
+export default class RRemoveButton extends Vue {}
 </script>
 
 <style scoped>

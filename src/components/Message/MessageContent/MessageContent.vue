@@ -1,6 +1,7 @@
 <template>
-  <div class="robin-message-bubble robin-flex robin-flex-wrap" :class="!validateMessages(message) ? 'robin-message-sender' : 'robin-message-receiver robin-ml-auto'" v-on-clickaway="closeModal">
-    <div class="robin-bubble" v-if="!Array.isArray(message)">
+  <div class="robin-message-bubble robin-flex robin-flex-wrap robin-flex-align-center" :class="!validateMessages(message) ? 'robin-message-sender' : 'robin-message-receiver robin-ml-auto robin-flex-row-reversed'" v-on-clickaway="closeModal">
+    <RCheckBox v-if="selectMessagesOpen" @clicked="toggleCheckAction($event)" />
+    <div class="robin-bubble" :class="!validateMessages(message) ? 'robin-ml-5' : 'robin-mr-5'" v-if="!Array.isArray(message)">
       <div class="robin-message-bubble-inner" v-if="!message.has_attachment" @click="openModal()">
         <RText v-if="conversation.isGroup" :font-size="12" color="#15AE73" as="span" :line-height="20"> Precious Ogar </RText>
         <RText :font-size="16" textWrap="pre-line" as="span" v-if="!emailRegex.test(message.content.msg) && !websiteRegex.test(message.content.msg)">
@@ -53,8 +54,8 @@
         </span>
       </div>
     </div>
-    <MessageGrid v-if="Array.isArray(message) && message.filter(image => !image.is_deleted).length > 0" :message="message.filter(image => !image.is_deleted)" :conversation="conversation" @open-preview="openPreview($event)" />
-    <RMessagePopOver v-show="messagePopup.opened && validateMessages(message)" :class="{'top': lastId === message._id && scroll}" @close-modal="closeModal()" ref="popup-1" :id="message._id" :message="message" />
+    <MessageGrid :class="!validateMessages(message) ? 'robin-ml-5' : 'robin-mr-5'" v-if="Array.isArray(message) && message.filter((image) => !image.is_deleted).length > 0" :message="message.filter((image) => !image.is_deleted)" :conversation="conversation" @open-preview="openPreview($event)" />
+    <RMessagePopOver v-show="messagePopup.opened && validateMessages(message)" :class="{ top: lastId === message._id && scroll }" @close-modal="closeModal()" ref="popup-1" :id="message._id" :message="message" />
   </div>
 </template>
 
@@ -65,11 +66,14 @@ import VLazyImage from 'v-lazy-image/v2'
 import { mixin as clickaway } from 'vue-clickaway'
 // import 'viewerjs/dist/viewer.css'
 // import { directive as viewer } from 'v-viewer'
+import { State } from 'vuex-class'
+import { RootState } from '@/utils/types'
 import Component from 'vue-class-component'
 import RDownloadButton from '../RDownloadButton/RDownloadButton.vue'
 import RText from '@/components/ChatList/RText/RText.vue'
 import MessageGrid from '../MessageGrid/MessageGrid.vue'
 import RMessagePopOver from '../RMessagePopOver/RMessagePopOver.vue'
+import RCheckBox from '@/components/ChatList/RCheckBox/RCheckBox.vue'
 import moment from 'moment'
 import mime from 'mime'
 
@@ -107,7 +111,8 @@ const ComponentProps = Vue.extend({
     Promised,
     VLazyImage,
     MessageGrid,
-    RMessagePopOver
+    RMessagePopOver,
+    RCheckBox
     // RUnreadMessageBar
     // RForwardMessage
   },
@@ -115,6 +120,7 @@ const ComponentProps = Vue.extend({
   // directives: { viewer: viewer({ debug: true }) }
 })
 export default class MessageContent extends ComponentProps {
+  @State('selectMessagesOpen') selectMessagesOpen?: RootState
   // vViewerOptions = {
   //   toolbar: false,
   //   title: false,
@@ -211,6 +217,10 @@ export default class MessageContent extends ComponentProps {
     console.log(message.content && message.content.receiver_token !== this.$user_token, this.$user_token, message.content.receiver_token)
 
     return false
+  }
+
+  toggleCheckAction (val: boolean): void {
+    this.$emit('toggle-check-action', val)
   }
 }
 </script>

@@ -1,9 +1,9 @@
 import { mount } from '@vue/test-utils'
-import RTextButton from '../RTextButton.vue'
+import RButton from '../RButton.vue'
 
-describe('RTextButton', () => {
+describe('RButton', () => {
   it('When props is passed check if props exist in component', () => {
-    const wrapper = mount(RTextButton, {
+    const wrapper = mount(RButton, {
       propsData: {
         color: '#ffffff',
         fontSize: 2,
@@ -21,7 +21,7 @@ describe('RTextButton', () => {
   })
 
   it('When clicked should emit', () => {
-    const wrapper = mount(RTextButton)
+    const wrapper = mount(RButton)
     wrapper.trigger('click')
 
     expect(wrapper.emitted('archived')).toBeTruthy()

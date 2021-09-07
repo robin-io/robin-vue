@@ -53,7 +53,8 @@ export default class RChatListPopOver extends Vue {}
   border: none;
 }
 
-.top.robin-zoomIn, .top.robin-zoomOut {
+.top.robin-zoomIn,
+.top.robin-zoomOut {
   transform-origin: bottom right;
 }
 
