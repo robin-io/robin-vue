@@ -1,8 +1,8 @@
 // TextButton StoryBook
-import RTextButton from './RTextButton.vue'
+import RButton from './RButton.vue'
 
 export default {
-  component: RTextButton,
+  component: RButton,
   title: 'TextButton',
   argTypes: {
     color: {
@@ -31,8 +31,8 @@ export default {
 }
 
 export const Default = () => ({
-  components: { RTextButton },
-  template: '<RTextButton />'
+  components: { RButton },
+  template: '<RButton />'
 })
 
 Default.parameters = {
@@ -40,9 +40,9 @@ Default.parameters = {
 }
 
 export const Custom = (_arg: any, { argTypes }: any) => ({
-  components: { RTextButton },
+  components: { RButton },
   props: Object.keys(argTypes),
-  template: '<RTextButton v-bind="$props" />'
+  template: '<RButton v-bind="$props" />'
 })
 
 Custom.storyName = 'with custom properties'

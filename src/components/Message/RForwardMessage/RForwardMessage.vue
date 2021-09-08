@@ -1,139 +1,205 @@
 <template>
-  <div class="robin-shim">
+  <div class="robin-shim robin-fadeIn" ref="popup-1" v-on-clickaway="closeModal">
     <div class="robin-modal-container robin-flex">
       <div class="robin-inner-container robin-flex robin-flex-column">
         <header class="robin-wrapper robin-mt-26 robin-mb-10">
           <RText>Forward Message</RText>
+          <RButton color="#15ae73">Send</RButton>
         </header>
 
         <div class="robin-wrapper robin-mb-10">
           <RSearchBar placeholder="Search people or group..." />
         </div>
+        <div class="robin-conversation-container">
+          <div class="robin-contact-container" v-for="(conversation, key, index) in conversations" :key="`conversation-${index}`">
+            <div class="robin-w-100">
+              <RAlphabetBlock :text="key" />
+            </div>
 
-        <div>
-          <RAlphabetBlock />
-        </div>
-
-        <div class="robin-card-container robin-flex robin-flex-column robin-grey-200">
-          <div class="robin-card robin-flex robin-flex-align-center">
-            <div class="robin-card-info robin-mr-12">
-              <RAvatar />
-            </div>
-            <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4 robin-flex-1">
-              <div class="robin-flex">
-                <RText :font-size="14" :line-height="18">Temi Obadofin</RText>
-              </div>
-              <div class="robin-ml-auto">
-                <RCheckBox />
-              </div>
-            </div>
-          </div>
-          <div class="robin-card robin-flex robin-flex-align-center">
-            <div class="robin-card-info robin-mr-12">
-              <RAvatar />
-            </div>
-            <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4 robin-flex-1">
-              <div class="robin-flex">
-                <RText :font-size="14" :line-height="18">Temi Obadofin</RText>
-              </div>
-              <div class="robin-ml-auto">
-                <RCheckBox />
-              </div>
-            </div>
-          </div>
-        </div>
-        <div>
-          <RAlphabetBlock text="B" />
-        </div>
-
-        <div class="robin-card-container robin-flex robin-flex-column robin-grey-200">
-          <div class="robin-card robin-flex robin-flex-align-center">
-            <div class="robin-card-info robin-mr-12">
-              <RAvatar />
-            </div>
-            <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4 robin-flex-1">
-              <div class="robin-flex">
-                <RText :font-size="14" :line-height="18">Temi Obadofin</RText>
-              </div>
-              <div class="robin-ml-auto">
-                <RCheckBox />
-              </div>
-            </div>
-          </div>
-          <div class="robin-card robin-flex robin-flex-align-center">
-            <div class="robin-card-info robin-mr-12">
-              <RAvatar />
-            </div>
-            <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4 robin-flex-1">
-              <div class="robin-flex">
-                <RText :font-size="14" :line-height="18">Temi Obadofin</RText>
-              </div>
-              <div class="robin-ml-auto">
-                <RCheckBox />
+            <div class="robin-card-container robin-flex robin-flex-column robin-grey-200">
+              <div class="robin-card robin-flex robin-flex-align-center" v-for="(item, conversationIndex) in conversation" :key="item._id">
+                <div class="robin-card-info robin-mr-12">
+                  <RGroupAvatar v-if="item.is_group" />
+                  <RAvatar v-else />
+                </div>
+                <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4 robin-flex-1">
+                  <div class="robin-flex">
+                    <RText :font-size="14" :line-height="18">{{ item.is_group ? item.name : item.receiver_name }}</RText>
+                  </div>
+                  <div class="robin-ml-auto">
+                    <RCheckBox :key="conversationIndex + checkBoxKeyState" @clicked="toggleCheckAction($event, item)" />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
       <div class="robin-ml-16">
-        <RCloseButton @close="$emit('closemodal')" />
+        <RCloseButton @close="closeModal()" />
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue, { PropType } from 'vue'
+import Component from 'vue-class-component'
+import { mixin as clickaway } from 'vue-clickaway'
 import RText from '@/components/ChatList/RText/RText.vue'
+import RGroupAvatar from '@/components/ChatList/RGroupAvatar/RGroupAvatar.vue'
 import RAvatar from '@/components/ChatList/RAvatar/RAvatar.vue'
 import RCloseButton from '@/components/ChatList/RCloseButton/RCloseButton.vue'
 import RSearchBar from '@/components/ChatList/RSearchBar/RSearchBar.vue'
 import RAlphabetBlock from '@/components/ChatList/RAlphabetBlock/RAlphabetBlock.vue'
 import RCheckBox from '@/components/ChatList/RCheckBox/RCheckBox.vue'
+import RButton from '@/components/ChatList/RButton/RButton.vue'
 
-export default Vue.extend({
+const ComponentProps = Vue.extend({
+  props: {
+    selectedMessages: {
+      type: Array as PropType<Array<any>>,
+      default: () => []
+    }
+  }
+})
+
+@Component({
   name: 'RForwardMessage',
   components: {
     RText,
     RCloseButton,
     RAvatar,
+    RGroupAvatar,
     RAlphabetBlock,
     RSearchBar,
-    RCheckBox
-  }
+    RCheckBox,
+    RButton
+  },
+  mixins: [clickaway]
 })
+export default class RForwardMessage extends ComponentProps {
+  conversations = {} as any
+  selectedConversation = [] as Array<any>
+  checkBoxKeyState = 0 as number
+
+  created () {
+    this.getConversations()
+  }
+
+  getConversations (): void {
+    this.$conversations.forEach((conversation: any) => {
+      this.conversations[conversation.name[0] ? conversation.name[0].toUpperCase() : conversation.receiver_name[0].toUpperCase()] = this.$conversations.filter((item) => {
+        if (item.name[0] && conversation.name[0]) return item.name[0].toUpperCase() === conversation.name[0].toUpperCase()
+        if (item.receiver_name[0] && conversation.receiver_name[0]) return item.receiver_name[0].toUpperCase() === conversation.receiver_name[0].toUpperCase()
+        if (item.receiver_name[0] && conversation.name[0]) return item.receiver_name[0].toUpperCase() === conversation.name[0].toUpperCase()
+        if (item.name[0] && conversation.receiver_name[0]) return item.name[0].toUpperCase() === conversation.receiver_name[0].toUpperCase()
+
+        return false
+      })
+    })
+  }
+
+  toggleCheckAction (val: boolean, item: Object): void {
+    if (!val) {
+      this.addConversation(item)
+    } else {
+      this.removeConversation(item)
+    }
+  }
+
+  addConversation (item: Object): void {
+    this.selectedConversation.push(item)
+  }
+
+  removeConversation (item: any): void {
+    const index = this.selectedConversation.findIndex((conversation) => conversation._id === item._id)
+    this.selectedConversation.splice(index, 1)
+  }
+
+  async sendTextMessage (text: string, conversation: any): Promise<void> {
+    this.$robin.sendMessageToConversation(
+      {
+        msg: text,
+        sender_token: this.$user_token,
+        receiver_token: conversation.receiver_token,
+        timestamp: new Date()
+      },
+      this.$conn,
+      this.$channel,
+      conversation._id,
+      this.$user_token
+    )
+    return await new Promise((resolve) => setTimeout(resolve, 250))
+  }
+
+  closeModal () {
+    const popup = this.$refs['popup-1'] as any
+    popup.classList.remove('robin-fadeIn')
+    popup.classList.add('robin-fadeOut')
+
+    window.setTimeout(() => {
+      const popup = this.$refs['popup-1'] as any
+      popup.classList.remove('robin-fadeOut')
+      popup.classList.add('robin-fadeIn')
+
+      this.$emit('closemodal')
+    }, 100)
+  }
+
+  // async sendFileMessage (): Promise<any> {
+  //   return await Promise.all(
+  //     this.files.map(async (file) => {
+  //       await this.$robin.sendMessageAttachment(this.$user_token, this.conversation._id, file.file)
+  //     })
+  //   )
+  // }
+}
 </script>
 
 <style scoped>
 .robin-shim {
   width: 100%;
-  height: 100%;
+  height: 100vh;
   background-color: rgba(107, 116, 145, 0.1);
   backdrop-filter: blur(3.8731px);
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 1;
+  z-index: 3;
   display: flex;
   justify-content: center;
   align-items: center;
   overflow-y: auto;
 }
 
+header {
+  display: flex;
+  justify-content: space-between;
+}
+
 .robin-modal-container {
   width: max-content;
-  margin: 6rem 0 0;
+  /* margin: 6rem 0 0; */
 }
 
 .robin-inner-container {
+  display: flex;
+  flex-direction: column;
   width: 375px;
-  /* height: 574px; */
+  max-height: 454px;
   background-color: #fff;
   box-shadow: 0px 0px 20px rgba(0, 104, 255, 0.06);
 }
 
 .robin-wrapper {
   padding: 0 1rem;
+}
+
+.robin-conversation-container {
+  flex: 1;
+  height: 100%;
+  overflow-y: auto;
 }
 
 .robin-card-container {
@@ -149,5 +215,27 @@ export default Vue.extend({
 
 .robin-card-container .robin-card:last-child {
   border-bottom: none;
+}
+
+@media (min-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    /* border: 1px solid #00000017; */
+    border-radius: 24px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    width: 2px;
+    background-color: #d6d6d6;
+    border-radius: 24px;
+    -webkit-border-radius: 24px;
+    -moz-border-radius: 24px;
+    -ms-border-radius: 24px;
+    -o-border-radius: 24px;
+  }
 }
 </style>

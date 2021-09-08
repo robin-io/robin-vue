@@ -3,14 +3,14 @@
     <div class="robin-modal-container robin-flex robin-fadeIn" ref="popup-1">
       <div class="robin-inner-container robin-flex robin-flex-column">
         <header class="robin-flex robin-flex-justify-end" :class="groupName.trim().length > 0 ? 'robin-pulse' : 'robin-invisible'">
-            <RTextButton text="Create Group" :emit="'clicked'" @clicked="createGroupConversation()" v-show="!isLoading" />
-            <div class="robin-spinner" v-show="isLoading"></div>
+          <RButton :emit="'clicked'" @clicked="createGroupConversation()" v-show="!isLoading">Create Group</RButton>
+          <div class="robin-spinner" v-show="isLoading"></div>
         </header>
 
         <!-- <div class="robin-wrapper robin-flex robin-flex-column robin-flex-align-center robin-mt-21">
           <RGroupAvatar />
           <div class="robin-mt-10">
-            <RTextButton text="Add Group Image" :font-size="14" />
+            <RButton :font-size="14">Add Group Image</RButton>
           </div>
         </div> -->
 
@@ -52,7 +52,7 @@
 import Vue, { PropType } from 'vue'
 import Component from 'vue-class-component'
 import RText from './RText/RText.vue'
-import RTextButton from './RTextButton/RTextButton.vue'
+import RButton from './RButton/RButton.vue'
 import RAvatar from './RAvatar/RAvatar.vue'
 import EventBus from '@/event-bus'
 // import RGroupAvatar from './RGroupAvatar/RGroupAvatar.vue'
@@ -73,7 +73,7 @@ const ComponentProps = Vue.extend({
   name: 'RobinChatContainer',
   components: {
     RText,
-    RTextButton,
+    RButton,
     RCloseButton,
     RAvatar,
     // RGroupAvatar,
@@ -101,7 +101,6 @@ export default class CreateGroup extends ComponentProps {
   }
 
   closeModal () {
-    console.log(this.$refs)
     const popup = this.$refs['popup-1'] as any
     popup.classList.remove('robin-fadeIn')
     popup.classList.add('robin-fadeOut')

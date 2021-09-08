@@ -8,9 +8,9 @@
     </header>
     <div class="robin-body">
       <carousel-3d v-if="images.length > 0" @after-slide-change="onSelectChange($event)">
-          <slide v-for="image, index in images" v-show="!image.is_deleted" :key="image._id" :index="index">
-              <img :src="image.content.attachment" />
-          </slide>
+        <slide v-for="(image, index) in images" v-show="!image.is_deleted" :key="image._id" :index="index">
+          <img :src="image.content.attachment" />
+        </slide>
       </carousel-3d>
       <div class="robin-button-container">
         <button class="robin-delete-button" @click="deleteImage()">
@@ -57,38 +57,38 @@ const ComponentProps = Vue.extend({
   }
 })
 export default class MessageImagePreviewer extends ComponentProps {
-    images = [] as Array<any>
-    id = 0 as number
+  images = [] as Array<any>
+  id = 0 as number
 
-    settings = {
-      dots: true,
-      infinite: true,
-      slidesToScroll: 1,
-      rtl: true
+  settings = {
+    dots: true,
+    infinite: true,
+    slidesToScroll: 1,
+    rtl: true
+  }
+
+  closeImagePreview () {
+    this.$emit('close')
+  }
+
+  onSelectChange (event: any): void {
+    console.log('selected-change', event)
+    this.id = event
+  }
+
+  async deleteImage (): Promise<void> {
+    const res = await this.$robin.deleteMessages([this.images[this.id]._id], this.$user_token)
+
+    if (!res.error) {
+      console.log(res, [this.images[this.id]._id])
+      EventBus.$emit(this.imagesToPreview.length > 1 ? 'image-deleted' : 'message-deleted', this.images[this.id])
+      this.$toasted.global.custom_success('Message Deleted.')
+
+      if (this.images.length < 2) this.closeImagePreview()
+
+      window.setTimeout(() => this.images.splice(this.id, 1), 300)
     }
-
-    closeImagePreview () {
-      this.$emit('close')
-    }
-
-    onSelectChange (event: any): void {
-      console.log('selected-change', event)
-      this.id = event
-    }
-
-    async deleteImage (): Promise<void> {
-      const res = await this.$robin.deleteMessages([this.images[this.id]._id], this.$user_token)
-
-      if (!res.error) {
-        console.log(res, [this.images[this.id]._id])
-        EventBus.$emit(this.imagesToPreview.length > 1 ? 'image-deleted' : 'message-deleted', this.images[this.id])
-        this.$toasted.global.custom_success('Message Deleted.')
-
-        if (this.images.length < 2) this.closeImagePreview()
-
-        window.setTimeout(() => this.images.splice(this.id, 1), 300)
-      }
-    }
+  }
 }
 </script>
 

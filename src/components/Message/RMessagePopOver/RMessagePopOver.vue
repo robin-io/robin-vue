@@ -52,7 +52,6 @@ const ComponentProps = Vue.extend({
     RDeleteButton
   }
 })
-
 export default class RMessagePopOver extends ComponentProps {
   async deleteMessage (): Promise<void> {
     this.$emit('close-modal')
@@ -101,7 +100,8 @@ export default class RMessagePopOver extends ComponentProps {
   background-color: rgba(244, 246, 248, 0.8);
 }
 
-.top.robin-zoomIn, .top.robin-zoomOut {
+.top.robin-zoomIn,
+.top.robin-zoomOut {
   transform-origin: bottom right;
 }
 

@@ -1,6 +1,6 @@
 <template>
   <button type="button" @click="$emit(emit)" class="robin-button" :style="getStyles">
-    {{ text }}
+    <slot>Archived</slot>
   </button>
 </template>
 
@@ -34,9 +34,9 @@ const ComponentProps = Vue.extend({
 })
 
 @Component({
-  name: 'RTextButton'
+  name: 'RButton'
 })
-export default class RTextButton extends ComponentProps {
+export default class RButton extends ComponentProps {
   root = null as any
 
   mounted (): void {

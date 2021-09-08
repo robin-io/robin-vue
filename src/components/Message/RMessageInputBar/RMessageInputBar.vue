@@ -166,9 +166,10 @@ export default class RMessageInputBar extends ComponentProps {
       },
       this.$conn,
       this.$channel,
-      this.conversation._id
+      this.conversation._id,
+      this.$user_token
     )
-    return await new Promise((resolve) => setTimeout(resolve, 500))
+    return await new Promise((resolve) => setTimeout(resolve, 250))
   }
 
   async sendFileMessage (): Promise<any> {

@@ -11,33 +11,37 @@ import './styles/main.css'
 Vue.use(VueAxios, axios)
 Vue.use(VueViewer)
 Vue.use(Toasted)
-Vue.toasted.register('custom_success', message => message, {
+Vue.toasted.register('custom_success', (message) => message, {
   type: 'success',
   theme: 'toasted-primary',
   duration: 3000,
   containerClass: 'robin-toasted',
   className: 'robin-toasted-container',
-  action: [{
-    text: '',
-    icon: 'close',
-    onClick: (e, toastObject) => {
-      toastObject.goAway(0)
+  action: [
+    {
+      text: '',
+      icon: 'close',
+      onClick: (e, toastObject) => {
+        toastObject.goAway(0)
+      }
     }
-  }]
+  ]
 })
-Vue.toasted.register('custom_error', message => message, {
+Vue.toasted.register('custom_error', (message) => message, {
   type: 'error',
   theme: 'toasted-primary',
   duration: 3000,
   containerClass: 'robin-toasted',
   className: 'robin-toasted-container',
-  action: [{
-    text: '',
-    icon: 'close',
-    onClick: (e, toastObject) => {
-      toastObject.goAway(0)
+  action: [
+    {
+      text: '',
+      icon: 'close',
+      onClick: (e, toastObject) => {
+        toastObject.goAway(0)
+      }
     }
-  }]
+  ]
 })
 
 const robinChat = new Vue({

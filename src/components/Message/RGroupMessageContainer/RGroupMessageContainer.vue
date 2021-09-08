@@ -1,6 +1,6 @@
 <template>
-  <div class="robin-message-container">
-    <RGroupChatHeader :conversation="conversation" />
+  <div class="robin-message-container" v-on-clickaway="onChatClickAway">
+    <RGroupChatHeader :conversation="conversation" @forward-message="forwardMessage = true" :selected-messages="selectedMessages" />
     <div class="robin-wrapper robin-flex robin-flex-column robin-flex-space-between">
       <Promised :promise="promise">
         <template v-slot:pending>
@@ -10,7 +10,7 @@
         </template>
         <template v-slot:default>
           <div class="robin-inner-wrapper" ref="message" @scroll="onScroll()">
-            <MessageContent v-for="(message, index) in messages" @open-preview="openImagePreview($event)" :key="`message-${index}`" v-show="!message.is_deleted" :message="message" :conversation="conversation" :message-popup="popUpState.messagePopUp[index]" :scroll="scroll" :last-id="!Array.isArray(message) && index > messages.length - 3 ? message._id : ''" />
+            <MessageContent v-for="(message, index) in messages" @open-preview="openImagePreview($event)" :key="`message-${index}`" v-show="!message.is_deleted" :message="message" :conversation="conversation" :message-popup="popUpState.messagePopUp[index]" :scroll="scroll" :last-id="!Array.isArray(message) && index > messages.length - 3 ? message._id : ''" @toggle-check-action="toggleCheckAction($event, message)" />
           </div>
         </template>
         <template v-slot:rejected>
@@ -22,7 +22,7 @@
     <RMessageInputBar :conversation="conversation" @open-camera="openCamera()" :captured-image="capturedImage" />
     <RCamera ref="popup-1" :camera-opened="popUpState.cameraOpened" @close="closeCamera()" @captured-image="handleCapturedImage" v-show="popUpState.cameraOpened" />
     <MessageImagePreviewer ref="popup-2" v-show="popUpState.imagePreviewerOpened" @close="closeImagePreview()" :images-to-preview="imagesToPreview" />
-    <!-- <RForwardMessage /> -->
+    <RForwardMessage v-if="forwardMessage" @closemodal="onCloseForwardMessagePopup()" :selected-messages="selectedMessages" />
   </div>
 </template>
 
@@ -31,18 +31,22 @@ import Vue from 'vue'
 import { Promised } from 'vue-promised'
 import EventBus from '@/event-bus'
 import Component from 'vue-class-component'
+import { mixin as clickaway } from 'vue-clickaway'
 import RGroupChatHeader from '../RGroupChatHeader/RGroupChatHeader.vue'
 import RMessageInputBar from '../RMessageInputBar/RMessageInputBar.vue'
 import RDownloadButton from '../RDownloadButton/RDownloadButton.vue'
 import RText from '@/components/ChatList/RText/RText.vue'
 import RCamera from '../RCamera/RCamera.vue'
 import mime from 'mime'
+import { State, Mutation } from 'vuex-class'
+import { RootState } from '@/utils/types'
 import MessageContent from '../MessageContent/MessageContent.vue'
 import MessageGrid from '../MessageGrid/MessageGrid.vue'
 import MessageImagePreviewer from '../MessageImagePreviewer/MessageImagePreviewer.vue'
 import RMessagePopOver from '../RMessagePopOver/RMessagePopOver.vue'
+// import ForwardMessage from '../ForwardMessage.vue'
 // import RUnreadMessageBar from '../RUnreadMessagesBar/RUnreadMessagesBar.vue'
-// import RForwardMessage from '../RForwardMessage/RForwardMessage.vue'
+import RForwardMessage from '../RForwardMessage/RForwardMessage.vue'
 
 // eslint-disable-next-line
 @Component<RGroupMessageContainer>({
@@ -57,10 +61,12 @@ import RMessagePopOver from '../RMessagePopOver/RMessagePopOver.vue'
     MessageContent,
     MessageGrid,
     MessageImagePreviewer,
-    RMessagePopOver
+    RMessagePopOver,
+    // ForwardMessage
     // RUnreadMessageBar
-    // RForwardMessage
+    RForwardMessage
   },
+  mixins: [clickaway],
   watch: {
     messages: {
       handler (val: any): void {
@@ -73,10 +79,31 @@ import RMessagePopOver from '../RMessagePopOver/RMessagePopOver.vue'
         })
       },
       immediate: true
+    },
+    selectMessagesOpen: {
+      handler (val): void {
+        if (!val) {
+          this.selectedMessages = []
+        }
+      }
+    },
+    clearMessages: {
+      handler (val): void {
+        if (val) {
+          this.clearAllMessages()
+        }
+      }
     }
   }
 })
 export default class RGroupMessageContainer extends Vue {
+  @State('selectMessagesOpen') selectMessagesOpen?: RootState
+  @State('clearMessages') clearMessages?: RootState
+  @Mutation('setSelectMessagesOpen') setSelectMessagesOpen: any
+  @Mutation('setClearMessages') setClearMessages: any
+
+  selectedMessages = [] as Array<any>
+  forwardMessage = false as boolean
   conversation = {} as any
   messages = [] as any
   imagesToPreview = [] as any
@@ -146,6 +173,8 @@ export default class RGroupMessageContainer extends Vue {
       }
       this.$conversations.forEach((conversation, index) => {
         if (conversation._id === this.conversation._id) {
+          this.scrollToBottom()
+          console.log('timestamp', message)
           this.$conversations[index].updated_at = message.content.timestamp
           this.$conversations[index].last_message = message.content
           const newConv = this.$conversations[index]
@@ -167,7 +196,7 @@ export default class RGroupMessageContainer extends Vue {
     EventBus.$on('image-deleted', (message: any) => {
       console.log(message)
       const messageIndex = this.messages.findIndex((item: any) => {
-        if (Array.isArray(item)) return item.some(image => image._id === message._id)
+        if (Array.isArray(item)) return item.some((image) => image._id === message._id)
         return false
       }) as number
 
@@ -255,7 +284,7 @@ export default class RGroupMessageContainer extends Vue {
     return `${mime.getType(strArr[strArr.length - 1])}`
   }
 
-  testMessages (messages: Array<any>) {
+  testMessages (messages: Array<any>): void {
     // const imageGrids = [] as any
     const newMessages = []
     let temp = [] as any
@@ -291,8 +320,70 @@ export default class RGroupMessageContainer extends Vue {
     this.messages = newMessages
   }
 
+  async clearAllMessages (): Promise<void> {
+    const id = [] as Array<any>
+    console.log('before ->', id)
+
+    for (let i:number = 0; i < this.messages.length; i += 1) {
+      if (Array.isArray(this.messages[i])) {
+        this.messages[i].forEach((item: { _id: any }) => {
+          id.push(item._id)
+        })
+      }
+
+      if (!Array.isArray(this.messages[i])) {
+        id.push(this.messages[i]._id)
+      }
+    }
+
+    const res = await this.$robin.deleteMessages([...id], this.$user_token)
+    if (!res.error) {
+      this.$toasted.global.custom_success('Messages Deleted.')
+      this.promise = this.getConversationMessages(this.conversation._id)
+      this.promise.then(() => {
+        this.scrollToBottom()
+      })
+    }
+
+    this.setClearMessages(false)
+  }
+
   onScroll (): void {
     this.scroll = true
+  }
+
+  toggleCheckAction (val: boolean, message: any): void {
+    if (!val) {
+      this.selectMessage(message)
+    } else {
+      this.removeSelectedMessage(message)
+    }
+  }
+
+  selectMessage (message: any): void {
+    if (Array.isArray(message)) {
+      message.forEach((item) => {
+        this.selectedMessages.push(item)
+      })
+    } else {
+      this.selectedMessages.push(message)
+    }
+  }
+
+  removeSelectedMessage (message: any): void {
+    const index = this.selectedMessages.findIndex((item) => item._id === message._id)
+    console.log(index)
+
+    this.selectedMessages.splice(index, 1)
+  }
+
+  onChatClickAway (): void {
+    this.setSelectMessagesOpen(false)
+  }
+
+  onCloseForwardMessagePopup (): void {
+    this.forwardMessage = false
+    this.setSelectMessagesOpen(false)
   }
 }
 </script>

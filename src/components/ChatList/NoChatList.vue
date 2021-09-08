@@ -12,7 +12,7 @@
       <div class="robin-mb-13 robin-mt-33">
         <RText fontWeight="normal" color="#535F89">No Messages Yet</RText>
       </div>
-      <RTextButton text="Start a chat" emit="newchat" @newchat="$emit('changesidebartype', 'newchat')" />
+      <RButton emit="newchat" @newchat="$emit('changesidebartype', 'newchat')">Start a chat</RButton>
     </div>
   </div>
 </template>
@@ -22,7 +22,7 @@ import Vue from 'vue'
 import RText from './RText/RText.vue'
 import REditButton from './REditButton/REditButton.vue'
 import RSearchBar from './RSearchBar/RSearchBar.vue'
-import RTextButton from './RTextButton/RTextButton.vue'
+import RButton from './RButton/RButton.vue'
 import RNoChatIcon from './RNoChatIcon/RNoChatIcon.vue'
 
 export default Vue.extend({
@@ -31,7 +31,7 @@ export default Vue.extend({
     RText,
     REditButton,
     RSearchBar,
-    RTextButton,
+    RButton,
     RNoChatIcon
   }
 })

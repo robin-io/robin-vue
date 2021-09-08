@@ -3,10 +3,10 @@
     <!-- <div class="robin-wrapper robin-w-100">
       <RText :font-size="14" color="#101010">Contact Info</RText>
     </div> -->
-    <div class="robin-wrapper robin-w-100">
+    <div class="robin-wrapper robin-w-100" @click="handleSelectMessages()">
       <RText :font-size="14" color="#101010">Select Messages</RText>
     </div>
-    <div class="robin-wrapper robin-w-100">
+    <div class="robin-wrapper robin-w-100" @click="handleClearMessages()">
       <RText :font-size="14" color="#101010">Clear Messages</RText>
     </div>
     <div class="robin-wrapper robin-w-100">
@@ -17,14 +17,29 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
+import { Mutation } from 'vuex-class'
 import RText from '@/components/ChatList/RText/RText.vue'
 
-export default Vue.extend({
-  name: 'RPersonalMessagePopOver',
+@Component({
+  name: 'RPersonalMessagePopOverr',
   components: {
     RText
   }
 })
+
+export default class RPersonalMessagePopOver extends Vue {
+  @Mutation('setSelectMessagesOpen') setSelectMessagesOpen: any
+  @Mutation('setClearMessages') setClearMessages: any
+
+  handleSelectMessages () {
+    this.setSelectMessagesOpen(true)
+  }
+
+  handleClearMessages () {
+    this.setClearMessages(true)
+  }
+}
 </script>
 
 <style scoped>

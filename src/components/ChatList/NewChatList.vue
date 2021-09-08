@@ -14,7 +14,7 @@
         </div>
         <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4˝ robin-flex-1">
           <div class="robin-flex">
-            <RTextButton text="Create A New Group" color="#15AE73" :font-size="14" :line-height="18" emit="newgroupchat" @newgroupchat="$emit('changesidebartype', 'newgroupchat')" />
+            <RButton color="#15AE73" :font-size="14" :line-height="18" emit="newgroupchat" @newgroupchat="$emit('changesidebartype', 'newgroupchat')">Create A New Group</RButton>
           </div>
         </div>
       </div>
@@ -30,18 +30,17 @@
           class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4˝ robin-flex-1"
         >
           <div class="robin-flex">
-            <RTextButton
-              text="Add New Contact"
+            <RButton
               color="#15AE73"
               :font-size="14"
               :line-height="18"
-            />
+            >Add New Contact</RButton>
           </div>
         </div>
       </div>
     </div> -->
     <div class="robin-contact-container" v-for="(contact, key, index) in contacts" :key="`contact-${index}`">
-      <RAlphabetBlock :text="key"/>
+      <RAlphabetBlock :text="key" />
       <div class="robin-wrapper robin-card-container robin-flex robin-flex-column robin-grey-200">
         <div class="robin-card robin-flex robin-flex-align-center robin-clickable" v-for="user in contact" :key="user.userToken" @click="createConversation(user)">
           <div class="robin-card-info robin-mr-12">
@@ -83,7 +82,7 @@ import Component from 'vue-class-component'
 import RText from './RText/RText.vue'
 import RSearchBar from './RSearchBar/RSearchBar.vue'
 import RCloseButton from './RCloseButton/RCloseButton.vue'
-import RTextButton from './RTextButton/RTextButton.vue'
+import RButton from './RButton/RButton.vue'
 import RGroupAvatar from './RGroupAvatar/RGroupAvatar.vue'
 import RAvatar from './RAvatar/RAvatar.vue'
 // import RNewContactAvatar from './RNewContactAvatar/RNewContactAvatar.vue'
@@ -95,7 +94,7 @@ import EventBus from '@/event-bus'
   components: {
     RText,
     RSearchBar,
-    RTextButton,
+    RButton,
     RGroupAvatar,
     // RNewContactAvatar,
     RCloseButton,

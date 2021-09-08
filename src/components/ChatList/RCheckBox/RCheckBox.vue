@@ -54,11 +54,6 @@ input[type='checkbox'] {
 }
 
 .robin-checkbox-control {
-  /* display: grid;
-  place-items: center; */
-}
-
-.robin-checkbox-control {
   display: grid;
   place-items: center;
   width: 1rem;

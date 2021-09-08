@@ -5,17 +5,17 @@
         <RCloseButton />
       </div>
       <div class="robin-mb-5">
-       <RText font-weight="400" color="rgba(83, 95, 137, 1)" :font-size="16">New Group Chat</RText>
+        <RText font-weight="400" color="rgba(83, 95, 137, 1)" :font-size="16">New Group Chat</RText>
       </div>
       <div class="robin-ml-auto">
-        <RTextButton text="Done" emit="done" @done="openModal()" v-show="users.length > 0" class="robin-pulse" />
+        <RButton emit="done" @done="openModal()" v-show="users.length > 0" class="robin-pulse">Done</RButton>
       </div>
     </header>
     <div class="robin-wrapper robin-w-100">
       <RSearchBar />
     </div>
     <div class="robin-contact-container" v-for="(contact, key, index) in contacts" :key="`contact-${index}`">
-      <div class="robin-w-100 robin-mt-38">
+      <div class="robin-w-100">
         <RAlphabetBlock :text="key" />
       </div>
       <div class="robin-wrapper robin-card-container robin-flex robin-flex-column robin-grey-200">
@@ -79,7 +79,7 @@ import Component from 'vue-class-component'
 import RCloseButton from './RCloseButton/RCloseButton.vue'
 import RText from './RText/RText.vue'
 import RSearchBar from './RSearchBar/RSearchBar.vue'
-import RTextButton from './RTextButton/RTextButton.vue'
+import RButton from './RButton/RButton.vue'
 import RAvatar from './RAvatar/RAvatar.vue'
 import RCheckBox from './RCheckBox/RCheckBox.vue'
 import CreateGroup from './CreateGroup.vue'
@@ -90,7 +90,7 @@ import RAlphabetBlock from './RAlphabetBlock/RAlphabetBlock.vue'
   components: {
     RText,
     RSearchBar,
-    RTextButton,
+    RButton,
     RAvatar,
     RCloseButton,
     RCheckBox,
@@ -120,7 +120,7 @@ export default class NewGroupChatList extends Vue {
 
   getContacts (users: Array<any>): void {
     this.$robin_users.forEach((user) => {
-      this.contacts[user.userName[0]] = this.$robin_users.filter((item) => item.userName[0] === user.userName[0])
+      this.contacts[user.userName[0].toUpperCase()] = this.$robin_users.filter((item) => item.userName[0].toUpperCase() === user.userName[0].toUpperCase())
     })
   }
 
@@ -137,8 +137,7 @@ export default class NewGroupChatList extends Vue {
   }
 
   removeUser (user: any): void {
-    const userIndex = this.users.findIndex(item => item.userToken === user.userToken)
-    console.log(userIndex)
+    const userIndex = this.users.findIndex((item) => item.userToken === user.userToken)
     this.users.splice(userIndex, 1)
   }
 }
@@ -171,6 +170,10 @@ header {
 
 .robin-card-container {
   width: 100%;
+}
+
+.robin-contact-container:nth-child(3) {
+  margin-top: 2.375rem;
 }
 
 .robin-card-container .robin-card {
