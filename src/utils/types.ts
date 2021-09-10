@@ -1,5 +1,5 @@
 export interface RootState {
-  isPageLoading?: boolean,
-  selectMessagesOpen?: boolean,
+  isPageLoading?: boolean
+  selectMessagesOpen?: boolean
   clearMessages?: boolean
 }

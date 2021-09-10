@@ -1,8 +1,8 @@
 <template>
-  <div class="robin-side-container">
+  <div class="robin-side-container" ref='popup-body'>
     <header class="robin-header">
       <RText font-weight="400" color="rgba(83, 95, 137, 1)" :fontSize="17"> New Chat </RText>
-      <RCloseButton @close="$emit('changesidebartype', 'primary')" />
+      <RCloseButton @close="$emit('closemodal', 'primary')" />
     </header>
     <div class="robin-wrapper robin-w-100">
       <RSearchBar />
@@ -14,7 +14,7 @@
         </div>
         <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4˝ robin-flex-1">
           <div class="robin-flex">
-            <RButton color="#15AE73" :font-size="14" :line-height="18" emit="newgroupchat" @newgroupchat="$emit('changesidebartype', 'newgroupchat')">Create A New Group</RButton>
+            <RButton color="#15AE73" :font-size="14" :line-height="18" emit="newgroupchat" @newgroupchat="$emit('openmodal', 'newgroupchat')">Create A New Group</RButton>
           </div>
         </div>
       </div>
@@ -153,6 +153,10 @@ export default class NewChatList extends Vue {
   flex-direction: column;
   align-items: flex-end;
   box-shadow: 0px 2px 20px rgba(0, 104, 255, 0.06);
+  position: absolute;
+  top: 0;
+  z-index: 1;
+  background-color: #fff;
 }
 
 header {

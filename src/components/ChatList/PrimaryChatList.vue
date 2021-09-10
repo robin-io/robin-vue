@@ -2,13 +2,13 @@
   <div class="robin-side-container">
     <header class="robin-header">
       <RText font-weight="400" color="rgba(83, 95, 137, 1)" :font-size="17"> Settings </RText>
-      <REditButton @edit="$emit('changesidebartype', 'newchat')" />
+      <REditButton @edit="$emit('opennewchatmodal', 'newchat')" />
     </header>
     <div class="robin-wrapper robin-w-100">
       <RSearchBar />
     </div>
     <div class="robin-wrapper robin-pt-10 robin-pb-11">
-      <RButton @archived="$emit('changesidebartype', 'archivedchat')" />
+      <RButton @archived="$emit('openarchivedchatmodal', 'archivedchat')" />
     </div>
     <div class="robin-wrapper robin-card-container robin-pb-16 robin-flex robin-flex-column" @scroll="onScroll()">
       <div class="robin-card robin-flex robin-flex-align-center" :class="{ 'robin-card-active': isConversationActive(conversation) }" v-for="(conversation, index) in conversations" :key="`conversation-${index}`" @click.self="openConversation(conversation)">
@@ -37,11 +37,11 @@
             </div>
 
             <div class="robin-mini-info-container robin-flex robin-flex-align-center">
-              <RMention @click.native="openConversation(conversation)" />
+              <!-- <RMention @click.native="openConversation(conversation)" /> -->
               <!-- use when mention icon is present robin-ml-8 -->
-              <div class="mini-info robin-ml-10" @click="openConversation(conversation)">
+              <!-- <div class="mini-info robin-ml-10" @click="openConversation(conversation)">
                 <RUnreadMessageCount :count="10" />
-              </div>
+              </div> -->
               <div class="robin-hidden robin-ml-10" @click="handleOpenPopUp(conversation._id, `popup-${index}`)">
                 <ROpenModalCaretButton @clickoutside="handleClosePopUp(conversation._id, `popup-${index}`)" />
               </div>
@@ -201,6 +201,8 @@ export default class PrimaryChatList extends ComponentProps {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  position: relative;
+  z-index: 0;
 }
 
 header {

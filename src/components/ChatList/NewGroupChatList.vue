@@ -1,7 +1,7 @@
 <template>
-  <div class="robin-side-container">
+  <div class="robin-side-container" ref='popup-body'>
     <header class="robin-header">
-      <div class="robin-mr-10" @click="$emit('changesidebartype', 'newchat')">
+      <div class="robin-mr-10" @click="$emit('closemodal', 'newchat')">
         <RCloseButton />
       </div>
       <div class="robin-mb-5">
@@ -68,7 +68,7 @@
         </div>
       </div>
     </div> -->
-    <CreateGroup v-show="modalOpen" @closemodal="closeModal()" :users="users" @remove-user="removeUser($event)" @changesidebartype="$emit('changesidebartype', $event)" />
+    <CreateGroup v-show="modalOpen" @closemodal="closeModal()" :users="users" @remove-user="removeUser($event)" @changesidebartype="$emit('openmodal', $event)" />
   </div>
 </template>
 
@@ -151,6 +151,10 @@ export default class NewGroupChatList extends Vue {
   flex-direction: column;
   align-items: flex-end;
   box-shadow: 0px 2px 20px rgba(0, 104, 255, 0.06);
+  position: absolute;
+  top: 0;
+  z-index: 1;
+  background-color: #fff;
 }
 
 header {

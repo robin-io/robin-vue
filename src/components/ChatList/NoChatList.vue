@@ -2,7 +2,7 @@
   <div class="robin-side-container">
     <header class="robin-header">
       <RText font-weight="400" color="rgba(83, 95, 137, 1)" :font-size="17"> Settings </RText>
-      <REditButton @edit="$emit('changesidebartype', 'newchat')" />
+      <REditButton @edit="$emit('openmodal', 'newchat')" />
     </header>
     <div class="robin-wrapper robin-w-100">
       <RSearchBar />
@@ -12,7 +12,7 @@
       <div class="robin-mb-13 robin-mt-33">
         <RText fontWeight="normal" color="#535F89">No Messages Yet</RText>
       </div>
-      <RButton emit="newchat" @newchat="$emit('changesidebartype', 'newchat')">Start a chat</RButton>
+      <RButton emit="newchat" @newchat="$emit('openmodal', 'newchat')">Start a chat</RButton>
     </div>
   </div>
 </template>
