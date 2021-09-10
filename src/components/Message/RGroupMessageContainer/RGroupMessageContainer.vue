@@ -177,7 +177,7 @@ export default class RGroupMessageContainer extends Vue {
           this.$conversations[index].last_message = message.content
           const newConv = this.$conversations[index]
           console.log('emit', newConv)
-          if (!newConv.archived_for) {
+          if (!newConv.archived_for || newConv.archived_for.length === 0) {
             const regularConversationIndex = this.$regularConversations.findIndex(item => item._id === newConv._id)
             this.$regularConversations.splice(regularConversationIndex, 1)
             this.$regularConversations.unshift(newConv)
@@ -188,6 +188,13 @@ export default class RGroupMessageContainer extends Vue {
           }
         }
       })
+    })
+
+    EventBus.$on('message.forward', (message: any) => {
+      if (message.conversation_id == this.conversation.conversation_id) {
+        this.messages.push(message)
+        this.scrollToBottom()
+      }
     })
   }
 

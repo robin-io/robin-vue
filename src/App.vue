@@ -31,7 +31,8 @@ const ComponentProps = Vue.extend({
     },
     api_key: {
       type: String as PropType<string>,
-      default: 'NT-BtBVBDkCHNXsYuqBdHskPNPnhTzarOlexmOb'
+      default: 'NT-npUbpwzapYoTUtHSufMWQkNNnZePbqqFycjb'
+      // default: 'NT-BtBVBDkCHNXsYuqBdHskPNPnhTzarOlexmOb'
     },
     channel: {
       type: String as PropType<string>,
@@ -141,8 +142,16 @@ export default class App extends ComponentProps {
         EventBus.$emit('new-message', message)
       } else {
         // move new conversation to the top
-        console.log('new conversation')
-        EventBus.$emit('new-conversation', message)
+        // console.log('new conversation')
+        // EventBus.$emit('new-conversation', message)
+
+        // check event type
+
+        // if (message.name == "new.conversation") {
+        //   EventBus.$emit('new.conversation', message.value)
+        // } 
+        this.handleEvents(message)
+
       }
     }
 
@@ -163,6 +172,42 @@ export default class App extends ComponentProps {
     EventBus.$on('group-conversation-created', (conversation: object) => {
       this.conversationOpened = true
     })
+  }
+
+  handleEvents(message: any): void {
+    switch (message.name) {
+      case 'user.connect':
+        // set user status to online
+        // check conversations(dms)
+        // if this.$userToken != message.value
+        // check if reciever_token or sender_token == message.value
+        // set the conversation.status as online
+        EventBus.$emit('user.connect', message.value)
+        break
+      case 'user.disconnect':
+        // set user status to offline
+
+        // check conversations(dms)
+        // if this.$userToken != message.value
+        // check if reciever_token or sender_token == message.value
+        // set the conversation.status as offline
+        EventBus.$emit('user.disconnect', message.value)
+        break
+      case 'new.conversation':
+        console.log("new conversation")
+        break
+      case 'message.forward':
+        // loop through message.value
+        // check if current conversation._id is equal to message.conversation_id
+        // if it is, push message to message array
+        // else update last_message and unshift
+        EventBus.$emit('message.forward', message.value)
+        console.log('forwarded message', message.value)
+        break
+      default:
+        console.log("cannot handle event")
+        break
+    }
   }
 }
 </script>

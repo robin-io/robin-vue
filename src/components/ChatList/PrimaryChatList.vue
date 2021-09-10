@@ -48,7 +48,7 @@
             </div>
           </div>
         </div>
-        <div class="robin-popup-container" :class="{ top: (scroll && conversations.length - 2 == index) || conversations.length - 1 == index }" v-show="popUpStates[index].opened">
+        <div class="robin-popup-container" :class="{ top: (scroll && conversations.length - 2 == index) || conversations.length - 1 == index }" v-show="popUpStates[index] ? popUpStates[index].opened : false">
           <RChatListPopOver :ref="`popup-${index}`" :class="{ top: (scroll && conversations.length - 2 == index) || conversations.length - 1 == index }" @archive-chat="archiveChat(conversation._id)" />
         </div>
       </div>
@@ -118,6 +118,7 @@ export default class PrimaryChatList extends ComponentProps {
 
   created () {
     this.onGroupConversationCreated()
+    this.handleMessageForward()
   }
 
   onGroupConversationCreated (): void {
@@ -171,7 +172,7 @@ export default class PrimaryChatList extends ComponentProps {
 
     window.setTimeout(() => {
       const index = this.popUpStates.findIndex((val) => val._id === _id)
-      if (this.popUpStates[index].opened) {
+      if (this.popUpStates[index] ? this.popUpStates[index].opened : false) {
         const popup = this.$refs[refKey] as any
         popup[0].$refs['popup-body'].classList.remove('robin-zoomOut')
 
@@ -191,6 +192,27 @@ export default class PrimaryChatList extends ComponentProps {
       this.$toasted.global.custom_success('Chat Archived')
       console.log(res)
     }
+  }
+
+  handleMessageForward(): void {
+    EventBus.$on('message.forward', (messages: any) => {
+      messages.forEach((msg: any) => {
+        this.$regularConversations.forEach((conv: any, index: any) => {
+          if (conv._id == msg.conversation_id) {
+            msg.content.timestamp = new Date()
+            this.$regularConversations[index].last_message = msg.content
+            this.$regularConversations.splice(index, 1)
+            this.$regularConversations.unshift(conv)
+          }
+        })
+        this.$archivedConversations.forEach((conv: any, index: any) => {
+          if (conv._id == msg.conversation_id) {
+            msg.content.timestamp = new Date()
+            this.$archivedConversations[index].last_message = msg.content
+          }
+        })
+      })
+    })
   }
 }
 </script>
