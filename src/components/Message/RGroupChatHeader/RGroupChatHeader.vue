@@ -83,14 +83,14 @@ export default class RGroupChatHeader extends ComponentProps {
     opened: false
   }
 
-  handleOpenPopUp (refKey: string): void {
+  handleOpenPopUp(refKey: string): void {
     const popup = this.$refs[refKey] as any
     popup.$refs['popup-body'].classList.remove('robin-zoomOut')
 
     this.popUpState.opened = true
   }
 
-  handleClosePopUp (refKey: string): void {
+  handleClosePopUp(refKey: string): void {
     const popup = this.$refs[refKey] as any
     popup.$refs['popup-body'].classList.remove('robin-zoomIn')
     popup.$refs['popup-body'].classList.add('robin-zoomOut')
@@ -104,7 +104,7 @@ export default class RGroupChatHeader extends ComponentProps {
     }, 300)
   }
 
-  cancelSelect (): void {
+  cancelSelect(): void {
     this.setSelectMessagesOpen(false)
   }
 }

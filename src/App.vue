@@ -119,6 +119,8 @@ export default class App extends ComponentProps {
     Vue.prototype.$user_token = this.user_token
     Vue.prototype.$channel = this.channel
     Vue.prototype.$conversations = []
+    Vue.prototype.$regularConversations = []
+    Vue.prototype.$archivedConversations = []
 
     console.log(this.robin, this.$robin, this.conn)
   }

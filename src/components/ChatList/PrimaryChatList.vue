@@ -122,6 +122,7 @@ export default class PrimaryChatList extends ComponentProps {
 
   onGroupConversationCreated (): void {
     EventBus.$on('group-conversation-created', (conversation: object) => {
+      console.log(conversation)
       this.openConversation(conversation)
     })
   }

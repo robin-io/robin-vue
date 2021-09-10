@@ -9,5 +9,7 @@ declare module 'vue/types/vue' {
     $channel: string
     $robin_users: Array<any>
     $conversations: Array<any>
+    $regularConversations: Array<any>
+    $archivedConversations: Array<any>
   }
 }

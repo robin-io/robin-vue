@@ -1,5 +1,5 @@
 <template>
-  <div class="robin-side-container" ref='popup-body'>
+  <div class="robin-side-container" ref="popup-body">
     <header class="robin-header">
       <RText fontWeight="400" color="rgba(83, 95, 137, 1)" :fontSize="17"> Archived Chats </RText>
       <RCloseButton @close="$emit('closemodal', 'primary')" />
@@ -134,7 +134,6 @@ export default class ArchivedChatList extends ComponentProps {
   }
 
   formatRecentMessageTime (time: string): string {
-    // const datetime = new Date(time)
     const datetime = moment(time)
     return datetime.calendar(null, {
       sameDay: 'hh:ss a',
@@ -149,7 +148,7 @@ export default class ArchivedChatList extends ComponentProps {
   }
 
   async unArchiveChat (id: string): Promise<void> {
-    const res = await this.$robin.archiveConversation(id, this.$user_token)
+    const res = await this.$robin.unarchiveConversation(id, this.$user_token)
 
     if (!res.error) {
       this.$toasted.global.custom_success('Chat Unarchived')

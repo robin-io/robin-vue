@@ -167,19 +167,25 @@ export default class RGroupMessageContainer extends Vue {
 
   onNewMessage () {
     EventBus.$on('new-message', (message: any) => {
-      console.log('new-message: ' + message)
       if (message.conversation_id === this.conversation._id) {
         this.messages.push(message)
       }
       this.$conversations.forEach((conversation, index) => {
         if (conversation._id === this.conversation._id) {
           this.scrollToBottom()
-          console.log('timestamp', message)
           this.$conversations[index].updated_at = message.content.timestamp
           this.$conversations[index].last_message = message.content
           const newConv = this.$conversations[index]
-          this.$conversations.splice(index, 1)
-          this.$conversations.unshift(newConv)
+          console.log('emit', newConv)
+          if (!newConv.archived_for) {
+            const regularConversationIndex = this.$regularConversations.findIndex(item => item._id === newConv._id)
+            this.$regularConversations.splice(regularConversationIndex, 1)
+            this.$regularConversations.unshift(newConv)
+          } else {
+            const archivedConversationIndex = this.$archivedConversations.findIndex(item => item._id === newConv._id)
+            this.$archivedConversations.splice(archivedConversationIndex, 1)
+            this.$archivedConversations.unshift(newConv)
+          }
         }
       })
     })

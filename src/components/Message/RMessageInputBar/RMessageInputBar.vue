@@ -133,11 +133,11 @@ export default class RMessageInputBar extends ComponentProps {
     emojiOpened: false
   }
 
-  get checkFileFormat () {
+  get checkFileFormat() {
     return this.files.some((file) => file.type.includes('image'))
   }
 
-  async sendMessage (): Promise<void> {
+  async sendMessage(): Promise<void> {
     this.isUploading = true
     if (this.files.length > 0 && this.text.trim().length === 0) {
       await this.sendFileMessage()
@@ -156,7 +156,7 @@ export default class RMessageInputBar extends ComponentProps {
     this.isUploading = false
   }
 
-  async sendTextMessage () {
+  async sendTextMessage() {
     this.$robin.sendMessageToConversation(
       {
         msg: this.text,
@@ -172,7 +172,7 @@ export default class RMessageInputBar extends ComponentProps {
     return await new Promise((resolve) => setTimeout(resolve, 250))
   }
 
-  async sendFileMessage (): Promise<any> {
+  async sendFileMessage(): Promise<any> {
     return await Promise.all(
       this.files.map(async (file) => {
         await this.$robin.sendMessageAttachment(this.$user_token, this.conversation._id, file.file)
@@ -180,24 +180,24 @@ export default class RMessageInputBar extends ComponentProps {
     )
   }
 
-  escapeText (): void {
+  escapeText(): void {
     const input = this.$refs.input as HTMLInputElement
     input.value = ''
     this.text = ''
   }
 
-  selectEmoji (emoji: any): void {
+  selectEmoji(emoji: any): void {
     this.text += emoji.data
   }
 
-  handleEmojiOpenPopUp (): void {
+  handleEmojiOpenPopUp(): void {
     const popup = this.$refs['popup-1'] as any
     popup.classList.remove('robin-squeezeIn')
 
     this.popUpState.emojiOpened = true
   }
 
-  handleEmojiClosePopUp (): void {
+  handleEmojiClosePopUp(): void {
     const popup = this.$refs['popup-1'] as any
     popup.classList.remove('robin-squeezeOut')
     popup.classList.add('robin-squeezeIn')
@@ -211,14 +211,14 @@ export default class RMessageInputBar extends ComponentProps {
     }, 300)
   }
 
-  handleOpenPopUp (): void {
+  handleOpenPopUp(): void {
     const popup = this.$refs['popup-3'] as any
     popup.$refs['popup-body'].classList.remove('robin-zoomOut')
 
     this.popUpState.opened = true
   }
 
-  handleClosePopUp (): void {
+  handleClosePopUp(): void {
     const popup = this.$refs['popup-3'] as any
     popup.$refs['popup-body'].classList.add('robin-zoomOut')
 
@@ -230,11 +230,11 @@ export default class RMessageInputBar extends ComponentProps {
     }, 300)
   }
 
-  handleFileUpload (file: any) {
+  handleFileUpload(file: any) {
     this.files.push(file)
   }
 
-  handleFileUploadClose (): void {
+  handleFileUploadClose(): void {
     const popup = this.$refs['popup-2'] as any
     popup.classList.remove('robin-squeezeOut')
     popup.classList.add('robin-squeezeIn')
@@ -248,7 +248,7 @@ export default class RMessageInputBar extends ComponentProps {
     }, 300)
   }
 
-  removeFile (index: number): void {
+  removeFile(index: number): void {
     if (this.files.length > 1) {
       this.files.splice(index, 1)
     } else {

@@ -1,5 +1,5 @@
 <template>
-  <div class="robin-side-container" ref='popup-body'>
+  <div class="robin-side-container" ref="popup-body">
     <header class="robin-header">
       <div class="robin-mr-10" @click="$emit('closemodal', 'newchat')">
         <RCloseButton />
