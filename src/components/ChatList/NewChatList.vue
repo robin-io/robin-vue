@@ -1,5 +1,5 @@
 <template>
-  <div class="robin-side-container" ref='popup-body'>
+  <div class="robin-side-container" ref="popup-body">
     <header class="robin-header">
       <RText font-weight="400" color="rgba(83, 95, 137, 1)" :fontSize="17"> New Chat </RText>
       <RCloseButton @close="$emit('closemodal', 'primary')" />

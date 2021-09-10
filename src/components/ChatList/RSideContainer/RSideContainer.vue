@@ -1,10 +1,10 @@
 <template>
   <div class="robin-chat-list-container">
-    <PrimaryChatList v-show="$conversations.length > 0" :conversations="regularConversations" @opennewchatmodal="openModal('slide-1', $event)" @openarchivedchatmodal="openModal('slide-3', $event)" @closemodal="closeModal('slide-1', $event)" />
-    <NewChatList ref="slide-1" v-show="sideBarType == 'newchat'" @openmodal="openModal('slide-2', $event)" @closemodal="closeModal('slide-1', $event)"  />
+    <PrimaryChatList v-show="$conversations.length > 0" :conversations="$regularConversations" @opennewchatmodal="openModal('slide-1', $event)" @openarchivedchatmodal="openModal('slide-3', $event)" @closemodal="closeModal('slide-1', $event)" />
+    <NewChatList ref="slide-1" v-show="sideBarType == 'newchat'" @openmodal="openModal('slide-2', $event)" @closemodal="closeModal('slide-1', $event)" />
     <NoChatList v-show="$conversations.length < 1" @openmodal="openModal('slide-1', $event)" />
-    <NewGroupChatList ref="slide-2" v-show="sideBarType == 'newgroupchat'" @openmodal="openModal('slide-0', $event)" @closemodal="closeModal('slide-2', $event)"/>
-    <ArchivedChatList ref="slide-3" v-show="sideBarType == 'archivedchat'" @closemodal="closeModal('slide-3', $event)" :conversations="archivedConversations" />
+    <NewGroupChatList ref="slide-2" v-show="sideBarType == 'newgroupchat'" @openmodal="openModal('slide-0', $event)" @closemodal="closeModal('slide-2', $event)" />
+    <ArchivedChatList ref="slide-3" v-show="sideBarType == 'archivedchat'" @closemodal="closeModal('slide-3', $event)" :conversations="$archivedConversations" />
   </div>
 </template>
 
@@ -43,8 +43,8 @@ export default class RSideContainer extends ComponentProps {
   @State('isPageLoading') isPageLoading?: RootState
   @Mutation('setPageLoading') setPageLoading: any
 
-  archivedConversations = [] as Array<any>
-  regularConversations = [] as Array<any>
+  // archivedConversations = [] as Array<any>
+  // regularConversations = [] as Array<any>
 
   created () {
     this.getUserToken()
@@ -88,7 +88,7 @@ export default class RSideContainer extends ComponentProps {
 
   onGroupConversationCreated () {
     EventBus.$on('group-conversation-created', (conversation: object) => {
-      Vue.prototype.$conversations.unshift(conversation)
+      this.$regularConversations.unshift(conversation)
     })
   }
 
@@ -100,8 +100,8 @@ export default class RSideContainer extends ComponentProps {
     if (!res.error) {
       this.conversations = res.data.conversations == null ? [] : res.data.conversations
       Vue.prototype.$conversations = res.data.conversations == null ? [] : res.data.conversations
-      this.getRegularConversations()
-      this.getArchivedConversations()
+      Vue.prototype.$regularConversations = this.getRegularConversations()
+      Vue.prototype.$archivedConversations = this.getArchivedConversations()
       this.setPageLoading(false)
       console.log('getconversations -> ', this.$conversations)
       this.$forceUpdate()
@@ -109,19 +109,17 @@ export default class RSideContainer extends ComponentProps {
     console.log(res)
   }
 
-  getArchivedConversations (): void {
-    this.archivedConversations = this.$conversations.filter((user: any) => {
+  getArchivedConversations (): Array<any> {
+    return this.$conversations.filter((user: any) => {
       if (!user.archived_for) return false
-      return user.archived_for.every((item: string) => {
-        return item === this.$user_token
-      })
+      return user.archived_for.includes(this.$user_token)
     })
   }
 
-  getRegularConversations (): void {
-    this.regularConversations = this.$conversations.filter((user: any) => {
+  getRegularConversations (): Array<any> {
+    return this.$conversations.filter((user: any) => {
       if (!user.archived_for) return true
-      return false
+      return !user.archived_for.includes(this.$user_token)
     })
   }
 }

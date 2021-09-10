@@ -30,11 +30,11 @@ import RText from '@/components/ChatList/RText/RText.vue'
 export default class RGroupMessagePopOver extends Vue {
   @Mutation('setSelectMessagesOpen') setSelectMessagesOpen: any
 
-  handleSelectMessages () {
+  handleSelectMessages() {
     this.setSelectMessagesOpen(true)
   }
 
-  handleLeaveGroup () {}
+  handleLeaveGroup() {}
 }
 </script>
 

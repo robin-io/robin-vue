@@ -138,7 +138,7 @@ export default class CreateGroup extends ComponentProps {
 }
 
 header {
-  width: 100px;
+  width: max-content;
   display: flex;
   justify-content: center;
   align-self: flex-end;
