@@ -1,8 +1,8 @@
 <template>
-  <div class="robin-side-container">
+  <div class="robin-side-container" ref='popup-body'>
     <header class="robin-header">
       <RText fontWeight="400" color="rgba(83, 95, 137, 1)" :fontSize="17"> Archived Chats </RText>
-      <RCloseButton @close="$emit('changesidebartype', 'primary')" />
+      <RCloseButton @close="$emit('closemodal', 'primary')" />
     </header>
     <div class="robin-wrapper robin-card-container robin-flex robin-flex-column robin-mt-75" @scroll="onScroll()">
       <div class="robin-card robin-flex robin-flex-align-center" :class="{ 'robin-card-active': isConversationActive(conversation) }" v-for="(conversation, index) in conversations" :key="`conversation-${index}`" @click.self="openConversation(conversation)" v-show="conversations.length > 0">
@@ -168,6 +168,10 @@ export default class ArchivedChatList extends ComponentProps {
   flex-direction: column;
   align-items: flex-end;
   box-shadow: 0px 2px 20px rgba(0, 104, 255, 0.06);
+  position: absolute;
+  top: 0;
+  z-index: 1;
+  background-color: #fff;
 }
 
 header {

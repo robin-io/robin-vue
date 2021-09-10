@@ -324,7 +324,7 @@ export default class RGroupMessageContainer extends Vue {
     const id = [] as Array<any>
     console.log('before ->', id)
 
-    for (let i:number = 0; i < this.messages.length; i += 1) {
+    for (let i: number = 0; i < this.messages.length; i += 1) {
       if (Array.isArray(this.messages[i])) {
         this.messages[i].forEach((item: { _id: any }) => {
           id.push(item._id)

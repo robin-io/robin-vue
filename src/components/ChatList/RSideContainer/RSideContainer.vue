@@ -1,10 +1,10 @@
 <template>
   <div class="robin-chat-list-container">
-    <PrimaryChatList v-show="$conversations.length > 0 && sideBarType == 'primary'" :conversations="regularConversations" @changesidebartype="changeSideBarType" />
-    <NewChatList v-if="sideBarType == 'newchat'" @changesidebartype="changeSideBarType" />
-    <NoChatList v-if="$conversations.length < 1 && sideBarType == 'primary'" @changesidebartype="changeSideBarType" />
-    <NewGroupChatList v-if="sideBarType == 'newgroupchat'" @changesidebartype="changeSideBarType" />
-    <ArchivedChatList v-if="sideBarType == 'archivedchat'" @changesidebartype="changeSideBarType" :conversations="archivedConversations" />
+    <PrimaryChatList v-show="$conversations.length > 0" :conversations="regularConversations" @opennewchatmodal="openModal('slide-1', $event)" @openarchivedchatmodal="openModal('slide-3', $event)" @closemodal="closeModal('slide-1', $event)" />
+    <NewChatList ref="slide-1" v-show="sideBarType == 'newchat'" @openmodal="openModal('slide-2', $event)" @closemodal="closeModal('slide-1', $event)"  />
+    <NoChatList v-show="$conversations.length < 1" @openmodal="openModal('slide-1', $event)" />
+    <NewGroupChatList ref="slide-2" v-show="sideBarType == 'newgroupchat'" @openmodal="openModal('slide-0', $event)" @closemodal="closeModal('slide-2', $event)"/>
+    <ArchivedChatList ref="slide-3" v-show="sideBarType == 'archivedchat'" @closemodal="closeModal('slide-3', $event)" :conversations="archivedConversations" />
   </div>
 </template>
 
@@ -55,8 +55,35 @@ export default class RSideContainer extends ComponentProps {
   sideBarType = 'primary'
   conversations = [] as Array<any>
 
-  changeSideBarType (val: string): void {
-    this.sideBarType = val
+  openModal (refKey: string, type: string): void {
+    if (type === 'primary') {
+      this.sideBarType = type
+    } else {
+      // console.log(this.$refs, refKey, type)
+      const popup = this.$refs[refKey] as any
+
+      window.setTimeout(() => {
+        popup.$refs['popup-body'].classList.add('robin-slideInLeft')
+
+        this.sideBarType = type
+      }, 200)
+    }
+  }
+
+  closeModal (refKey: string = 'slide-1', type: string): void {
+    if (type === 'primary' && refKey === 'slide-0') {
+      this.sideBarType = type
+    } else {
+      console.log(this.$refs, refKey, type)
+      const popup = this.$refs[refKey] as any
+      popup.$refs['popup-body'].classList.add('robin-slideOutLeft')
+
+      window.setTimeout(() => {
+        popup.$refs['popup-body'].classList.remove('robin-slideOutLeft')
+
+        this.sideBarType = type
+      }, 200)
+    }
   }
 
   onGroupConversationCreated () {
@@ -91,7 +118,7 @@ export default class RSideContainer extends ComponentProps {
     })
   }
 
-  getRegularConversations ():void {
+  getRegularConversations (): void {
     this.regularConversations = this.$conversations.filter((user: any) => {
       if (!user.archived_for) return true
       return false

@@ -4,7 +4,8 @@
       <path d="M9.16667 15.8333C12.8486 15.8333 15.8333 12.8486 15.8333 9.16667C15.8333 5.48477 12.8486 2.5 9.16667 2.5C5.48477 2.5 2.5 5.48477 2.5 9.16667C2.5 12.8486 5.48477 15.8333 9.16667 15.8333Z" stroke="#566BA0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
       <path d="M17.5 17.5L13.875 13.875" stroke="#566BA0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
     </svg>
-    <input type="search" :placeholder="placeholder" autocomplete="off" class="robin-input" v-model="text" />
+    <input type="search" :placeholder="placeholder" autocomplete="off" class="robin-input" v-model="text" @keyup.enter="userTyping()" />
+    <div class="robin-spinner" v-show="loading"></div>
   </div>
 </template>
 
@@ -17,6 +18,10 @@ const ComponentProps = Vue.extend({
     placeholder: {
       type: String as PropType<string>,
       default: 'Search Messages...'
+    },
+    loading: {
+      type: Boolean as PropType<boolean>,
+      default: false
     }
   }
 })
@@ -27,8 +32,8 @@ const ComponentProps = Vue.extend({
 export default class RSeachBar extends ComponentProps {
   text = ''
 
-  userTyping(val: string): void {
-    this.text = val
+  userTyping (): void {
+    this.$emit('user-typing', this.text)
   }
 }
 </script>
@@ -53,7 +58,7 @@ export default class RSeachBar extends ComponentProps {
 }
 
 .robin-input {
-  width: 100%;
+  width: 86%;
   height: 100%;
   background-color: transparent;
   border: none;
@@ -64,6 +69,11 @@ export default class RSeachBar extends ComponentProps {
 /* Input focus */
 .robin-input:focus {
   outline: none;
+}
+
+.robin-spinner {
+  width: 17px;
+  height: 17px;
 }
 
 /* Input placeholder */

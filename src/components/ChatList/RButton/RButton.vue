@@ -10,10 +10,10 @@ import Component from 'vue-class-component'
 
 const ComponentProps = Vue.extend({
   props: {
-    text: {
-      type: String as PropType<string>,
-      default: 'Archived'
-    },
+    // text: {
+    //   type: String as PropType<string>,
+    //   default: 'Archived'
+    // },
     color: {
       type: String as PropType<string>,
       default: '#15AE73'

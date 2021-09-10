@@ -27,16 +27,15 @@ import RText from '@/components/ChatList/RText/RText.vue'
     RText
   }
 })
-
 export default class RPersonalMessagePopOver extends Vue {
   @Mutation('setSelectMessagesOpen') setSelectMessagesOpen: any
   @Mutation('setClearMessages') setClearMessages: any
 
-  handleSelectMessages () {
+  handleSelectMessages() {
     this.setSelectMessagesOpen(true)
   }
 
-  handleClearMessages () {
+  handleClearMessages() {
     this.setClearMessages(true)
   }
 }

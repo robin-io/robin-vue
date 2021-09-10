@@ -4,11 +4,12 @@
       <div class="robin-inner-container robin-flex robin-flex-column">
         <header class="robin-wrapper robin-mt-26 robin-mb-10">
           <RText>Forward Message</RText>
-          <RButton color="#15ae73">Send</RButton>
+          <RButton color="#15ae73" emit="clicked" @clicked="handleForwardMessages()" v-show="!isSending">Send</RButton>
+          <div class="robin-spinner" v-show="isSending"></div>
         </header>
 
         <div class="robin-wrapper robin-mb-10">
-          <RSearchBar placeholder="Search people or group..." />
+          <RSearchBar placeholder="Search people or group..." @user-typing="searchConversation($event)" :loading="isLoading" />
         </div>
         <div class="robin-conversation-container">
           <div class="robin-contact-container" v-for="(conversation, key, index) in conversations" :key="`conversation-${index}`">
@@ -80,24 +81,55 @@ const ComponentProps = Vue.extend({
 })
 export default class RForwardMessage extends ComponentProps {
   conversations = {} as any
-  selectedConversation = [] as Array<any>
+  isLoading = false as boolean
+  isSending = false as boolean
+  selectedConversations = [] as Array<any>
   checkBoxKeyState = 0 as number
 
   created () {
-    this.getConversations()
+    this.getConversations([])
   }
 
-  getConversations (): void {
-    this.$conversations.forEach((conversation: any) => {
-      this.conversations[conversation.name[0] ? conversation.name[0].toUpperCase() : conversation.receiver_name[0].toUpperCase()] = this.$conversations.filter((item) => {
-        if (item.name[0] && conversation.name[0]) return item.name[0].toUpperCase() === conversation.name[0].toUpperCase()
-        if (item.receiver_name[0] && conversation.receiver_name[0]) return item.receiver_name[0].toUpperCase() === conversation.receiver_name[0].toUpperCase()
-        if (item.receiver_name[0] && conversation.name[0]) return item.receiver_name[0].toUpperCase() === conversation.name[0].toUpperCase()
-        if (item.name[0] && conversation.receiver_name[0]) return item.name[0].toUpperCase() === conversation.receiver_name[0].toUpperCase()
+  getConversations (searchedData: Array<any>): void {
+    if (searchedData.length < 1) {
+      console.log(this.getRegularConversations(this.$conversations))
+      for (const conversation of this.getRegularConversations(this.$conversations)) {
+        this.conversations[conversation.name[0] ? conversation.name[0].toUpperCase() : conversation.receiver_name[0].toUpperCase()] = this.getRegularConversations(this.$conversations).filter((item) => {
+          if (item.name[0] && conversation.name[0]) return item.name[0].toUpperCase() === conversation.name[0].toUpperCase()
+          if (item.receiver_name[0] && conversation.receiver_name[0]) return item.receiver_name[0].toUpperCase() === conversation.receiver_name[0].toUpperCase()
+          if (item.receiver_name[0] && conversation.name[0]) return item.receiver_name[0].toUpperCase() === conversation.name[0].toUpperCase()
+          if (item.name[0] && conversation.receiver_name[0]) return item.name[0].toUpperCase() === conversation.receiver_name[0].toUpperCase()
 
-        return false
-      })
+          return false
+        })
+      }
+    } else {
+      for (const conversation of this.getRegularConversations(this.$conversations)) {
+        this.conversations[conversation.name[0] ? conversation.name[0].toUpperCase() : conversation.receiver_name[0].toUpperCase()] = this.getRegularConversations(this.$conversations).filter((item) => {
+          if (item.name[0] && conversation.name[0]) return item.name[0].toUpperCase() === conversation.name[0].toUpperCase()
+          if (item.receiver_name[0] && conversation.receiver_name[0]) return item.receiver_name[0].toUpperCase() === conversation.receiver_name[0].toUpperCase()
+          if (item.receiver_name[0] && conversation.name[0]) return item.receiver_name[0].toUpperCase() === conversation.name[0].toUpperCase()
+          if (item.name[0] && conversation.receiver_name[0]) return item.name[0].toUpperCase() === conversation.receiver_name[0].toUpperCase()
+
+          return false
+        })
+      }
+    }
+  }
+
+  getRegularConversations (data: any): Array<any> {
+    return data.filter((user: any) => {
+      if (!user.archived_for) return true
+      return false
     })
+  }
+
+  searchConversation (text: string): void {
+    this.isLoading = true
+
+    setTimeout(() => {
+      this.isLoading = false
+    }, 3000)
   }
 
   toggleCheckAction (val: boolean, item: Object): void {
@@ -109,28 +141,48 @@ export default class RForwardMessage extends ComponentProps {
   }
 
   addConversation (item: Object): void {
-    this.selectedConversation.push(item)
+    this.selectedConversations.push(item)
   }
 
   removeConversation (item: any): void {
-    const index = this.selectedConversation.findIndex((conversation) => conversation._id === item._id)
-    this.selectedConversation.splice(index, 1)
+    const index = this.selectedConversations.findIndex((conversation) => conversation._id === item._id)
+    this.selectedConversations.splice(index, 1)
   }
 
-  async sendTextMessage (text: string, conversation: any): Promise<void> {
-    this.$robin.sendMessageToConversation(
-      {
-        msg: text,
-        sender_token: this.$user_token,
-        receiver_token: conversation.receiver_token,
-        timestamp: new Date()
-      },
-      this.$conn,
-      this.$channel,
-      conversation._id,
-      this.$user_token
+  handleForwardMessages () {
+    const messageIds = []
+    const conversationIds = []
+
+    for (const message of this.selectedMessages) {
+      messageIds.push(message._id)
+    }
+
+    for (const conversation of this.selectedConversations) {
+      conversationIds.push(conversation._id)
+    }
+
+    this.forwardMessages(messageIds, conversationIds)
+  }
+
+  async forwardMessages (messageIds: Array<string>, conversationIds: Array<string>): Promise<void> {
+    this.isSending = true
+    const res = await this.$robin.forwardMessages(
+      this.$user_token,
+      messageIds,
+      conversationIds
     )
-    return await new Promise((resolve) => setTimeout(resolve, 250))
+
+    if (!res.error) {
+      console.log(res)
+      this.isSending = false
+      this.$toasted.global.custom_success('Forwarded messages.')
+      this.closeModal()
+      return new Promise((resolve) => resolve)
+    } else {
+      this.isSending = false
+      this.$toasted.global.custom_error('Check your connection.')
+      return new Promise((resolve, reject) => reject)
+    }
   }
 
   closeModal () {
@@ -215,6 +267,11 @@ header {
 
 .robin-card-container .robin-card:last-child {
   border-bottom: none;
+}
+
+.robin-spinner {
+  width: 16px;
+  height: 16px;
 }
 
 @media (min-width: 768px) {

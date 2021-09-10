@@ -24,7 +24,7 @@
       <ROptionButton @clickoutside="handleClosePopUp(conversation.is_group ? 'popup-1' : 'popup-2')" />
     </div>
     <div class="robin-ml-auto robin-pulse" v-show="selectMessagesOpen && selectedMessages.length > 0" @click="$emit('forward-message')">
-      <RButton text="Forward" />
+      <RButton>Forward</RButton>
     </div>
     <div class="robin-popup-container" v-show="popUpState.opened && !selectMessagesOpen">
       <RGroupMessagePopOver ref="popup-1" v-show="conversation.is_group" />

@@ -20,9 +20,7 @@ import RText from '../RText/RText.vue'
     RText
   }
 })
-
-export default class RArchivedChatListPopOver extends Vue {
-}
+export default class RArchivedChatListPopOver extends Vue {}
 </script>
 
 <style scoped>
