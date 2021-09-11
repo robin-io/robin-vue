@@ -6,9 +6,9 @@
     <!-- <div class="robin-wrapper robin-w-100" @click="$emit('mute-chat')">
       <RText :font-size="14" color="#101010">Mute Notifications</RText>
     </div> -->
-    <div class="robin-wrapper robin-w-100" @click="$emit('delete-chat')">
+    <!-- <div class="robin-wrapper robin-w-100" @click="$emit('delete-chat')">
       <RText :font-size="14" color="#101010">Delete Chat</RText>
-    </div>
+    </div> -->
   </div>
 </template>
 

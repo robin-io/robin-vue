@@ -9,9 +9,9 @@
     <div class="robin-wrapper robin-w-100" @click="handleClearMessages()">
       <RText :font-size="14" color="#101010">Clear Messages</RText>
     </div>
-    <div class="robin-wrapper robin-w-100">
+    <!-- <div class="robin-wrapper robin-w-100">
       <RText :font-size="14" color="#101010">Delete Chat</RText>
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -31,11 +31,11 @@ export default class RPersonalMessagePopOver extends Vue {
   @Mutation('setSelectMessagesOpen') setSelectMessagesOpen: any
   @Mutation('setClearMessages') setClearMessages: any
 
-  handleSelectMessages() {
+  handleSelectMessages () {
     this.setSelectMessagesOpen(true)
   }
 
-  handleClearMessages() {
+  handleClearMessages () {
     this.setClearMessages(true)
   }
 }
