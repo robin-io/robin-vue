@@ -18,8 +18,18 @@
 <script lang="ts">
 import Vue from 'vue'
 import Component from 'vue-class-component'
+import EventBus from '@/event-bus'
 import { Mutation } from 'vuex-class'
 import RText from '@/components/ChatList/RText/RText.vue'
+
+const ComponentProps = Vue.extend({
+  props: {
+    conversation: {
+      type: Object,
+      default: () => {}
+    }
+  }
+})
 
 @Component({
   name: 'RGroupMessagePopOver',
@@ -27,14 +37,22 @@ import RText from '@/components/ChatList/RText/RText.vue'
     RText
   }
 })
-export default class RGroupMessagePopOver extends Vue {
+export default class RGroupMessagePopOver extends ComponentProps {
   @Mutation('setSelectMessagesOpen') setSelectMessagesOpen: any
 
-  handleSelectMessages() {
+  handleSelectMessages () {
     this.setSelectMessagesOpen(true)
   }
 
-  handleLeaveGroup() {}
+  async handleLeaveGroup () {
+    const res = await this.$robin.removeGroupParticipant(this.conversation._id, this.$user_token)
+
+    if (!res.error) {
+      this.$toasted.global.custom_success('You left group')
+      EventBus.$emit('left.group')
+      EventBus.$emit('regular-conversation.delete', this.conversation)
+    }
+  }
 }
 </script>
 

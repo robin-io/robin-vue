@@ -4,7 +4,7 @@
       <RText fontWeight="400" color="rgba(83, 95, 137, 1)" :fontSize="17"> Archived Chats </RText>
       <RCloseButton @close="$emit('closemodal', 'primary')" />
     </header>
-    <div class="robin-wrapper robin-card-container robin-flex robin-flex-column robin-mt-75" @scroll="onScroll()">
+    <div class="robin-wrapper robin-card-container robin-flex robin-flex-column robin-mt-42" @scroll="onScroll()">
       <div class="robin-card robin-flex robin-flex-align-center" :class="{ 'robin-card-active': isConversationActive(conversation) }" v-for="(conversation, index) in conversations" :key="`conversation-${index}`" @click.self="openConversation(conversation)" v-show="conversations.length > 0">
         <div class="robin-card-info robin-mr-12" @click="openConversation(conversation)">
           <RAvatar v-if="!conversation.is_group" />
@@ -149,11 +149,16 @@ export default class ArchivedChatList extends ComponentProps {
 
   async unArchiveChat (id: string): Promise<void> {
     const res = await this.$robin.unarchiveConversation(id, this.$user_token)
+    console.log('unarchived', res)
 
     if (!res.error) {
       this.$toasted.global.custom_success('Chat Unarchived')
       const index = this.conversations.findIndex((conversation) => conversation._id === id)
-      this.conversations.splice(index, 1)
+      const conversation = this.conversations[index]
+
+      EventBus.$emit('archived-conversation.delete', conversation)
+      EventBus.$emit('regular-conversation.add', conversation)
+      this.$emit('refresh')
     }
   }
 }
@@ -221,6 +226,10 @@ header {
 
 .robin-popup-container.top {
   top: -60%;
+}
+
+.robin-mini-info-container {
+  height: 20px;
 }
 
 @media (min-width: 768px) {

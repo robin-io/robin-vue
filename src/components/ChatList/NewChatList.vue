@@ -5,7 +5,7 @@
       <RCloseButton @close="$emit('closemodal', 'primary')" />
     </header>
     <div class="robin-wrapper robin-w-100">
-      <RSearchBar />
+      <RSearchBar @user-typing="searchContacts($event)" :loading="isLoading" />
     </div>
     <div class="robin-wrapper robin-card-container robin-flex robin-flex-column robin-mt-42">
       <div class="robin-card robin-flex robin-flex-align-center">
@@ -104,9 +104,11 @@ import EventBus from '@/event-bus'
 })
 export default class NewChatList extends Vue {
   contacts = {} as any
+  isLoading = false as boolean
+  searchData = [] as Array<any>
 
   created () {
-    this.getContacts(this.$robin_users)
+    this.getContacts('')
   }
 
   async createConversation (user: any) {
@@ -137,10 +139,41 @@ export default class NewChatList extends Vue {
     return res
   }
 
-  getContacts (users: Array<any>): void {
-    this.$robin_users.forEach((user) => {
-      this.contacts[user.userName[0]] = this.$robin_users.filter((item) => item.userName[0] === user.userName[0])
+  getContacts (searchText: string): void {
+    this.contacts = {}
+
+    if (searchText.trim() === '') {
+      this.$robin_users.forEach((user) => {
+        this.contacts[user.userName[0].toUpperCase()] = this.$robin_users.filter((item) => item.userName[0].toUpperCase() === user.userName[0].toUpperCase())
+      })
+    } else {
+      this.searchData.forEach((user) => {
+        this.contacts[user.userName[0].toUpperCase()] = this.searchData.filter((item) => item.userName[0].toUpperCase() === user.userName[0].toUpperCase())
+      })
+    }
+  }
+
+  searchContacts (searchText: string): void {
+    this.isLoading = true
+    // eslint-disable-next-line array-callback-return
+    const data = this.$robin_users.filter((obj) => {
+      let stopSearch = false
+      Object.values(obj).forEach((val) => {
+        const filter = String(val).toLowerCase().includes(searchText.toLowerCase())
+        if (filter) {
+          stopSearch = true
+        }
+      })
+      if (stopSearch) {
+        return obj
+      }
     })
+
+    this.searchData = [...data]
+    this.getContacts(searchText)
+    setTimeout(() => {
+      this.isLoading = false
+    }, 300)
   }
 }
 </script>

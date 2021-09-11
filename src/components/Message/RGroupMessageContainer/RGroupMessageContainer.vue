@@ -191,7 +191,7 @@ export default class RGroupMessageContainer extends Vue {
     })
 
     EventBus.$on('message.forward', (message: any) => {
-      if (message.conversation_id == this.conversation.conversation_id) {
+      if (message.conversation_id === this.conversation.conversation_id) {
         this.messages.push(message)
         this.scrollToBottom()
       }
@@ -219,11 +219,11 @@ export default class RGroupMessageContainer extends Vue {
   }
 
   async getConversationMessages (id: string): Promise<void> {
-    const resp = await this.$robin.getConversationMessages(id, this.$user_token)
+    const res = await this.$robin.getConversationMessages(id, this.$user_token)
 
-    if (!resp.error) {
+    if (!res.error) {
       // this.messages = resp.data == null ? [] : resp.data
-      this.testMessages(resp.data == null ? [] : resp.data)
+      this.testMessages(res.data == null ? [] : res.data)
       // this.getMutatedMessages(resp.data == null ? [] : resp.data)
       // console.log(this.getMutatedMessages(resp.data == null ? [] : resp.data))
     }
@@ -398,6 +398,10 @@ export default class RGroupMessageContainer extends Vue {
     this.forwardMessage = false
     this.setSelectMessagesOpen(false)
   }
+
+  // isReceiverInGroup (conversation: any): boolean {
+  //   return conversation.participants.some((item: any) => item.user_token === conversation.moderator.user_token)
+  // }
 }
 </script>
 

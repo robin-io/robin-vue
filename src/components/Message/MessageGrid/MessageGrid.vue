@@ -1,14 +1,16 @@
 <template>
-  <div class="robin-bubble robin-grid-container" :class="getSizeOfGridClass" @click="$emit('open-preview', message)">
-    <div class="robin-message-bubble-image" v-for="(image, index) in message.slice(0, 4)" :key="image._id" :class="validateMessageClass(message, index)">
-      <v-lazy-image class="robin-uploaded-image" :src="image.content.attachment" />
+  <div class="robin-bubble" :class="!validateMessageClass() ? 'robin-message-sender' : 'robin-message-receiver'">
+    <div class="robin-bubble-inner robin-grid-container" :class="getSizeOfGridClass" @click="$emit('open-preview', message)">
+      <div class="robin-message-bubble-image" v-for="(image, index) in message.slice(0, 4)" :key="image._id" :class="validateImageClass(index)">
+        <v-lazy-image class="robin-uploaded-image" :src="image.content.attachment" />
+      </div>
+      <span :class="message.length > 4 ? 'back-drop robin-flex-column robin-flex-space-between' : 'robin-flex-end'" class="robin-drop-shadow robin-flex">
+        <RText v-show="message.length > 4" :font-size="26" color="#fff" as="p" class="robin-message-count"> {{ message.length - 4 }}+ </RText>
+      </span>
     </div>
-    <span :class="message.length > 4 ? 'back-drop robin-flex-column robin-flex-space-between' : 'robin-flex-end'" class="robin-side-text robin-flex">
-      <RText v-show="message.length > 4" :font-size="26" color="#fff" as="p" class="robin-message-count"> {{ message.length - 4 }}+ </RText>
-      <RText :font-size="12" color="#fff" as="p" class="robin-ml-auto">
-        {{ formatTimeStamp(message[0].content.timestamp) }}
-      </RText>
-    </span>
+    <RText :font-size="12" color="#7a7a7a" as="p" class="robin-side-text">
+      {{ formatTimeStamp(message[0].content.timestamp) }}
+    </RText>
   </div>
 </template>
 
@@ -42,7 +44,7 @@ const ComponentProps = Vue.extend({
 })
 export default class MessageGrid extends ComponentProps {
   images = [] as Array<any>
-  get getSizeOfGridClass() {
+  get getSizeOfGridClass () {
     if (this.message.length >= 4) {
       return 'robin-grid-4-by-4'
     } else if (this.message.length === 3) {
@@ -52,22 +54,28 @@ export default class MessageGrid extends ComponentProps {
     }
   }
 
-  formatTimeStamp(value: any): string {
+  formatTimeStamp (value: any): string {
     return moment(String(value)).format('h:mma').toUpperCase()
   }
 
-  validateMessageClass(message: any, index: number): string {
-    if (message.content && message.content.receiver_token === this.$user_token) {
-      return `robin-image-sender robin-grid-${index}`
-    }
+  validateImageClass (index: number): string {
+    return this.message.some((item: any) => item.content && item.content.sender_token !== this.$user_token) ? `robin-image-sender robin-grid-${index}` : `robin-image-receiver robin-grid-${index}`
+  }
 
-    return `robin-image-receiver robin-grid-${index}`
+  validateMessageClass (): boolean {
+    return this.message.some((item: any) => item.content && item.content.sender_token === this.$user_token)
   }
 }
 </script>
 
 <style scoped>
 .robin-bubble {
+  width: max-content;
+  border-radius: inherit;
+  padding-bottom: 0.5rem;
+}
+
+.robin-bubble-inner {
   width: max-content;
   border-radius: inherit;
   position: relative;
@@ -95,7 +103,7 @@ export default class MessageGrid extends ComponentProps {
   background: rgba(0, 0, 0, 0.3);
 }
 
-.robin-side-text {
+.robin-grid-container .robin-drop-shadow {
   border-radius: 0px 0px 14px 0px;
   width: 125px;
   height: 94px;
@@ -211,5 +219,21 @@ export default class MessageGrid extends ComponentProps {
   border-radius: inherit;
   /* max-width: 90px; */
   /* max-height: 350px; */
+}
+
+.robin-message-sender {
+  background-color: #f4f6f8;
+}
+
+.robin-message-receiver {
+  background-color: #d3d7ea;
+}
+
+.robin-message-sender .robin-side-text {
+  margin: 0.375rem 0.3rem 0;
+}
+
+.robin-message-receiver .robin-side-text {
+  margin: 0.375rem 1rem 0 auto;
 }
 </style>

@@ -12,7 +12,7 @@
       </div>
     </header>
     <div class="robin-wrapper robin-w-100">
-      <RSearchBar />
+      <RSearchBar @user-typing="searchContacts($event)" :loading="isLoading" />
     </div>
     <div class="robin-contact-container" v-for="(contact, key, index) in contacts" :key="`contact-${index}`">
       <div class="robin-w-100">
@@ -103,9 +103,11 @@ export default class NewGroupChatList extends Vue {
   contacts = {} as any
   checkBoxKeyState = 0 as number
   users = [] as Array<any>
+  isLoading = false as boolean
+  searchData = [] as Array<any>
 
   created () {
-    this.getContacts(this.$robin_users)
+    this.getContacts('')
   }
 
   closeModal (): void {
@@ -118,10 +120,18 @@ export default class NewGroupChatList extends Vue {
     this.modalOpen = true
   }
 
-  getContacts (users: Array<any>): void {
-    this.$robin_users.forEach((user) => {
-      this.contacts[user.userName[0].toUpperCase()] = this.$robin_users.filter((item) => item.userName[0].toUpperCase() === user.userName[0].toUpperCase())
-    })
+  getContacts (searchText: string): void {
+    this.contacts = {}
+
+    if (searchText.trim() === '') {
+      this.$robin_users.forEach((user) => {
+        this.contacts[user.userName[0].toUpperCase()] = this.$robin_users.filter((item) => item.userName[0].toUpperCase() === user.userName[0].toUpperCase())
+      })
+    } else {
+      this.searchData.forEach((user) => {
+        this.contacts[user.userName[0].toUpperCase()] = this.searchData.filter((item) => item.userName[0].toUpperCase() === user.userName[0].toUpperCase())
+      })
+    }
   }
 
   toggleCheckAction (val: boolean, user: Object): void {
@@ -139,6 +149,33 @@ export default class NewGroupChatList extends Vue {
   removeUser (user: any): void {
     const userIndex = this.users.findIndex((item) => item.userToken === user.userToken)
     this.users.splice(userIndex, 1)
+
+    if (this.users.length < 1) {
+      this.closeModal()
+    }
+  }
+
+  searchContacts (searchText: string): void {
+    this.isLoading = true
+    // eslint-disable-next-line array-callback-return
+    const data = this.$robin_users.filter((obj) => {
+      let stopSearch = false
+      Object.values(obj).forEach((val) => {
+        const filter = String(val).toLowerCase().includes(searchText.toLowerCase())
+        if (filter) {
+          stopSearch = true
+        }
+      })
+      if (stopSearch) {
+        return obj
+      }
+    })
+
+    this.searchData = [...data]
+    this.getContacts(searchText)
+    setTimeout(() => {
+      this.isLoading = false
+    }, 300)
   }
 }
 </script>

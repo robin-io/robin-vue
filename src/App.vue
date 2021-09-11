@@ -1,10 +1,10 @@
 <template>
   <div class="robin-container">
     <transition name="robin-fadeIn">
-      <RSideContainer v-show="!isPageLoading" :user_token="user_token" />
+      <RSideContainer v-show="!isPageLoading" :user_token="user_token"  :key="key" />
     </transition>
     <transition name="robin-fadeIn">
-      <RGroupMessageContainer v-show="!isPageLoading && conversationOpened" />
+      <RGroupMessageContainer v-show="!isPageLoading && conversationOpened" :key="key" />
     </transition>
     <RNoMessageSelected v-show="!isPageLoading && !conversationOpened" />
     <RPageLoader v-show="isPageLoading" />
@@ -86,6 +86,7 @@ export default class App extends ComponentProps {
   robin = null as any
   conn = null as any
   conversationOpened = false as boolean
+  key = 0 as number
 
   created (): void {
     this.filterUsers()
@@ -93,6 +94,7 @@ export default class App extends ComponentProps {
 
     this.openConversation()
     this.onGroupConversationCreated()
+    this.onExitGroup()
   }
 
   initiateRobin () {
@@ -149,9 +151,8 @@ export default class App extends ComponentProps {
 
         // if (message.name == "new.conversation") {
         //   EventBus.$emit('new.conversation', message.value)
-        // } 
+        // }
         this.handleEvents(message)
-
       }
     }
 
@@ -174,7 +175,7 @@ export default class App extends ComponentProps {
     })
   }
 
-  handleEvents(message: any): void {
+  handleEvents (message: any): void {
     switch (message.name) {
       case 'user.connect':
         // set user status to online
@@ -194,7 +195,7 @@ export default class App extends ComponentProps {
         EventBus.$emit('user.disconnect', message.value)
         break
       case 'new.conversation':
-        console.log("new conversation")
+        console.log('new conversation')
         break
       case 'message.forward':
         // loop through message.value
@@ -205,9 +206,16 @@ export default class App extends ComponentProps {
         console.log('forwarded message', message.value)
         break
       default:
-        console.log("cannot handle event")
+        console.log('cannot handle event')
         break
     }
+  }
+
+  onExitGroup () {
+    EventBus.$on('left.group', () => {
+      this.key += 1
+      this.conversationOpened = false
+    })
   }
 }
 </script>

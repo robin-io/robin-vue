@@ -5,7 +5,7 @@
       <REditButton @edit="$emit('opennewchatmodal', 'newchat')" />
     </header>
     <div class="robin-wrapper robin-w-100">
-      <RSearchBar />
+      <RSearchBar @user-typing="searchConversation($event)" :loading="isLoading" />
     </div>
     <div class="robin-wrapper robin-pt-10 robin-pb-11">
       <RButton @archived="$emit('openarchivedchatmodal', 'archivedchat')" />
@@ -49,7 +49,7 @@
           </div>
         </div>
         <div class="robin-popup-container" :class="{ top: (scroll && conversations.length - 2 == index) || conversations.length - 1 == index }" v-show="popUpStates[index] ? popUpStates[index].opened : false">
-          <RChatListPopOver :ref="`popup-${index}`" :class="{ top: (scroll && conversations.length - 2 == index) || conversations.length - 1 == index }" @archive-chat="archiveChat(conversation._id)" />
+          <RChatListPopOver :ref="`popup-${index}`" :class="{ top: (scroll && conversations.length - 2 == index) || conversations.length - 1 == index }" @archive-chat="onArchiveChat(conversation)" />
         </div>
       </div>
     </div>
@@ -74,7 +74,7 @@ import RUnreadMessageCount from './RUnreadMessageCount/RUnreadMessageCount.vue'
 
 const ComponentProps = Vue.extend({
   props: {
-    conversations: {
+    data: {
       type: Array,
       default: (): Array<any> => []
     }
@@ -97,9 +97,11 @@ const ComponentProps = Vue.extend({
     RChatListPopOver
   },
   watch: {
-    conversations: {
+    data: {
       handler (val: Array<any>): void {
+        this.conversations = [...val]
         this.popUpStates = []
+
         ;[...val].forEach((val) => {
           this.popUpStates.push({
             opened: false,
@@ -115,6 +117,8 @@ export default class PrimaryChatList extends ComponentProps {
   popUpStates: Array<any> = []
   activeConversation = {}
   scroll = false as boolean
+  isLoading = false as boolean
+  conversations = [] as Array<any>
 
   created () {
     this.onGroupConversationCreated()
@@ -185,20 +189,22 @@ export default class PrimaryChatList extends ComponentProps {
     return Object.is(this.activeConversation, object)
   }
 
-  async archiveChat (id: string): Promise<void> {
-    const res = await this.$robin.archiveConversation(id, this.$user_token)
+  async onArchiveChat (conversation: any): Promise<void> {
+    const res = await this.$robin.archiveConversation(conversation._id, this.$user_token)
 
     if (!res.error) {
       this.$toasted.global.custom_success('Chat Archived')
-      console.log(res)
+      EventBus.$emit('regular-conversation.delete', conversation)
+      EventBus.$emit('archived-conversation.add', conversation)
+      this.$emit('refresh')
     }
   }
 
-  handleMessageForward(): void {
+  handleMessageForward (): void {
     EventBus.$on('message.forward', (messages: any) => {
       messages.forEach((msg: any) => {
         this.$regularConversations.forEach((conv: any, index: any) => {
-          if (conv._id == msg.conversation_id) {
+          if (conv._id === msg.conversation_id) {
             msg.content.timestamp = new Date()
             this.$regularConversations[index].last_message = msg.content
             this.$regularConversations.splice(index, 1)
@@ -206,13 +212,42 @@ export default class PrimaryChatList extends ComponentProps {
           }
         })
         this.$archivedConversations.forEach((conv: any, index: any) => {
-          if (conv._id == msg.conversation_id) {
+          if (conv._id === msg.conversation_id) {
             msg.content.timestamp = new Date()
             this.$archivedConversations[index].last_message = msg.content
           }
         })
       })
     })
+  }
+
+  searchConversation (searchText: string) {
+    let searchData = [] as Array<any>
+    this.isLoading = true
+    // eslint-disable-next-line array-callback-return
+    const data = this.conversations.filter((obj) => {
+      let stopSearch = false
+      Object.values(obj).forEach((val) => {
+        const filter = String(val)
+          .toLowerCase()
+          .includes(searchText.toLowerCase())
+        if (filter) {
+          stopSearch = true
+        }
+      })
+      if (stopSearch) {
+        return obj
+      }
+    })
+
+    searchData = [...data]
+    this.$emit('search', {
+      text: searchText,
+      data: searchData
+    })
+    setTimeout(() => {
+      this.isLoading = false
+    }, 300)
   }
 }
 </script>
@@ -286,6 +321,10 @@ header {
 
 .robin-popup-container.top {
   top: -60%;
+}
+
+.robin-mini-info-container {
+  height: 20px;
 }
 
 @media (min-width: 768px) {
