@@ -14,7 +14,9 @@
           </div>
         </template>
         <template v-slot:rejected>
-          <div>please check your connection</div>
+          <div class="robin-inner-wrapper robin-flex robin-flex-align-center">
+            <div class="network-error">please check your connection</div>
+          </div>
         </template>
       </Promised>
       <!-- <RUnreadMessageBar :number="1" /> -->
@@ -178,11 +180,11 @@ export default class RGroupMessageContainer extends Vue {
           const newConv = this.$conversations[index]
           console.log('emit', newConv)
           if (!newConv.archived_for || newConv.archived_for.length === 0) {
-            const regularConversationIndex = this.$regularConversations.findIndex(item => item._id === newConv._id)
+            const regularConversationIndex = this.$regularConversations.findIndex((item) => item._id === newConv._id)
             this.$regularConversations.splice(regularConversationIndex, 1)
             this.$regularConversations.unshift(newConv)
           } else {
-            const archivedConversationIndex = this.$archivedConversations.findIndex(item => item._id === newConv._id)
+            const archivedConversationIndex = this.$archivedConversations.findIndex((item) => item._id === newConv._id)
             this.$archivedConversations.splice(archivedConversationIndex, 1)
             this.$archivedConversations.unshift(newConv)
           }
@@ -221,11 +223,13 @@ export default class RGroupMessageContainer extends Vue {
   async getConversationMessages (id: string): Promise<void> {
     const res = await this.$robin.getConversationMessages(id, this.$user_token)
 
-    if (!res.error) {
+    if (res && !res.error) {
       // this.messages = resp.data == null ? [] : resp.data
       this.testMessages(res.data == null ? [] : res.data)
       // this.getMutatedMessages(resp.data == null ? [] : resp.data)
       // console.log(this.getMutatedMessages(resp.data == null ? [] : resp.data))
+    } else {
+      this.$toasted.global.custom_error('Check your connection.')
     }
 
     // console.log(this.messages)
@@ -350,12 +354,14 @@ export default class RGroupMessageContainer extends Vue {
     }
 
     const res = await this.$robin.deleteMessages([...id], this.$user_token)
-    if (!res.error) {
+    if (res && !res.error) {
       this.$toasted.global.custom_success('Messages Deleted.')
       this.promise = this.getConversationMessages(this.conversation._id)
       this.promise.then(() => {
         this.scrollToBottom()
       })
+    } else {
+      this.$toasted.global.custom_error('Check your connection.')
     }
 
     this.setClearMessages(false)
@@ -392,6 +398,7 @@ export default class RGroupMessageContainer extends Vue {
 
   onChatClickAway (): void {
     this.setSelectMessagesOpen(false)
+    this.popUpState.imagePreviewerOpened = false
   }
 
   onCloseForwardMessagePopup (): void {
@@ -432,6 +439,11 @@ export default class RGroupMessageContainer extends Vue {
   height: 100%;
   padding: 2.688rem 2.688rem 1.25rem 3.125rem;
   overflow-y: auto;
+}
+
+.network-error {
+  font-size: 1rem;
+  color: var(--primary-color);
 }
 
 /* .robin-message-sender {

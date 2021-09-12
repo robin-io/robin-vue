@@ -112,20 +112,22 @@ export default class NewChatList extends Vue {
   }
 
   async createConversation (user: any) {
-    const resp = await this.$robin.createConversation({
+    const res = await this.$robin.createConversation({
       sender_name: 'vue test',
       sender_token: this.$user_token,
       receiver_token: user.userToken,
       receiver_name: user.userName
     })
-    console.log(resp)
+    console.log(res)
 
-    if (!resp.error) {
-      if (!this.checkConversations(resp.data)) {
-        this.$conversations.push(resp.data)
+    if (res && !res.error) {
+      if (!this.checkConversations(res.data)) {
+        this.$conversations.push(res.data)
       }
       this.$emit('changesidebartype', 'primary')
-      EventBus.$emit('conversation-opened', resp.data)
+      EventBus.$emit('conversation-opened', res.data)
+    } else {
+      this.$toasted.global.custom_error('Check your connection.')
     }
   }
 

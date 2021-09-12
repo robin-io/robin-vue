@@ -133,9 +133,7 @@ export default class RForwardMessage extends ComponentProps {
     const data = this.getRegularConversations(this.$conversations).filter((obj) => {
       let stopSearch = false
       Object.values(obj).forEach((val) => {
-        const filter = String(val)
-          .toLowerCase()
-          .includes(searchText.toLowerCase())
+        const filter = String(val).toLowerCase().includes(searchText.toLowerCase())
         if (filter) {
           stopSearch = true
         }
@@ -195,9 +193,7 @@ export default class RForwardMessage extends ComponentProps {
       this.$toasted.global.custom_success('Forwarded messages.')
       this.closeModal()
       return new Promise((resolve) => resolve)
-    }
-
-    if (!res) {
+    } else {
       this.isSending = false
       this.$toasted.global.custom_error('Check your connection.')
       return new Promise((resolve, reject) => reject)

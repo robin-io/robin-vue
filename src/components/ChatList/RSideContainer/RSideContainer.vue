@@ -47,7 +47,7 @@ export default class RSideContainer extends ComponentProps {
 
   regularConversations = [] as Array<any>
 
-  created () {
+  created() {
     this.getUserToken()
 
     this.onGroupConversationCreated()
@@ -60,7 +60,7 @@ export default class RSideContainer extends ComponentProps {
   sideBarType = 'primary'
   conversations = [] as Array<any>
 
-  openModal (refKey: string, type: string): void {
+  openModal(refKey: string, type: string): void {
     if (type === 'primary') {
       this.sideBarType = type
     } else {
@@ -75,7 +75,7 @@ export default class RSideContainer extends ComponentProps {
     }
   }
 
-  closeModal (refKey: string = 'slide-1', type: string): void {
+  closeModal(refKey: string = 'slide-1', type: string): void {
     if (type === 'primary' && refKey === 'slide-0') {
       this.sideBarType = type
     } else {
@@ -91,21 +91,21 @@ export default class RSideContainer extends ComponentProps {
     }
   }
 
-  onGroupConversationCreated () {
+  onGroupConversationCreated() {
     EventBus.$on('group-conversation-created', (conversation: object) => {
       this.$regularConversations.unshift(conversation)
       this.regularConversations.unshift(conversation)
     })
   }
 
-  handleAddRegularConversation () {
+  handleAddRegularConversation() {
     EventBus.$on('regular-conversation.add', (conversation: any) => {
       this.$regularConversations.unshift(conversation)
       this.regularConversations.unshift(conversation)
     })
   }
 
-  handleRemoveRegularConversation () {
+  handleRemoveRegularConversation() {
     EventBus.$on('regular-conversation.delete', (conversation: any) => {
       const index = this.$regularConversations.findIndex((item) => item._id === conversation._id)
       this.$regularConversations.splice(index, 1)
@@ -113,20 +113,20 @@ export default class RSideContainer extends ComponentProps {
     })
   }
 
-  handleRemoveArchivedConversation () {
+  handleRemoveArchivedConversation() {
     EventBus.$on('archived-conversation.delete', (conversation: any) => {
       const index = this.$archivedConversations.findIndex((item) => item._id === conversation._id)
       this.$archivedConversations.splice(index, 1)
     })
   }
 
-  handleAddArchivedConversation () {
+  handleAddArchivedConversation() {
     EventBus.$on('archived-conversation.add', (conversation: any) => {
       this.$archivedConversations.unshift(conversation)
     })
   }
 
-  async getUserToken () {
+  async getUserToken() {
     console.log(this.$robin)
     const res = await this.$robin.getUserToken({
       user_token: this.user_token
@@ -144,25 +144,25 @@ export default class RSideContainer extends ComponentProps {
     console.log(res)
   }
 
-  getArchivedConversations (): Array<any> {
+  getArchivedConversations(): Array<any> {
     return this.$conversations.filter((user: any) => {
       if (!user.archived_for) return false
       return user.archived_for.includes(this.$user_token)
     })
   }
 
-  getRegularConversations (): Array<any> {
+  getRegularConversations(): Array<any> {
     return this.$conversations.filter((user: any) => {
       if (!user.archived_for) return true
       return !user.archived_for.includes(this.$user_token)
     })
   }
 
-  refresh (): void {
+  refresh(): void {
     this.key += 1
   }
 
-  searchedData (event: any): void {
+  searchedData(event: any): void {
     if (event.text.trim() !== '') {
       this.regularConversations = event.data
     } else {

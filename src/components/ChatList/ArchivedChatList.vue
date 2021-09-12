@@ -73,7 +73,7 @@ const ComponentProps = Vue.extend({
   },
   watch: {
     conversations: {
-      handler (val: Array<any>): void {
+      handler(val: Array<any>): void {
         this.popUpStates = []
         ;[...val].forEach((val) => {
           this.popUpStates.push({
@@ -91,7 +91,7 @@ export default class ArchivedChatList extends ComponentProps {
   activeConversation = {}
   scroll = false as boolean
 
-  openConversation (conversation: object): void {
+  openConversation(conversation: object): void {
     if (!this.isConversationActive(conversation)) {
       this.activeConversation = conversation
       EventBus.$emit('conversation-opened', conversation)
@@ -100,11 +100,11 @@ export default class ArchivedChatList extends ComponentProps {
     }
   }
 
-  isConversationActive (object: Object) {
+  isConversationActive(object: Object) {
     return Object.is(this.activeConversation, object)
   }
 
-  handleOpenPopUp (_id: string, refKey: string): void {
+  handleOpenPopUp(_id: string, refKey: string): void {
     const popup = this.$refs[refKey] as any
     popup[0].$refs['popup-body'].classList.remove('robin-zoomOut')
 
@@ -118,7 +118,7 @@ export default class ArchivedChatList extends ComponentProps {
     })
   }
 
-  handleClosePopUp (_id: string, refKey: string): void {
+  handleClosePopUp(_id: string, refKey: string): void {
     const popup = this.$refs[refKey] as any
     popup[0].$refs['popup-body'].classList.add('robin-zoomOut')
 
@@ -133,7 +133,7 @@ export default class ArchivedChatList extends ComponentProps {
     }, 300)
   }
 
-  formatRecentMessageTime (time: string): string {
+  formatRecentMessageTime(time: string): string {
     const datetime = moment(time)
     return datetime.calendar(null, {
       sameDay: 'hh:ss a',
@@ -143,11 +143,11 @@ export default class ArchivedChatList extends ComponentProps {
     })
   }
 
-  onScroll (): void {
+  onScroll(): void {
     this.scroll = true
   }
 
-  async unArchiveChat (id: string): Promise<void> {
+  async unArchiveChat(id: string): Promise<void> {
     const res = await this.$robin.unarchiveConversation(id, this.$user_token)
     console.log('unarchived', res)
 

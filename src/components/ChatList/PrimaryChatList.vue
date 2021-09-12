@@ -101,7 +101,6 @@ const ComponentProps = Vue.extend({
       handler (val: Array<any>): void {
         this.conversations = [...val]
         this.popUpStates = []
-
         ;[...val].forEach((val) => {
           this.popUpStates.push({
             opened: false,
@@ -215,12 +214,12 @@ export default class PrimaryChatList extends ComponentProps {
             // this.$regularConversations.unshift(conv)
           }
         })
-        this.$archivedConversations.forEach((conversation: any, index: any) => {
-          if (conversation._id === msg.conversation_id) {
-            msg.content.timestamp = new Date()
-            this.$archivedConversations[index].last_message = msg.content
-          }
-        })
+        // this.$archivedConversations.forEach((conversation: any, index: any) => {
+        //   if (conversation._id === msg.conversation_id) {
+        //     msg.content.timestamp = new Date()
+        //     this.$archivedConversations[index].last_message = msg.content
+        //   }
+        // })
       })
     })
   }
@@ -232,9 +231,7 @@ export default class PrimaryChatList extends ComponentProps {
     const data = this.conversations.filter((obj) => {
       let stopSearch = false
       Object.values(obj).forEach((val) => {
-        const filter = String(val)
-          .toLowerCase()
-          .includes(searchText.toLowerCase())
+        const filter = String(val).toLowerCase().includes(searchText.toLowerCase())
         if (filter) {
           stopSearch = true
         }

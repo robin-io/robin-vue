@@ -1,7 +1,7 @@
 <template>
   <div class="robin-container">
     <transition name="robin-fadeIn">
-      <RSideContainer v-show="!isPageLoading" :user_token="user_token"  :key="key" />
+      <RSideContainer v-show="!isPageLoading" :user_token="user_token" :key="key" />
     </transition>
     <transition name="robin-fadeIn">
       <RGroupMessageContainer v-show="!isPageLoading && conversationOpened" :key="key" />

@@ -92,10 +92,13 @@ export default class CreateGroup extends ComponentProps {
   async createGroupConversation (): Promise<void> {
     this.isLoading = true
     const res = await this.$robin.createGroupConversation(this.groupName, { user_token: this.$user_token }, this.users)
-    if (!res.error) {
+    if (res && !res.error) {
       EventBus.$emit('group-conversation-created', res.data)
       this.$emit('changesidebartype', 'primary')
       this.$emit('closemodal')
+      this.isLoading = false
+    } else {
+      this.$toasted.global.custom_error('Check your connection.')
       this.isLoading = false
     }
   }

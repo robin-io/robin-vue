@@ -44,7 +44,7 @@ const ComponentProps = Vue.extend({
 })
 export default class MessageGrid extends ComponentProps {
   images = [] as Array<any>
-  get getSizeOfGridClass () {
+  get getSizeOfGridClass() {
     if (this.message.length >= 4) {
       return 'robin-grid-4-by-4'
     } else if (this.message.length === 3) {
@@ -54,15 +54,15 @@ export default class MessageGrid extends ComponentProps {
     }
   }
 
-  formatTimeStamp (value: any): string {
+  formatTimeStamp(value: any): string {
     return moment(String(value)).format('h:mma').toUpperCase()
   }
 
-  validateImageClass (index: number): string {
+  validateImageClass(index: number): string {
     return this.message.some((item: any) => item.content && item.content.sender_token !== this.$user_token) ? `robin-image-sender robin-grid-${index}` : `robin-image-receiver robin-grid-${index}`
   }
 
-  validateMessageClass (): boolean {
+  validateMessageClass(): boolean {
     return this.message.some((item: any) => item.content && item.content.sender_token === this.$user_token)
   }
 }

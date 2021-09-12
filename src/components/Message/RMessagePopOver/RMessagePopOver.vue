@@ -58,9 +58,11 @@ export default class RMessagePopOver extends ComponentProps {
 
     const res = await this.$robin.deleteMessages([this.id], this.$user_token)
 
-    if (!res.error) {
+    if (res && !res.error) {
       EventBus.$emit('message-deleted', this.message)
       this.$toasted.global.custom_success('Message Deleted.')
+    } else {
+      this.$toasted.global.custom_error('Check your connection.')
     }
   }
 }

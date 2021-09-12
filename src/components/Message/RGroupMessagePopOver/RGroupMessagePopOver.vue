@@ -47,10 +47,12 @@ export default class RGroupMessagePopOver extends ComponentProps {
   async handleLeaveGroup () {
     const res = await this.$robin.removeGroupParticipant(this.conversation._id, this.$user_token)
 
-    if (!res.error) {
+    if (res && !res.error) {
       this.$toasted.global.custom_success('You left group')
       EventBus.$emit('left.group')
       EventBus.$emit('regular-conversation.delete', this.conversation)
+    } else {
+      this.$toasted.global.custom_error('Check your connection.')
     }
   }
 }
