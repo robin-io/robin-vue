@@ -214,8 +214,6 @@ export default class MessageContent extends ComponentProps {
       return true
     }
 
-    console.log(message.content && message.content.receiver_token !== this.$user_token, this.$user_token, message.content.receiver_token)
-
     return false
   }
 

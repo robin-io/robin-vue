@@ -190,12 +190,12 @@ export default class RGroupMessageContainer extends Vue {
       })
     })
 
-    EventBus.$on('message.forward', (message: any) => {
-      if (message.conversation_id === this.conversation.conversation_id) {
-        this.messages.push(message)
-        this.scrollToBottom()
-      }
-    })
+    // EventBus.$on('message.forward', (message: any) => {
+    //   if (message.conversation_id === this.conversation.conversation_id) {
+    //     // this.messages.push(message)
+    //     this.scrollToBottom()
+    //   }
+    // })
   }
 
   onMessageDelete () {

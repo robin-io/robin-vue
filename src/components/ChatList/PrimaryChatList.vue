@@ -29,7 +29,7 @@
               {{ formatRecentMessageTime(conversation.last_message ? conversation.last_message.timestamp : conversation.updated_at) }}
             </RText>
           </div>
-          <div class="robin-flex robin-flex-space-between">
+          <div class="robin-flex robin-flex-space-between" @click.self="openConversation(conversation)">
             <div class="robin-mini-info-container robin-flex-1" @click="openConversation(conversation)">
               <RText as="p" font-weight="normal" color="#7A7A7A" :font-size="14" :line-height="18">
                 {{ conversation.last_message && conversation.last_message.msg.length &lt; 20 ? conversation.last_message.msg : conversation.last_message ? conversation.last_message.msg.substring(0, 20) + ' ...' : '' }}
@@ -202,17 +202,21 @@ export default class PrimaryChatList extends ComponentProps {
 
   handleMessageForward (): void {
     EventBus.$on('message.forward', (messages: any) => {
+      console.log(messages)
       messages.forEach((msg: any) => {
-        this.$regularConversations.forEach((conv: any, index: any) => {
-          if (conv._id === msg.conversation_id) {
+        this.conversations.forEach((conversation: any, index: any) => {
+          if (conversation._id === msg.conversation_id) {
             msg.content.timestamp = new Date()
-            this.$regularConversations[index].last_message = msg.content
-            this.$regularConversations.splice(index, 1)
-            this.$regularConversations.unshift(conv)
+            this.conversations[index].last_message = msg.content
+            EventBus.$emit('regular-conversation.delete', this.conversations[index])
+            EventBus.$emit('regular-conversation.add', this.conversations[index])
+            this.$emit('refresh')
+            // this.$regularConversations.splice(index, 1)
+            // this.$regularConversations.unshift(conv)
           }
         })
-        this.$archivedConversations.forEach((conv: any, index: any) => {
-          if (conv._id === msg.conversation_id) {
+        this.$archivedConversations.forEach((conversation: any, index: any) => {
+          if (conversation._id === msg.conversation_id) {
             msg.content.timestamp = new Date()
             this.$archivedConversations[index].last_message = msg.content
           }

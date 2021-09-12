@@ -189,13 +189,15 @@ export default class RForwardMessage extends ComponentProps {
     this.isSending = true
     const res = await this.$robin.forwardMessages(this.$user_token, messageIds, conversationIds)
 
-    if (!res.error) {
+    if (res && !res.error) {
       console.log(res)
       this.isSending = false
       this.$toasted.global.custom_success('Forwarded messages.')
       this.closeModal()
       return new Promise((resolve) => resolve)
-    } else {
+    }
+
+    if (!res) {
       this.isSending = false
       this.$toasted.global.custom_error('Check your connection.')
       return new Promise((resolve, reject) => reject)
