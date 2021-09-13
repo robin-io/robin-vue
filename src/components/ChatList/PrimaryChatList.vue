@@ -31,8 +31,11 @@
           </div>
           <div class="robin-flex robin-flex-space-between" @click.self="openConversation(conversation)">
             <div class="robin-mini-info-container robin-flex-1" @click="openConversation(conversation)">
-              <RText as="p" font-weight="normal" color="#7A7A7A" :font-size="14" :line-height="18">
+              <RText as="p" font-weight="normal" color="#7A7A7A" :font-size="14" :line-height="18" v-if="conversation.last_message && !conversation.last_message.is_attachment">
                 {{ conversation.last_message && conversation.last_message.msg.length &lt; 20 ? conversation.last_message.msg : conversation.last_message ? conversation.last_message.msg.substring(0, 20) + ' ...' : '' }}
+              </RText>
+              <RText v-else as="p" font-weight="normal" color="#7A7A7A" :font-size="14" :line-height="18">
+                <b><i>Attachment</i></b>
               </RText>
             </div>
 

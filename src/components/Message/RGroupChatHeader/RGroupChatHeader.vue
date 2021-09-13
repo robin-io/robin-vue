@@ -15,7 +15,8 @@
           </RText>
         </div>
         <div class="robin-mt-6">
-          <RText v-if="conversation.isGroup" as="p" font-weight="normal" color="#7A7A7A" :font-size="14" :line-height="18">53 Members</RText>
+          <!-- <RText v-show="conversation.is_group" as="p" font-weight="normal" color="#7A7A7A" :font-size="14" :line-height="18">53 Members</RText> -->
+          <RText v-show="!conversation.is_group" as="p" font-weight="normal" color="#7A7A7A" :font-size="14" :line-height="18">{{ conversation.status }}</RText>
         </div>
       </div>
     </div>
@@ -45,6 +46,7 @@ import RButton from '@/components/ChatList/RButton/RButton.vue'
 import ROptionButton from '../ROptionButton/ROptionButton.vue'
 import RGroupMessagePopOver from '../RGroupMessagePopOver/RGroupMessagePopOver.vue'
 import RPersonalMessagePopOver from '../RPersonalMessagePopOver/RPersonalMessagePopOver.vue'
+import EventBus from '@/event-bus'
 
 interface PopUpState {
   opened: boolean
@@ -83,14 +85,19 @@ export default class RGroupChatHeader extends ComponentProps {
     opened: false
   }
 
-  handleOpenPopUp(refKey: string): void {
+  created () {
+    this.handleUserConnect()
+    this.handleUserDisconnect()
+  }
+
+  handleOpenPopUp (refKey: string): void {
     const popup = this.$refs[refKey] as any
     popup.$refs['popup-body'].classList.remove('robin-zoomOut')
 
     this.popUpState.opened = true
   }
 
-  handleClosePopUp(refKey: string): void {
+  handleClosePopUp (refKey: string): void {
     const popup = this.$refs[refKey] as any
     popup.$refs['popup-body'].classList.remove('robin-zoomIn')
     popup.$refs['popup-body'].classList.add('robin-zoomOut')
@@ -104,7 +111,24 @@ export default class RGroupChatHeader extends ComponentProps {
     }, 300)
   }
 
-  cancelSelect(): void {
+  handleUserConnect () {
+    EventBus.$on('user.connect', (conversation: string) => {
+      console.log(conversation, '<--')
+      if (conversation !== this.$user_token) {
+        this.conversation.status = 'online'
+      }
+    })
+  }
+
+  handleUserDisconnect () {
+    EventBus.$on('user.disconnect', (conversation: string) => {
+      if (conversation !== this.$user_token) {
+        this.conversation.status = 'offline'
+      }
+    })
+  }
+
+  cancelSelect (): void {
     this.setSelectMessagesOpen(false)
   }
 }

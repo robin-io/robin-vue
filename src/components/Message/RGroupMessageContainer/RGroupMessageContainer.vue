@@ -1,6 +1,6 @@
 <template>
   <div class="robin-message-container" v-on-clickaway="onChatClickAway">
-    <RGroupChatHeader :conversation="conversation" @forward-message="forwardMessage = true" :selected-messages="selectedMessages" />
+    <RGroupChatHeader :conversation="conversation" @forward-message="forwardMessage = true" :key="key" :selected-messages="selectedMessages" />
     <div class="robin-wrapper robin-flex robin-flex-column robin-flex-space-between">
       <Promised :promise="promise">
         <template v-slot:pending>
@@ -121,6 +121,7 @@ export default class RGroupMessageContainer extends Vue {
   loading = true as boolean
 
   messagePopUpIndex = 0 as number
+  key = 0 as number
 
   images = {
     pdf: 'pdf.png',
@@ -152,6 +153,8 @@ export default class RGroupMessageContainer extends Vue {
     this.onNewMessage()
     this.onMessageDelete()
     this.onImageDelete()
+    this.handleUserConnect()
+    this.handleUserDisconnect()
   }
 
   handleConversationOpen (): void {
@@ -164,6 +167,18 @@ export default class RGroupMessageContainer extends Vue {
         this.scrollToBottom()
       })
       console.log(this.promise)
+    })
+  }
+
+  handleUserConnect () {
+    EventBus.$on('user.connect', (conversation: string) => {
+      this.key += 1
+    })
+  }
+
+  handleUserDisconnect () {
+    EventBus.$on('user.disconnect', (conversation: string) => {
+      this.key += 1
     })
   }
 
