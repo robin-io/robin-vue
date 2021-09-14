@@ -9,7 +9,7 @@
     <div class="robin-body">
       <carousel-3d v-if="images.length > 0" @after-slide-change="onSelectChange($event)">
         <slide v-for="(image, index) in images" v-show="!image.is_deleted" :key="image._id" :index="index">
-          <img :src="image.content.attachment" />
+          <img :src="image.content.attachment" v-viewer="viewerOptions" />
         </slide>
       </carousel-3d>
       <div class="robin-button-container">
@@ -28,6 +28,8 @@ import EventBus from '@/event-bus'
 import RRemoveButton from '../../ChatList/RRemoveButton/RRemoveButton.vue'
 import RText from '@/components/ChatList/RText/RText.vue'
 import { Carousel3d, Slide } from 'vue-carousel-3d'
+import 'viewerjs/dist/viewer.css'
+import { directive as viewer } from 'v-viewer'
 
 const ComponentProps = Vue.extend({
   props: {
@@ -54,9 +56,16 @@ const ComponentProps = Vue.extend({
       },
       immediate: true
     }
-  }
+  },
+  directives: { viewer: viewer({ debug: true }) }
 })
 export default class MessageImagePreviewer extends ComponentProps {
+ viewerOptions = {
+   toolbar: false,
+   title: false,
+   navbar: false
+ } as any
+
   images = [] as Array<any>
   id = 0 as number
 

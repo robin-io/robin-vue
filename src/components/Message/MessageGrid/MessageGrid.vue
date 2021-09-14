@@ -1,5 +1,5 @@
 <template>
-  <div class="robin-bubble" :class="!validateMessageClass() ? 'robin-message-sender' : 'robin-message-receiver'">
+  <div class="robin-bubble" :class="!validateMessageClass() ? 'robin-grid-sender' : 'robin-grid-receiver'">
     <div class="robin-bubble-inner robin-grid-container" :class="getSizeOfGridClass" @click="$emit('open-preview', message)">
       <div class="robin-message-bubble-image" v-for="(image, index) in message.slice(0, 4)" :key="image._id" :class="validateImageClass(index)">
         <v-lazy-image class="robin-uploaded-image" :src="image.content.attachment" />
@@ -44,7 +44,7 @@ const ComponentProps = Vue.extend({
 })
 export default class MessageGrid extends ComponentProps {
   images = [] as Array<any>
-  get getSizeOfGridClass() {
+  get getSizeOfGridClass () {
     if (this.message.length >= 4) {
       return 'robin-grid-4-by-4'
     } else if (this.message.length === 3) {
@@ -54,15 +54,15 @@ export default class MessageGrid extends ComponentProps {
     }
   }
 
-  formatTimeStamp(value: any): string {
+  formatTimeStamp (value: any): string {
     return moment(String(value)).format('h:mma').toUpperCase()
   }
 
-  validateImageClass(index: number): string {
+  validateImageClass (index: number): string {
     return this.message.some((item: any) => item.content && item.content.sender_token !== this.$user_token) ? `robin-image-sender robin-grid-${index}` : `robin-image-receiver robin-grid-${index}`
   }
 
-  validateMessageClass(): boolean {
+  validateMessageClass (): boolean {
     return this.message.some((item: any) => item.content && item.content.sender_token === this.$user_token)
   }
 }
@@ -175,7 +175,7 @@ export default class MessageGrid extends ComponentProps {
 .robin-grid-3-by-3 .robin-image-receiver.robin-grid-1 {
   grid-column: 2;
   grid-row: 1 / span 2;
-  border-radius: 0px 16px 16px 0px;
+  border-radius: 0px 16px 0px 0px;
 }
 
 .robin-grid-3-by-3 .robin-image-receiver.robin-grid-2 {
@@ -193,7 +193,7 @@ export default class MessageGrid extends ComponentProps {
 .robin-grid-3-by-3 .robin-image-sender.robin-grid-1 {
   grid-column: 1;
   grid-row: 1 / span 2;
-  border-radius: 16px 0px 0px 16px;
+  border-radius: 16px 0px 0px 0px;
 }
 
 .robin-grid-3-by-3 .robin-image-sender.robin-grid-2 {
@@ -221,19 +221,19 @@ export default class MessageGrid extends ComponentProps {
   /* max-height: 350px; */
 }
 
-.robin-message-sender {
+.robin-grid-sender {
   background-color: #f4f6f8;
 }
 
-.robin-message-receiver {
+.robin-grid-receiver {
   background-color: #d3d7ea;
 }
 
-.robin-message-sender .robin-side-text {
+.robin-grid-sender .robin-side-text {
   margin: 0.375rem 0.3rem 0;
 }
 
-.robin-message-receiver .robin-side-text {
+.robin-grid-receiver .robin-side-text {
   margin: 0.375rem 1rem 0 auto;
 }
 </style>

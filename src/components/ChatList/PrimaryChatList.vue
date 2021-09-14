@@ -16,7 +16,7 @@
           <RAvatar v-if="!conversation.is_group" />
           <RGroupAvatar v-else />
         </div>
-        <div class="robin-card-info robin-h-100 robin-flex robin-flex-column robin-flex-space-between robin-pt-4 robin-pb-4˝ robin-flex-1">
+        <div class="robin-card-info robin-h-100 robin-flex robin-flex-column robin-flex-space-between robin-pt-4 robin-pb-4˝ robin-flex-1" @click.self="openConversation(conversation)">
           <div class="robin-flex robin-flex-space-between" @click="openConversation(conversation)">
             <RText font-weight="normal" color="#000000" :font-size="16" :line-height="20" v-if="!conversation.is_group">
               {{ conversation.sender_token != $user_token ? conversation.sender_name : conversation.receiver_name }}
@@ -31,10 +31,10 @@
           </div>
           <div class="robin-flex robin-flex-space-between" @click.self="openConversation(conversation)">
             <div class="robin-mini-info-container robin-flex-1" @click="openConversation(conversation)">
-              <RText as="p" font-weight="normal" color="#7A7A7A" :font-size="14" :line-height="18" v-if="conversation.last_message && !conversation.last_message.is_attachment">
+              <RText as="p" font-weight="normal" color="#7A7A7A" :font-size="14" :line-height="18" v-show="conversation.last_message && !conversation.last_message.is_attachment">
                 {{ conversation.last_message && conversation.last_message.msg.length &lt; 20 ? conversation.last_message.msg : conversation.last_message ? conversation.last_message.msg.substring(0, 20) + ' ...' : '' }}
               </RText>
-              <RText v-else as="p" font-weight="normal" color="#7A7A7A" :font-size="14" :line-height="18">
+              <RText v-show="conversation.last_message && conversation.last_message.is_attachment" as="p" font-weight="normal" color="#7A7A7A" :font-size="14" :line-height="18">
                 <b><i>Attachment</i></b>
               </RText>
             </div>
@@ -63,6 +63,7 @@
 import Vue from 'vue'
 import moment from 'moment'
 import Component from 'vue-class-component'
+import { Mutation } from 'vuex-class'
 import EventBus from '@/event-bus'
 import RText from './RText/RText.vue'
 import REditButton from './REditButton/REditButton.vue'
@@ -116,6 +117,8 @@ const ComponentProps = Vue.extend({
   }
 })
 export default class PrimaryChatList extends ComponentProps {
+  @Mutation('setImagePreviewOpen') setImagePreviewOpen: any
+
   popUpStates: Array<any> = []
   activeConversation = {}
   scroll = false as boolean
@@ -137,6 +140,7 @@ export default class PrimaryChatList extends ComponentProps {
   openConversation (conversation: object): void {
     if (!this.isConversationActive(conversation)) {
       this.activeConversation = conversation
+      this.setImagePreviewOpen(false)
       EventBus.$emit('conversation-opened', conversation)
       EventBus.$emit('open-conversation')
       // this.$emit('coversationopened')
@@ -324,7 +328,8 @@ header {
 }
 
 .robin-popup-container.top {
-  top: -60%;
+  top: -7%;
+  right: 5px;
 }
 
 .robin-mini-info-container {

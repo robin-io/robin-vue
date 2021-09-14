@@ -42,6 +42,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import moment from 'moment'
+import { Mutation } from 'vuex-class'
 import Component from 'vue-class-component'
 import EventBus from '@/event-bus'
 import RText from './RText/RText.vue'
@@ -87,6 +88,8 @@ const ComponentProps = Vue.extend({
   }
 })
 export default class ArchivedChatList extends ComponentProps {
+  @Mutation('setImagePreviewOpen') setImagePreviewOpen: any
+
   popUpStates: Array<any> = []
   activeConversation = {}
   scroll = false as boolean
@@ -98,6 +101,7 @@ export default class ArchivedChatList extends ComponentProps {
   openConversation (conversation: object): void {
     if (!this.isConversationActive(conversation)) {
       this.activeConversation = conversation
+      this.setImagePreviewOpen(false)
       EventBus.$emit('conversation-opened', conversation)
       EventBus.$emit('open-conversation')
       // this.$emit('coversationopened')

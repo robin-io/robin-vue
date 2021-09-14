@@ -360,6 +360,8 @@
 
 .carousel-3d-slide img {
   height: 100%;
+  width: initial !important;
+  cursor: pointer;
 }
 
 /* animations */

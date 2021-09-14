@@ -23,7 +23,7 @@
     </div>
     <RMessageInputBar :conversation="conversation" @open-camera="openCamera()" :captured-image="capturedImage" />
     <RCamera ref="popup-1" :camera-opened="popUpState.cameraOpened" @close="closeCamera()" @captured-image="handleCapturedImage" v-show="popUpState.cameraOpened" />
-    <MessageImagePreviewer ref="popup-2" v-show="popUpState.imagePreviewerOpened" @close="closeImagePreview()" :images-to-preview="imagesToPreview" />
+    <MessageImagePreviewer ref="popup-2" v-show="imagePreviewOpen" @close="closeImagePreview()" :images-to-preview="imagesToPreview" />
     <RForwardMessage v-if="forwardMessage" @closemodal="onCloseForwardMessagePopup()" :selected-messages="selectedMessages" />
   </div>
 </template>
@@ -101,8 +101,10 @@ import RForwardMessage from '../RForwardMessage/RForwardMessage.vue'
 export default class RGroupMessageContainer extends Vue {
   @State('selectMessagesOpen') selectMessagesOpen?: RootState
   @State('clearMessages') clearMessages?: RootState
+  @State('imagePreviewOpen') imagePreviewOpen?: RootState
   @Mutation('setSelectMessagesOpen') setSelectMessagesOpen: any
   @Mutation('setClearMessages') setClearMessages: any
+  @Mutation('setImagePreviewOpen') setImagePreviewOpen: any
 
   selectedMessages = [] as Array<any>
   forwardMessage = false as boolean
@@ -114,7 +116,6 @@ export default class RGroupMessageContainer extends Vue {
   scroll = false as boolean
   popUpState = {
     cameraOpened: false,
-    imagePreviewerOpened: false,
     messagePopUp: [] as Array<any>
   }
 
@@ -278,7 +279,7 @@ export default class RGroupMessageContainer extends Vue {
   }
 
   openImagePreview ($event: any): void {
-    this.popUpState.imagePreviewerOpened = true
+    this.setImagePreviewOpen(true)
     this.imagesToPreview = $event
   }
 
@@ -291,7 +292,7 @@ export default class RGroupMessageContainer extends Vue {
       popup.$refs['popup-body'].classList.remove('robin-squeezeIn')
       popup.$refs['popup-body'].classList.add('robin-squeezeOut')
 
-      this.popUpState.imagePreviewerOpened = false
+      this.setImagePreviewOpen(false)
       this.imagesToPreview = []
     }, 300)
   }
@@ -413,7 +414,6 @@ export default class RGroupMessageContainer extends Vue {
 
   onChatClickAway (): void {
     this.setSelectMessagesOpen(false)
-    this.popUpState.imagePreviewerOpened = false
   }
 
   onCloseForwardMessagePopup (): void {

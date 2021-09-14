@@ -9,7 +9,8 @@ const store: StoreOptions<RootState> = {
   state: {
     isPageLoading: true,
     selectMessagesOpen: false,
-    clearMessages: false
+    clearMessages: false,
+    imagePreviewOpen: false
   },
   mutations
 }
