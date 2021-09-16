@@ -1,4 +1,5 @@
 <template>
+<!-- eslint-disable vue/no-parsing-error -->
   <div class="robin-side-container">
     <header class="robin-header">
       <RText font-weight="400" color="rgba(83, 95, 137, 1)" :font-size="17"> Settings </RText>
@@ -31,8 +32,8 @@
           </div>
           <div class="robin-flex robin-flex-space-between" @click.self="openConversation(conversation)">
             <div class="robin-mini-info-container robin-flex-1" @click="openConversation(conversation)">
-              <RText as="p" font-weight="normal" color="#7A7A7A" :font-size="14" :line-height="18" v-show="conversation.last_message && !conversation.last_message.is_attachment">
-                {{ conversation.last_message && conversation.last_message.msg.length &lt; 20 ? conversation.last_message.msg : conversation.last_message ? conversation.last_message.msg.substring(0, 20) + ' ...' : '' }}
+              <RText as="p" font-weight="normal" color="#7A7A7A" :font-size="14" :line-height="18" v-if="conversation.last_message && !conversation.last_message.is_attachment">
+                {{ conversation.last_message && conversation.last_message.msg.length < 20 ? conversation.last_message.msg : conversation.last_message ? conversation.last_message.msg.substring(0, 20) + ' ...' : '' }}
               </RText>
               <RText v-show="conversation.last_message && conversation.last_message.is_attachment" as="p" font-weight="normal" color="#7A7A7A" :font-size="14" :line-height="18">
                 <b><i>Attachment</i></b>

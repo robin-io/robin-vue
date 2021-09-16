@@ -10,7 +10,7 @@
         </template>
         <template v-slot:default>
           <div class="robin-inner-wrapper" ref="message" @scroll="onScroll()">
-            <MessageContent v-for="(message, index) in messages" @open-preview="openImagePreview($event)" :key="`message-${index}`" v-show="!message.is_deleted" :message="message" :conversation="conversation" :message-popup="popUpState.messagePopUp[index]" :scroll="scroll" :last-id="!Array.isArray(message) && index > messages.length - 3 ? message._id : ''" @toggle-check-action="toggleCheckAction($event, message)" />
+            <MessageContent v-for="(message, index) in messages" @open-preview="openImagePreview($event)" :key="`message-${String(index)}`" v-show="!message.is_deleted" :message="message" :conversation="conversation" :message-popup="getMessagePopup(index)" :scroll="scroll" :last-id="!Array.isArray(message) && messages.length - 3 < parseInt(String(index)) ? message._id : ''" @toggle-check-action="toggleCheckAction($event, message)" />
           </div>
         </template>
         <template v-slot:rejected>
@@ -194,7 +194,6 @@ export default class RGroupMessageContainer extends Vue {
           this.$conversations[index].updated_at = message.content.timestamp
           this.$conversations[index].last_message = message.content
           const newConv = this.$conversations[index]
-          console.log('emit', newConv)
           if (!newConv.archived_for || newConv.archived_for.length === 0) {
             const regularConversationIndex = this.$regularConversations.findIndex((item) => item._id === newConv._id)
             this.$regularConversations.splice(regularConversationIndex, 1)
@@ -306,6 +305,10 @@ export default class RGroupMessageContainer extends Vue {
     console.log(event)
     this.popUpState.messagePopUp[this.messagePopUpIndex].opened = false
     this.messagePopUpIndex = 0
+  }
+
+  getMessagePopup (index: any): { opened: boolean, _id: string } {
+    return this.popUpState.messagePopUp[parseInt(index)]
   }
 
   handleCapturedImage (val: Object): void {

@@ -1,7 +1,7 @@
 <template>
   <div class="robin-bubble" :class="!validateMessageClass() ? 'robin-grid-sender' : 'robin-grid-receiver'">
     <div class="robin-bubble-inner robin-grid-container" :class="getSizeOfGridClass" @click="$emit('open-preview', message)">
-      <div class="robin-message-bubble-image" v-for="(image, index) in message.slice(0, 4)" :key="image._id" :class="validateImageClass(index)">
+      <div class="robin-message-bubble-image" v-for="(image, index) in images" :key="image._id" :class="validateImageClass(index)">
         <v-lazy-image class="robin-uploaded-image" :src="image.content.attachment" />
       </div>
       <span :class="message.length > 4 ? 'back-drop robin-flex-column robin-flex-space-between' : 'robin-flex-end'" class="robin-drop-shadow robin-flex">
@@ -15,17 +15,21 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue, { PropType } from 'vue'
 import VLazyImage from 'v-lazy-image/v2'
 import Component from 'vue-class-component'
 import RText from '@/components/ChatList/RText/RText.vue'
 import moment from 'moment'
 
+interface Message {
+  [key: string]: any
+}
+
 const ComponentProps = Vue.extend({
   props: {
     message: {
-      type: Array,
-      default: () => []
+      type: Array as PropType<Array<any>>,
+      default: (): Array<any> => []
     },
     conversation: {
       type: Object,
@@ -40,10 +44,18 @@ const ComponentProps = Vue.extend({
   components: {
     RText,
     VLazyImage
+  },
+  watch: {
+    message: {
+      handler (val: any) {
+        this.images = [...val].slice(0, 4) as Array<Message>
+      },
+      immediate: true
+    }
   }
 })
 export default class MessageGrid extends ComponentProps {
-  images = [] as Array<any>
+  images: Array<Message> = []
   get getSizeOfGridClass () {
     if (this.message.length >= 4) {
       return 'robin-grid-4-by-4'
@@ -207,7 +219,15 @@ export default class MessageGrid extends ComponentProps {
   border-radius: 16px 0px 0px 16px;
 }
 
-.robin-grid-2-by-2 .robin-grid-1 {
+.robin-grid-2-by-2 .robin-image-sender.robin-grid-0 {
+  border-radius: 16px 0px 0px 0px;
+}
+
+.robin-grid-2-by-2 .robin-image-receiver.robin-grid-1 {
+  border-radius: 0px 16px 0px 0px;
+}
+
+.robin-grid-2-by-2 .robin-image-sender.robin-grid-1 {
   border-radius: 0px 16px 16px 0px;
 }
 

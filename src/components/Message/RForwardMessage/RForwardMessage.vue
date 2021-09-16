@@ -28,7 +28,7 @@
                     <RText :font-size="14" :line-height="18">{{ item.is_group ? item.name : item.receiver_name }}</RText>
                   </div>
                   <div class="robin-ml-auto">
-                    <RCheckBox :key="conversationIndex + checkBoxKeyState" @clicked="toggleCheckAction($event, item)" />
+                    <RCheckBox :key="addIndexToCheckBoxState(conversationIndex, checkBoxKeyState)" @clicked="toggleCheckAction($event, item)" />
                   </div>
                 </div>
               </div>
@@ -166,6 +166,10 @@ export default class RForwardMessage extends ComponentProps {
   removeConversation (item: any): void {
     const index = this.selectedConversations.findIndex((conversation) => conversation._id === item._id)
     this.selectedConversations.splice(index, 1)
+  }
+
+  addIndexToCheckBoxState (index: any, checkBoxKeyState: number): number {
+    return parseInt(index) + checkBoxKeyState
   }
 
   handleForwardMessages () {

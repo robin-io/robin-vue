@@ -28,7 +28,7 @@
               <RText :font-size="14" :line-height="18">{{ user.userName }}</RText>
             </div>
             <div class="robin-ml-auto">
-              <RCheckBox :key="userIndex + checkBoxKeyState" @clicked="toggleCheckAction($event, user)" />
+              <RCheckBox :key="addIndexToCheckBoxState(userIndex, checkBoxKeyState)" @clicked="toggleCheckAction($event, user)" />
             </div>
           </div>
         </div>
@@ -153,6 +153,10 @@ export default class NewGroupChatList extends Vue {
     if (this.users.length < 1) {
       this.closeModal()
     }
+  }
+
+  addIndexToCheckBoxState (index: any, checkBoxKeyState: number): number {
+    return parseInt(index) + checkBoxKeyState
   }
 
   searchContacts (searchText: string): void {

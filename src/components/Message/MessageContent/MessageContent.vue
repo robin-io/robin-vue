@@ -144,7 +144,7 @@ export default class MessageContent extends ComponentProps {
     '7z': '7z.png',
     zip: 'zip.png',
     html: 'html.png'
-  }
+  } as any
 
   imageRegex = /^image/ as any
   videoRegex = /^video/ as any
@@ -161,7 +161,7 @@ export default class MessageContent extends ComponentProps {
     return `${mime.getType(strArr[strArr.length - 1])}`
   }
 
-  getFileDetails (attachmentUrl: string): Object {
+  getFileDetails (attachmentUrl: string): { name: any, extension: any } {
     const fileName = attachmentUrl.substring(attachmentUrl.lastIndexOf('/') + 1)
     const strArr = fileName.split('.')
 
@@ -180,7 +180,7 @@ export default class MessageContent extends ComponentProps {
     element.click()
   }
 
-  openModal (event: any): void {
+  openModal (): void {
     this.messagePopup.opened = true
   }
 

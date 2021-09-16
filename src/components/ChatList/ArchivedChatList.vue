@@ -1,4 +1,5 @@
 <template>
+<!-- eslint-disable vue/no-parsing-error -->
   <div class="robin-side-container" ref="popup-body">
     <header class="robin-header">
       <RText fontWeight="400" color="rgba(83, 95, 137, 1)" :fontSize="17"> Archived Chats </RText>
@@ -19,7 +20,7 @@
             <RText as="p" fontWeight="normal" color="#566BA0" :fontSize="10" :lineHeight="18"> {{ formatRecentMessageTime(conversation.last_message ? conversation.last_message.timestamp : conversation.updated_at) }} </RText>
           </div>
           <div class="robin-flex robin-flex-space-between" @click.self="openConversation(conversation)">
-            <RText as="p" fontWeight="normal" color="#7A7A7A" :fontSize="14" :lineHeight="18" @click.native="openConversation(conversation)"> {{ conversation.last_message && conversation.last_message.msg.length &lt; 20 ? conversation.last_message.msg : conversation.last_message ? conversation.last_message.msg.substring(0, 20) + ' ...' : '' }} </RText>
+            <RText as="p" fontWeight="normal" color="#7A7A7A" :fontSize="14" :lineHeight="18" @click.native="openConversation(conversation)"> {{ conversation.last_message && conversation.last_message.msg.length < 20 ? conversation.last_message.msg : conversation.last_message ? conversation.last_message.msg.substring(0, 20) + ' ...' : '' }} </RText>
             <div class="robin-mini-info-container robin-flex robin-flex-align-center">
               <RText as="p" fontWeight="normal" color="#15AE73" :fontSize="12" @click.native="openConversation(conversation)"> Archived </RText>
               <div class="robin-hidden robin-ml-10" @click="handleOpenPopUp(conversation._id, `popup-${index}`)">
