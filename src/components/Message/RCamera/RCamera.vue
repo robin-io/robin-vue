@@ -39,8 +39,8 @@ const ComponentProps = Vue.extend({
   },
   watch: {
     cameraOpened: {
-      handler(val) {
-        console.log(val)
+      handler (val) {
+        // console.log(val)
         if (val) {
           this.setupMedia()
         }
@@ -55,7 +55,7 @@ export default class RCamera extends ComponentProps {
   isPhotoTaken = false as boolean
   isShotPhoto = false as boolean
 
-  setupMedia() {
+  setupMedia () {
     const navigatorExtended = navigator as any
     if (navigatorExtended.mediaDevices === undefined) {
       navigatorExtended.mediaDevices = {}
@@ -66,7 +66,7 @@ export default class RCamera extends ComponentProps {
     this.createCameraElement()
   }
 
-  legacyGetUserMediaSupport() {
+  legacyGetUserMediaSupport () {
     const navigatorExtended = navigator as any
 
     return (constraints: MediaStreamConstraints) => {
@@ -80,7 +80,7 @@ export default class RCamera extends ComponentProps {
     }
   }
 
-  createCameraElement() {
+  createCameraElement () {
     const camera = this.$refs.camera as any
     const windowEl = window as any
 
@@ -94,12 +94,10 @@ export default class RCamera extends ComponentProps {
       .then((stream) => {
         camera.srcObject = stream
       })
-      .catch((error) => {
-        console.log(error)
-      })
+      .catch()
   }
 
-  closeCamera() {
+  closeCamera () {
     const camera = this.$refs.camera as any
     const tracks = camera.srcObject.getTracks()
 
@@ -110,7 +108,7 @@ export default class RCamera extends ComponentProps {
     this.$emit('close')
   }
 
-  takePhoto() {
+  takePhoto () {
     const capture = this.getCanvas().toDataURL('image/jpeg')
     this.convertBase64ToFile(capture).then((res) => {
       this.$emit('captured-image', {
@@ -122,7 +120,7 @@ export default class RCamera extends ComponentProps {
     this.closeCamera()
   }
 
-  getCanvas() {
+  getCanvas () {
     const camera = this.$refs.camera as any
     const canvas = document.createElement('canvas')
     canvas.height = camera.height
@@ -135,7 +133,7 @@ export default class RCamera extends ComponentProps {
     return canvas
   }
 
-  createUuid(length: number) {
+  createUuid (length: number) {
     let result = ''
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
     const charactersLength = characters.length
@@ -145,7 +143,7 @@ export default class RCamera extends ComponentProps {
     return result
   }
 
-  async convertBase64ToFile(base64: string): Promise<File> {
+  async convertBase64ToFile (base64: string): Promise<File> {
     const res: Response = await fetch(base64)
     const blob: Blob = await res.blob()
     return new File([blob], `${this.createUuid(30)}.jpeg`, { type: 'image/jpeg' })

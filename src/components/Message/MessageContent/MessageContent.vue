@@ -40,8 +40,8 @@
       </div>
       <div class="robin-message-bubble-document" v-if="message.content.is_attachment && documentRegex.test(checkAttachmentType(message.content.attachment))" @click="openModal()">
         <div class="robin-uploaded-document">
-          <img v-if="images[getFileDetails(message.content.attachment).extension]" :src="`/src/assets/${getFileDetails(message.content.attachment).extension}.png`" />
-          <img v-else src="@/assets/default.png" />
+          <img v-if="images[getFileDetails(message.content.attachment).extension]" :src="`/images/${getFileDetails(message.content.attachment).extension}.png`" />
+          <img v-else src="/images/default.png" />
           <div class="details robin-flex robin-h-100 robin-flex-align-center">
             <RText as="span"> {{ getFileDetails(message.content.attachment).name.length > 9 ? getFileDetails(message.content.attachment).name.substring(0, 9) + '...' + '.' + getFileDetails(message.content.attachment).extension : getFileDetails(message.content.attachment).name + '.' + getFileDetails(message.content.attachment).extension }} </RText>
           </div>

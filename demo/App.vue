@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import RobinChat from '../src/App.vue'
+import { RobinChat } from '../src/main.ts'
 
 export default {
   name: 'App',

@@ -133,7 +133,7 @@ export default class PrimaryChatList extends ComponentProps {
 
   onGroupConversationCreated (): void {
     EventBus.$on('group-conversation-created', (conversation: object) => {
-      console.log(conversation)
+      // console.log(conversation)
       this.openConversation(conversation)
     })
   }
@@ -209,7 +209,7 @@ export default class PrimaryChatList extends ComponentProps {
 
   handleMessageForward (): void {
     EventBus.$on('message.forward', (messages: any) => {
-      console.log(messages)
+      // console.log(messages)
       messages.forEach((msg: any) => {
         this.conversations.forEach((conversation: any, index: any) => {
           if (conversation._id === msg.conversation_id) {

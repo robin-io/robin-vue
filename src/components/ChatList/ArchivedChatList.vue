@@ -158,7 +158,7 @@ export default class ArchivedChatList extends ComponentProps {
 
   async unArchiveChat (id: string): Promise<void> {
     const res = await this.$robin.unarchiveConversation(id, this.$user_token)
-    console.log('unarchived', res)
+    // console.log('unarchived', res)
 
     if (!res.error) {
       this.$toasted.global.custom_success('Chat Unarchived')
