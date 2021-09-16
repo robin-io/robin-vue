@@ -51,7 +51,7 @@ const ComponentProps = Vue.extend({
   },
   watch: {
     imagesToPreview: {
-      handler (val) {
+      handler(val) {
         this.images = [...val]
       },
       immediate: true
@@ -60,11 +60,11 @@ const ComponentProps = Vue.extend({
   directives: { viewer: viewer({ debug: true }) }
 })
 export default class MessageImagePreviewer extends ComponentProps {
- viewerOptions = {
-   toolbar: false,
-   title: false,
-   navbar: false
- } as any
+  viewerOptions = {
+    toolbar: false,
+    title: false,
+    navbar: false
+  } as any
 
   images = [] as Array<any>
   id = 0 as number
@@ -76,16 +76,16 @@ export default class MessageImagePreviewer extends ComponentProps {
     rtl: true
   }
 
-  closeImagePreview () {
+  closeImagePreview() {
     this.$emit('close')
   }
 
-  onSelectChange (event: any): void {
+  onSelectChange(event: any): void {
     console.log('selected-change', event)
     this.id = event
   }
 
-  async deleteImage (): Promise<void> {
+  async deleteImage(): Promise<void> {
     const res = await this.$robin.deleteMessages([this.images[this.id]._id], this.$user_token)
 
     if (res && !res.error) {

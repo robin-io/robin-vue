@@ -161,7 +161,7 @@ export default class MessageContent extends ComponentProps {
     return `${mime.getType(strArr[strArr.length - 1])}`
   }
 
-  getFileDetails (attachmentUrl: string): { name: any, extension: any } {
+  getFileDetails (attachmentUrl: string): { name: any; extension: any } {
     const fileName = attachmentUrl.substring(attachmentUrl.lastIndexOf('/') + 1)
     const strArr = fileName.split('.')
 

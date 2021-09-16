@@ -1,5 +1,5 @@
 <template>
-<!-- eslint-disable vue/no-parsing-error -->
+  <!-- eslint-disable vue/no-parsing-error -->
   <div class="robin-side-container" ref="popup-body">
     <header class="robin-header">
       <RText fontWeight="400" color="rgba(83, 95, 137, 1)" :fontSize="17"> Archived Chats </RText>

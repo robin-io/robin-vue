@@ -1,5 +1,5 @@
 <template>
-<!-- eslint-disable vue/no-parsing-error -->
+  <!-- eslint-disable vue/no-parsing-error -->
   <div class="robin-side-container">
     <header class="robin-header">
       <RText font-weight="400" color="rgba(83, 95, 137, 1)" :font-size="17"> Settings </RText>

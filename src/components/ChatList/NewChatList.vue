@@ -107,11 +107,11 @@ export default class NewChatList extends Vue {
   isLoading = false as boolean
   searchData = [] as Array<any>
 
-  created () {
+  created() {
     this.getContacts('')
   }
 
-  async createConversation (user: any) {
+  async createConversation(user: any) {
     const res = await this.$robin.createConversation({
       sender_name: 'vue test',
       sender_token: this.$user_token,
@@ -131,7 +131,7 @@ export default class NewChatList extends Vue {
     }
   }
 
-  checkConversations (convo: any): Boolean {
+  checkConversations(convo: any): Boolean {
     let res = false
     this.$conversations.forEach((conversation) => {
       if (conversation._id === convo._id) {
@@ -141,7 +141,7 @@ export default class NewChatList extends Vue {
     return res
   }
 
-  getContacts (searchText: string): void {
+  getContacts(searchText: string): void {
     this.contacts = {}
 
     if (searchText.trim() === '') {
@@ -155,7 +155,7 @@ export default class NewChatList extends Vue {
     }
   }
 
-  searchContacts (searchText: string): void {
+  searchContacts(searchText: string): void {
     this.isLoading = true
     // eslint-disable-next-line array-callback-return
     const data = this.$robin_users.filter((obj) => {

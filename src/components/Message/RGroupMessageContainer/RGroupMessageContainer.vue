@@ -307,7 +307,7 @@ export default class RGroupMessageContainer extends Vue {
     this.messagePopUpIndex = 0
   }
 
-  getMessagePopup (index: any): { opened: boolean, _id: string } {
+  getMessagePopup (index: any): { opened: boolean; _id: string } {
     return this.popUpState.messagePopUp[parseInt(index)]
   }
 

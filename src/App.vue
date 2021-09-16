@@ -160,7 +160,7 @@ export default class App extends ComponentProps {
       this.connect()
     }
 
-    const WebSocket:WebSocket = this.conn
+    const WebSocket: WebSocket = this.conn
 
     window.onbeforeunload = function () {
       WebSocket.close()
