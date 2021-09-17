@@ -10,14 +10,14 @@
       <div class="robin-mr-9">
         <RGalleryButton @clicked="openFileDialog('photo-upload')" />
       </div>
-      <input class="robin-input-file" type="file" multiple :accept="acceptedVisualFiles" @change="handleFileChange($event.target.files)" @click="resetFileTarget($event)" id="photo-upload" />
+      <input  :style="{display: 'none'}" type="file" multiple :accept="acceptedVisualFiles" @change="handleFileChange($event.target.files)" @click="resetFileTarget($event)" id="photo-upload" />
       Photos & Videos
     </RText>
     <RText as="label" for-ref="document-upload" :font-size="14" max-width="100%" color="#101010" class="robin-wrapper robin-w-100" ref="document-upload">
       <div class="robin-mr-9">
         <RDocumentButton @clicked="openFileDialog('document-upload')" />
       </div>
-      <input type="file" class="robin-input-file" multiple :accept="acceptedDocFiles" @change="handleFileChange($event.target.files)" @click="resetFileTarget($event)" id="document-upload" />
+      <input type="file" :style="{display: 'none'}" multiple :accept="acceptedDocFiles" @change="handleFileChange($event.target.files)" @click="resetFileTarget($event)" id="document-upload" />
       Document
     </RText>
   </div>
@@ -105,5 +105,29 @@ export default class RAttachFilePopOver extends Vue {
 .robin-zoomIn,
 .robin-zoomOut {
   transform-origin: bottom right;
+}
+
+input[type="file"] {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+input[type="file"]::file-upload-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+input[type="file"]::-webkit-file-upload-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+input[type="file"]::-moz-file-upload-button {
+  display: none;
+  width: 0;
+  height: 0;
 }
 </style>

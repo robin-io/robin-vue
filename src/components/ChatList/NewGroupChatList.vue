@@ -106,27 +106,29 @@ export default class NewGroupChatList extends Vue {
   isLoading = false as boolean
   searchData = [] as Array<any>
 
-  created() {
+  created () {
     this.getContacts('')
   }
 
-  closeModal(): void {
+  closeModal (): void {
     this.modalOpen = false
     this.users = []
     this.checkBoxKeyState += 1
   }
 
-  openModal(): void {
+  openModal (): void {
     this.modalOpen = true
   }
 
-  getContacts(searchText: string): void {
+  getContacts (searchText: string): void {
     this.contacts = {}
 
     if (searchText.trim() === '') {
       this.$robin_users.forEach((user) => {
         this.contacts[user.userName[0].toUpperCase()] = this.$robin_users.filter((item) => item.userName[0].toUpperCase() === user.userName[0].toUpperCase())
       })
+
+      this.sortContacts()
     } else {
       this.searchData.forEach((user) => {
         this.contacts[user.userName[0].toUpperCase()] = this.searchData.filter((item) => item.userName[0].toUpperCase() === user.userName[0].toUpperCase())
@@ -134,7 +136,7 @@ export default class NewGroupChatList extends Vue {
     }
   }
 
-  toggleCheckAction(val: boolean, user: Object): void {
+  toggleCheckAction (val: boolean, user: Object): void {
     if (!val) {
       this.addUser(user)
     } else {
@@ -142,11 +144,11 @@ export default class NewGroupChatList extends Vue {
     }
   }
 
-  addUser(user: Object): void {
+  addUser (user: Object): void {
     this.users.push(user)
   }
 
-  removeUser(user: any): void {
+  removeUser (user: any): void {
     const userIndex = this.users.findIndex((item) => item.userToken === user.userToken)
     this.users.splice(userIndex, 1)
 
@@ -155,11 +157,11 @@ export default class NewGroupChatList extends Vue {
     }
   }
 
-  addIndexToCheckBoxState(index: any, checkBoxKeyState: number): number {
+  addIndexToCheckBoxState (index: any, checkBoxKeyState: number): number {
     return parseInt(index) + checkBoxKeyState
   }
 
-  searchContacts(searchText: string): void {
+  searchContacts (searchText: string): void {
     this.isLoading = true
     // eslint-disable-next-line array-callback-return
     const data = this.$robin_users.filter((obj) => {
@@ -180,6 +182,13 @@ export default class NewGroupChatList extends Vue {
     setTimeout(() => {
       this.isLoading = false
     }, 300)
+  }
+
+  sortContacts (): void {
+    this.contacts = Object.keys(this.contacts).sort().reduce((result: any, key: string) => {
+      result[key] = this.contacts[key]
+      return result
+    }, {})
   }
 }
 </script>

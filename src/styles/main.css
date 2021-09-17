@@ -95,6 +95,10 @@
   flex-direction: column;
 }
 
+.robin-mb-4 {
+  margin-bottom: 0.25rem;
+}
+
 .robin-ml-auto {
   margin-left: auto;
 }
@@ -325,30 +329,6 @@
 
 .robin-toasted .robin-toasted-container .action.icon {
   color: #fff !important;
-}
-
-.robin-input-file {
-  display: none;
-  width: 0;
-  height: 0;
-}
-
-.robin-input-file::file-upload-button {
-  display: none;
-  width: 0;
-  height: 0;
-}
-
-.robin-input-file::-webkit-file-upload-button {
-  display: none;
-  width: 0;
-  height: 0;
-}
-
-.robin-input-file::-moz-file-upload-button {
-  display: none;
-  width: 0;
-  height: 0;
 }
 
 .robin-toasted .primary.error,

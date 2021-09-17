@@ -40,7 +40,7 @@ const ComponentProps = Vue.extend({
   watch: {
     cameraOpened: {
       handler(val) {
-        console.log(val)
+        // console.log(val)
         if (val) {
           this.setupMedia()
         }
@@ -157,7 +157,7 @@ export default class RCamera extends ComponentProps {
   //       localUrl: img.webcam.capture()
   //     })
   //   })
-  //   console.log(img.webcam.capture())
+  //   // console.log(img.webcam.capture())
   //   this.closeCamera()
   // }
 

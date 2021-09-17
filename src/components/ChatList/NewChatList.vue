@@ -107,18 +107,18 @@ export default class NewChatList extends Vue {
   isLoading = false as boolean
   searchData = [] as Array<any>
 
-  created() {
+  created () {
     this.getContacts('')
   }
 
-  async createConversation(user: any) {
+  async createConversation (user: any) {
     const res = await this.$robin.createConversation({
       sender_name: 'vue test',
       sender_token: this.$user_token,
       receiver_token: user.userToken,
       receiver_name: user.userName
     })
-    console.log(res)
+    // console.log(res)
 
     if (res && !res.error) {
       if (!this.checkConversations(res.data)) {
@@ -131,7 +131,7 @@ export default class NewChatList extends Vue {
     }
   }
 
-  checkConversations(convo: any): Boolean {
+  checkConversations (convo: any): Boolean {
     let res = false
     this.$conversations.forEach((conversation) => {
       if (conversation._id === convo._id) {
@@ -141,13 +141,15 @@ export default class NewChatList extends Vue {
     return res
   }
 
-  getContacts(searchText: string): void {
+  getContacts (searchText: string): void {
     this.contacts = {}
 
     if (searchText.trim() === '') {
       this.$robin_users.forEach((user) => {
         this.contacts[user.userName[0].toUpperCase()] = this.$robin_users.filter((item) => item.userName[0].toUpperCase() === user.userName[0].toUpperCase())
       })
+
+      this.sortContacts()
     } else {
       this.searchData.forEach((user) => {
         this.contacts[user.userName[0].toUpperCase()] = this.searchData.filter((item) => item.userName[0].toUpperCase() === user.userName[0].toUpperCase())
@@ -155,7 +157,7 @@ export default class NewChatList extends Vue {
     }
   }
 
-  searchContacts(searchText: string): void {
+  searchContacts (searchText: string): void {
     this.isLoading = true
     // eslint-disable-next-line array-callback-return
     const data = this.$robin_users.filter((obj) => {
@@ -176,6 +178,13 @@ export default class NewChatList extends Vue {
     setTimeout(() => {
       this.isLoading = false
     }, 300)
+  }
+
+  sortContacts (): void {
+    this.contacts = Object.keys(this.contacts).sort().reduce((result: any, key: string) => {
+      result[key] = this.contacts[key]
+      return result
+    }, {})
   }
 }
 </script>

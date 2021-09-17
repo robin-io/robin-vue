@@ -2,8 +2,8 @@
   <div class="robin-message-bubble robin-flex robin-flex-wrap robin-flex-align-center" :class="!validateMessages(message) ? 'robin-message-sender' : 'robin-message-receiver robin-ml-auto robin-flex-row-reversed'" v-on-clickaway="closeModal">
     <RCheckBox v-if="selectMessagesOpen" @clicked="toggleCheckAction($event)" />
     <div class="robin-bubble" :class="!validateMessages(message) ? 'robin-ml-5' : 'robin-mr-5'" v-if="!Array.isArray(message)">
-      <div class="robin-message-bubble-inner" v-if="!message.has_attachment" @click="openModal()">
-        <RText v-if="conversation.isGroup" :font-size="12" color="#15AE73" as="span" :line-height="20"> Precious Ogar </RText>
+      <!-- Personal -->
+      <div class="robin-message-bubble-inner" v-if="!message.has_attachment && !conversation.is_group" @click="openModal()">
         <RText :font-size="16" textWrap="pre-line" as="span" v-if="!emailRegex.test(message.content.msg) && !websiteRegex.test(message.content.msg)">
           {{ message.content.msg }}
         </RText>
@@ -18,6 +18,26 @@
             {{ formatTimeStamp(message.content.timestamp) }}
           </RText>
         </span>
+      </div>
+      <!-- Group -->
+      <div class="robin-message-bubble-inner" :class="{ 'robin-group': !validateMessages(message) }" v-if="!message.has_attachment && conversation.is_group" @click="openModal()">
+        <RText v-if="!validateMessages(message)" :font-size="12" color="#15AE73" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getContactName(message.content.sender_token) }} </RText>
+        <div class="message-inner">
+          <RText :font-size="16" textWrap="pre-line" as="span" v-if="!emailRegex.test(message.content.msg) && !websiteRegex.test(message.content.msg)">
+            {{ message.content.msg }}
+          </RText>
+          <RText :font-size="14" textWrap="pre-line" as="span" v-else-if="emailRegex.test(message.content.msg) && !websiteRegex.test(message.content.msg)">
+            <a target="_blank" :href="`mailto:${message.content.msg}`">{{ message.content.msg }}</a>
+          </RText>
+          <RText :font-size="14" textWrap="pre-line" as="span" v-else>
+            <a target="_blank" :href="message.content.msg.includes('http') || message.content.msg.includes('https') ? message.content.msg : `https://${message.content.msg}`">{{ message.content.msg }}</a>
+          </RText>
+          <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
+            <RText :font-size="12" color="#7a7a7a" as="p">
+              {{ formatTimeStamp(message.content.timestamp) }}
+            </RText>
+          </span>
+        </div>
       </div>
       <div @click="$emit('open-preview', [message])" class="robin-message-bubble-image" v-if="message.content.is_attachment && imageRegex.test(checkAttachmentType(message.content.attachment))">
         <v-lazy-image class="robin-uploaded-image" :src="message.content.attachment" />
@@ -170,16 +190,16 @@ export default class MessageContent extends ComponentProps {
   emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   websiteRegex = /[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/
 
-  formatTimeStamp(value: any): string {
+  formatTimeStamp (value: any): string {
     return moment(String(value)).format('h:mma').toUpperCase()
   }
 
-  checkAttachmentType(attachmentUrl: String): string {
+  checkAttachmentType (attachmentUrl: String): string {
     const strArr = attachmentUrl.split('.')
     return `${mime.getType(strArr[strArr.length - 1])}`
   }
 
-  getFileDetails(attachmentUrl: string): { name: any; extension: any } {
+  getFileDetails (attachmentUrl: string): { name: any; extension: any } {
     const fileName = attachmentUrl.substring(attachmentUrl.lastIndexOf('/') + 1)
     const strArr = fileName.split('.')
 
@@ -189,7 +209,7 @@ export default class MessageContent extends ComponentProps {
     }
   }
 
-  downloadFile(attachmentUrl: string): void {
+  downloadFile (attachmentUrl: string): void {
     const fileDetails = this.getFileDetails(attachmentUrl) as any
     const element = document.createElement('a')
 
@@ -198,11 +218,11 @@ export default class MessageContent extends ComponentProps {
     element.click()
   }
 
-  openModal(): void {
+  openModal (): void {
     this.messagePopup.opened = true
   }
 
-  closeModal(): void {
+  closeModal (): void {
     const popup = this.$refs['popup-1'] as any
     popup.$refs['popup-body'].classList.remove('robin-zoomIn')
     popup.$refs['popup-body'].classList.add('robin-zoomOut')
@@ -215,15 +235,15 @@ export default class MessageContent extends ComponentProps {
     }, 300)
   }
 
-  openPreview(event: any): void {
+  openPreview (event: any): void {
     this.$emit('open-preview', event)
   }
 
-  checkArrayReceiverUserToken(message: any) {
+  checkArrayReceiverUserToken (message: any) {
     return message.some((item: { content: { sender_token: string } }) => item.content.sender_token === this.$user_token)
   }
 
-  validateMessages(message: any): boolean {
+  validateMessages (message: any): boolean {
     if (Array.isArray(message) && this.checkArrayReceiverUserToken(message)) {
       return true
     }
@@ -235,8 +255,14 @@ export default class MessageContent extends ComponentProps {
     return false
   }
 
-  toggleCheckAction(val: boolean): void {
+  toggleCheckAction (val: boolean): void {
     this.$emit('toggle-check-action', val)
+  }
+
+  getContactName (sender_token: string): string {
+    const index = this.$robin_users.findIndex((user) => user.userToken === sender_token) as number
+    const user = this.$robin_users[index] as any
+    return user.userName
   }
 }
 </script>
@@ -322,6 +348,11 @@ export default class MessageContent extends ComponentProps {
   justify-content: flex-start;
 }
 
+.robin-messager-name {
+  margin-right: 1rem;
+  display: block;
+}
+
 /* Text */
 
 .robin-message-sender .robin-message-bubble-inner {
@@ -332,6 +363,24 @@ export default class MessageContent extends ComponentProps {
 .robin-message-receiver .robin-message-bubble-inner {
   background-color: #d3d7ea;
   cursor: pointer;
+}
+
+.robin-group.robin-message-bubble-inner {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0;
+  flex-direction: column;
+  min-width: 60px;
+  width: max-content;
+  max-width: 290px;
+  padding: 0.5rem 1rem 0.5rem 1rem;
+  border-radius: inherit;
+}
+
+.message-inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem 0.5rem;
 }
 
 .robin-message-bubble-inner {

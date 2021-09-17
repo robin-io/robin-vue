@@ -179,7 +179,7 @@ export default class RGroupMessageContainer extends Vue {
       this.promise.then(() => {
         this.scrollToBottom()
       })
-      console.log(this.promise)
+      // console.log(this.promise)
     })
   }
 
@@ -236,7 +236,7 @@ export default class RGroupMessageContainer extends Vue {
 
   onImageDelete () {
     EventBus.$on('image-deleted', (message: any) => {
-      console.log(message)
+      // console.log(message)
       const messageIndex = this.messages.findIndex((item: any) => {
         if (Array.isArray(item)) return item.some((image) => image._id === message._id)
         return false
@@ -254,12 +254,12 @@ export default class RGroupMessageContainer extends Vue {
       // this.messages = resp.data == null ? [] : resp.data
       this.testMessages(res.data == null ? [] : res.data)
       // this.getMutatedMessages(resp.data == null ? [] : resp.data)
-      // console.log(this.getMutatedMessages(resp.data == null ? [] : resp.data))
+      // // console.log(this.getMutatedMessages(resp.data == null ? [] : resp.data))
     } else {
       this.$toasted.global.custom_error('Check your connection.')
     }
 
-    console.log(this.messages)
+    // console.log(this.messages)
     this.scrollToBottom()
   }
 
@@ -314,7 +314,7 @@ export default class RGroupMessageContainer extends Vue {
   }
 
   closeMessagePopup (event: any): void {
-    console.log(event)
+    // console.log(event)
     this.popUpState.messagePopUp[this.messagePopUpIndex].opened = false
     this.messagePopUpIndex = 0
   }
@@ -364,13 +364,13 @@ export default class RGroupMessageContainer extends Vue {
       }
     }
 
-    console.log(newMessages)
+    // console.log(newMessages)
     this.messages = newMessages
   }
 
   async clearAllMessages (): Promise<void> {
     const id = [] as Array<any>
-    console.log('before ->', id)
+    // console.log('before ->', id)
 
     for (let i: number = 0; i < this.messages.length; i += 1) {
       if (Array.isArray(this.messages[i])) {
@@ -422,7 +422,7 @@ export default class RGroupMessageContainer extends Vue {
 
   removeSelectedMessage (message: any): void {
     const index = this.selectedMessages.findIndex((item) => item._id === message._id)
-    console.log(index)
+    // console.log(index)
 
     this.selectedMessages.splice(index, 1)
   }

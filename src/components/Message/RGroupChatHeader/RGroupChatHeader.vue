@@ -113,7 +113,7 @@ export default class RGroupChatHeader extends ComponentProps {
 
   handleUserConnect() {
     EventBus.$on('user.connect', (conversation: string) => {
-      console.log(conversation, '<--')
+      // console.log(conversation, '<--')
       if (conversation !== this.$user_token) {
         this.conversation.status = 'online'
       }

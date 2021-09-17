@@ -62,7 +62,7 @@ export default class RSideContainer extends ComponentProps {
     if (type === 'primary') {
       this.sideBarType = type
     } else {
-      console.log(this.$refs, refKey, type)
+      // console.log(this.$refs, refKey, type)
       const popup = this.$refs[refKey] as any
 
       window.setTimeout(() => {
@@ -77,7 +77,7 @@ export default class RSideContainer extends ComponentProps {
     if (type === 'primary' && refKey === 'slide-0') {
       this.sideBarType = type
     } else {
-      console.log(this.$refs, refKey, type)
+      // console.log(this.$refs, refKey, type)
       const popup = this.$refs[refKey] as any
       popup.$refs['popup-body'].classList.add('robin-slideOutLeft')
 
@@ -125,7 +125,7 @@ export default class RSideContainer extends ComponentProps {
   }
 
   async getUserToken () {
-    console.log(this.$robin)
+    // console.log(this.$robin)
     const res = await this.$robin.getUserToken({
       user_token: this.user_token
     })
@@ -136,10 +136,10 @@ export default class RSideContainer extends ComponentProps {
       Vue.prototype.$archivedConversations = this.getArchivedConversations()
       this.regularConversations = this.getRegularConversations()
       this.setPageLoading(false)
-      console.log('getconversations -> ', this.$conversations)
+      // console.log('getconversations -> ', this.$conversations)
       this.$forceUpdate()
     }
-    console.log(res)
+    // console.log(res)
   }
 
   getArchivedConversations (): Array<any> {
