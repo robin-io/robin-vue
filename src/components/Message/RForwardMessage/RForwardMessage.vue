@@ -87,11 +87,11 @@ export default class RForwardMessage extends ComponentProps {
   checkBoxKeyState = 0 as number
   searchData = [] as Array<any>
 
-  created () {
+  created() {
     this.getConversations('')
   }
 
-  getConversations (searchText: string): void {
+  getConversations(searchText: string): void {
     this.conversations = {}
 
     if (searchText.trim() === '') {
@@ -120,14 +120,14 @@ export default class RForwardMessage extends ComponentProps {
     }
   }
 
-  getRegularConversations (data: any): Array<any> {
+  getRegularConversations(data: any): Array<any> {
     return data.filter((user: any) => {
       if (!user.archived_for) return true
       return false
     })
   }
 
-  searchConversation (searchText: string): void {
+  searchConversation(searchText: string): void {
     this.isLoading = true
     // eslint-disable-next-line array-callback-return
     const data = this.getRegularConversations(this.$conversations).filter((obj) => {
@@ -151,7 +151,7 @@ export default class RForwardMessage extends ComponentProps {
     }, 300)
   }
 
-  toggleCheckAction (val: boolean, item: Object): void {
+  toggleCheckAction(val: boolean, item: Object): void {
     if (!val) {
       this.addConversation(item)
     } else {
@@ -159,20 +159,20 @@ export default class RForwardMessage extends ComponentProps {
     }
   }
 
-  addConversation (item: Object): void {
+  addConversation(item: Object): void {
     this.selectedConversations.push(item)
   }
 
-  removeConversation (item: any): void {
+  removeConversation(item: any): void {
     const index = this.selectedConversations.findIndex((conversation) => conversation._id === item._id)
     this.selectedConversations.splice(index, 1)
   }
 
-  addIndexToCheckBoxState (index: any, checkBoxKeyState: number): number {
+  addIndexToCheckBoxState(index: any, checkBoxKeyState: number): number {
     return parseInt(index) + checkBoxKeyState
   }
 
-  handleForwardMessages () {
+  handleForwardMessages() {
     const messageIds = []
     const conversationIds = []
 
@@ -187,7 +187,7 @@ export default class RForwardMessage extends ComponentProps {
     this.forwardMessages(messageIds, conversationIds)
   }
 
-  async forwardMessages (messageIds: Array<string>, conversationIds: Array<string>): Promise<void> {
+  async forwardMessages(messageIds: Array<string>, conversationIds: Array<string>): Promise<void> {
     this.isSending = true
     const res = await this.$robin.forwardMessages(this.$user_token, messageIds, conversationIds)
 
@@ -204,7 +204,7 @@ export default class RForwardMessage extends ComponentProps {
     }
   }
 
-  closeModal () {
+  closeModal() {
     const popup = this.$refs['popup-1'] as any
     popup.classList.remove('robin-fadeIn')
     popup.classList.add('robin-fadeOut')

@@ -170,16 +170,16 @@ export default class MessageContent extends ComponentProps {
   emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   websiteRegex = /[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/
 
-  formatTimeStamp (value: any): string {
+  formatTimeStamp(value: any): string {
     return moment(String(value)).format('h:mma').toUpperCase()
   }
 
-  checkAttachmentType (attachmentUrl: String): string {
+  checkAttachmentType(attachmentUrl: String): string {
     const strArr = attachmentUrl.split('.')
     return `${mime.getType(strArr[strArr.length - 1])}`
   }
 
-  getFileDetails (attachmentUrl: string): { name: any; extension: any } {
+  getFileDetails(attachmentUrl: string): { name: any; extension: any } {
     const fileName = attachmentUrl.substring(attachmentUrl.lastIndexOf('/') + 1)
     const strArr = fileName.split('.')
 
@@ -189,7 +189,7 @@ export default class MessageContent extends ComponentProps {
     }
   }
 
-  downloadFile (attachmentUrl: string): void {
+  downloadFile(attachmentUrl: string): void {
     const fileDetails = this.getFileDetails(attachmentUrl) as any
     const element = document.createElement('a')
 
@@ -198,11 +198,11 @@ export default class MessageContent extends ComponentProps {
     element.click()
   }
 
-  openModal (): void {
+  openModal(): void {
     this.messagePopup.opened = true
   }
 
-  closeModal (): void {
+  closeModal(): void {
     const popup = this.$refs['popup-1'] as any
     popup.$refs['popup-body'].classList.remove('robin-zoomIn')
     popup.$refs['popup-body'].classList.add('robin-zoomOut')
@@ -215,15 +215,15 @@ export default class MessageContent extends ComponentProps {
     }, 300)
   }
 
-  openPreview (event: any): void {
+  openPreview(event: any): void {
     this.$emit('open-preview', event)
   }
 
-  checkArrayReceiverUserToken (message: any) {
+  checkArrayReceiverUserToken(message: any) {
     return message.some((item: { content: { sender_token: string } }) => item.content.sender_token === this.$user_token)
   }
 
-  validateMessages (message: any): boolean {
+  validateMessages(message: any): boolean {
     if (Array.isArray(message) && this.checkArrayReceiverUserToken(message)) {
       return true
     }
@@ -235,7 +235,7 @@ export default class MessageContent extends ComponentProps {
     return false
   }
 
-  toggleCheckAction (val: boolean): void {
+  toggleCheckAction(val: boolean): void {
     this.$emit('toggle-check-action', val)
   }
 }

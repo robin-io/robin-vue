@@ -10,14 +10,14 @@
       <div class="robin-mr-9">
         <RGalleryButton @clicked="openFileDialog('photo-upload')" />
       </div>
-      <input type="file" multiple :accept="acceptedVisualFiles" @change="handleFileChange($event.target.files)" @click="resetFileTarget($event)" id="photo-upload" />
+      <input class="robin-input-file" type="file" multiple :accept="acceptedVisualFiles" @change="handleFileChange($event.target.files)" @click="resetFileTarget($event)" id="photo-upload" />
       Photos & Videos
     </RText>
     <RText as="label" for-ref="document-upload" :font-size="14" max-width="100%" color="#101010" class="robin-wrapper robin-w-100" ref="document-upload">
       <div class="robin-mr-9">
         <RDocumentButton @clicked="openFileDialog('document-upload')" />
       </div>
-      <input type="file" multiple :accept="acceptedDocFiles" @change="handleFileChange($event.target.files)" @click="resetFileTarget($event)" id="document-upload" />
+      <input type="file" class="robin-input-file" multiple :accept="acceptedDocFiles" @change="handleFileChange($event.target.files)" @click="resetFileTarget($event)" id="document-upload" />
       Document
     </RText>
   </div>
@@ -44,11 +44,11 @@ export default class RAttachFilePopOver extends Vue {
   acceptedDocFiles = '.csv, .xlsx, .xls, .doc, .docx, .ppt, .pptx, .txt, .pdf, .html, .7z, .zip, .rtf, .rar, .tar, .odt, .md' as string
   acceptedVisualFiles = 'image/*, video/*, video/mp4' as string
 
-  resetFileTarget(event: any): void {
+  resetFileTarget (event: any): void {
     event.target.value = ''
   }
 
-  handleFileChange(files: any): void {
+  handleFileChange (files: any): void {
     ;[...files].forEach(async (file: any) => {
       const fileURL = URL.createObjectURL(file)
       const typeIndex = file.name.lastIndexOf('.')
@@ -68,7 +68,7 @@ export default class RAttachFilePopOver extends Vue {
     })
   }
 
-  openFileDialog(id: string) {
+  openFileDialog (id: string) {
     const label = this.$refs[id] as any
     label.$el.click()
   }
@@ -105,21 +105,5 @@ export default class RAttachFilePopOver extends Vue {
 .robin-zoomIn,
 .robin-zoomOut {
   transform-origin: bottom right;
-}
-
-input[type='file'] {
-  display: none;
-}
-
-input[type='file']::file-upload-button {
-  display: none;
-}
-
-input[type='file']::-webkit-file-upload-button {
-  display: none;
-}
-
-input[type='file']::-moz-file-upload-button {
-  display: none;
 }
 </style>

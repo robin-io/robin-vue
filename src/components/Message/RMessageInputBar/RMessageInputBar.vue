@@ -1,6 +1,6 @@
 <template>
   <div class="robin-message-box" v-on-clickaway="handleEmojiClosePopUp">
-    <div class="robin-emoji-container robin-emoji-out robin-squeezeOut" v-show="popUpState.emojiOpened" ref="popup-1">
+    <div class="robin-emoji-container robin-emoji-out robin-squeezeOut" v-show="popUpState.emojiOpened" ref="popup-1" @keydown.enter.exact.prevent="sendMessage()" tabindex="1">
       <VEmojiPicker @select="selectEmoji" label-search="Search" lang="pt-BR" class="robin-emoji" />
     </div>
 
@@ -33,7 +33,7 @@
       </div>
     </div>
 
-    <div class="robin-message-box-inner">
+    <div class="robin-message-box-inner" @keydown.enter.exact.prevent="sendMessage()" tabindex="1">
       <div class="robin-message-input">
         <div class="robin-mt-4">
           <REmojiButton @clicked="!popUpState.emojiOpened ? handleEmojiOpenPopUp() : handleEmojiClosePopUp()" :active="popUpState.emojiOpened" />
@@ -154,6 +154,7 @@ export default class RMessageInputBar extends ComponentProps {
     this.text = ''
     this.files = []
     this.isUploading = false
+    this.popUpState.emojiOpened = false
   }
 
   async sendTextMessage () {
@@ -281,6 +282,10 @@ export default class RMessageInputBar extends ComponentProps {
   z-index: 1;
 }
 
+.robin-emoji-container:focus {
+  outline: none;
+}
+
 .robin-emoji-out {
   position: absolute;
   top: -400px;
@@ -351,6 +356,10 @@ export default class RMessageInputBar extends ComponentProps {
   padding: 2.875rem 2.688rem 2.875rem 3.125rem;
   position: relative;
   z-index: 2;
+}
+
+.robin-message-box-inner:focus {
+  outline: 0;
 }
 
 /* Input styles */

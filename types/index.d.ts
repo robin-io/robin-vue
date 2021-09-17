@@ -4,7 +4,7 @@ import store from './store/index'
 declare module 'vue/types/vue' {
   // eslint-disable-next-line no-unused-vars
   interface Vue {
-    $store: store;
+    $store: store
     $robin: Robin
     $conn: WebSocket
     $user_token: string

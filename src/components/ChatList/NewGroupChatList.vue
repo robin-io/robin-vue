@@ -106,21 +106,21 @@ export default class NewGroupChatList extends Vue {
   isLoading = false as boolean
   searchData = [] as Array<any>
 
-  created () {
+  created() {
     this.getContacts('')
   }
 
-  closeModal (): void {
+  closeModal(): void {
     this.modalOpen = false
     this.users = []
     this.checkBoxKeyState += 1
   }
 
-  openModal (): void {
+  openModal(): void {
     this.modalOpen = true
   }
 
-  getContacts (searchText: string): void {
+  getContacts(searchText: string): void {
     this.contacts = {}
 
     if (searchText.trim() === '') {
@@ -134,7 +134,7 @@ export default class NewGroupChatList extends Vue {
     }
   }
 
-  toggleCheckAction (val: boolean, user: Object): void {
+  toggleCheckAction(val: boolean, user: Object): void {
     if (!val) {
       this.addUser(user)
     } else {
@@ -142,11 +142,11 @@ export default class NewGroupChatList extends Vue {
     }
   }
 
-  addUser (user: Object): void {
+  addUser(user: Object): void {
     this.users.push(user)
   }
 
-  removeUser (user: any): void {
+  removeUser(user: any): void {
     const userIndex = this.users.findIndex((item) => item.userToken === user.userToken)
     this.users.splice(userIndex, 1)
 
@@ -155,11 +155,11 @@ export default class NewGroupChatList extends Vue {
     }
   }
 
-  addIndexToCheckBoxState (index: any, checkBoxKeyState: number): number {
+  addIndexToCheckBoxState(index: any, checkBoxKeyState: number): number {
     return parseInt(index) + checkBoxKeyState
   }
 
-  searchContacts (searchText: string): void {
+  searchContacts(searchText: string): void {
     this.isLoading = true
     // eslint-disable-next-line array-callback-return
     const data = this.$robin_users.filter((obj) => {

@@ -103,7 +103,7 @@ const ComponentProps = Vue.extend({
   },
   watch: {
     data: {
-      handler (val: Array<any>): void {
+      handler(val: Array<any>): void {
         this.conversations = [...val]
         this.popUpStates = []
         ;[...val].forEach((val) => {
@@ -126,19 +126,19 @@ export default class PrimaryChatList extends ComponentProps {
   isLoading = false as boolean
   conversations = [] as Array<any>
 
-  created () {
+  created() {
     this.onGroupConversationCreated()
     this.handleMessageForward()
   }
 
-  onGroupConversationCreated (): void {
+  onGroupConversationCreated(): void {
     EventBus.$on('group-conversation-created', (conversation: object) => {
       console.log(conversation)
       this.openConversation(conversation)
     })
   }
 
-  openConversation (conversation: object): void {
+  openConversation(conversation: object): void {
     if (!this.isConversationActive(conversation)) {
       this.activeConversation = conversation
       this.setImagePreviewOpen(false)
@@ -148,7 +148,7 @@ export default class PrimaryChatList extends ComponentProps {
     }
   }
 
-  formatRecentMessageTime (time: string): string {
+  formatRecentMessageTime(time: string): string {
     // const datetime = new Date(time)
     const datetime = moment(time)
     return datetime.calendar(null, {
@@ -159,11 +159,11 @@ export default class PrimaryChatList extends ComponentProps {
     })
   }
 
-  onScroll (): void {
+  onScroll(): void {
     this.scroll = true
   }
 
-  handleOpenPopUp (_id: string, refKey: string): void {
+  handleOpenPopUp(_id: string, refKey: string): void {
     const popup = this.$refs[refKey] as any
     popup[0].$refs['popup-body'].classList.remove('robin-zoomOut')
 
@@ -177,7 +177,7 @@ export default class PrimaryChatList extends ComponentProps {
     })
   }
 
-  handleClosePopUp (_id: string, refKey: string): void {
+  handleClosePopUp(_id: string, refKey: string): void {
     const popup = this.$refs[refKey] as any
     popup[0].$refs['popup-body'].classList.add('robin-zoomOut')
 
@@ -192,11 +192,11 @@ export default class PrimaryChatList extends ComponentProps {
     }, 300)
   }
 
-  isConversationActive (object: Object) {
+  isConversationActive(object: Object) {
     return Object.is(this.activeConversation, object)
   }
 
-  async onArchiveChat (conversation: any): Promise<void> {
+  async onArchiveChat(conversation: any): Promise<void> {
     const res = await this.$robin.archiveConversation(conversation._id, this.$user_token)
 
     if (!res.error) {
@@ -207,7 +207,7 @@ export default class PrimaryChatList extends ComponentProps {
     }
   }
 
-  handleMessageForward (): void {
+  handleMessageForward(): void {
     EventBus.$on('message.forward', (messages: any) => {
       console.log(messages)
       messages.forEach((msg: any) => {
@@ -232,7 +232,7 @@ export default class PrimaryChatList extends ComponentProps {
     })
   }
 
-  searchConversation (searchText: string) {
+  searchConversation(searchText: string) {
     let searchData = [] as Array<any>
     this.isLoading = true
     // eslint-disable-next-line array-callback-return
