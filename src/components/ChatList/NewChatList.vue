@@ -118,7 +118,7 @@ export default class NewChatList extends Vue {
       receiver_token: user.userToken,
       receiver_name: user.userName
     })
-    // console.log(res)
+    console.log(res)
 
     if (res && !res.error) {
       if (!this.checkConversations(res.data)) {

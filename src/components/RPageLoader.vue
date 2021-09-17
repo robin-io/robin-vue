@@ -3,7 +3,7 @@
     <div class="robin-inner-shim">
       <div class="robin-loader-ctn">
         <div class="robin-loader" />
-        <img src="/images/robin_icon.png" alt="logo" />
+        <img src="@/assets/robin_icon.png" alt="logo" />
       </div>
       <div class="robin-come-up robin-mt-18">
         <RText as="h2" color="#fff" font-weight="'bold'" :font-size="24"> Getting messages... </RText>

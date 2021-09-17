@@ -81,7 +81,7 @@ export default class MessageImagePreviewer extends ComponentProps {
   }
 
   onSelectChange (event: any): void {
-    // console.log('selected-change', event)
+    console.log('selected-change', event)
     this.id = event
   }
 
@@ -89,7 +89,7 @@ export default class MessageImagePreviewer extends ComponentProps {
     const res = await this.$robin.deleteMessages([this.images[this.id]._id], this.$user_token)
 
     if (res && !res.error) {
-      // console.log(res, [this.images[this.id]._id])
+      console.log(res, [this.images[this.id]._id])
       EventBus.$emit(this.imagesToPreview.length > 1 ? 'image-deleted' : 'message-deleted', this.images[this.id])
       this.$toasted.global.custom_success('Message Deleted.')
 

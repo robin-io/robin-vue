@@ -19,7 +19,8 @@ import RNoMessageSelected from './components/Message/RNoMessageSelected.vue'
 import RPageLoader from './components/RPageLoader.vue'
 import Component from 'vue-class-component'
 import { State } from 'vuex-class'
-import { RootState } from './utils/types'
+import { RootState } from './store/types'
+import store from './store/index'
 import { Robin } from 'robin.io-js'
 import EventBus from './event-bus'
 
@@ -95,7 +96,12 @@ export default class App extends ComponentProps {
     this.openConversation()
     this.onGroupConversationCreated()
     this.onExitGroup()
+    console.log(this.$store)
   }
+
+  // get isPageLoading () {
+  //   return this.$store.state.isPageLoading
+  // }
 
   initiateRobin () {
     this.robin = new Robin(this.api_key, true)
@@ -118,6 +124,7 @@ export default class App extends ComponentProps {
   }
 
   setPrototypes () {
+    Vue.prototype.$store = store
     Vue.prototype.$robin = this.robin
     Vue.prototype.$user_token = this.user_token
     Vue.prototype.$channel = this.channel
@@ -125,26 +132,26 @@ export default class App extends ComponentProps {
     Vue.prototype.$regularConversations = []
     Vue.prototype.$archivedConversations = []
 
-    // console.log(this.robin, this.$robin, this.conn)
+    console.log(this.robin, this.$robin, this.conn)
   }
 
   connect () {
     this.conn = this.robin.connect(this.user_token)
 
     this.conn.onopen = () => {
-      // console.log('connected')
+      console.log('connected')
       this.robin.subscribe(this.channel, this.conn)
     }
 
     this.conn.onmessage = (evt: any) => {
-      // console.log('new message', evt.data)
+      console.log('new message', evt.data)
       const message = JSON.parse(evt.data)
-      // console.log(message)
+      console.log(message)
       if (message.is_event !== true) {
         EventBus.$emit('new-message', message)
       } else {
         // move new conversation to the top
-        // console.log('new conversation')
+        console.log('new conversation')
         // EventBus.$emit('new-conversation', message)
 
         // check event type
@@ -201,7 +208,7 @@ export default class App extends ComponentProps {
         EventBus.$emit('user.disconnect', message.value)
         break
       case 'new.conversation':
-        // console.log('new conversation')
+        console.log('new conversation')
         break
       case 'message.forward':
         // loop through message.value
@@ -209,10 +216,10 @@ export default class App extends ComponentProps {
         // if it is, push message to message array
         // else update last_message and unshift
         EventBus.$emit('message.forward', message.value)
-        // console.log('forwarded message', message.value)
+        console.log('forwarded message', message.value)
         break
       default:
-        // console.log('cannot handle event')
+        console.log('cannot handle event')
         break
     }
   }

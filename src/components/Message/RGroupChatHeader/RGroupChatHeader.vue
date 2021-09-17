@@ -38,7 +38,7 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import { State, Mutation } from 'vuex-class'
-import { RootState } from '@/utils/types'
+import { RootState } from '@/store/types'
 import RGroupAvatar from '@/components/ChatList/RGroupAvatar/RGroupAvatar.vue'
 import RAvatar from '@/components/ChatList/RAvatar/RAvatar.vue'
 import RText from '@/components/ChatList/RText/RText.vue'
@@ -113,7 +113,7 @@ export default class RGroupChatHeader extends ComponentProps {
 
   handleUserConnect () {
     EventBus.$on('user.connect', (conversation: string) => {
-      // console.log(conversation, '<--')
+      console.log(conversation, '<--')
       if (conversation !== this.$user_token) {
         this.conversation.status = 'online'
       }

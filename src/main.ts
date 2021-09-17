@@ -4,7 +4,7 @@ import axios from 'axios'
 import VueAxios from 'vue-axios'
 import RobinChat from './App.vue'
 import Toasted from 'vue-toasted'
-import store from './utils/index'
+// import store from './utils/index'
 import '../types/index.d.ts'
 import './styles/main.css'
 
@@ -44,11 +44,12 @@ Vue.toasted.register('custom_error', (message) => message, {
   ]
 })
 
-const robinChat = new Vue({
-  store,
-  render: (h) => h(RobinChat)
-})
+// eslint-disable-next-line no-new
+// new Vue({
+//   // store,
+//   render: (h) => h(RobinChat)
+// })
 
-robinChat.$mount('#app')
+// robinChat.$mount('#app')
 
 export { RobinChat }

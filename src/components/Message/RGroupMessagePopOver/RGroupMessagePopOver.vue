@@ -40,11 +40,11 @@ const ComponentProps = Vue.extend({
 export default class RGroupMessagePopOver extends ComponentProps {
   @Mutation('setSelectMessagesOpen') setSelectMessagesOpen: any
 
-  handleSelectMessages() {
+  handleSelectMessages () {
     this.setSelectMessagesOpen(true)
   }
 
-  async handleLeaveGroup() {
+  async handleLeaveGroup () {
     const res = await this.$robin.removeGroupParticipant(this.conversation._id, this.$user_token)
 
     if (res && !res.error) {

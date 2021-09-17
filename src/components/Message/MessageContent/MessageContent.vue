@@ -40,8 +40,8 @@
       </div>
       <div class="robin-message-bubble-document" v-if="message.content.is_attachment && documentRegex.test(checkAttachmentType(message.content.attachment))" @click="openModal()">
         <div class="robin-uploaded-document">
-          <img v-if="images[getFileDetails(message.content.attachment).extension]" :src="`/images/${getFileDetails(message.content.attachment).extension}.png`" />
-          <img v-else src="/images/default.png" />
+          <img v-if="images[getFileDetails(message.content.attachment).extension]" :src="images[getFileDetails(message.content.attachment).extension]" />
+          <img v-else src="@/assets/default.png" />
           <div class="details robin-flex robin-h-100 robin-flex-align-center">
             <RText as="span"> {{ getFileDetails(message.content.attachment).name.length > 9 ? getFileDetails(message.content.attachment).name.substring(0, 9) + '...' + '.' + getFileDetails(message.content.attachment).extension : getFileDetails(message.content.attachment).name + '.' + getFileDetails(message.content.attachment).extension }} </RText>
           </div>
@@ -67,7 +67,7 @@ import { mixin as clickaway } from 'vue-clickaway'
 // import 'viewerjs/dist/viewer.css'
 // import { directive as viewer } from 'v-viewer'
 import { State } from 'vuex-class'
-import { RootState } from '@/utils/types'
+import { RootState } from '@/store/types'
 import Component from 'vue-class-component'
 import RDownloadButton from '../RDownloadButton/RDownloadButton.vue'
 import RText from '@/components/ChatList/RText/RText.vue'
@@ -76,6 +76,24 @@ import RMessagePopOver from '../RMessagePopOver/RMessagePopOver.vue'
 import RCheckBox from '@/components/ChatList/RCheckBox/RCheckBox.vue'
 import moment from 'moment'
 import mime from 'mime'
+
+// file-extension-images
+import pdf from '@/assets/pdf.png'
+import doc from '@/assets/doc.png'
+import docx from '@/assets/docx.png'
+import csv from '@/assets/csv.png'
+import ppt from '@/assets/ppt.png'
+import rtf from '@/assets/rtf.png'
+import rar from '@/assets/rar.png'
+import tar from '@/assets/tar.png'
+import xls from '@/assets/xls.png'
+import xlsx from '@/assets/xlsx.png'
+import txt from '@/assets/txt.png'
+import odt from '@/assets/odt.png'
+import md from '@/assets/md.png'
+import zipSeven from '@/assets/7z.png'
+import zip from '@/assets/zip.png'
+import html from '@/assets/html.png'
 
 const ComponentProps = Vue.extend({
   props: {
@@ -128,22 +146,22 @@ export default class MessageContent extends ComponentProps {
   // } as any
 
   images = {
-    pdf: 'pdf.png',
-    doc: 'doc.png',
-    docx: 'docx.png',
-    csv: 'csv.csv',
-    ppt: 'ppt.png',
-    rtf: 'rtf.png',
-    rar: 'rar.png',
-    tar: 'tar.png',
-    xls: 'xls.png',
-    xlsx: 'xlsx.png',
-    txt: 'txt.png',
-    odt: 'odt.png',
-    md: 'md.png',
-    '7z': '7z.png',
-    zip: 'zip.png',
-    html: 'html.png'
+    pdf: pdf,
+    doc: doc,
+    docx: docx,
+    csv: csv,
+    ppt: ppt,
+    rtf: rtf,
+    rar: rar,
+    tar: tar,
+    xls: xls,
+    xlsx: xlsx,
+    txt: txt,
+    odt: odt,
+    md: md,
+    '7z': zipSeven,
+    zip: zip,
+    html: html
   } as any
 
   imageRegex = /^image/ as any

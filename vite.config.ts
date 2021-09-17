@@ -14,7 +14,7 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, 'src/main.ts'),
       name: 'robin',
-      fileName: (format) => `robin.${format}.js`
+      fileName: (format) => `robin.vue-sdk.${format}.js`
     },
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled

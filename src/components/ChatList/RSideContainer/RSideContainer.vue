@@ -11,9 +11,8 @@
 <script lang="ts">
 import Vue, { PropType } from 'vue'
 import Component from 'vue-class-component'
-import { State, Mutation } from 'vuex-class'
+import { Mutation } from 'vuex-class'
 import EventBus from '@/event-bus'
-import { RootState } from '@/utils/types'
 import PrimaryChatList from '../PrimaryChatList.vue'
 import NewChatList from '../NewChatList.vue'
 import NoChatList from '../NoChatList.vue'
@@ -40,7 +39,6 @@ const ComponentProps = Vue.extend({
   }
 })
 export default class RSideContainer extends ComponentProps {
-  @State('isPageLoading') isPageLoading?: RootState
   @Mutation('setPageLoading') setPageLoading: any
 
   key = 0 as number
@@ -64,7 +62,7 @@ export default class RSideContainer extends ComponentProps {
     if (type === 'primary') {
       this.sideBarType = type
     } else {
-      // console.log(this.$refs, refKey, type)
+      console.log(this.$refs, refKey, type)
       const popup = this.$refs[refKey] as any
 
       window.setTimeout(() => {
@@ -79,7 +77,7 @@ export default class RSideContainer extends ComponentProps {
     if (type === 'primary' && refKey === 'slide-0') {
       this.sideBarType = type
     } else {
-      // console.log(this.$refs, refKey, type)
+      console.log(this.$refs, refKey, type)
       const popup = this.$refs[refKey] as any
       popup.$refs['popup-body'].classList.add('robin-slideOutLeft')
 
@@ -127,7 +125,7 @@ export default class RSideContainer extends ComponentProps {
   }
 
   async getUserToken () {
-    // console.log(this.$robin)
+    console.log(this.$robin)
     const res = await this.$robin.getUserToken({
       user_token: this.user_token
     })
@@ -138,10 +136,10 @@ export default class RSideContainer extends ComponentProps {
       Vue.prototype.$archivedConversations = this.getArchivedConversations()
       this.regularConversations = this.getRegularConversations()
       this.setPageLoading(false)
-      // console.log('getconversations -> ', this.$conversations)
+      console.log('getconversations -> ', this.$conversations)
       this.$forceUpdate()
     }
-    // console.log(res)
+    console.log(res)
   }
 
   getArchivedConversations (): Array<any> {

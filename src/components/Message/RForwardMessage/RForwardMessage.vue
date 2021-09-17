@@ -95,7 +95,7 @@ export default class RForwardMessage extends ComponentProps {
     this.conversations = {}
 
     if (searchText.trim() === '') {
-      // console.log(this.getRegularConversations(this.$conversations))
+      console.log(this.getRegularConversations(this.$conversations))
       for (const conversation of this.getRegularConversations(this.$conversations)) {
         this.conversations[conversation.name[0] ? conversation.name[0].toUpperCase() : conversation.receiver_name[0].toUpperCase()] = this.getRegularConversations(this.$conversations).filter((item) => {
           if (item.name[0] && conversation.name[0]) return item.name[0].toUpperCase() === conversation.name[0].toUpperCase()
@@ -145,7 +145,7 @@ export default class RForwardMessage extends ComponentProps {
 
     this.searchData = [...data]
     this.getConversations(searchText)
-    // console.log(this.searchData)
+    console.log(this.searchData)
     setTimeout(() => {
       this.isLoading = false
     }, 300)
@@ -192,7 +192,7 @@ export default class RForwardMessage extends ComponentProps {
     const res = await this.$robin.forwardMessages(this.$user_token, messageIds, conversationIds)
 
     if (res && !res.error) {
-      // console.log(res)
+      console.log(res)
       this.isSending = false
       this.$toasted.global.custom_success('Forwarded messages.')
       this.closeModal()
