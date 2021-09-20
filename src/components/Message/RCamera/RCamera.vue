@@ -7,7 +7,7 @@
       <RText as="h3" :font-size="18"> Take photo </RText>
     </header>
     <div class="robin-body">
-      <video v-show="!isPhotoTaken" ref="camera" width="100%" height="500px" autoplay></video>
+      <video v-show="!isPhotoTaken" ref="camera" width="100%" height="500px" autoplay="true" muted="true"></video>
       <RCameraButton @clicked="takePhoto()" />
     </div>
   </div>
