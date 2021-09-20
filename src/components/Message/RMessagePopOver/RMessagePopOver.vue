@@ -53,7 +53,7 @@ const ComponentProps = Vue.extend({
   }
 })
 export default class RMessagePopOver extends ComponentProps {
-  async deleteMessage(): Promise<void> {
+  async deleteMessage (): Promise<void> {
     this.$emit('close-modal')
 
     const res = await this.$robin.deleteMessages([this.id], this.$user_token)
@@ -70,7 +70,7 @@ export default class RMessagePopOver extends ComponentProps {
 
 <style scoped>
 .top.robin-popup-container {
-  top: -196%;
+  top: -68px;
 }
 
 .robin-popup-container {

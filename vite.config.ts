@@ -13,18 +13,30 @@ export default defineConfig({
   build: {
     lib: {
       entry: resolve(__dirname, 'src/main.ts'),
-      name: 'robin',
+      name: 'robin.vue-sdk',
       fileName: (format) => `robin.vue-sdk.${format}.js`
     },
+    brotliSize: false,
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled
       // into your library
-      external: ['vue'],
+      external: ['vue', 'moment', 'mime', 'axios', 'vuex', 'vuex-class', 'vue-carousel-3d', 'vue-promised', 'v-viewer', 'v-lazy-image', 'v-emoji-picker', 'robin.io-js'],
       output: {
         // Provide global variables to use in the UMD build
         // for externalized deps
         globals: {
-          vue: 'Vue'
+          vue: 'Vue',
+          moment: 'moment',
+          mime: 'mime',
+          axios: 'axios',
+          vuex: 'vuex',
+          'vuex-class': 'vuex-class',
+          'vue-carousel-3d': 'vue-carousel-3d',
+          'vue-promised': 'vue-promised',
+          'v-viewer': 'v-viewer',
+          'v-lazy-image': 'v-lazy-image',
+          'v-emoji-picker': 'v-emoji-picker',
+          'robin.io-js': 'robin.io-js'
         }
       }
     }

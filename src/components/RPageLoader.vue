@@ -3,7 +3,7 @@
     <div class="robin-inner-shim">
       <div class="robin-loader-ctn">
         <div class="robin-loader" />
-        <img src="@/assets/robin_icon.png" alt="logo" />
+        <img class="robin-pulse-1" src="@/assets/robin_icon.png" alt="logo" />
       </div>
       <div class="robin-come-up robin-mt-18">
         <RText as="h2" color="#fff" font-weight="'bold'" :font-size="24"> Getting messages... </RText>
@@ -62,11 +62,12 @@ export default Vue.extend({
   animation: spin 1s linear infinite;
 }
 
-.robin-inner-shim img {
+.robin-loader-ctn img {
   width: 50px;
   position: absolute;
   top: 25px;
   right: 25px;
-  animation: pulse 1s infinite;
+  transform: scale(5);
+  /* animation: pulse 1s infinite; */
 }
 </style>

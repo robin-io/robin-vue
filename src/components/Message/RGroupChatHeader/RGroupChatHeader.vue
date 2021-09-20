@@ -24,7 +24,7 @@
     <div class="robin-ml-auto" @click="handleOpenPopUp(conversation.is_group ? 'popup-1' : 'popup-2')" v-show="!selectMessagesOpen">
       <ROptionButton @clickoutside="handleClosePopUp(conversation.is_group ? 'popup-1' : 'popup-2')" />
     </div>
-    <div class="robin-ml-auto robin-pulse" v-show="selectMessagesOpen && selectedMessages.length > 0" @click="$emit('forward-message')">
+    <div class="robin-ml-auto robin-pulse-2" v-show="selectMessagesOpen && selectedMessages.length > 0" @click="$emit('forward-message')">
       <RButton>Forward</RButton>
     </div>
     <div class="robin-popup-container" v-show="popUpState.opened && !selectMessagesOpen">
@@ -85,19 +85,19 @@ export default class RGroupChatHeader extends ComponentProps {
     opened: false
   }
 
-  created() {
+  created () {
     this.handleUserConnect()
     this.handleUserDisconnect()
   }
 
-  handleOpenPopUp(refKey: string): void {
+  handleOpenPopUp (refKey: string): void {
     const popup = this.$refs[refKey] as any
     popup.$refs['popup-body'].classList.remove('robin-zoomOut')
 
     this.popUpState.opened = true
   }
 
-  handleClosePopUp(refKey: string): void {
+  handleClosePopUp (refKey: string): void {
     const popup = this.$refs[refKey] as any
     popup.$refs['popup-body'].classList.remove('robin-zoomIn')
     popup.$refs['popup-body'].classList.add('robin-zoomOut')
@@ -111,7 +111,7 @@ export default class RGroupChatHeader extends ComponentProps {
     }, 300)
   }
 
-  handleUserConnect() {
+  handleUserConnect () {
     EventBus.$on('user.connect', (conversation: string) => {
       // console.log(conversation, '<--')
       if (conversation !== this.$user_token) {
@@ -120,7 +120,7 @@ export default class RGroupChatHeader extends ComponentProps {
     })
   }
 
-  handleUserDisconnect() {
+  handleUserDisconnect () {
     EventBus.$on('user.disconnect', (conversation: string) => {
       if (conversation !== this.$user_token) {
         this.conversation.status = 'offline'
@@ -128,7 +128,7 @@ export default class RGroupChatHeader extends ComponentProps {
     })
   }
 
-  cancelSelect(): void {
+  cancelSelect (): void {
     this.setSelectMessagesOpen(false)
   }
 }

@@ -39,7 +39,7 @@
           <REmojiButton @clicked="!popUpState.emojiOpened ? handleEmojiOpenPopUp() : handleEmojiClosePopUp()" :active="popUpState.emojiOpened" />
         </div>
         <div class="robin-input-wrapper" tabindex="1">
-          <textarea class="robin-input" ref="input" v-model="text" @keydown.esc="escapeText()" @keydown.enter.exact.prevent="sendMessage()" placeholder="Type a message..."></textarea>
+          <textarea class="robin-input" ref="input" v-model="text" @keydown.esc="escapeText()" placeholder="Type a message..."></textarea>
         </div>
       </div>
       <div class="robin-pl-21 robin-come-up" v-show="(text.trim().length > 0 || files.length > 0) && !isUploading">
@@ -189,6 +189,8 @@ export default class RMessageInputBar extends ComponentProps {
 
   selectEmoji (emoji: any): void {
     this.text += emoji.data
+    const input = this.$refs.input as HTMLInputElement
+    input.focus()
   }
 
   handleEmojiOpenPopUp (): void {

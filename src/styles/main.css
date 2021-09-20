@@ -442,18 +442,6 @@
   }
 }
 
-@keyframes pulse {
-  0% {
-    transform: scale(0.5);
-  }
-  50% {
-    transform: scale(1);
-  }
-  100% {
-    transform: scale(0.5);
-  }
-}
-
 @keyframes slideInRight {
   from {
     transform: translate3d(100%, 0, 0);
@@ -547,7 +535,19 @@
   }
 }
 
-@keyframes pulse {
+@keyframes pulse1 {
+  0% {
+    transform: scale(0.7);
+  }
+  50% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0.7);
+  }
+}
+
+@keyframes pulse2 {
   from {
     transform: scale3d(1, 1, 1);
   }
@@ -618,8 +618,12 @@
   animation: fade-out 100ms ease-in-out forwards;
 }
 
-.robin-pulse {
-  animation: pulse 100ms ease-in-out;
+.robin-pulse-1 {
+  animation: pulse1 1s infinite;
+}
+
+.robin-pulse-2 {
+  animation: pulse2 100ms ease-in-out;
 }
 
 .robin-slideInLeft {

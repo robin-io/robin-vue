@@ -2,7 +2,7 @@
   <div class="robin-shim robin-flex-justify-end">
     <div class="robin-modal-container robin-flex robin-fadeIn" ref="popup-1">
       <div class="robin-inner-container robin-flex robin-flex-column">
-        <header class="robin-flex robin-flex-justify-end" :class="groupName.trim().length > 0 ? 'robin-pulse' : 'robin-invisible'">
+        <header class="robin-flex robin-flex-justify-end" :class="groupName.trim().length > 0 ? 'robin-pulse-2' : 'robin-invisible'">
           <RButton :emit="'clicked'" @clicked="createGroupConversation()" v-show="!isLoading">Create Group</RButton>
           <div class="robin-spinner" v-show="isLoading"></div>
         </header>
@@ -85,11 +85,11 @@ export default class CreateGroup extends ComponentProps {
   groupName = '' as string
   isLoading = false as boolean
 
-  userTyping(val: string): void {
+  userTyping (val: string): void {
     this.groupName = val
   }
 
-  async createGroupConversation(): Promise<void> {
+  async createGroupConversation (): Promise<void> {
     this.isLoading = true
     const res = await this.$robin.createGroupConversation(this.groupName, { user_token: this.$user_token }, this.users)
     if (res && !res.error) {
@@ -103,7 +103,7 @@ export default class CreateGroup extends ComponentProps {
     }
   }
 
-  closeModal() {
+  closeModal () {
     const popup = this.$refs['popup-1'] as any
     popup.classList.remove('robin-fadeIn')
     popup.classList.add('robin-fadeOut')

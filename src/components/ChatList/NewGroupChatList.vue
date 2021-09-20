@@ -8,7 +8,7 @@
         <RText font-weight="400" color="rgba(83, 95, 137, 1)" :font-size="16">New Group Chat</RText>
       </div>
       <div class="robin-ml-auto">
-        <RButton emit="done" @done="openModal()" v-show="users.length > 0" class="robin-pulse">Done</RButton>
+        <RButton emit="done" @done="openModal()" v-show="users.length > 0" class="robin-pulse-2">Done</RButton>
       </div>
     </header>
     <div class="robin-wrapper robin-w-100">
