@@ -45,4 +45,8 @@ Vue.toasted.register('custom_error', (message) => message, {
   ]
 })
 
-export { RobinChat }
+const robinChat = new Vue({
+  render: h => h(RobinChat)
+}).$mount('#app')
+
+export { robinChat }

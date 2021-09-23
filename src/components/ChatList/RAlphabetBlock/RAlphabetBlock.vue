@@ -29,7 +29,7 @@ export default class RAlphabetBlock extends ComponentProps {}
   padding: 0 1.5rem;
   height: 28px;
   background-color: #f3f3f3;
-  font-size: 1rem;
+  font-size: clamp(0.3rem, 5vw, 1rem);
   text-transform: uppercase;
 }
 </style>

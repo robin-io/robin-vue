@@ -1,7 +1,7 @@
 <template>
   <div class="robin-side-container" ref="popup-body">
     <header class="robin-header">
-      <div class="robin-mr-10" @click="$emit('closemodal', 'newchat')">
+      <div class="robin-mr-10" @click="openPreviousModal()">
         <RCloseButton />
       </div>
       <div class="robin-mb-5">
@@ -105,6 +105,7 @@ export default class NewGroupChatList extends Vue {
   users = [] as Array<any>
   isLoading = false as boolean
   searchData = [] as Array<any>
+  key = 0 as number
 
   created () {
     this.getContacts('')
@@ -190,6 +191,17 @@ export default class NewGroupChatList extends Vue {
       return result
     }, {})
   }
+
+  openPreviousModal ():void {
+    this.$emit('closemodal', 'newchat')
+    setTimeout(() => {
+      this.refresh()
+    }, 300)
+  }
+
+  refresh ():void {
+    this.key += 1
+  }
 }
 </script>
 
@@ -211,7 +223,7 @@ header {
   width: 100%;
   display: flex;
   align-items: center;
-  padding: 3.563rem 1.5rem 1.5rem;
+  padding: 3.563rem clamp(2%, 4vw, 1.5rem) 1.5rem;
 }
 
 .robin-contact-container {
@@ -219,7 +231,7 @@ header {
 }
 
 .robin-wrapper {
-  padding: 0 1.5rem;
+  padding: 0 clamp(2%, 4vw, 1.5rem);
 }
 
 .robin-card-container {

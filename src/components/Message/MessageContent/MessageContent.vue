@@ -63,7 +63,7 @@
           <img v-if="images[getFileDetails(message.content.attachment).extension]" :src="images[getFileDetails(message.content.attachment).extension]" />
           <img v-else src="@/assets/default.png" />
           <div class="details robin-flex robin-h-100 robin-flex-align-center">
-            <RText as="span"> {{ getFileDetails(message.content.attachment).name.length > 9 ? getFileDetails(message.content.attachment).name.substring(0, 9) + '...' + '.' + getFileDetails(message.content.attachment).extension : getFileDetails(message.content.attachment).name + '.' + getFileDetails(message.content.attachment).extension }} </RText>
+            <RText as="span" :fontSize="14"> {{ getFileDetails(message.content.attachment).name.length > 9 ? getFileDetails(message.content.attachment).name.substring(0, 9) + '...' + '.' + getFileDetails(message.content.attachment).extension : getFileDetails(message.content.attachment).name + '.' + getFileDetails(message.content.attachment).extension }} </RText>
           </div>
           <RDownloadButton @clicked="downloadFile(message.content.attachment)" />
         </div>
@@ -196,6 +196,11 @@ export default class MessageContent extends ComponentProps {
 
   checkAttachmentType (attachmentUrl: String): string {
     const strArr = attachmentUrl.split('.')
+
+    if (mime.getType(strArr[strArr.length - 1]) === 'application/msword') {
+      return 'doc'
+    }
+
     return `${mime.getType(strArr[strArr.length - 1])}`
   }
 
@@ -306,7 +311,7 @@ export default class MessageContent extends ComponentProps {
 
 /* Bubble styles */
 
-.robin-message-sender + .robin-message-receiver {
+.robin-message-sender + .robin-message-receiver, .robin-message-receiver + .robin-message-sender  {
   margin-top: 1rem;
 }
 
@@ -529,6 +534,8 @@ video {
 
 .robin-message-bubble-document .robin-uploaded-document img {
   margin-right: 1rem;
+  max-width: 100%;
+  height:auto;
 }
 
 .robin-message-receiver .robin-message-bubble-document .robin-side-text {
@@ -562,5 +569,23 @@ a {
   text-decoration: none;
   color: #4568d1;
   max-width: 220px;
+}
+
+@media (max-width: 480px) {
+  .robin-message-bubble-inner, .robin-message-bubble-image, .robin-message-bubble-video, .robin-message-bubble-document {
+    max-width: 220px;
+  }
+
+  .robin-message-bubble-document .robin-uploaded-document {
+    justify-content: space-between;
+  }
+
+  .robin-message-bubble-document .robin-text {
+    margin-left: 0;
+  }
+
+  .robin-message-bubble-document .robin-uploaded-document .details,  .robin-message-bubble-document .robin-uploaded-document img{
+    margin-right: 0;
+  }
 }
 </style>

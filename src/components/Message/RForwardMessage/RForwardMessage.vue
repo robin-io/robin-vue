@@ -2,8 +2,9 @@
   <div class="robin-shim robin-fadeIn" ref="popup-1" v-on-clickaway="closeModal">
     <div class="robin-modal-container robin-flex">
       <div class="robin-inner-container robin-flex robin-flex-column">
-        <header class="robin-wrapper robin-mt-26 robin-mb-10">
-          <RText>Forward Message</RText>
+        <header class="robin-wrapper robin-mb-10" :class="screenWidth > 1200 ? 'robin-mt-26' : 'robin-mt-38'">
+          <RCloseButton @close="closeModal()" v-show="screenWidth <= 1200" />
+          <RText v-show="screenWidth > 1200">Forward Message</RText>
           <RButton color="#15ae73" emit="clicked" @clicked="handleForwardMessages()" v-show="!isSending">Send</RButton>
           <div class="robin-spinner" v-show="isSending"></div>
         </header>
@@ -36,7 +37,7 @@
           </div>
         </div>
       </div>
-      <div class="robin-ml-16">
+      <div class="robin-ml-16" v-show="screenWidth > 1200">
         <RCloseButton @close="closeModal()" />
       </div>
     </div>
@@ -86,9 +87,17 @@ export default class RForwardMessage extends ComponentProps {
   selectedConversations = [] as Array<any>
   checkBoxKeyState = 0 as number
   searchData = [] as Array<any>
+  screenWidth = 0 as number
 
   created () {
     this.getConversations('')
+  }
+
+  mounted () {
+    this.$nextTick(function () {
+      this.onResize()
+    })
+    window.addEventListener('resize', this.onResize)
   }
 
   getConversations (searchText: string): void {
@@ -221,10 +230,16 @@ export default class RForwardMessage extends ComponentProps {
   }
 
   sortConversations (): void {
-    this.conversations = Object.keys(this.conversations).sort().reduce((result: any, key: string) => {
-      result[key] = this.conversations[key]
-      return result
-    }, {})
+    this.conversations = Object.keys(this.conversations)
+      .sort()
+      .reduce((result: any, key: string) => {
+        result[key] = this.conversations[key]
+        return result
+      }, {})
+  }
+
+  onResize () {
+    this.screenWidth = window.innerWidth
   }
 
   // async sendFileMessage (): Promise<any> {
@@ -321,6 +336,19 @@ header {
     -moz-border-radius: 24px;
     -ms-border-radius: 24px;
     -o-border-radius: 24px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .robin-modal-container {
+    width: 100%;
+    height: 100%;
+  }
+
+  .robin-inner-container {
+    width: 100%;
+    height: 100%;
+    max-height: initial;
   }
 }
 </style>

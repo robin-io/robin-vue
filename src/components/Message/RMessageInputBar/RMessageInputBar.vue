@@ -372,7 +372,7 @@ export default class RMessageInputBar extends ComponentProps {
   border-radius: 24px;
   display: flex;
   align-items: center;
-  padding: 0 0 0 2.063rem;
+  padding: 0 0 0 clamp(3%, 5vw, 2.063rem);
   transition: background-color 200ms;
 }
 
@@ -402,6 +402,10 @@ export default class RMessageInputBar extends ComponentProps {
   /* textarea */
   resize: none;
   padding: 1rem 0 0 0.625rem;
+}
+
+.robin-input::placeholder {
+  white-space: nowrap;
 }
 
 .robin-popup-container {

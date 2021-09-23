@@ -179,4 +179,11 @@ export default class RSideContainer extends ComponentProps {
   height: 100%;
   box-shadow: 0px 2px 20px rgba(0, 104, 255, 0.06);
 }
+
+@media (max-width: 1200px) {
+  .robin-chat-list-container {
+    flex-basis: 100%;
+    max-width: initial;
+  }
+}
 </style>

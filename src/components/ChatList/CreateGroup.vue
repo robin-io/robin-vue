@@ -2,6 +2,7 @@
   <div class="robin-shim robin-flex-justify-end">
     <div class="robin-modal-container robin-flex robin-fadeIn" ref="popup-1">
       <div class="robin-inner-container robin-flex robin-flex-column">
+        <RCloseButton @close="closeModal()" v-show="screenWidth <= 1024" />
         <header class="robin-flex robin-flex-justify-end" :class="groupName.trim().length > 0 ? 'robin-pulse-2' : 'robin-invisible'">
           <RButton :emit="'clicked'" @clicked="createGroupConversation()" v-show="!isLoading">Create Group</RButton>
           <div class="robin-spinner" v-show="isLoading"></div>
@@ -41,7 +42,7 @@
           </div>
         </div>
       </div>
-      <div class="robin-wrapper robin-ml-16">
+      <div class="robin-wrapper robin-ml-16" v-show="screenWidth > 1024">
         <RCloseButton @close="closeModal()" />
       </div>
     </div>
@@ -84,6 +85,14 @@ const ComponentProps = Vue.extend({
 export default class CreateGroup extends ComponentProps {
   groupName = '' as string
   isLoading = false as boolean
+  screenWidth = 0 as number
+
+  mounted () {
+    this.$nextTick(function () {
+      this.onResize()
+    })
+    window.addEventListener('resize', this.onResize)
+  }
 
   userTyping (val: string): void {
     this.groupName = val
@@ -116,6 +125,10 @@ export default class CreateGroup extends ComponentProps {
       this.groupName = ''
       this.$emit('closemodal')
     }, 100)
+  }
+
+  onResize () {
+    this.screenWidth = window.innerWidth
   }
 }
 </script>
@@ -193,6 +206,33 @@ header {
     -moz-border-radius: 24px;
     -ms-border-radius: 24px;
     -o-border-radius: 24px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .robin-shim {
+    justify-content: center;
+    padding: 8vh 0 0 0;
+  }
+
+  .robin-inner-container >>> .robin-button {
+    align-self: flex-end;
+  }
+}
+
+@media (max-width: 480px) {
+  .robin-shim {
+    padding: 0;
+  }
+
+  .robin-modal-container {
+    width: 100%;
+    height: 100%;
+  }
+
+  .robin-inner-container {
+    width: 100%;
+    height: 100%;
   }
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <div class="robin-container">
     <transition name="robin-fadeIn">
-      <RSideContainer v-show="!isPageLoading" :user_token="user_token" :key="key" />
+      <RSideContainer v-show="!isPageLoading && (!conversationOpened && screenWidth <= 1200) || (conversationOpened && screenWidth > 1200) || (!conversationOpened && screenWidth > 1200)" :user_token="user_token" :key="key" />
     </transition>
     <transition name="robin-fadeIn">
       <RGroupMessageContainer v-show="!isPageLoading && conversationOpened" :key="key" />
@@ -88,6 +88,7 @@ export default class App extends ComponentProps {
   conn = null as any
   conversationOpened = false as boolean
   key = 0 as number
+  screenWidth = 0 as number
 
   created (): void {
     this.filterUsers()
@@ -96,7 +97,15 @@ export default class App extends ComponentProps {
     this.openConversation()
     this.onGroupConversationCreated()
     this.onExitGroup()
+    this.onExitMessage()
     // console.log(this.$store)
+  }
+
+  mounted () {
+    this.$nextTick(function () {
+      this.onResize()
+    })
+    window.addEventListener('resize', this.onResize)
   }
 
   // get isPageLoading () {
@@ -229,6 +238,16 @@ export default class App extends ComponentProps {
       this.key += 1
       this.conversationOpened = false
     })
+  }
+
+  onExitMessage () {
+    EventBus.$on('left.message', () => {
+      this.conversationOpened = false
+    })
+  }
+
+  onResize () {
+    this.screenWidth = window.innerWidth
   }
 }
 </script>

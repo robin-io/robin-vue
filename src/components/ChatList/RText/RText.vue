@@ -74,19 +74,30 @@ const ComponentProps = Vue.extend({
 export default class RText extends ComponentProps {
   root = null as any
 
-  mounted(): void {
+  mounted (): void {
     this.root = document.documentElement
   }
 
-  get getStyles(): Object {
+  get getStyles (): Object {
     let rootFontSize = 16 // default
+    let fontSize = `${(this.fontSize / rootFontSize) + 'rem'}`
 
     if (this.root && this.root.style.fontSize !== '') {
       rootFontSize = this.root.style.fontSize
     }
 
+    if (this.fontSize > 16) {
+      fontSize = `clamp(0.3rem, 7vw, ${this.fontSize / rootFontSize + 'rem'})`
+    } else if (this.fontSize === 16) {
+      fontSize = `clamp(0.3rem, 5vw, ${this.fontSize / rootFontSize + 'rem'})`
+    } else if (this.fontSize === 14) {
+      fontSize = `clamp(0.3rem, 3.5vw, ${this.fontSize / rootFontSize + 'rem'})`
+    } else {
+      fontSize = `clamp(0.2rem, 3.5vw, ${this.fontSize / rootFontSize + 'rem'})`
+    }
+
     return {
-      'font-size': this.fontSize / rootFontSize + 'rem',
+      'font-size': fontSize,
       color: this.color,
       'font-weight': this.fontWeight,
       'line-height': this.lineHeight === 0 ? 'initial' : this.lineHeight / rootFontSize + 'rem',

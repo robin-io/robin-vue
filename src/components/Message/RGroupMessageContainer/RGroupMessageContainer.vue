@@ -444,10 +444,10 @@ export default class RGroupMessageContainer extends Vue {
 
 <style scoped>
 .robin-message-container {
-  flex: 1;
   width: 100%;
   height: 100%;
   display: flex;
+  flex: 1;
   flex-direction: column;
   justify-content: space-between;
   position: relative;
@@ -467,7 +467,7 @@ export default class RGroupMessageContainer extends Vue {
   flex: 1;
   width: 100%;
   height: 100%;
-  padding: 2.688rem 2.688rem 1.25rem 3.125rem;
+  padding: 2.688rem clamp(3%, 5vw, 2.688rem) 1.25rem clamp(3%, 5vw, 3.125rem);
   overflow-y: auto;
 }
 
@@ -475,29 +475,6 @@ export default class RGroupMessageContainer extends Vue {
   font-size: 1rem;
   color: var(--primary-color);
 }
-
-/* .robin-message-sender {
-  background-color: #f4f6f8;
-  border: 1px solid rgba(35, 107, 248, 0.2);
-}
-
-.robin-message-receiver {
-  background-color: #d3d7ea;
-} */
-
-/* Default bubble styles */
-/*
-.robin-message-receiver .robin-side-text {
-  flex: 1;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.robin-message-sender .robin-side-text {
-  flex: 1;
-  display: flex;
-  justify-content: flex-start;
-} */
 
 @media (min-width: 768px) {
   ::-webkit-scrollbar {
@@ -520,4 +497,13 @@ export default class RGroupMessageContainer extends Vue {
     -o-border-radius: 24px;
   }
 }
+
+/* @media (min-width: 1200px) {
+  .robin-message-container {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+} */
 </style>

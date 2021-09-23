@@ -16,7 +16,7 @@ import Component from 'vue-class-component'
   mixins: [clickaway]
 })
 export default class ROpenModalCaretButton extends Vue {
-  emitClickAway(): void {
+  emitClickAway (): void {
     this.$emit('clickoutside')
   }
 }

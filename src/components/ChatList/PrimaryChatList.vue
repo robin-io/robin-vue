@@ -3,16 +3,16 @@
   <div class="robin-side-container">
     <header class="robin-header">
       <RText font-weight="400" color="rgba(83, 95, 137, 1)" :font-size="17"> Settings </RText>
-      <REditButton @edit="$emit('opennewchatmodal', 'newchat')" />
+      <REditButton @edit="openEdit()" />
     </header>
     <div class="robin-wrapper robin-w-100">
-      <RSearchBar @user-typing="searchConversation($event)" :loading="isLoading" />
+      <RSearchBar @user-typing="searchConversation($event)" :loading="isLoading" :key="key" />
     </div>
     <div class="robin-wrapper robin-pt-10 robin-pb-11">
-      <RButton @archived="$emit('openarchivedchatmodal', 'archivedchat')" />
+      <RButton @archived="openArchivedChat()" />
     </div>
     <div class="robin-wrapper robin-card-container robin-pb-16 robin-flex robin-flex-column" @scroll="onScroll()">
-      <div class="robin-card robin-flex robin-flex-align-center" :class="{ 'robin-card-active': isConversationActive(conversation) }" v-for="(conversation, index) in conversations" :key="`conversation-${index}`" @click.self="openConversation(conversation)">
+      <div class="robin-card robin-flex robin-flex-align-center" :class="{ 'robin-card-active': isConversationActive(conversation) && screenWidth > 1200 }" v-for="(conversation, index) in conversations" :key="`conversation-${index}`" @click.self="openConversation(conversation)">
         <div class="robin-card-info robin-mr-12" @click="openConversation(conversation)">
           <RAvatar v-if="!conversation.is_group" />
           <RGroupAvatar v-else />
@@ -125,10 +125,19 @@ export default class PrimaryChatList extends ComponentProps {
   scroll = false as boolean
   isLoading = false as boolean
   conversations = [] as Array<any>
+  key = 0 as number
+  screenWidth = 0 as number
 
   created () {
     this.onGroupConversationCreated()
     this.handleMessageForward()
+  }
+
+  mounted () {
+    this.$nextTick(function () {
+      this.onResize()
+    })
+    window.addEventListener('resize', this.onResize)
   }
 
   onGroupConversationCreated (): void {
@@ -139,12 +148,18 @@ export default class PrimaryChatList extends ComponentProps {
   }
 
   openConversation (conversation: object): void {
-    if (!this.isConversationActive(conversation)) {
+    if (!this.isConversationActive(conversation) && this.screenWidth > 1200) {
       this.activeConversation = conversation
       this.setImagePreviewOpen(false)
       EventBus.$emit('conversation-opened', conversation)
       EventBus.$emit('open-conversation')
-      // this.$emit('coversationopened')
+    }
+
+    if (this.screenWidth <= 1200) {
+      this.activeConversation = conversation
+      this.setImagePreviewOpen(false)
+      EventBus.$emit('conversation-opened', conversation)
+      EventBus.$emit('open-conversation')
     }
   }
 
@@ -258,6 +273,28 @@ export default class PrimaryChatList extends ComponentProps {
       this.isLoading = false
     }, 300)
   }
+
+  openEdit ():void {
+    this.$emit('opennewchatmodal', 'newchat')
+    setTimeout(() => {
+      this.refresh()
+    }, 300)
+  }
+
+  openArchivedChat ():void {
+    this.$emit('openarchivedchatmodal', 'archivedchat')
+    setTimeout(() => {
+      this.refresh()
+    }, 300)
+  }
+
+  refresh ():void {
+    this.key += 1
+  }
+
+  onResize () {
+    this.screenWidth = window.innerWidth
+  }
 }
 </script>
 
@@ -275,13 +312,14 @@ export default class PrimaryChatList extends ComponentProps {
 header {
   width: 100%;
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  padding: 3.563rem 1.5rem 1.5rem;
+  padding: 3.563rem clamp(2%, 4vw, 1.5rem) 1.5rem;
 }
 
 .robin-wrapper {
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
+  padding-left: clamp(2%, 4vw, 1.5rem);
+  padding-right: clamp(2%, 4vw, 1.5rem);
 }
 
 .robin-card-container {
@@ -356,6 +394,29 @@ header {
     -moz-border-radius: 24px;
     -ms-border-radius: 24px;
     -o-border-radius: 24px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .robin-card-container {
+    box-shadow: 0px 2px 20px rgba(0, 104, 255, 0.06);
+  }
+
+  .robin-card:not(.robin-card-active):hover {
+    background-color: initial;
+  }
+
+  .robin-card:hover .robin-hidden {
+    animation: none;
+  }
+
+  .robin-hidden {
+    display: block;
+  }
+
+  .robin-hidden >>> .robin-button {
+    width: 20px;
+    text-align: right;
   }
 }
 </style>

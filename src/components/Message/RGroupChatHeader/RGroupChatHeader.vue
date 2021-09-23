@@ -1,6 +1,7 @@
 <template>
   <header>
-    <div class="robin-card robin-flex robin-flex-align-center" v-show="!selectMessagesOpen">
+    <div class="robin-card-container robin-flex robin-flex-align-center" v-show="!selectMessagesOpen">
+      <RBackButton v-show="screenWidth <= 1200" @clicked="back()" />
       <div class="robin-card-info robin-mr-16">
         <RGroupAvatar v-if="conversation.is_group" />
         <RAvatar v-else />
@@ -21,15 +22,16 @@
       </div>
     </div>
     <RButton v-show="selectMessagesOpen" color="#7A7A7A" class="robin-pulse" emit="clicked" @clicked="cancelSelect()">Cancel</RButton>
-    <div class="robin-ml-auto" @click="handleOpenPopUp(conversation.is_group ? 'popup-1' : 'popup-2')" v-show="!selectMessagesOpen">
+    <div class="robin-options robin-ml-auto" @click="handleOpenPopUp(conversation.is_group ? 'popup-1' : 'popup-2')" v-show="!selectMessagesOpen">
       <ROptionButton @clickoutside="handleClosePopUp(conversation.is_group ? 'popup-1' : 'popup-2')" />
+
+      <div class="robin-popup-container" v-show="popUpState.opened && !selectMessagesOpen">
+        <RGroupMessagePopOver ref="popup-1" v-show="conversation.is_group" :conversation="conversation" />
+        <RPersonalMessagePopOver ref="popup-2" v-show="!conversation.is_group" />
+      </div>
     </div>
     <div class="robin-ml-auto robin-pulse-2" v-show="selectMessagesOpen && selectedMessages.length > 0" @click="$emit('forward-message')">
       <RButton>Forward</RButton>
-    </div>
-    <div class="robin-popup-container" v-show="popUpState.opened && !selectMessagesOpen">
-      <RGroupMessagePopOver ref="popup-1" v-show="conversation.is_group" :conversation="conversation" />
-      <RPersonalMessagePopOver ref="popup-2" v-show="!conversation.is_group" />
     </div>
   </header>
 </template>
@@ -40,6 +42,7 @@ import Component from 'vue-class-component'
 import { State, Mutation } from 'vuex-class'
 import { RootState } from '@/store/types'
 import RGroupAvatar from '@/components/ChatList/RGroupAvatar/RGroupAvatar.vue'
+import RBackButton from '../RBackButton/RBackButton.vue'
 import RAvatar from '@/components/ChatList/RAvatar/RAvatar.vue'
 import RText from '@/components/ChatList/RText/RText.vue'
 import RButton from '@/components/ChatList/RButton/RButton.vue'
@@ -74,12 +77,15 @@ const ComponentProps = Vue.extend({
     ROptionButton,
     RAvatar,
     RGroupMessagePopOver,
-    RPersonalMessagePopOver
+    RPersonalMessagePopOver,
+    RBackButton
   }
 })
 export default class RGroupChatHeader extends ComponentProps {
   @State('selectMessagesOpen') selectMessagesOpen?: RootState
   @Mutation('setSelectMessagesOpen') setSelectMessagesOpen: any
+
+  screenWidth = 0 as number
 
   popUpState: PopUpState = {
     opened: false
@@ -88,6 +94,13 @@ export default class RGroupChatHeader extends ComponentProps {
   created () {
     this.handleUserConnect()
     this.handleUserDisconnect()
+  }
+
+  mounted () {
+    this.$nextTick(function () {
+      this.onResize()
+    })
+    window.addEventListener('resize', this.onResize)
   }
 
   handleOpenPopUp (refKey: string): void {
@@ -131,6 +144,14 @@ export default class RGroupChatHeader extends ComponentProps {
   cancelSelect (): void {
     this.setSelectMessagesOpen(false)
   }
+
+  onResize () {
+    this.screenWidth = window.innerWidth
+  }
+
+  back () {
+    EventBus.$emit('left.message')
+  }
 }
 </script>
 
@@ -140,20 +161,30 @@ header {
   background-color: #fff;
   display: flex;
   align-items: center;
-  padding: 1.938rem 2.688rem 1.375rem 3.125rem;
+  padding: 1.938rem clamp(3%, 5vw, 2.688rem) 1.375rem clamp(3%, 5vw, 3.125rem);
   position: relative;
   z-index: 3;
   min-height: 100px;
 }
 
-.robin-card-container {
-  width: 100%;
+.robin-card-container >>> .robin-button {
+  margin-right: 10%;
+}
+
+.robin-options {
+  position: relative;
 }
 
 .robin-popup-container {
   position: absolute;
-  top: 70px;
-  right: 45px;
+  top: 30px;
+  right: 5px;
   z-index: 100;
+}
+
+@media (max-width: 1200px) {
+  header {
+    box-shadow: 0px 2px 20px rgba(0, 104, 255, 0.06);
+  }
 }
 </style>

@@ -2,10 +2,10 @@
   <div class="robin-side-container" ref="popup-body">
     <header class="robin-header">
       <RText font-weight="400" color="rgba(83, 95, 137, 1)" :fontSize="17"> New Chat </RText>
-      <RCloseButton @close="$emit('closemodal', 'primary')" />
+      <RCloseButton @close="openPreviousModal()" />
     </header>
     <div class="robin-wrapper robin-w-100">
-      <RSearchBar @user-typing="searchContacts($event)" :loading="isLoading" />
+      <RSearchBar @user-typing="searchContacts($event)" :loading="isLoading" :key="key" />
     </div>
     <div class="robin-wrapper robin-card-container robin-flex robin-flex-column robin-mt-42">
       <div class="robin-card robin-flex robin-flex-align-center">
@@ -14,7 +14,7 @@
         </div>
         <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4˝ robin-flex-1">
           <div class="robin-flex">
-            <RButton color="#15AE73" :font-size="14" :line-height="18" emit="newgroupchat" @newgroupchat="$emit('openmodal', 'newgroupchat')">Create A New Group</RButton>
+            <RButton color="#15AE73" :font-size="14" :line-height="18" emit="newgroupchat" @newgroupchat="openGroupChat()">Create A New Group</RButton>
           </div>
         </div>
       </div>
@@ -106,6 +106,7 @@ export default class NewChatList extends Vue {
   contacts = {} as any
   isLoading = false as boolean
   searchData = [] as Array<any>
+  key = 0 as number
 
   created () {
     this.getContacts('')
@@ -186,6 +187,24 @@ export default class NewChatList extends Vue {
       return result
     }, {})
   }
+
+  openPreviousModal ():void {
+    this.$emit('closemodal', 'primary')
+    setTimeout(() => {
+      this.refresh()
+    }, 300)
+  }
+
+  openGroupChat ():void {
+    this.$emit('openmodal', 'newgroupchat')
+    setTimeout(() => {
+      this.refresh()
+    }, 300)
+  }
+
+  refresh ():void {
+    this.key += 1
+  }
 }
 </script>
 
@@ -206,8 +225,9 @@ export default class NewChatList extends Vue {
 header {
   width: 100%;
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  padding: 3.563rem 1.5rem 1.5rem;
+  padding: 3.563rem clamp(2%, 4vw, 1.5rem) 1.5rem;
 }
 
 .robin-contact-container {
@@ -215,7 +235,7 @@ header {
 }
 
 .robin-wrapper {
-  padding: 0 1.5rem;
+  padding: 0 clamp(2%, 4vw, 1.5rem);
 }
 
 .robin-card-container {

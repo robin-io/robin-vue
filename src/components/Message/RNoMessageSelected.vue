@@ -1,5 +1,5 @@
 <template>
-  <div class="robin-message-container"></div>
+  <div class="robin-no-message-container"></div>
 </template>
 
 <script lang="ts">
@@ -9,7 +9,7 @@ export default class RNoMessageSelected extends Vue {}
 </script>
 
 <style scoped>
-.robin-message-container {
+.robin-no-message-container {
   flex: 1;
   width: 100%;
   height: 100%;
