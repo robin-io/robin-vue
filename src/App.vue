@@ -253,9 +253,24 @@ export default class App extends ComponentProps {
 </script>
 
 <style>
-*,
-*::before,
-*::after {
+.robin-container {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2000;
+  overflow: hidden;
+}
+
+.robin-container *, .robin-container *::before,
+.robin-container *::after {
+  -webkit-tap-highlight-color: transparent;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -268,18 +283,5 @@ export default class App extends ComponentProps {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   scroll-behavior: smooth;
-}
-
-.robin-container {
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 2000;
-  overflow: hidden;
 }
 </style>

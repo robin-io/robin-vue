@@ -355,7 +355,7 @@ export default class RMessageInputBar extends ComponentProps {
   height: 44px;
   display: flex;
   align-items: center;
-  padding: 2.875rem 2.688rem 2.875rem 3.125rem;
+  padding: clamp(2.3rem, 4vh, 2.875rem) 2.688rem clamp(2.3rem, 4vh, 2.875rem) 3.125rem;
   position: relative;
   z-index: 2;
 }

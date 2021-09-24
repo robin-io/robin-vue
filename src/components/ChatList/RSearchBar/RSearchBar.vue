@@ -74,6 +74,7 @@ export default class RSeachBar extends ComponentProps {
 .robin-spinner {
   width: 17px;
   height: 17px;
+  margin-left: auto;
 }
 
 /* Input placeholder */

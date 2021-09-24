@@ -497,13 +497,4 @@ export default class RGroupMessageContainer extends Vue {
     -o-border-radius: 24px;
   }
 }
-
-/* @media (min-width: 1200px) {
-  .robin-message-container {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-} */
 </style>

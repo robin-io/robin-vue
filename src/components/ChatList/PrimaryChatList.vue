@@ -314,7 +314,7 @@ header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 3.563rem clamp(2%, 4vw, 1.5rem) 1.5rem;
+  padding: clamp(10%, 4vh, 3.563rem) clamp(2%, 4vw, 1.5rem) 1.5rem;
 }
 
 .robin-wrapper {

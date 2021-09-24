@@ -223,7 +223,7 @@ header {
   width: 100%;
   display: flex;
   align-items: center;
-  padding: 3.563rem clamp(2%, 4vw, 1.5rem) 1.5rem;
+  padding: clamp(10%, 4vh, 3.563rem) clamp(2%, 4vw, 1.5rem) 1.5rem;
 }
 
 .robin-contact-container {

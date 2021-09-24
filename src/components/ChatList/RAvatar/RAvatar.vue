@@ -35,4 +35,9 @@ export default class RAvatar extends ComponentProps {}
   max-height: 50px;
   border-radius: 50%;
 }
+
+img {
+  max-width: 100%;
+  overflow: hidden;
+}
 </style>

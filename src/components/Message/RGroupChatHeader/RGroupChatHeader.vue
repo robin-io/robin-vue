@@ -161,7 +161,7 @@ header {
   background-color: #fff;
   display: flex;
   align-items: center;
-  padding: 1.938rem clamp(3%, 5vw, 2.688rem) 1.375rem clamp(3%, 5vw, 3.125rem);
+  padding: clamp(0.9rem, 4vh, 1.938rem) clamp(3%, 5vw, 2.688rem) clamp(0.8rem, 4vh, 1.375rem) clamp(3%, 5vw, 3.125rem);
   position: relative;
   z-index: 3;
   min-height: 100px;
