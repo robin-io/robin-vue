@@ -56,6 +56,10 @@ const ComponentProps = Vue.extend({
       type: String as PropType<string>,
       default: 'nowrap'
     },
+    wordBreak: {
+      type: String as PropType<string>,
+      default: 'initial'
+    },
     maxWidth: {
       type: String as PropType<string>,
       default: 'max-content'
@@ -102,6 +106,7 @@ export default class RText extends ComponentProps {
       'font-weight': this.fontWeight,
       'line-height': this.lineHeight === 0 ? 'initial' : this.lineHeight / rootFontSize + 'rem',
       'white-space': this.textWrap,
+      'word-break': this.wordBreak,
       'max-width': this.maxWidth === 'max-content' || this.maxWidth === '100%' ? this.maxWidth : this.maxWidth + 'px'
     }
   }

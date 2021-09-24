@@ -23,7 +23,7 @@
       <div class="robin-message-bubble-inner" :class="{ 'robin-group': !validateMessages(message) }" v-if="!message.has_attachment && conversation.is_group" @click="openModal()">
         <RText v-if="!validateMessages(message)" :font-size="12" color="#15AE73" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getContactName(message.content.sender_token) }} </RText>
         <div class="message-inner">
-          <RText :font-size="16" textWrap="pre-line" as="span" v-if="!emailRegex.test(message.content.msg) && !websiteRegex.test(message.content.msg)">
+          <RText :font-size="16" textWrap="pre-line" wordBreak="break-all" as="span" v-if="!emailRegex.test(message.content.msg) && !websiteRegex.test(message.content.msg)">
             {{ message.content.msg }}
           </RText>
           <RText :font-size="14" textWrap="pre-line" as="span" v-else-if="emailRegex.test(message.content.msg) && !websiteRegex.test(message.content.msg)">

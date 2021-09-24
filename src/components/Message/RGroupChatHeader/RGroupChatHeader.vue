@@ -161,10 +161,10 @@ header {
   background-color: #fff;
   display: flex;
   align-items: center;
-  padding: clamp(0.9rem, 4vh, 1.938rem) clamp(3%, 5vw, 2.688rem) clamp(0.8rem, 4vh, 1.375rem) clamp(3%, 5vw, 3.125rem);
+  padding: 1.938rem clamp(3%, 5vw, 2.688rem) 1.375rem clamp(3%, 5vw, 3.125rem);
   position: relative;
   z-index: 3;
-  min-height: 100px;
+   min-height: max-content;
 }
 
 .robin-card-container >>> .robin-button {
@@ -185,6 +185,12 @@ header {
 @media (max-width: 1200px) {
   header {
     box-shadow: 0px 2px 20px rgba(0, 104, 255, 0.06);
+  }
+}
+
+@media (max-width: 768px) {
+  header {
+    padding: 1rem clamp(3%, 5vw, 2.688rem) 1rem clamp(3%, 5vw, 3.125rem);
   }
 }
 </style>
