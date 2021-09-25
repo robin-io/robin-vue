@@ -51,7 +51,7 @@ const ComponentProps = Vue.extend({
   },
   watch: {
     imagesToPreview: {
-      handler(val) {
+      handler (val) {
         this.images = [...val]
       },
       immediate: true
@@ -76,16 +76,16 @@ export default class MessageImagePreviewer extends ComponentProps {
     rtl: true
   }
 
-  closeImagePreview() {
+  closeImagePreview () {
     this.$emit('close')
   }
 
-  onSelectChange(event: any): void {
+  onSelectChange (event: any): void {
     // console.log('selected-change', event)
     this.id = event
   }
 
-  async deleteImage(): Promise<void> {
+  async deleteImage (): Promise<void> {
     const res = await this.$robin.deleteMessages([this.images[this.id]._id], this.$user_token)
 
     if (res && !res.error) {
@@ -124,7 +124,7 @@ export default class MessageImagePreviewer extends ComponentProps {
   display: flex;
   align-items: center;
   background-color: #fff;
-  padding: 0 2.688rem 0 3.125rem;
+  padding: 0 clamp(3%, 5vw, 2.688rem) 0 clamp(3%, 5vw, 3.125rem);
   box-shadow: 0 0px 0px rgba(0, 104, 255, 0.07), 0px -1px 10px rgba(0, 104, 255, 0.07);
 }
 
@@ -151,5 +151,12 @@ export default class MessageImagePreviewer extends ComponentProps {
   border-radius: 50%;
   color: #fff;
   font-size: 2rem;
+}
+
+@media (max-width: 1200px) {
+  .robin-image-box {
+    height: 100%;
+    z-index: 4;
+  }
 }
 </style>

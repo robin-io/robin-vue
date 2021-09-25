@@ -7,7 +7,7 @@
       <RText as="h3" :font-size="18"> Take photo </RText>
     </header>
     <div class="robin-body">
-      <video v-show="!isPhotoTaken" ref="camera" width="100%" height="500px" autoplay="true" muted="true"></video>
+      <video v-show="!isPhotoTaken" ref="camera" width="100%" :height="screenWidth > 480 ? '500px' : '250px'" autoplay="true" muted="true"></video>
       <RCameraButton @clicked="takePhoto()" />
     </div>
   </div>
@@ -54,6 +54,14 @@ export default class RCamera extends ComponentProps {
   devices = [] as Array<any>
   isPhotoTaken = false as boolean
   isShotPhoto = false as boolean
+  screenWidth = 0 as number
+
+  mounted () {
+    this.$nextTick(function () {
+      this.onResize()
+    })
+    window.addEventListener('resize', this.onResize)
+  }
 
   setupMedia () {
     const navigatorExtended = navigator as any
@@ -149,6 +157,10 @@ export default class RCamera extends ComponentProps {
     return new File([blob], `${this.createUuid(30)}.jpeg`, { type: 'image/jpeg' })
   }
 
+  onResize () {
+    this.screenWidth = window.innerWidth
+  }
+
   // handleCapture (): void {
   //   const img = this.$refs as any
   //   this.convertBase64ToFile(img.webcam.capture()).then((res) => {
@@ -205,7 +217,7 @@ export default class RCamera extends ComponentProps {
   display: flex;
   align-items: center;
   background-color: #fff;
-  padding: 0 2.688rem 0 3.125rem;
+  padding: 0 clamp(3%, 5vw, 2.688rem) 0 clamp(3%, 5vw, 3.125rem);
   box-shadow: 0 0px 0px rgba(0, 104, 255, 0.07), 0px -1px 10px rgba(0, 104, 255, 0.07);
 }
 
@@ -214,11 +226,18 @@ export default class RCamera extends ComponentProps {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: 0 2.688rem 1rem 3.125rem;
+  padding: 0 clamp(3%, 5vw, 2.688rem) 1rem clamp(3%, 5vw, 3.125rem);
   overflow-y: auto;
 }
 
 video {
   margin: 2rem 0 1.5rem;
+}
+
+@media (max-width: 1200px) {
+  .robin-camera-box {
+    height: 100%;
+    z-index: 4;
+  }
 }
 </style>

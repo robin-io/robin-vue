@@ -1,13 +1,13 @@
 <template>
   <div class="robin-container">
     <transition name="robin-fadeIn">
-      <RSideContainer v-show="!isPageLoading && (!conversationOpened && screenWidth <= 1200) || (conversationOpened && screenWidth > 1200) || (!conversationOpened && screenWidth > 1200)" :user_token="user_token" :key="key" />
+      <RSideContainer v-show="!isPageLoading && (!conversationOpened && screenWidth <= 1200) || (conversationOpened && screenWidth > 1200) || (!conversationOpened && screenWidth > 1200)" :user_token="userToken" :key="key" />
     </transition>
     <transition name="robin-fadeIn">
       <RGroupMessageContainer v-show="!isPageLoading && conversationOpened" :key="key" />
     </transition>
     <RNoMessageSelected v-show="!isPageLoading && !conversationOpened" />
-    <RPageLoader v-show="isPageLoading" />
+    <RPageLoader v-show="isPageLoading && pageLoader" />
   </div>
 </template>
 
@@ -26,14 +26,18 @@ import EventBus from './event-bus'
 
 const ComponentProps = Vue.extend({
   props: {
-    user_token: {
+    userToken: {
       type: String as PropType<string>,
       default: 'ozkCYlRarHGmYefqAVnzMPLb'
     },
-    api_key: {
+    apiKey: {
       type: String as PropType<string>,
       default: 'NT-npUbpwzapYoTUtHSufMWQkNNnZePbqqFycjb'
       // default: 'NT-BtBVBDkCHNXsYuqBdHskPNPnhTzarOlexmOb'
+    },
+    pageLoader: {
+      type: Boolean as PropType<boolean>,
+      default: true
     },
     channel: {
       type: String as PropType<string>,
@@ -113,7 +117,7 @@ export default class App extends ComponentProps {
   // }
 
   initiateRobin () {
-    this.robin = new Robin(this.api_key, true)
+    this.robin = new Robin(this.apiKey, true)
     this.connect()
     this.setPrototypes()
   }
@@ -135,7 +139,7 @@ export default class App extends ComponentProps {
   setPrototypes () {
     Vue.prototype.$store = store
     Vue.prototype.$robin = this.robin
-    Vue.prototype.$user_token = this.user_token
+    Vue.prototype.$user_token = this.userToken
     Vue.prototype.$channel = this.channel
     Vue.prototype.$conversations = []
     Vue.prototype.$regularConversations = []
@@ -145,7 +149,7 @@ export default class App extends ComponentProps {
   }
 
   connect () {
-    this.conn = this.robin.connect(this.user_token)
+    this.conn = this.robin.connect(this.userToken)
 
     this.conn.onopen = () => {
       // console.log('connected')

@@ -19,14 +19,15 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
 import RText from './RText/RText.vue'
 import REditButton from './REditButton/REditButton.vue'
 import RSearchBar from './RSearchBar/RSearchBar.vue'
 import RButton from './RButton/RButton.vue'
 import RNoChatIcon from './RNoChatIcon/RNoChatIcon.vue'
 
-export default Vue.extend({
-  name: 'RSideContainer',
+@Component({
+  name: 'NoChatList',
   components: {
     RText,
     REditButton,
@@ -35,6 +36,9 @@ export default Vue.extend({
     RNoChatIcon
   }
 })
+
+export default class NoChatList extends Vue {
+}
 </script>
 
 <style scoped>

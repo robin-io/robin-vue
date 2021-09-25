@@ -418,6 +418,25 @@
   }
 }
 
+@keyframes come-down {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+    -webkit-transform: translateY(-20px);
+    -moz-transform: translateY(-20px);
+    -ms-transform: translateY(-20px);
+    -o-transform: translateY(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    -webkit-transform: translateY(0);
+    -moz-transform: translateY(0);
+    -ms-transform: translateY(0);
+    -o-transform: translateY(0);
+  }
+}
+
 @keyframes spin {
   0% {
     -webkit-transform: rotate(0deg);
@@ -567,6 +586,11 @@
 .robin-come-up {
   animation: come-up 0.3s ease-in-out;
   -webkit-animation: come-up 0.3s ease-in-out;
+}
+
+.robin-come-down {
+  animation: come-down 0.3s ease-in-out;
+  -webkit-animation: come-down 0.3s ease-in-;
 }
 
 .robin-spinner {

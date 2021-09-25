@@ -1,8 +1,8 @@
 <template>
   <div class="robin-chat-list-container">
-    <PrimaryChatList v-show="$conversations.length > 0" :key="key" @search="searchedData($event)" :data="regularConversations" @opennewchatmodal="openModal('slide-1', $event)" @openarchivedchatmodal="openModal('slide-3', $event)" @closemodal="closeModal('slide-1', $event)" @refresh="refresh" />
+    <PrimaryChatList v-show="$conversations.length > 0 || isPageLoading" :key="key" @search="searchedData($event)" :data="regularConversations" @opennewchatmodal="openModal('slide-1', $event)" @openarchivedchatmodal="openModal('slide-3', $event)" @closemodal="closeModal('slide-1', $event)" @refresh="refresh" />
     <NewChatList ref="slide-1" v-show="sideBarType == 'newchat'" @openmodal="openModal('slide-2', $event)" @closemodal="closeModal('slide-1', $event)" />
-    <NoChatList v-show="$conversations.length < 1" @openmodal="openModal('slide-1', $event)" />
+    <NoChatList v-show="$conversations.length < 1 && !isPageLoading" @openmodal="openModal('slide-1', $event)" />
     <NewGroupChatList ref="slide-2" v-show="sideBarType == 'newgroupchat'" @openmodal="openModal('slide-0', $event)" @closemodal="closeModal('slide-2', $event)" />
     <ArchivedChatList ref="slide-3" v-show="sideBarType == 'archivedchat'" @closemodal="closeModal('slide-3', $event)" :conversations="$archivedConversations" :key="key + 1" @refresh="refresh" />
   </div>
@@ -11,7 +11,8 @@
 <script lang="ts">
 import Vue, { PropType } from 'vue'
 import Component from 'vue-class-component'
-import { Mutation } from 'vuex-class'
+import { State, Mutation } from 'vuex-class'
+import { RootState } from '@/store/types'
 import EventBus from '@/event-bus'
 import PrimaryChatList from '../PrimaryChatList.vue'
 import NewChatList from '../NewChatList.vue'
@@ -39,6 +40,7 @@ const ComponentProps = Vue.extend({
   }
 })
 export default class RSideContainer extends ComponentProps {
+  @State('isPageLoading') isPageLoading?: RootState
   @Mutation('setPageLoading') setPageLoading: any
 
   key = 0 as number

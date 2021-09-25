@@ -11,7 +11,8 @@
     <div class="robin-wrapper robin-pt-10 robin-pb-11">
       <RButton @archived="openArchivedChat()" />
     </div>
-    <div class="robin-wrapper robin-card-container robin-pb-16 robin-flex robin-flex-column" @scroll="onScroll()">
+    <div v-show="isPageLoading" class="robin-spinner"></div>
+    <div v-show="!isPageLoading" class="robin-wrapper robin-card-container robin-pb-16 robin-flex robin-flex-column" @scroll="onScroll()" :class="{'robin-come-down': screenWidth > 1200}">
       <div class="robin-card robin-flex robin-flex-align-center" :class="{ 'robin-card-active': isConversationActive(conversation) && screenWidth > 1200 }" v-for="(conversation, index) in conversations" :key="`conversation-${index}`" @click.self="openConversation(conversation)">
         <div class="robin-card-info robin-mr-12" @click="openConversation(conversation)">
           <RAvatar v-if="!conversation.is_group" />
@@ -64,7 +65,8 @@
 import Vue from 'vue'
 import moment from 'moment'
 import Component from 'vue-class-component'
-import { Mutation } from 'vuex-class'
+import { State, Mutation } from 'vuex-class'
+import { RootState } from '@/store/types'
 import EventBus from '@/event-bus'
 import RText from './RText/RText.vue'
 import REditButton from './REditButton/REditButton.vue'
@@ -118,6 +120,7 @@ const ComponentProps = Vue.extend({
   }
 })
 export default class PrimaryChatList extends ComponentProps {
+  @State('isPageLoading') isPageLoading?: RootState
   @Mutation('setImagePreviewOpen') setImagePreviewOpen: any
 
   popUpStates: Array<any> = []
@@ -373,6 +376,12 @@ header {
 
 .robin-mini-info-container {
   height: 20px;
+}
+
+.robin-spinner {
+  width: 30px;
+  height: 30px;
+  margin: 0 auto;
 }
 
 @media (min-width: 768px) {
