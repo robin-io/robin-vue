@@ -1,10 +1,10 @@
 <template>
   <div class="robin-chat-list-container">
-    <PrimaryChatList v-show="$conversations.length > 0 || isPageLoading" :key="key" @search="searchedData($event)" :data="regularConversations" @opennewchatmodal="openModal('slide-1', $event)" @openarchivedchatmodal="openModal('slide-3', $event)" @closemodal="closeModal('slide-1', $event)" @refresh="refresh" />
+    <PrimaryChatList v-show="$conversations.length > 0 || isPageLoading" :key="key" @search="searchedData($event)" :regular-conversations="regularConversations" @opennewchatmodal="openModal('slide-1', $event)" @openarchivedchatmodal="openModal('slide-3', $event)" @closemodal="closeModal('slide-1', $event)" @refresh="refresh" />
     <NewChatList ref="slide-1" v-show="sideBarType == 'newchat'" @openmodal="openModal('slide-2', $event)" @closemodal="closeModal('slide-1', $event)" />
     <NoChatList v-show="$conversations.length < 1 && !isPageLoading" @openmodal="openModal('slide-1', $event)" />
     <NewGroupChatList ref="slide-2" v-show="sideBarType == 'newgroupchat'" @openmodal="openModal('slide-0', $event)" @closemodal="closeModal('slide-2', $event)" />
-    <ArchivedChatList ref="slide-3" v-show="sideBarType == 'archivedchat'" @closemodal="closeModal('slide-3', $event)" :conversations="$archivedConversations" :key="key + 1" @refresh="refresh" />
+    <ArchivedChatList ref="slide-3" v-show="sideBarType == 'archivedchat'" @closemodal="closeModal('slide-3', $event)" :archived-conversations="$archivedConversations" :key="key + 1" @refresh="refresh" />
   </div>
 </template>
 
@@ -46,6 +46,8 @@ export default class RSideContainer extends ComponentProps {
   key = 0 as number
 
   regularConversations = [] as Array<any>
+  sideBarType = 'primary'
+  conversations = [] as Array<any>
 
   created () {
     this.getUserToken()
@@ -56,9 +58,6 @@ export default class RSideContainer extends ComponentProps {
     this.handleAddArchivedConversation()
     this.handleRemoveArchivedConversation()
   }
-
-  sideBarType = 'primary'
-  conversations = [] as Array<any>
 
   openModal (refKey: string, type: string): void {
     if (type === 'primary') {

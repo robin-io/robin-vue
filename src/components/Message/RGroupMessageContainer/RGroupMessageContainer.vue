@@ -119,18 +119,6 @@ export default class RGroupMessageContainer extends Vue {
     messagePopUp: [] as Array<any>
   }
 
-  // get selectMessagesOpen () {
-  //   return this.$store.state.selectMessagesOpen
-  // }
-
-  // get clearMessages () {
-  //   return this.$store.state.clearMessages
-  // }
-
-  // get imagePreviewOpen () {
-  //   return this.$store.state.imagePreviewOpen
-  // }
-
   loading = true as boolean
 
   messagePopUpIndex = 0 as number
@@ -207,9 +195,11 @@ export default class RGroupMessageContainer extends Vue {
           this.$conversations[index].last_message = message.content
           const newConv = this.$conversations[index]
           if (!newConv.archived_for || newConv.archived_for.length === 0) {
-            const regularConversationIndex = this.$regularConversations.findIndex((item) => item._id === newConv._id)
-            this.$regularConversations.splice(regularConversationIndex, 1)
-            this.$regularConversations.unshift(newConv)
+            // const regularConversationIndex = this.$regularConversations.findIndex((item) => item._id === newConv._id)
+            // this.$regularConversations.splice(regularConversationIndex, 1)
+            // this.$regularConversations.unshift(newConv)
+            EventBus.$emit('regular-conversation.delete', newConv)
+            EventBus.$emit('regular-conversation.add', newConv)
           } else {
             const archivedConversationIndex = this.$archivedConversations.findIndex((item) => item._id === newConv._id)
             this.$archivedConversations.splice(archivedConversationIndex, 1)

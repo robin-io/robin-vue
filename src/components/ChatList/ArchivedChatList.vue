@@ -6,7 +6,7 @@
       <RCloseButton @close="$emit('closemodal', 'primary')" />
     </header>
     <div class="robin-wrapper robin-card-container robin-flex robin-flex-column robin-mt-42" @scroll="onScroll()">
-      <div class="robin-card robin-flex robin-flex-align-center" :class="{ 'robin-card-active': isConversationActive(conversation)  && screenWidth > 1200 }" v-for="(conversation, index) in conversations" :key="`conversation-${index}`" @click.self="openConversation(conversation)" v-show="conversations.length > 0">
+      <div class="robin-card robin-flex robin-flex-align-center" :class="{ 'robin-card-active': isConversationActive(conversation)  && screenWidth > 1200 }" v-for="(conversation, index) in archivedConversations" :key="`conversation-${index}`" @click.self="openConversation(conversation)" v-show="archivedConversations.length > 0">
         <div class="robin-card-info robin-mr-12" @click="openConversation(conversation)">
           <RAvatar v-if="!conversation.is_group" />
           <RGroupAvatar v-else />
@@ -33,7 +33,7 @@
           <RArchiveChatListPopOver :ref="`popup-${index}`" :class="{ top: scrollValidate(index) }" @unarchive-chat="unArchiveChat(conversation._id)" />
         </div>
       </div>
-      <div v-show="conversations.length < 1" class="robin-flex robin-flex-justify-center">
+      <div v-show="archivedConversations.length < 1" class="robin-flex robin-flex-justify-center">
         <RText :font-size="18" color="#15AE73">No archived chat</RText>
       </div>
     </div>
@@ -55,7 +55,7 @@ import RArchiveChatListPopOver from './RArchiveChatListPopOver/RArchiveChatListP
 
 const ComponentProps = Vue.extend({
   props: {
-    conversations: {
+    archivedConversations: {
       type: Array,
       default: (): Array<any> => []
     }
@@ -74,7 +74,7 @@ const ComponentProps = Vue.extend({
     RArchiveChatListPopOver
   },
   watch: {
-    conversations: {
+    archivedConversations: {
       handler (val: Array<any>): void {
         this.popUpStates = []
         ;[...val].forEach((val) => {
@@ -97,7 +97,7 @@ export default class ArchivedChatList extends ComponentProps {
   screenWidth = 0 as number
 
   scrollValidate (index: number) {
-    return (this.conversations.length > 3 && this.scroll && this.conversations.length - 2 === index) || (this.conversations.length > 3 && this.scroll && this.conversations.length - 1 === index)
+    return (this.archivedConversations.length > 3 && this.scroll && this.archivedConversations.length - 2 === index) || (this.archivedConversations.length > 3 && this.scroll && this.archivedConversations.length - 1 === index)
   }
 
   mounted () {
@@ -184,8 +184,8 @@ export default class ArchivedChatList extends ComponentProps {
 
     if (!res.error) {
       this.$toasted.global.custom_success('Chat Unarchived')
-      const index = this.conversations.findIndex((conversation) => conversation._id === id)
-      const conversation = this.conversations[index]
+      const index = this.archivedConversations.findIndex((conversation) => conversation._id === id)
+      const conversation = this.archivedConversations[index]
 
       EventBus.$emit('archived-conversation.delete', conversation)
       EventBus.$emit('regular-conversation.add', conversation)

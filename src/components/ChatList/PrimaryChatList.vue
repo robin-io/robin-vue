@@ -81,7 +81,7 @@ import RUnreadMessageCount from './RUnreadMessageCount/RUnreadMessageCount.vue'
 
 const ComponentProps = Vue.extend({
   props: {
-    data: {
+    regularConversations: {
       type: Array,
       default: (): Array<any> => []
     }
@@ -104,7 +104,7 @@ const ComponentProps = Vue.extend({
     RChatListPopOver
   },
   watch: {
-    data: {
+    regularConversations: {
       handler (val: Array<any>): void {
         this.conversations = [...val]
         this.popUpStates = []
