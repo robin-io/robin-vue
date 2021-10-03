@@ -17,7 +17,9 @@ const ComponentProps = Vue.extend({
   }
 })
 
-@Component
+@Component({
+  name: 'RFileIcon'
+})
 export default class RFileIcon extends ComponentProps {}
 </script>
 

@@ -8,7 +8,9 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 
-@Component
+@Component({
+  name: 'RCameraButton'
+})
 export default class RCameraButton extends Vue {}
 </script>
 

@@ -10,8 +10,10 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 
-@Component
-export default class RCameraButton extends Vue {}
+@Component({
+  name: 'RBackButton'
+})
+export default class RBackButton extends Vue {}
 </script>
 
 <style scoped>
