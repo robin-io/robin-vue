@@ -1,13 +1,17 @@
 <template>
   <div class="robin-container">
     <transition name="robin-fadeIn">
-      <RSideContainer v-show="!isPageLoading && (!conversationOpened && screenWidth <= 1200) || (conversationOpened && screenWidth > 1200) || (!conversationOpened && screenWidth > 1200)" :user_token="userToken" :key="key" />
+      <RSideContainer v-show="(!isPageLoading && !conversationOpened && screenWidth <= 1200) || (conversationOpened && screenWidth > 1200) || (!conversationOpened && screenWidth > 1200)" :user_token="userToken" :key="key" />
     </transition>
     <transition name="robin-fadeIn">
       <RGroupMessageContainer v-show="!isPageLoading && conversationOpened" :key="key" />
     </transition>
     <RNoMessageSelected v-show="!isPageLoading && !conversationOpened" />
     <RPageLoader v-show="isPageLoading && pageLoader" />
+     <audio
+        src="@/assets/notification.wav" ref="notification">
+            Your browser does not support the
+    </audio>
   </div>
 </template>
 
@@ -18,9 +22,10 @@ import RGroupMessageContainer from './components/Message/RGroupMessageContainer/
 import RNoMessageSelected from './components/Message/RNoMessageSelected.vue'
 import RPageLoader from './components/RPageLoader.vue'
 import Component from 'vue-class-component'
-import { State } from 'vuex-class'
-import { RootState } from './store/types'
+// import { State } from 'vuex-class'
+// import { RootState } from './store/types'
 import store from './store/index'
+import store2 from './store2/index'
 import { Robin } from 'robin.io-js'
 import EventBus from './event-bus'
 
@@ -28,12 +33,11 @@ const ComponentProps = Vue.extend({
   props: {
     userToken: {
       type: String as PropType<string>,
-      default: 'ozkCYlRarHGmYefqAVnzMPLb'
+      default: 'JUevyXRRpyLNwzyGAStMSrXR'
     },
     apiKey: {
       type: String as PropType<string>,
       default: 'NT-npUbpwzapYoTUtHSufMWQkNNnZePbqqFycjb'
-      // default: 'NT-BtBVBDkCHNXsYuqBdHskPNPnhTzarOlexmOb'
     },
     pageLoader: {
       type: Boolean as PropType<boolean>,
@@ -43,23 +47,122 @@ const ComponentProps = Vue.extend({
       type: String as PropType<string>,
       default: 'robin-chat'
     },
+    userName: {
+      type: String as PropType<string>,
+      default: ''
+    },
     users: {
       type: Array as PropType<Array<any>>,
       default: (): Array<any> => [
         {
-          userToken: 'OOGAUYpPJZCNMAsSisiyiYjU',
-          userName: 'Elvis',
-          profileImage: ''
+          userToken: 'BLAaUGurGvTewxIGKKrVANhn',
+          profileImage: '',
+          userName: 'Enoch Chejieh'
         },
         {
-          userToken: 'dWvoxobuJSepnEXYOVWtvzBO',
-          userName: 'Enoch',
-          profileImage: ''
+          userToken: 'yfqjnGHHdAvWKuhCPlOnNkVb',
+          profileImage: '',
+          userName: 'bashir raji'
         },
         {
-          userToken: 'TyGMUkyuEAqOqEVliBEqdCQH',
-          userName: 'Bashir',
-          profileImage: ''
+          userToken: 'dphuBiRIetIJdYAoLWRiboKG',
+          profileImage: '',
+          userName: 'Michael Scoffield'
+        },
+        {
+          userToken: 'aHsvPTEBBZBKFIjojMTlEAUL',
+          profileImage: '',
+          userName: 'Temitope Akinlabi'
+        },
+        {
+          userToken: 'xfnAYadpvypqBlvrOoHVKAfK',
+          profileImage: '',
+          userName: 'Ayo O'
+        },
+        {
+          userToken: 'vSeEXsbjrxxBkzFdJxwtojoI',
+          profileImage: '',
+          userName: 'Precious Ogar'
+        },
+        {
+          userToken: 'UOjTEiQIKLZyhYVjzUtVVOfO',
+          profileImage: '',
+          userName: 'Precious Ogar'
+        },
+        {
+          userToken: 'lxDWlFTOQejJDxtITnhRIEKb',
+          profileImage: '',
+          userName: 'UBONG JIMMY'
+        },
+        {
+          userToken: 'urPBzlbXneOmjKEGgozhAVNg',
+          profileImage: '',
+          userName: 'chidinma'
+        },
+        {
+          userToken: 'BRLEgGMRtuluSwhKQkMUSixn',
+          profileImage: '',
+          userName: 'Dungke'
+        },
+        {
+          userToken: 'yiOLmoqOPkRkhLihuQRofblp',
+          profileImage: '',
+          userName: 'Raji Al-Ameen'
+        },
+        {
+          userToken: 'ATiDrRJFfXiEDHpSoHVXMAbJ',
+          profileImage: '',
+          userName: 'chidinma'
+        },
+        {
+          userToken: 'RbtLYpmHGTYQtEUQSnJkDveD',
+          profileImage: '',
+          userName: 'Okeke Chidinma'
+        },
+        {
+          userToken: 'ebDJHwYJeSCrMOOqowNxqyCC',
+          profileImage: '',
+          userName: 'd'
+        },
+        {
+          userToken: 'sxVLqqTHfxQsOrVaIFOjbyFN',
+          profileImage: '',
+          userName: 'Jimmy'
+        },
+        {
+          userToken: 'LqWCScOTHweNqOHZLlQUkhYg',
+          profileImage: '',
+          userName: 'Lekan Raji'
+        },
+        {
+          userToken: 'owaJCBPCCQwYchlRrIozVBuA',
+          profileImage: '',
+          userName: 'Gee'
+        },
+        {
+          userToken: 'dLtIoYbnvpJAggUYjqRUNXDs',
+          profileImage: '',
+          userName: 'Jimmy'
+        },
+        {
+          userToken: 'LjrFtzkvBGhtMfYfuPndkksF',
+          profileImage: '',
+          userName: 'jhvgcyvg'
+        },
+        {
+          userToken: 'KMjlQobcLHQdwBJlsdoDYoWM',
+          profileImage: '',
+          userName: 'jhvgcyvg'
+        },
+        {
+          userToken: 'YtEcPNBoXTfaRBQiSGBXrJyh',
+          profileImage: '',
+          userName: 'Victor'
+        },
+        {
+          userToken: 'OpcCyXVcSQxNFnjlGyvfjcYr',
+          profileImage: '',
+          userName: ''
         }
       ]
     },
@@ -76,17 +179,26 @@ const ComponentProps = Vue.extend({
   }
 })
 
-@Component({
+// eslint-disable-next-line
+@Component<App>({
   name: 'RobinChatContainer',
   components: {
     RSideContainer,
     RGroupMessageContainer,
     RPageLoader,
     RNoMessageSelected
+  },
+  watch: {
+    users: {
+      handler (val) {
+        this.filterUsers()
+      },
+      immediate: true
+    }
   }
 })
 export default class App extends ComponentProps {
-  @State('isPageLoading') isPageLoading?: RootState
+  // @State('isPageLoading') isPageLoading?: RootState
 
   robin = null as any
   conn = null as any
@@ -112,12 +224,13 @@ export default class App extends ComponentProps {
     window.addEventListener('resize', this.onResize)
   }
 
-  // get isPageLoading () {
-  //   return this.$store.state.isPageLoading
-  // }
+  get isPageLoading () {
+    return store2.state.isPageLoading
+  }
 
   initiateRobin () {
     this.robin = new Robin(this.apiKey, true)
+    console.log(this.robin)
     this.connect()
     this.setPrototypes()
   }
@@ -125,15 +238,18 @@ export default class App extends ComponentProps {
   filterUsers (): void {
     const filteredUsers: Array<any> = []
     this.users.forEach((user) => {
-      const newUser = {
-        userToken: user[this.keys?.userToken],
-        profileImage: user[this.keys?.profileImage],
-        userName: user[this.keys?.userName]
+      if (user.user_token !== this.userToken) {
+        const newUser = {
+          userToken: user[this.keys?.userToken],
+          profileImage: user[this.keys?.profileImage],
+          userName: user[this.keys?.userName]
+        }
+        filteredUsers.push(newUser)
       }
-      filteredUsers.push(newUser)
     })
 
-    Vue.prototype.$robin_users = filteredUsers
+    store2.setState('users', filteredUsers)
+    // Vue.prototype.$robin_users = filteredUsers
   }
 
   setPrototypes () {
@@ -144,8 +260,7 @@ export default class App extends ComponentProps {
     Vue.prototype.$conversations = []
     Vue.prototype.$regularConversations = []
     Vue.prototype.$archivedConversations = []
-
-    // console.log(this.robin, this.$robin, this.conn)
+    Vue.prototype.$senderName = this.userName
   }
 
   connect () {
@@ -157,11 +272,13 @@ export default class App extends ComponentProps {
     }
 
     this.conn.onmessage = (evt: any) => {
+      const notification = this.$refs.notification as any
       // console.log('new message', evt.data)
       const message = JSON.parse(evt.data)
       // console.log(message)
       if (message.is_event !== true) {
         EventBus.$emit('new-message', message)
+        if (message.content.receiver_token === this.$user_token) notification.play()
       } else {
         // move new conversation to the top
         // console.log('new conversation')
@@ -196,8 +313,8 @@ export default class App extends ComponentProps {
   }
 
   onGroupConversationCreated (): void {
-    EventBus.$on('group-conversation-created', (conversation: object) => {
-      this.conversationOpened = true
+    EventBus.$on('new-group.conversation', (conversation: object) => {
+      // this.conversationOpened = true
     })
   }
 
@@ -221,7 +338,12 @@ export default class App extends ComponentProps {
         EventBus.$emit('user.disconnect', message.value)
         break
       case 'new.conversation':
-        // console.log('new conversation')
+        console.log('new conversation', message.value)
+        if (message.value.is_group) {
+          EventBus.$emit('new-group.conversation', message.value)
+        } else {
+          EventBus.$emit('new.conversation', message.value)
+        }
         break
       case 'message.forward':
         // loop through message.value
@@ -272,7 +394,8 @@ export default class App extends ComponentProps {
   overflow: hidden;
 }
 
-.robin-container *, .robin-container *::before,
+.robin-container *,
+.robin-container *::before,
 .robin-container *::after {
   -webkit-tap-highlight-color: transparent;
   margin: 0;

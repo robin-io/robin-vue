@@ -5,7 +5,7 @@
       <RCloseButton @close="openPreviousModal()" />
     </header>
     <div class="robin-wrapper robin-w-100">
-      <RSearchBar @user-typing="searchContacts($event)" :loading="isLoading" :key="key" />
+      <RSearchBar @user-typing="searchContacts($event)" :loading="isLoading" :key="key" placeholder="Search or start new chat" />
     </div>
     <div class="robin-wrapper robin-card-container robin-flex robin-flex-column robin-mt-42">
       <div class="robin-card robin-flex robin-flex-align-center">
@@ -39,16 +39,18 @@
         </div>
       </div>
     </div> -->
-    <div class="robin-contact-container" v-for="(contact, key, index) in contacts" :key="`contact-${index}`">
-      <RAlphabetBlock :text="key" />
-      <div class="robin-wrapper robin-card-container robin-flex robin-flex-column robin-grey-200">
-        <div class="robin-card robin-flex robin-flex-align-center robin-clickable" v-for="user in contact" :key="user.userToken" @click="createConversation(user)">
-          <div class="robin-card-info robin-mr-12">
-            <RAvatar />
-          </div>
-          <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4˝ robin-flex-1">
-            <div class="robin-flex">
-              <RText :font-size="14" :line-height="18">{{ user.userName }}</RText>
+    <div class="robin-contact-container robin-overflow-y-auto">
+      <div v-for="(contact, key, index) in contacts" :key="`contact-${index}`">
+        <RAlphabetBlock :text="key" />
+        <div class="robin-wrapper robin-card-container robin-flex robin-flex-column robin-grey-200">
+          <div class="robin-card robin-flex robin-flex-align-center robin-clickable" v-for="user in contact" :key="user.userToken" @click="createConversation(user)">
+            <div class="robin-card-info robin-mr-12">
+              <RAvatar />
+            </div>
+            <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4˝ robin-flex-1">
+              <div class="robin-flex">
+                <RText :font-size="14" :line-height="18">{{ user.userName }}</RText>
+              </div>
             </div>
           </div>
         </div>
@@ -78,6 +80,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import store2 from '../../store2/index'
 import Component from 'vue-class-component'
 import RText from './RText/RText.vue'
 import RSearchBar from './RSearchBar/RSearchBar.vue'
@@ -89,8 +92,9 @@ import RAvatar from './RAvatar/RAvatar.vue'
 import RAlphabetBlock from './RAlphabetBlock/RAlphabetBlock.vue'
 import EventBus from '@/event-bus'
 
-@Component({
-  name: 'RNewChatList',
+// eslint-disable-next-line
+@Component<NewChatList>({
+  name: 'NewChatList',
   components: {
     RText,
     RSearchBar,
@@ -100,6 +104,14 @@ import EventBus from '@/event-bus'
     RCloseButton,
     RAvatar,
     RAlphabetBlock
+  },
+  watch: {
+    robinUsers: {
+      handler (val) {
+        this.getContacts('')
+      },
+      immediate: true
+    }
   }
 })
 export default class NewChatList extends Vue {
@@ -112,21 +124,27 @@ export default class NewChatList extends Vue {
     this.getContacts('')
   }
 
+  get robinUsers () {
+    return store2.state.users
+  }
+
   async createConversation (user: any) {
+    console.log(this.$user_token, user.userToken)
+
     const res = await this.$robin.createConversation({
-      sender_name: 'vue test',
+      sender_name: this.$senderName,
       sender_token: this.$user_token,
       receiver_token: user.userToken,
       receiver_name: user.userName
     })
-    // console.log(res)
 
     if (res && !res.error) {
       if (!this.checkConversations(res.data)) {
         this.$conversations.push(res.data)
       }
-      this.$emit('changesidebartype', 'primary')
+      console.log(res)
       EventBus.$emit('conversation-opened', res.data)
+      EventBus.$emit('open-conversation')
     } else {
       this.$toasted.global.custom_error('Check your connection.')
     }
@@ -143,17 +161,18 @@ export default class NewChatList extends Vue {
   }
 
   getContacts (searchText: string): void {
+    console.log(this.robinUsers)
     this.contacts = {}
 
     if (searchText.trim() === '') {
-      this.$robin_users.forEach((user) => {
-        this.contacts[user.userName[0].toUpperCase()] = this.$robin_users.filter((item) => item.userName[0].toUpperCase() === user.userName[0].toUpperCase())
+      this.robinUsers.forEach((user) => {
+        this.contacts[this.getContactKey(user.userName)] = this.robinUsers.filter((item) => this.validateContact(item.userName, user.userName))
       })
 
       this.sortContacts()
     } else {
       this.searchData.forEach((user) => {
-        this.contacts[user.userName[0].toUpperCase()] = this.searchData.filter((item) => item.userName[0].toUpperCase() === user.userName[0].toUpperCase())
+        this.contacts[this.getContactKey(user.userName)] = this.searchData.filter((item) => this.validateContact(item.userName, user.userName))
       })
     }
   }
@@ -161,7 +180,7 @@ export default class NewChatList extends Vue {
   searchContacts (searchText: string): void {
     this.isLoading = true
     // eslint-disable-next-line array-callback-return
-    const data = this.$robin_users.filter((obj) => {
+    const data = this.robinUsers.filter((obj) => {
       let stopSearch = false
       Object.values(obj).forEach((val) => {
         const filter = String(val).toLowerCase().includes(searchText.toLowerCase())
@@ -182,27 +201,45 @@ export default class NewChatList extends Vue {
   }
 
   sortContacts (): void {
-    this.contacts = Object.keys(this.contacts).sort().reduce((result: any, key: string) => {
-      result[key] = this.contacts[key]
-      return result
-    }, {})
+    this.contacts = Object.keys(this.contacts)
+      .sort()
+      .reduce((result: any, key: string) => {
+        result[key] = this.contacts[key]
+        return result
+      }, {})
   }
 
-  openPreviousModal ():void {
+  openPreviousModal (): void {
     this.$emit('closemodal', 'primary')
     setTimeout(() => {
       this.refresh()
     }, 300)
   }
 
-  openGroupChat ():void {
+  openGroupChat (): void {
     this.$emit('openmodal', 'newgroupchat')
     setTimeout(() => {
       this.refresh()
     }, 300)
   }
 
-  refresh ():void {
+  getContactKey (username: any): string {
+    return username.trim() !== '' && isNaN(parseInt(username[0])) ? username[0].toUpperCase() : '*'
+  }
+
+  validateContact (usernameVal:any, username: any): boolean {
+    if (!usernameVal[0] && !username[0]) {
+      return usernameVal.trim() === username.trim()
+    }
+
+    if (usernameVal[0] && username[0]) {
+      return usernameVal[0].toUpperCase() === username[0].toUpperCase()
+    }
+
+    return false
+  }
+
+  refresh (): void {
     this.key += 1
   }
 }

@@ -16,10 +16,13 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
 
-export default Vue.extend({
+@Component({
   name: 'RPhotoButton'
 })
+export default class RPhotoButton extends Vue {
+}
 </script>
 
 <style scoped>

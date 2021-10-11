@@ -4,7 +4,7 @@
       <RText :font-size="14" as="span" color="#101010">Group Info</RText>
     </div> -->
     <div class="robin-wrapper robin-w-100" @click="handleSelectMessages()">
-      <RText :font-size="14" as="span" color="#101010">Select Messages</RText>
+      <RText :font-size="14" as="span" color="#101010">Forward Messages</RText>
     </div>
     <!-- <div class="robin-wrapper robin-w-100">
       <RText :font-size="14" as="span" color="#101010">Mute Group</RText>
@@ -19,7 +19,8 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import EventBus from '@/event-bus'
-import { Mutation } from 'vuex-class'
+// import { Mutation } from 'vuex-class'
+import store2 from '../../../store2/index'
 import RText from '@/components/ChatList/RText/RText.vue'
 
 const ComponentProps = Vue.extend({
@@ -38,13 +39,14 @@ const ComponentProps = Vue.extend({
   }
 })
 export default class RGroupMessagePopOver extends ComponentProps {
-  @Mutation('setSelectMessagesOpen') setSelectMessagesOpen: any
+  // @Mutation('setSelectMessagesOpen') setSelectMessagesOpen: any
 
-  handleSelectMessages() {
-    this.setSelectMessagesOpen(true)
+  handleSelectMessages () {
+    // this.setSelectMessagesOpen(true)
+    store2.setState('selectMessagesOpen', true)
   }
 
-  async handleLeaveGroup() {
+  async handleLeaveGroup () {
     const res = await this.$robin.removeGroupParticipant(this.conversation._id, this.$user_token)
 
     if (res && !res.error) {

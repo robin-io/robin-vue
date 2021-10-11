@@ -1,5 +1,13 @@
 <template>
   <div class="robin-popup robin-zoomIn" ref="popup-body">
+    <div class="robin-wrapper robin-w-100" @click="$emit('download')">
+      <RText :font-size="14" color="#101010">Save Image</RText>
+      <RImageDownloadButton />
+    </div>
+    <div class="robin-wrapper robin-w-100" @click="$emit('forward')">
+      <RText :font-size="14" color="#101010">Forward</RText>
+      <RForwardButton />
+    </div>
     <!-- <div class="robin-wrapper robin-w-100">
       <RText :font-size="14" color="#101010">Reply</RText>
       <RReplyButton />
@@ -12,7 +20,7 @@
       <RText :font-size="14" color="#101010">Star</RText>
       <RStarButton />
     </div> -->
-    <div class="robin-wrapper robin-w-100" @click="deleteMessage()">
+    <div class="robin-wrapper robin-w-100" @click="$emit('delete')">
       <RText :font-size="14" color="#101010">Delete</RText>
       <RDeleteButton />
     </div>
@@ -20,61 +28,43 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropType } from 'vue'
+import Vue from 'vue'
 import Component from 'vue-class-component'
-import EventBus from '@/event-bus'
 import RText from '@/components/ChatList/RText/RText.vue'
-import RReplyButton from '../RReplyButton/RReplyButton.vue'
-import RForwardButton from '../RForwardButton/RForwardButton.vue'
-import RStarButton from '../RStarButton/RStarButton.vue'
 import RDeleteButton from '../RDeleteButton/RDeleteButton.vue'
+import RForwardButton from '../RForwardButton/RForwardButton.vue'
+import RImageDownloadButton from '../RImageDownloadButton/RImageDownloadButton.vue'
 
 const ComponentProps = Vue.extend({
   props: {
-    id: {
-      type: String as PropType<string>,
-      default: ''
-    },
-    message: {
-      type: [Object, Array],
+    conversation: {
+      type: Object,
       default: () => {}
     }
   }
 })
 
 @Component({
-  name: 'RMessagePopOver',
+  name: 'MessagePreviewPopOver',
   components: {
     RText,
-    RReplyButton,
+    RDeleteButton,
     RForwardButton,
-    RStarButton,
-    RDeleteButton
+    RImageDownloadButton
   }
 })
-export default class RMessagePopOver extends ComponentProps {
-  async deleteMessage (): Promise<void> {
-    this.$emit('close-modal')
-
-    const res = await this.$robin.deleteMessages([this.id], this.$user_token)
-
-    if (res && !res.error) {
-      EventBus.$emit('message-deleted', this.message)
-      this.$toasted.global.custom_success('Message Deleted.')
-    } else {
-      this.$toasted.global.custom_error('Check your connection.')
-    }
-  }
-}
+export default class MessagePreviewPopOver extends ComponentProps {}
 </script>
 
 <style scoped>
 .robin-popup {
-  width: 200px;
-  max-width: 220px;
-  padding: 0.5rem 0.75rem;
-  border-radius: 16px;
-  background-color: #ffffff;
+  width: 220px;
+  /* max-width: 174px; */
+  padding: 0.5rem 0.563rem;
+  border: 1px solid rgba(35, 107, 248, 0.2);
+  border-radius: 24px;
+  background-color: #fff;
+  will-change: transform;
 }
 
 .robin-wrapper {
@@ -82,15 +72,20 @@ export default class RMessagePopOver extends ComponentProps {
   padding: 0.813rem 0.5rem;
   display: flex;
   align-items: center;
-  cursor: pointer;
   justify-content: space-between;
+  cursor: pointer;
+}
+
+.robin-wrapper:hover {
+  background-color: rgba(244, 246, 248, 0.8);
 }
 
 .robin-wrapper:first-child {
   border: none;
 }
 
-.robin-wrapper:hover {
-  background-color: rgba(244, 246, 248, 0.8);
+.robin-zoomIn,
+.robin-zoomOut {
+  transform-origin: top right;
 }
 </style>

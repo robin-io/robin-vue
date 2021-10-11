@@ -9,7 +9,7 @@
       <div class="robin-card-info robin-h-100 robin-flex robin-flex-column robin-flex-space-between robin-flex-1">
         <div class="robin-mt-6">
           <RText font-weight="normal" color="#000000" :font-size="16" :line-height="20" v-if="!conversation.is_group">
-            {{ conversation.senderToken == $user_token ? conversation.sender_name : conversation.receiver_name }}
+            {{ conversation.sender_token != $user_token ? conversation.sender_name : conversation.receiver_name }}
           </RText>
           <RText font-weight="normal" color="#000000" :font-size="16" :line-height="20" v-else>
             {{ conversation.name }}
@@ -39,8 +39,9 @@
 <script lang="ts">
 import Vue from 'vue'
 import Component from 'vue-class-component'
-import { State, Mutation } from 'vuex-class'
-import { RootState } from '@/store/types'
+// import { State, Mutation } from 'vuex-class'
+// import { RootState } from '@/store/types'
+import store2 from '../../../store2/index'
 import RGroupAvatar from '@/components/ChatList/RGroupAvatar/RGroupAvatar.vue'
 import RBackButton from '../RBackButton/RBackButton.vue'
 import RAvatar from '@/components/ChatList/RAvatar/RAvatar.vue'
@@ -82,8 +83,8 @@ const ComponentProps = Vue.extend({
   }
 })
 export default class RGroupChatHeader extends ComponentProps {
-  @State('selectMessagesOpen') selectMessagesOpen?: RootState
-  @Mutation('setSelectMessagesOpen') setSelectMessagesOpen: any
+  // @State('selectMessagesOpen') selectMessagesOpen?: RootState
+  // @Mutation('setSelectMessagesOpen') setSelectMessagesOpen: any
 
   screenWidth = 0 as number
 
@@ -101,6 +102,10 @@ export default class RGroupChatHeader extends ComponentProps {
       this.onResize()
     })
     window.addEventListener('resize', this.onResize)
+  }
+
+  get selectMessagesOpen () {
+    return store2.state.selectMessagesOpen
   }
 
   handleOpenPopUp (refKey: string): void {
@@ -142,7 +147,8 @@ export default class RGroupChatHeader extends ComponentProps {
   }
 
   cancelSelect (): void {
-    this.setSelectMessagesOpen(false)
+    // this.setSelectMessagesOpen(false)
+    store2.setState('selectMessagesOpen', false)
   }
 
   onResize () {
@@ -163,7 +169,7 @@ header {
   align-items: center;
   padding: 1.938rem clamp(3%, 5vw, 2.688rem) 1.375rem clamp(3%, 5vw, 3.125rem);
   position: relative;
-  z-index: 3;
+  z-index: 1;
    min-height: max-content;
 }
 

@@ -12,6 +12,7 @@ declare module 'vue/types/vue' {
     $robin_users: Array<any>
     $conversations: Array<any>
     $regularConversations: Array<any>
-    $archivedConversations: Array<any>
+    $archivedConversations: Array<any>,
+    $senderName: string
   }
 }

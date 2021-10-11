@@ -8,6 +8,7 @@ Vue.use(Vuex)
 const store: StoreOptions<RootState> = {
   state: {
     isPageLoading: true,
+    isAuthenticated: false,
     selectMessagesOpen: false,
     clearMessages: false,
     imagePreviewOpen: false

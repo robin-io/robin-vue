@@ -65,8 +65,9 @@
 import Vue from 'vue'
 import moment from 'moment'
 import Component from 'vue-class-component'
-import { State, Mutation } from 'vuex-class'
-import { RootState } from '@/store/types'
+// import { State, Mutation } from 'vuex-class'
+// import { RootState } from '@/store/types'
+import store2 from '../../store2'
 import EventBus from '@/event-bus'
 import RText from './RText/RText.vue'
 import REditButton from './REditButton/REditButton.vue'
@@ -120,8 +121,8 @@ const ComponentProps = Vue.extend({
   }
 })
 export default class PrimaryChatList extends ComponentProps {
-  @State('isPageLoading') isPageLoading?: RootState
-  @Mutation('setImagePreviewOpen') setImagePreviewOpen: any
+  // @State('isPageLoading') isPageLoading?: RootState
+  // @Mutation('setImagePreviewOpen') setImagePreviewOpen: any
 
   popUpStates: Array<any> = []
   activeConversation = {}
@@ -143,24 +144,30 @@ export default class PrimaryChatList extends ComponentProps {
     window.addEventListener('resize', this.onResize)
   }
 
+  get isPageLoading () {
+    return store2.state.isPageLoading
+  }
+
   onGroupConversationCreated (): void {
-    EventBus.$on('group-conversation-created', (conversation: object) => {
+    EventBus.$on('new-group.conversation', (conversation: object) => {
       // console.log(conversation)
-      this.openConversation(conversation)
+      // this.openConversation(conversation)
     })
   }
 
   openConversation (conversation: object): void {
     if (!this.isConversationActive(conversation) && this.screenWidth > 1200) {
       this.activeConversation = conversation
-      this.setImagePreviewOpen(false)
+      // this.setImagePreviewOpen(false)
+      store2.setState('imagePreviewOpen', false)
       EventBus.$emit('conversation-opened', conversation)
       EventBus.$emit('open-conversation')
     }
 
     if (this.screenWidth <= 1200) {
       this.activeConversation = conversation
-      this.setImagePreviewOpen(false)
+      // this.setImagePreviewOpen(false)
+      store2.setState('imagePreviewOpen', false)
       EventBus.$emit('conversation-opened', conversation)
       EventBus.$emit('open-conversation')
     }
@@ -218,7 +225,6 @@ export default class PrimaryChatList extends ComponentProps {
     const res = await this.$robin.archiveConversation(conversation._id, this.$user_token)
 
     if (!res.error) {
-      this.$toasted.global.custom_success('Chat Archived')
       EventBus.$emit('regular-conversation.delete', conversation)
       EventBus.$emit('archived-conversation.add', conversation)
       this.$emit('refresh')
@@ -254,7 +260,7 @@ export default class PrimaryChatList extends ComponentProps {
     let searchData = [] as Array<any>
     this.isLoading = true
     // eslint-disable-next-line array-callback-return
-    const data = this.conversations.filter((obj) => {
+    const data = this.$regularConversations.filter((obj) => {
       let stopSearch = false
       Object.values(obj).forEach((val) => {
         const filter = String(val).toLowerCase().includes(searchText.toLowerCase())

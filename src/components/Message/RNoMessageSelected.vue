@@ -4,8 +4,14 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
 
-export default class RNoMessageSelected extends Vue {}
+@Component({
+  name: 'RNoMessageSelected'
+})
+export default class RNoMessageSelected extends Vue {
+
+}
 </script>
 
 <style scoped>
@@ -16,6 +22,5 @@ export default class RNoMessageSelected extends Vue {}
   display: flex;
   flex-direction: column;
   position: relative;
-  /* box-shadow: 0px 0px 20px rgba(0, 104, 255, 0.07); */
 }
 </style>

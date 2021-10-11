@@ -11,8 +11,9 @@
 <script lang="ts">
 import Vue, { PropType } from 'vue'
 import Component from 'vue-class-component'
-import { State, Mutation } from 'vuex-class'
-import { RootState } from '@/store/types'
+// import { State, Mutation } from 'vuex-class'
+// import { RootState } from '@/store/types'
+import store2 from '../../../store2/index'
 import EventBus from '@/event-bus'
 import PrimaryChatList from '../PrimaryChatList.vue'
 import NewChatList from '../NewChatList.vue'
@@ -40,8 +41,8 @@ const ComponentProps = Vue.extend({
   }
 })
 export default class RSideContainer extends ComponentProps {
-  @State('isPageLoading') isPageLoading?: RootState
-  @Mutation('setPageLoading') setPageLoading: any
+  // @State('isPageLoading') isPageLoading?: RootState
+  // @Mutation('setPageLoading') setPageLoading: any
 
   key = 0 as number
 
@@ -53,17 +54,21 @@ export default class RSideContainer extends ComponentProps {
     this.getUserToken()
 
     this.onGroupConversationCreated()
+    this.onNewConversationCreated()
     this.handleAddRegularConversation()
     this.handleRemoveRegularConversation()
     this.handleAddArchivedConversation()
     this.handleRemoveArchivedConversation()
   }
 
+  get isPageLoading () {
+    return store2.state.isPageLoading
+  }
+
   openModal (refKey: string, type: string): void {
     if (type === 'primary') {
       this.sideBarType = type
     } else {
-      // console.log(this.$refs, refKey, type)
       const popup = this.$refs[refKey] as any
 
       window.setTimeout(() => {
@@ -91,9 +96,37 @@ export default class RSideContainer extends ComponentProps {
   }
 
   onGroupConversationCreated () {
-    EventBus.$on('group-conversation-created', (conversation: object) => {
-      this.$regularConversations.unshift(conversation)
-      this.regularConversations.unshift(conversation)
+    EventBus.$on('new-group.conversation', (conversation: any) => {
+      conversation.participants.every((participant: any) => {
+        if (participant.user_token === this.$user_token) {
+          this.$regularConversations.unshift(conversation)
+          this.regularConversations.unshift(conversation)
+
+          return false
+        }
+
+        return true
+      })
+    })
+  }
+
+  onNewConversationCreated () {
+    EventBus.$on('new.conversation', (conversation: any) => {
+      if (conversation.sender_token === this.$user_token || conversation.receiver_token === this.$user_token) {
+        EventBus.$emit('regular-conversation.delete', conversation)
+        EventBus.$emit('regular-conversation.add', conversation)
+      }
+      // const isArchivedConversation = this.$archivedConversations.some((item) => item._id === conversation._id)
+
+      // if (!isArchivedConversation) {
+      //   EventBus.$emit('regular-conversation.delete', conversation)
+      //   EventBus.$emit('regular-conversation.add', conversation)
+      // }
+
+      // if (isArchivedConversation) {
+      //   EventBus.$emit('archived-conversation.delete', conversation)
+      //   EventBus.$emit('archived-conversation.add', conversation)
+      // }
     })
   }
 
@@ -136,7 +169,7 @@ export default class RSideContainer extends ComponentProps {
       Vue.prototype.$regularConversations = this.getRegularConversations()
       Vue.prototype.$archivedConversations = this.getArchivedConversations()
       this.regularConversations = this.getRegularConversations()
-      this.setPageLoading(false)
+      store2.setState('isPageLoading', false)
       // console.log('getconversations -> ', this.$conversations)
       this.$forceUpdate()
     }
@@ -152,7 +185,7 @@ export default class RSideContainer extends ComponentProps {
 
   getRegularConversations (): Array<any> {
     return this.$conversations.filter((user: any) => {
-      if (!user.archived_for) return true
+      if (!user.archived_for || user.archived_for.length === 0) return true
       return !user.archived_for.includes(this.$user_token)
     })
   }
@@ -174,7 +207,6 @@ export default class RSideContainer extends ComponentProps {
 <style scoped>
 .robin-chat-list-container {
   position: relative;
-  z-index: 4;
   flex-basis: 30%;
   max-width: 450px;
   height: 100%;

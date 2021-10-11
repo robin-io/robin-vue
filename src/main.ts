@@ -2,7 +2,8 @@ import Vue from 'vue'
 import VueViewer from 'v-viewer'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
-import RobinChat from './App.vue'
+import RobinChat from './robinchat'
+// import App from './App.vue'
 import Toasted from 'vue-toasted'
 import '../types/index.d.ts'
 import './styles/main.css'
@@ -46,9 +47,11 @@ Vue.toasted.register('custom_error', (message) => message, {
 })
 
 // const robinChat = new Vue({
-//   render: h => h(RobinChat)
+//   render: h => h(App)
 // })
 
 // robinChat.$mount('#app')
 
-export { RobinChat }
+export default RobinChat
+
+// export { RobinChat }

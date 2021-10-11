@@ -237,6 +237,7 @@ export default class MessageGrid extends ComponentProps {
   min-width: 100%;
   width: 100%;
   border-radius: inherit;
+  background-color: #fff;
   /* max-width: 90px; */
   /* max-height: 350px; */
 }

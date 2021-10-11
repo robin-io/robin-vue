@@ -160,39 +160,6 @@ export default class RCamera extends ComponentProps {
   onResize () {
     this.screenWidth = window.innerWidth
   }
-
-  // handleCapture (): void {
-  //   const img = this.$refs as any
-  //   this.convertBase64ToFile(img.webcam.capture()).then((res) => {
-  //     this.$emit('captured-image', {
-  //       file: res,
-  //       localUrl: img.webcam.capture()
-  //     })
-  //   })
-  //   // console.log(img.webcam.capture())
-  //   this.closeCamera()
-  // }
-
-  // startCamera (): void {
-  //   const camera = this.$refs.webcam as any
-  //   if (camera) {
-  //     camera.start()
-  //   }
-  // }
-
-  // stopCamera (): void {
-  //   const camera = this.$refs.webcam as any
-  //   camera.stop()
-  // }
-
-  // handleCameras (cameras: Array<any>): void {
-  //   this.devices = cameras
-  // }
-
-  // closeCamera (): void {
-  //   this.stopCamera()
-  //   this.$emit('close')
-  // }
 }
 </script>
 
@@ -218,7 +185,7 @@ export default class RCamera extends ComponentProps {
   align-items: center;
   background-color: #fff;
   padding: 0 clamp(3%, 5vw, 2.688rem) 0 clamp(3%, 5vw, 3.125rem);
-  box-shadow: 0 0px 0px rgba(0, 104, 255, 0.07), 0px -1px 10px rgba(0, 104, 255, 0.07);
+  box-shadow: 0px 0px 0px rgba(0, 104, 255, 0.07), 0px -1px 10px rgba(0, 104, 255, 0.07);
 }
 
 .robin-body {
@@ -226,7 +193,8 @@ export default class RCamera extends ComponentProps {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: 0 clamp(3%, 5vw, 2.688rem) 1rem clamp(3%, 5vw, 3.125rem);
+  height: 100%;
+  padding: 0rem clamp(3%, 5vw, 2.688rem) 1rem clamp(3%, 5vw, 3.125rem);
   overflow-y: auto;
 }
 

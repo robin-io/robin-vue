@@ -26,7 +26,8 @@
                 </div>
                 <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4 robin-flex-1">
                   <div class="robin-flex">
-                    <RText :font-size="14" :line-height="18">{{ item.is_group ? item.name : item.receiver_name }}</RText>
+                    <RText :font-size="14" :line-height="18" v-if="!item.is_group">{{ item.sender_token != $user_token ? item.sender_name : item.receiver_name }}</RText>
+                    <RText :font-size="14" :line-height="18" v-else>{{ item.name }}</RText>
                   </div>
                   <div class="robin-ml-auto">
                     <RCheckBox :key="addIndexToCheckBoxState(conversationIndex, checkBoxKeyState)" @clicked="toggleCheckAction($event, item)" />
@@ -104,28 +105,37 @@ export default class RForwardMessage extends ComponentProps {
     this.conversations = {}
 
     if (searchText.trim() === '') {
-      // console.log(this.getRegularConversations(this.$conversations))
+      console.log(this.getRegularConversations(this.$conversations))
       for (const conversation of this.getRegularConversations(this.$conversations)) {
-        this.conversations[conversation.name[0] ? conversation.name[0].toUpperCase() : conversation.receiver_name[0].toUpperCase()] = this.getRegularConversations(this.$conversations).filter((item) => {
-          if (item.name[0] && conversation.name[0]) return item.name[0].toUpperCase() === conversation.name[0].toUpperCase()
-          if (item.receiver_name[0] && conversation.receiver_name[0]) return item.receiver_name[0].toUpperCase() === conversation.receiver_name[0].toUpperCase()
-          if (item.receiver_name[0] && conversation.name[0]) return item.receiver_name[0].toUpperCase() === conversation.name[0].toUpperCase()
-          if (item.name[0] && conversation.receiver_name[0]) return item.name[0].toUpperCase() === conversation.receiver_name[0].toUpperCase()
+        this.conversations[conversation.name[0] ? this.getContactKey(conversation.name) : this.getContactKey(conversation.receiver_name)] = this.getRegularConversations(this.$conversations).filter((item) => {
+          // if (item.name[0] && conversation.name[0]) return this.validateContact(item.name, conversation.name)
+          // if (item.receiver_name[0] && conversation.receiver_name[0]) return this.validateContact(item.receiver_name, conversation.receiver_name)
+          // if (item.receiver_name[0] && conversation.name[0]) return this.validateContact(item.receiver_name, conversation.name)
+          // if (item.name[0] && conversation.receiver_name[0]) return this.validateContact(item.name, conversation.receiver_name)
+          const conversationName = conversation.is_group ? conversation.name : conversation.sender_token !== this.$user_token ? conversation.sender_name : conversation.receiver_name
+          const itemName = item.is_group ? item.name : item.sender_token !== this.$user_token ? item.sender_name : item.receiver_name
 
-          return false
+          return this.validateContact(itemName, conversationName)
+
+          // return false
         })
       }
 
       this.sortConversations()
     } else {
       for (const conversation of this.searchData) {
-        this.conversations[conversation.name[0] ? conversation.name[0].toUpperCase() : conversation.receiver_name[0].toUpperCase()] = this.searchData.filter((item) => {
-          if (item.name[0] && conversation.name[0]) return item.name[0].toUpperCase() === conversation.name[0].toUpperCase()
-          if (item.receiver_name[0] && conversation.receiver_name[0]) return item.receiver_name[0].toUpperCase() === conversation.receiver_name[0].toUpperCase()
-          if (item.receiver_name[0] && conversation.name[0]) return item.receiver_name[0].toUpperCase() === conversation.name[0].toUpperCase()
-          if (item.name[0] && conversation.receiver_name[0]) return item.name[0].toUpperCase() === conversation.receiver_name[0].toUpperCase()
+        this.conversations[conversation.name[0] ? this.getContactKey(conversation.name) : this.getContactKey(conversation.receiver_name)] = this.searchData.filter((item) => {
+          // if (item.name[0] && conversation.name[0]) return this.validateContact(item.name, conversation.name)
+          // if (item.receiver_name[0] && conversation.receiver_name[0]) return this.validateContact(item.receiver_name, conversation.receiver_name)
+          // if (item.receiver_name[0] && conversation.name[0]) return this.validateContact(item.receiver_name, conversation.name)
+          // if (item.name[0] && conversation.receiver_name[0]) return this.validateContact(item.name, conversation.receiver_name)
 
-          return false
+          const conversationName = conversation.is_group ? conversation.name : conversation.sender_token !== this.$user_token ? conversation.sender_name : conversation.receiver_name
+          const itemName = item.is_group ? item.name : item.sender_token !== this.$user_token ? item.sender_name : item.receiver_name
+
+          return this.validateContact(itemName, conversationName)
+
+          // return false
         })
       }
     }
@@ -133,7 +143,7 @@ export default class RForwardMessage extends ComponentProps {
 
   getRegularConversations (data: any): Array<any> {
     return data.filter((user: any) => {
-      if (!user.archived_for) return true
+      if (!user.archived_for || user.archived_for.length === 0) return true
       return false
     })
   }
@@ -156,7 +166,6 @@ export default class RForwardMessage extends ComponentProps {
 
     this.searchData = [...data]
     this.getConversations(searchText)
-    // console.log(this.searchData)
     setTimeout(() => {
       this.isLoading = false
     }, 300)
@@ -238,17 +247,26 @@ export default class RForwardMessage extends ComponentProps {
       }, {})
   }
 
+  getContactKey (username: any): string {
+    return username.trim() !== '' && isNaN(parseInt(username[0])) ? username[0].toUpperCase() : '*'
+  }
+
+  validateContact (usernameVal:any, username: any): boolean {
+    if (!usernameVal[0] && !username[0]) {
+      console.log('empty', usernameVal.trim() === username.trim())
+      return usernameVal.trim() === username.trim()
+    }
+
+    if (usernameVal[0] && username[0]) {
+      return usernameVal[0].toUpperCase() === username[0].toUpperCase()
+    }
+
+    return false
+  }
+
   onResize () {
     this.screenWidth = window.innerWidth
   }
-
-  // async sendFileMessage (): Promise<any> {
-  //   return await Promise.all(
-  //     this.files.map(async (file) => {
-  //       await this.$robin.sendMessageAttachment(this.$user_token, this.conversation._id, file.file)
-  //     })
-  //   )
-  // }
 }
 </script>
 

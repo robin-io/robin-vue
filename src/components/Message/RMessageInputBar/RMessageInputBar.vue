@@ -1,7 +1,7 @@
 <template>
   <div class="robin-message-box" v-on-clickaway="handleEmojiClosePopUp">
     <div class="robin-emoji-container robin-emoji-out robin-squeezeOut" v-show="popUpState.emojiOpened" ref="popup-1" @keydown.enter.exact.prevent="sendMessage()" tabindex="1">
-      <VEmojiPicker @select="selectEmoji" label-search="Search" lang="pt-BR" class="robin-emoji" />
+      <VEmojiPicker @select="selectEmoji" :emojisByRow="15" label-search="Search" lang="pt-BR" class="robin-emoji" />
     </div>
 
     <div class="robin-file-upload-container robin-squeezeOut" ref="popup-2" v-show="files && files.length > 0">
@@ -162,7 +162,7 @@ export default class RMessageInputBar extends ComponentProps {
       {
         msg: this.text,
         sender_token: this.$user_token,
-        receiver_token: this.conversation.receiver_token,
+        receiver_token: this.conversation.receiver_token === this.$user_token ? this.conversation.sender_token : this.conversation.receiver_token,
         timestamp: new Date()
       },
       this.$conn,
@@ -211,7 +211,7 @@ export default class RMessageInputBar extends ComponentProps {
       popup.classList.add('robin-squeezeOut')
 
       this.popUpState.emojiOpened = false
-    }, 300)
+    }, 100)
   }
 
   handleOpenPopUp (): void {
@@ -248,7 +248,7 @@ export default class RMessageInputBar extends ComponentProps {
       popup.classList.add('robin-squeezeOut')
 
       this.files = []
-    }, 300)
+    }, 100)
   }
 
   removeFile (index: number): void {
@@ -265,7 +265,7 @@ export default class RMessageInputBar extends ComponentProps {
         popup.classList.add('robin-squeezeOut')
 
         this.files = []
-      }, 300)
+      }, 100)
     }
   }
 }
@@ -277,6 +277,7 @@ export default class RMessageInputBar extends ComponentProps {
   display: flex;
   flex-direction: column;
   position: relative;
+  z-index: 1;
 }
 
 .robin-emoji-container {
@@ -290,7 +291,7 @@ export default class RMessageInputBar extends ComponentProps {
 
 .robin-emoji-out {
   position: absolute;
-  top: -400px;
+  top: -426px;
   left: 0;
   transform-origin: bottom;
 }
@@ -304,7 +305,7 @@ export default class RMessageInputBar extends ComponentProps {
   width: 100%;
   flex: 1;
   height: 140px;
-  top: -151%;
+  top: -140px;
   left: 0;
   bottom: 0;
   transform-origin: bottom;

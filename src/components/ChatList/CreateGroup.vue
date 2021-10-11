@@ -55,7 +55,7 @@ import Component from 'vue-class-component'
 import RText from './RText/RText.vue'
 import RButton from './RButton/RButton.vue'
 import RAvatar from './RAvatar/RAvatar.vue'
-import EventBus from '@/event-bus'
+// import EventBus from '@/event-bus'
 // import RGroupAvatar from './RGroupAvatar/RGroupAvatar.vue'
 import RCloseButton from './RCloseButton/RCloseButton.vue'
 import RInput from './RInput/RInput.vue'
@@ -99,10 +99,18 @@ export default class CreateGroup extends ComponentProps {
   }
 
   async createGroupConversation (): Promise<void> {
+    console.log('created group participants', this.users)
+    const users = this.users.map(user => {
+      return {
+        user_token: user.userToken,
+        profile_image: user.profileImage,
+        user_name: user.userName
+      }
+    })
+
     this.isLoading = true
-    const res = await this.$robin.createGroupConversation(this.groupName, { user_token: this.$user_token }, this.users)
+    const res = await this.$robin.createGroupConversation(this.groupName, { user_token: this.$user_token }, users)
     if (res && !res.error) {
-      EventBus.$emit('group-conversation-created', res.data)
       this.$emit('changesidebartype', 'primary')
       this.$emit('closemodal')
       this.isLoading = false
@@ -142,7 +150,7 @@ export default class CreateGroup extends ComponentProps {
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 999;
+  z-index: 1000;
   display: flex;
   padding: 8vh 20vw 3rem 0;
   align-items: flex-start;

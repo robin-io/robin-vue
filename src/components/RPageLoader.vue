@@ -2,7 +2,7 @@
   <div class="robin-shim">
     <div class="robin-inner-shim">
       <div class="robin-loader-ctn">
-        <div class="robin-loader" />
+        <div class="robin-loader"></div>
         <img class="robin-pulse-1" src="@/assets/robin_icon.png" alt="logo" />
       </div>
       <div class="robin-come-up robin-mt-18">
@@ -14,14 +14,17 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
 import RText from './ChatList/RText/RText.vue'
 
-export default Vue.extend({
+@Component({
   name: 'RPageLoader',
   components: {
     RText
   }
 })
+export default class RPageLoader extends Vue {
+}
 </script>
 
 <style scoped>

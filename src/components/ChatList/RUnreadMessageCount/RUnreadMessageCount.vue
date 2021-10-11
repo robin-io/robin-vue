@@ -26,7 +26,7 @@ const ComponentProps = Vue.extend({
 @Component<RUnreadMessageCount>({
   name: 'RUnreadMessageCount',
   watch: {
-    backgroundColor(): void {
+    backgroundColor (): void {
       this.setRootVariables()
     }
   }
@@ -34,12 +34,12 @@ const ComponentProps = Vue.extend({
 export default class RUnreadMessageCount extends ComponentProps {
   root = null as any
 
-  mounted(): void {
+  mounted (): void {
     this.root = document.documentElement
     this.setRootVariables()
   }
 
-  setRootVariables(): void {
+  setRootVariables (): void {
     this.root.style.setProperty('--primary-color', this.backgroundColor)
   }
 }

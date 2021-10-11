@@ -4,7 +4,7 @@
       <RText :font-size="14" color="#101010">Contact Info</RText>
     </div> -->
     <div class="robin-wrapper robin-w-100" @click="handleSelectMessages()">
-      <RText :font-size="14" color="#101010">Select Messages</RText>
+      <RText :font-size="14" color="#101010">Forward Messages</RText>
     </div>
     <div class="robin-wrapper robin-w-100" @click="handleClearMessages()">
       <RText :font-size="14" color="#101010">Clear Messages</RText>
@@ -18,7 +18,8 @@
 <script lang="ts">
 import Vue from 'vue'
 import Component from 'vue-class-component'
-import { Mutation } from 'vuex-class'
+// import { Mutation } from 'vuex-class'
+import store2 from '../../../store2/index'
 import RText from '@/components/ChatList/RText/RText.vue'
 
 @Component({
@@ -28,15 +29,17 @@ import RText from '@/components/ChatList/RText/RText.vue'
   }
 })
 export default class RPersonalMessagePopOver extends Vue {
-  @Mutation('setSelectMessagesOpen') setSelectMessagesOpen: any
-  @Mutation('setClearMessages') setClearMessages: any
+  // @Mutation('setSelectMessagesOpen') setSelectMessagesOpen: any
+  // @Mutation('setClearMessages') setClearMessages: any
 
-  handleSelectMessages() {
-    this.setSelectMessagesOpen(true)
+  handleSelectMessages () {
+    // this.setSelectMessagesOpen(true)
+    store2.setState('selectMessagesOpen', true)
   }
 
-  handleClearMessages() {
-    this.setClearMessages(true)
+  handleClearMessages () {
+    // this.setClearMessages(true)
+    store2.setState('clearMessages', true)
   }
 }
 </script>

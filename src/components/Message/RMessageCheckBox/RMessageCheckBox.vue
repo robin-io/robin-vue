@@ -22,7 +22,7 @@ const ComponentProps = Vue.extend({
 @Component<RMessageCheckBox>({
   name: 'RMessageCheckBox',
   watch: {
-    color(): void {
+    color (): void {
       this.setRootVariables()
     }
   }
@@ -30,12 +30,12 @@ const ComponentProps = Vue.extend({
 export default class RMessageCheckBox extends ComponentProps {
   root = null as any
 
-  mounted(): void {
+  mounted (): void {
     this.root = document.documentElement
     this.setRootVariables()
   }
 
-  setRootVariables(): void {
+  setRootVariables (): void {
     this.root.style.setProperty('--checkbox-color', this.color)
   }
 }

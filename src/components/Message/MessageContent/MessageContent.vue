@@ -1,9 +1,9 @@
 <template>
-  <div class="robin-message-bubble robin-flex robin-flex-wrap robin-flex-align-center" :class="!validateMessages(message) ? 'robin-message-sender' : 'robin-message-receiver robin-ml-auto robin-flex-row-reversed'" v-on-clickaway="closeModal">
+  <div class="robin-message-bubble robin-flex robin-flex-wrap robin-flex-align-center" :class="validateMessages(message)">
     <RCheckBox v-if="selectMessagesOpen" @clicked="toggleCheckAction($event)" />
-    <div class="robin-bubble" :class="!validateMessages(message) ? 'robin-ml-5' : 'robin-mr-5'" v-if="!Array.isArray(message)">
+    <div class="robin-bubble" :class="validateMessages(message).includes('message-sender') ? 'robin-ml-5' : 'robin-mr-5'" v-if="!Array.isArray(message)" v-on-clickaway="closeModal">
       <!-- Personal -->
-      <div class="robin-message-bubble-inner" v-if="!message.has_attachment && !conversation.is_group" @click="openModal()">
+      <div class="robin-message-bubble-inner" :class="{'robin-non-clickable': selectMessagesOpen}" v-if="!message.has_attachment && !conversation.is_group" @click="openModal()">
         <RText :font-size="16" textWrap="pre-line" as="span" v-if="!emailRegex.test(message.content.msg) && !websiteRegex.test(message.content.msg)">
           {{ message.content.msg }}
         </RText>
@@ -20,8 +20,8 @@
         </span>
       </div>
       <!-- Group -->
-      <div class="robin-message-bubble-inner" :class="{ 'robin-group': !validateMessages(message) }" v-if="!message.has_attachment && conversation.is_group" @click="openModal()">
-        <RText v-if="!validateMessages(message)" :font-size="12" color="#15AE73" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getContactName(message.content.sender_token) }} </RText>
+      <div class="robin-message-bubble-inner robin-group" :class="{'robin-non-clickable': selectMessagesOpen}" v-if="!message.has_attachment && conversation.is_group" @click="openModal()">
+        <RText v-if="validateMessages(message).includes('message-sender')" :font-size="12" color="#15AE73" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getContactName(message.content.sender_token) }} </RText>
         <div class="message-inner">
           <RText :font-size="16" textWrap="pre-line" wordBreak="break-all" as="span" v-if="!emailRegex.test(message.content.msg) && !websiteRegex.test(message.content.msg)">
             {{ message.content.msg }}
@@ -74,20 +74,28 @@
         </span>
       </div>
     </div>
-    <MessageGrid :class="!validateMessages(message) ? 'robin-ml-5' : 'robin-mr-5'" v-if="Array.isArray(message) && message.filter((image) => !image.is_deleted).length > 0" :message="message.filter((image) => !image.is_deleted)" :conversation="conversation" @open-preview="openPreview($event)" />
-    <RMessagePopOver v-show="messagePopup.opened && validateMessages(message)" :class="{ top: lastId === message._id && scroll }" @close-modal="closeModal()" ref="popup-1" :id="message._id" :message="message" />
+    <div class="robin-bubble" :class="validateMessages(message).includes('message-sender') ? 'robin-ml-5' : 'robin-mr-5'" v-if="Array.isArray(message) && message.filter((image) => !image.is_deleted).length === 1">
+      <div @click="$emit('open-preview', [message[0]])" class="robin-message-bubble-image" v-if="message[0].content.is_attachment && imageRegex.test(checkAttachmentType(message[0].content.attachment))">
+        <v-lazy-image class="robin-uploaded-image" :src="message[0].content.attachment" />
+        <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
+          <RText :font-size="12" color="#fff" as="p">
+            {{ formatTimeStamp(message[0].content.timestamp) }}
+          </RText>
+        </span>
+      </div>
+    </div>
+    <MessageGrid :class="!validateMessages(message) ? 'robin-ml-5' : 'robin-mr-5'" v-if="Array.isArray(message) && message.filter((image) => !image.is_deleted).length > 1" :message="message.filter((image) => !image.is_deleted)" :conversation="conversation" @open-preview="openPreview($event)" />
+    <div class="robin-popup-container" :class="{ top: lastId === message._id && scroll }">
+      <RMessagePopOver v-show="messagePopup.opened && validateMessages(message)" @close-modal="closeModal()" ref="popup-1" :id="message._id" :message="message" />
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import Vue, { PropType } from 'vue'
-import { Promised } from 'vue-promised'
 import VLazyImage from 'v-lazy-image/v2'
 import { mixin as clickaway } from 'vue-clickaway'
-// import 'viewerjs/dist/viewer.css'
-// import { directive as viewer } from 'v-viewer'
-import { State } from 'vuex-class'
-import { RootState } from '@/store/types'
+import store2 from '../../../store2/index'
 import Component from 'vue-class-component'
 import RDownloadButton from '../RDownloadButton/RDownloadButton.vue'
 import RText from '@/components/ChatList/RText/RText.vue'
@@ -121,6 +129,14 @@ const ComponentProps = Vue.extend({
       type: [Object, Array],
       default: () => {}
     },
+    index: {
+      type: Number,
+      default: 0
+    },
+    messages: {
+      type: Array,
+      default: () => []
+    },
     conversation: {
       type: Object,
       default: () => {}
@@ -146,24 +162,15 @@ const ComponentProps = Vue.extend({
   components: {
     RText,
     RDownloadButton,
-    Promised,
     VLazyImage,
     MessageGrid,
     RMessagePopOver,
     RCheckBox
-    // RUnreadMessageBar
-    // RForwardMessage
   },
   mixins: [clickaway]
-  // directives: { viewer: viewer({ debug: true }) }
 })
 export default class MessageContent extends ComponentProps {
-  @State('selectMessagesOpen') selectMessagesOpen?: RootState
-  // vViewerOptions = {
-  //   toolbar: false,
-  //   title: false,
-  //   navbar: false
-  // } as any
+  // @State('selectMessagesOpen') selectMessagesOpen?: RootState
 
   images = {
     pdf: pdf,
@@ -189,6 +196,14 @@ export default class MessageContent extends ComponentProps {
   documentRegex = /(csv|xlsx|xls|doc|docx|ppt|pptx|txt|pdf|ppt|rtf|rar|tar|odt|md|zip|7z|zip|html)$/
   emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   websiteRegex = /[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/
+
+  get robinUsers () {
+    return store2.state.users
+  }
+
+  get selectMessagesOpen () {
+    return store2.state.selectMessagesOpen
+  }
 
   formatTimeStamp (value: any): string {
     return moment(String(value)).format('h:mma').toUpperCase()
@@ -218,13 +233,15 @@ export default class MessageContent extends ComponentProps {
     const fileDetails = this.getFileDetails(attachmentUrl) as any
     const element = document.createElement('a')
 
-    element.setAttribute('download', fileDetails.name + ' ' + fileDetails.extension)
     element.setAttribute('href', attachmentUrl)
+    element.setAttribute('download', fileDetails.name + ' ' + fileDetails.extension)
     element.click()
   }
 
   openModal (): void {
-    this.messagePopup.opened = true
+    if (!this.selectMessagesOpen) {
+      this.messagePopup.opened = true
+    }
   }
 
   closeModal (): void {
@@ -248,16 +265,34 @@ export default class MessageContent extends ComponentProps {
     return message.some((item: { content: { sender_token: string } }) => item.content.sender_token === this.$user_token)
   }
 
-  validateMessages (message: any): boolean {
+  validateMessages (message: any): string {
+    const nextMessage = this.messages[this.index + 1] as any
+
+    if (Array.isArray(message) && this.checkArrayReceiverUserToken(message) && nextMessage && nextMessage.content.sender_token !== this.$user_token) {
+      return 'robin-message-receiver robin-ml-auto robin-flex-row-reversed prev'
+    }
+
+    if (message.content && message.content.sender_token === this.$user_token && Array.isArray(nextMessage) && !this.checkArrayReceiverUserToken(nextMessage)) {
+      return 'robin-message-receiver robin-ml-auto robin-flex-row-reversed prev'
+    }
+
     if (Array.isArray(message) && this.checkArrayReceiverUserToken(message)) {
-      return true
+      return 'robin-message-receiver robin-ml-auto robin-flex-row-reversed' // true
     }
 
     if (message.content && message.content.sender_token === this.$user_token) {
-      return true
+      return 'robin-message-receiver robin-ml-auto robin-flex-row-reversed' // true
     }
 
-    return false
+    if (Array.isArray(message) && !this.checkArrayReceiverUserToken(message) && nextMessage && nextMessage.content.sender_token === this.$user_token) {
+      return 'robin-message-sender prev'
+    }
+
+    if (message.content && message.content.sender_token !== this.$user_token && Array.isArray(nextMessage) && this.checkArrayReceiverUserToken(nextMessage)) {
+      return 'robin-message-sender prev'
+    }
+
+    return 'robin-message-sender' // false
   }
 
   toggleCheckAction (val: boolean): void {
@@ -265,9 +300,9 @@ export default class MessageContent extends ComponentProps {
   }
 
   getContactName (sender_token: string): string {
-    const index = this.$robin_users.findIndex((user) => user.userToken === sender_token) as number
-    const user = this.$robin_users[index] as any
-    return user.userName
+    const index = this.robinUsers.findIndex((user) => user.userToken === sender_token) as number
+    const user = this.robinUsers[index] as any
+    return user ? user.userName : ''
   }
 }
 </script>
@@ -282,26 +317,9 @@ export default class MessageContent extends ComponentProps {
   margin-top: 0.25rem;
 }
 
-.robin-message-sender + .robin-message-receiver {
-  border-radius: 16px 16px 0px 16px;
-}
-
-.robin-message-receiver + .robin-message-sender {
-  border-radius: 16px 16px 16px 0px;
-}
-
-.robin-inner-wrapper .robin-message-sender:last-child {
-  border-radius: 16px 16px 16px 0px;
-}
-
-.robin-inner-wrapper .robin-message-receiver:last-child {
-  border-radius: 16px 16px 0px 16px;
-}
-
 .robin-message-bubble {
   position: relative;
   border-radius: 16px;
-  /* margin-top: 10px; */
 }
 
 .robin-bubble {
@@ -311,7 +329,8 @@ export default class MessageContent extends ComponentProps {
 
 /* Bubble styles */
 
-.robin-message-sender + .robin-message-receiver, .robin-message-receiver + .robin-message-sender  {
+.robin-message-sender + .robin-message-receiver,
+.robin-message-receiver + .robin-message-sender {
   margin-top: 1rem;
 }
 
@@ -320,12 +339,12 @@ export default class MessageContent extends ComponentProps {
   margin-top: 0.25rem;
 }
 
-.robin-message-sender + .robin-message-receiver {
-  border-radius: 16px 16px 0px 16px;
+.robin-message-sender.prev {
+  border-radius: 16px 16px 16px 0px;
 }
 
-.robin-message-receiver + .robin-message-sender {
-  border-radius: 16px 16px 16px 0px;
+.robin-message-receiver.prev {
+  border-radius: 16px 16px 0px 16px;
 }
 
 .robin-inner-wrapper .robin-message-sender:last-child {
@@ -334,11 +353,6 @@ export default class MessageContent extends ComponentProps {
 
 .robin-inner-wrapper .robin-message-receiver:last-child {
   border-radius: 16px 16px 0px 16px;
-}
-
-.robin-message-bubble {
-  border-radius: 16px;
-  /* margin-top: 10px; */
 }
 
 .robin-message-receiver .robin-side-text {
@@ -350,7 +364,7 @@ export default class MessageContent extends ComponentProps {
 .robin-message-sender .robin-side-text {
   flex: 1;
   display: flex;
-  justify-content: flex-start;
+  justify-content: flex-end;
 }
 
 .robin-messager-name {
@@ -363,11 +377,17 @@ export default class MessageContent extends ComponentProps {
 .robin-message-sender .robin-message-bubble-inner {
   background-color: #f4f6f8;
   border: 1px solid rgba(35, 107, 248, 0.2);
+  cursor: pointer;
 }
 
 .robin-message-receiver .robin-message-bubble-inner {
   background-color: #d3d7ea;
   cursor: pointer;
+}
+
+.robin-message-sender .robin-message-bubble-inner >>> .robin-text,
+.robin-message-receiver .robin-message-bubble-inner >>> .robin-text {
+  text-align: left;
 }
 
 .robin-group.robin-message-bubble-inner {
@@ -425,6 +445,7 @@ export default class MessageContent extends ComponentProps {
   max-width: 291px;
   height: 200px;
   border-radius: inherit;
+  background-color: #fff;
 }
 
 .robin-message-sender .robin-message-bubble-image .robin-side-text {
@@ -535,7 +556,7 @@ video {
 .robin-message-bubble-document .robin-uploaded-document img {
   margin-right: 1rem;
   max-width: 100%;
-  height:auto;
+  height: auto;
 }
 
 .robin-message-receiver .robin-message-bubble-document .robin-side-text {
@@ -562,6 +583,44 @@ video {
   margin-left: 0.75rem;
 }
 
+.robin-message-sender .robin-popup-container {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 100;
+}
+
+.robin-message-receiver .robin-popup-container {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 100;
+}
+
+.robin-popup-container.top {
+  top: -68px;
+}
+
+.robin-message-sender .robin-popup-container >>> .robin-zoomIn,
+.robin-message-sender .robin-popup-container >>> .robin-zoomOut {
+  transform-origin: top left;
+}
+
+.robin-message-receiver .robin-popup-container >>> .robin-zoomIn,
+.robin-message-receiver .robin-popup-container >>> .robin-zoomOut {
+  transform-origin: top right;
+}
+
+.robin-message-sender .robin-popup-container.top >>> .robin-zoomIn,
+.robin-message-sender .robin-popup-container.top >>> .robin-zoomOut {
+  transform-origin: bottom left;
+}
+
+.robin-message-receiver .robin-popup-container.top >>> .robin-zoomIn,
+.robin-message-receiver .robin-popup-container.top >>> .robin-zoomOut {
+  transform-origin: bottom right;
+}
+
 /* Website & Email */
 
 a {
@@ -572,7 +631,10 @@ a {
 }
 
 @media (max-width: 480px) {
-  .robin-message-bubble-inner, .robin-message-bubble-image, .robin-message-bubble-video, .robin-message-bubble-document {
+  .robin-message-bubble-inner,
+  .robin-message-bubble-image,
+  .robin-message-bubble-video,
+  .robin-message-bubble-document {
     max-width: 220px;
   }
 
@@ -584,7 +646,8 @@ a {
     margin-left: 0;
   }
 
-  .robin-message-bubble-document .robin-uploaded-document .details,  .robin-message-bubble-document .robin-uploaded-document img{
+  .robin-message-bubble-document .robin-uploaded-document .details,
+  .robin-message-bubble-document .robin-uploaded-document img {
     margin-right: 0;
   }
 }

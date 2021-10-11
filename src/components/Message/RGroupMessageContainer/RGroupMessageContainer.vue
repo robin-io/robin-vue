@@ -2,35 +2,22 @@
   <div class="robin-message-container" v-on-clickaway="onChatClickAway">
     <RGroupChatHeader :conversation="conversation" @forward-message="forwardMessage = true" :key="key" :selected-messages="selectedMessages" />
     <div class="robin-wrapper robin-flex robin-flex-column robin-flex-space-between">
-      <Promised :promise="promise">
-        <template v-slot:pending>
-          <div class="robin-inner-wrapper robin-flex robin-flex-align-center">
-            <div class="robin-spinner"></div>
-          </div>
-        </template>
-        <template v-slot:default>
-          <div class="robin-inner-wrapper" ref="message" @scroll="onScroll()">
-            <MessageContent v-for="(message, index) in messages" @open-preview="openImagePreview($event)" :key="`message-${String(index)}`" v-show="!message.is_deleted" :message="message" :conversation="conversation" :message-popup="getMessagePopup(index)" :scroll="scroll" :last-id="!Array.isArray(message) && messages.length - 3 < parseInt(String(index)) ? message._id : ''" @toggle-check-action="toggleCheckAction($event, message)" />
-          </div>
-        </template>
-        <template v-slot:rejected>
-          <div class="robin-inner-wrapper robin-flex robin-flex-align-center">
-            <div class="network-error">please check your connection</div>
-          </div>
-        </template>
-      </Promised>
-      <!-- <RUnreadMessageBar :number="1" /> -->
+      <div class="robin-inner-wrapper robin-flex robin-flex-align-center" v-if="isMessagesLoading">
+        <div class="robin-spinner"></div>
+      </div>
+      <div class="robin-inner-wrapper" ref="message" @scroll="onScroll()" v-else>
+        <MessageContent v-for="(message, index) in messages" @open-preview="openImagePreview($event)" :key="`message-${String(index + key)}`" v-show="!message.is_deleted" :message="message" :conversation="conversation" :message-popup="getMessagePopup(index)" :messages="messages" :index="index" :scroll="scroll" :last-id="!Array.isArray(message) && messages.length - 3 < parseInt(String(index)) ? message._id : ''" @toggle-check-action="toggleCheckAction($event, message)" />
+      </div>
     </div>
     <RMessageInputBar :conversation="conversation" @open-camera="openCamera()" :captured-image="capturedImage" />
     <RCamera ref="popup-1" :camera-opened="popUpState.cameraOpened" @close="closeCamera()" @captured-image="handleCapturedImage" v-show="popUpState.cameraOpened" />
-    <MessageImagePreviewer ref="popup-2" v-show="imagePreviewOpen" @close="closeImagePreview()" :images-to-preview="imagesToPreview" />
+    <MessageImagePreviewer ref="popup-2" :conversation="conversation" v-show="imagePreviewOpen" @close="closeImagePreview()" :images-to-preview="imagesToPreview" />
     <RForwardMessage v-if="forwardMessage" @closemodal="onCloseForwardMessagePopup()" :selected-messages="selectedMessages" />
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
-import { Promised } from 'vue-promised'
 import EventBus from '@/event-bus'
 import Component from 'vue-class-component'
 import { mixin as clickaway } from 'vue-clickaway'
@@ -40,14 +27,11 @@ import RDownloadButton from '../RDownloadButton/RDownloadButton.vue'
 import RText from '@/components/ChatList/RText/RText.vue'
 import RCamera from '../RCamera/RCamera.vue'
 import mime from 'mime'
-import { State, Mutation } from 'vuex-class'
-import { RootState } from '@/store/types'
+import store2 from '../../../store2/index'
 import MessageContent from '../MessageContent/MessageContent.vue'
 import MessageGrid from '../MessageGrid/MessageGrid.vue'
 import MessageImagePreviewer from '../MessageImagePreviewer/MessageImagePreviewer.vue'
 import RMessagePopOver from '../RMessagePopOver/RMessagePopOver.vue'
-// import ForwardMessage from '../ForwardMessage.vue'
-// import RUnreadMessageBar from '../RUnreadMessagesBar/RUnreadMessagesBar.vue'
 import RForwardMessage from '../RForwardMessage/RForwardMessage.vue'
 
 // eslint-disable-next-line
@@ -59,13 +43,10 @@ import RForwardMessage from '../RForwardMessage/RForwardMessage.vue'
     RMessageInputBar,
     RCamera,
     RDownloadButton,
-    Promised,
     MessageContent,
     MessageGrid,
     MessageImagePreviewer,
     RMessagePopOver,
-    // ForwardMessage
-    // RUnreadMessageBar
     RForwardMessage
   },
   mixins: [clickaway],
@@ -99,13 +80,6 @@ import RForwardMessage from '../RForwardMessage/RForwardMessage.vue'
   }
 })
 export default class RGroupMessageContainer extends Vue {
-  @State('selectMessagesOpen') selectMessagesOpen?: RootState
-  @State('clearMessages') clearMessages?: RootState
-  @State('imagePreviewOpen') imagePreviewOpen?: RootState
-  @Mutation('setSelectMessagesOpen') setSelectMessagesOpen: any
-  @Mutation('setClearMessages') setClearMessages: any
-  @Mutation('setImagePreviewOpen') setImagePreviewOpen: any
-
   selectedMessages = [] as Array<any>
   forwardMessage = false as boolean
   conversation = {} as any
@@ -119,7 +93,7 @@ export default class RGroupMessageContainer extends Vue {
     messagePopUp: [] as Array<any>
   }
 
-  loading = true as boolean
+  isMessagesLoading = true as boolean
 
   messagePopUpIndex = 0 as number
   key = 0 as number
@@ -158,63 +132,70 @@ export default class RGroupMessageContainer extends Vue {
     this.handleUserDisconnect()
   }
 
+  get selectMessagesOpen () {
+    return store2.state.selectMessagesOpen
+  }
+
+  get clearMessages () {
+    return store2.state.clearMessages
+  }
+
+  get imagePreviewOpen () {
+    return store2.state.imagePreviewOpen
+  }
+
   handleConversationOpen (): void {
     EventBus.$on('conversation-opened', (conversation: any) => {
       this.messages = []
       this.conversation = conversation || []
       this.scroll = false
-      this.promise = this.getConversationMessages(conversation._id)
-      this.promise.then(() => {
-        this.scrollToBottom()
+      this.isMessagesLoading = true
+      this.getConversationMessages(conversation._id).then(() => {
+        this.isMessagesLoading = false
       })
-      // console.log(this.promise)
     })
   }
 
   handleUserConnect () {
     EventBus.$on('user.connect', (conversation: string) => {
-      this.key += 1
+      this.refresh()
     })
   }
 
   handleUserDisconnect () {
     EventBus.$on('user.disconnect', (conversation: string) => {
-      this.key += 1
+      this.refresh()
     })
+  }
+
+  refresh () {
+    this.key += 1
   }
 
   onNewMessage () {
     EventBus.$on('new-message', (message: any) => {
       if (message.conversation_id === this.conversation._id) {
         this.messages.push(message)
+        this.scrollToBottom()
       }
       this.$conversations.forEach((conversation, index) => {
-        if (conversation._id === this.conversation._id) {
-          this.scrollToBottom()
+        if (conversation._id === message.conversation_id) {
+          console.log('Conversation: ', conversation, this.conversation)
           this.$conversations[index].updated_at = message.content.timestamp
           this.$conversations[index].last_message = message.content
           const newConv = this.$conversations[index]
+          // EventBus.$emit('regular-conversation.delete', newConv)
+          // EventBus.$emit('regular-conversation.add', newConv)
           if (!newConv.archived_for || newConv.archived_for.length === 0) {
-            // const regularConversationIndex = this.$regularConversations.findIndex((item) => item._id === newConv._id)
-            // this.$regularConversations.splice(regularConversationIndex, 1)
-            // this.$regularConversations.unshift(newConv)
             EventBus.$emit('regular-conversation.delete', newConv)
             EventBus.$emit('regular-conversation.add', newConv)
           } else {
-            const archivedConversationIndex = this.$archivedConversations.findIndex((item) => item._id === newConv._id)
-            this.$archivedConversations.splice(archivedConversationIndex, 1)
-            this.$archivedConversations.unshift(newConv)
+            EventBus.$emit('archived-conversation.delete', newConv)
+            EventBus.$emit('archived-conversation.add', newConv)
           }
         }
       })
     })
-
-    // EventBus.$on('message.forward', (message: any) => {
-    //   if (message.conversation_id === this.conversation.conversation_id) {
-    //     // this.messages.push(message)
-    //     this.scrollToBottom()
-    //   }
-    // })
   }
 
   onMessageDelete () {
@@ -226,7 +207,6 @@ export default class RGroupMessageContainer extends Vue {
 
   onImageDelete () {
     EventBus.$on('image-deleted', (message: any) => {
-      // console.log(message)
       const messageIndex = this.messages.findIndex((item: any) => {
         if (Array.isArray(item)) return item.some((image) => image._id === message._id)
         return false
@@ -241,15 +221,11 @@ export default class RGroupMessageContainer extends Vue {
     const res = await this.$robin.getConversationMessages(id, this.$user_token)
 
     if (res && !res.error) {
-      // this.messages = resp.data == null ? [] : resp.data
       this.testMessages(res.data == null ? [] : res.data)
-      // this.getMutatedMessages(resp.data == null ? [] : resp.data)
-      // // console.log(this.getMutatedMessages(resp.data == null ? [] : resp.data))
     } else {
       this.$toasted.global.custom_error('Check your connection.')
     }
 
-    // console.log(this.messages)
     this.scrollToBottom()
   }
 
@@ -276,11 +252,11 @@ export default class RGroupMessageContainer extends Vue {
       popup.$refs['popup-body'].classList.add('robin-squeezeOut')
 
       this.popUpState.cameraOpened = false
-    }, 300)
+    }, 100)
   }
 
   openImagePreview ($event: any): void {
-    this.setImagePreviewOpen(true)
+    store2.setState('imagePreviewOpen', true)
     this.imagesToPreview = $event
   }
 
@@ -293,9 +269,9 @@ export default class RGroupMessageContainer extends Vue {
       popup.$refs['popup-body'].classList.remove('robin-squeezeIn')
       popup.$refs['popup-body'].classList.add('robin-squeezeOut')
 
-      this.setImagePreviewOpen(false)
+      store2.setState('imagePreviewOpen', false)
       this.imagesToPreview = []
-    }, 300)
+    }, 100)
   }
 
   openMessagePopup (val: number): void {
@@ -304,7 +280,6 @@ export default class RGroupMessageContainer extends Vue {
   }
 
   closeMessagePopup (event: any): void {
-    // console.log(event)
     this.popUpState.messagePopUp[this.messagePopUpIndex].opened = false
     this.messagePopUpIndex = 0
   }
@@ -323,7 +298,6 @@ export default class RGroupMessageContainer extends Vue {
   }
 
   testMessages (messages: Array<any>): void {
-    // const imageGrids = [] as any
     const newMessages = []
     let temp = [] as any
 
@@ -354,13 +328,11 @@ export default class RGroupMessageContainer extends Vue {
       }
     }
 
-    // console.log(newMessages)
     this.messages = newMessages
   }
 
   async clearAllMessages (): Promise<void> {
     const id = [] as Array<any>
-    // console.log('before ->', id)
 
     for (let i: number = 0; i < this.messages.length; i += 1) {
       if (Array.isArray(this.messages[i])) {
@@ -385,7 +357,7 @@ export default class RGroupMessageContainer extends Vue {
       this.$toasted.global.custom_error('Check your connection.')
     }
 
-    this.setClearMessages(false)
+    store2.setState('clearMessages', false)
   }
 
   onScroll (): void {
@@ -412,23 +384,18 @@ export default class RGroupMessageContainer extends Vue {
 
   removeSelectedMessage (message: any): void {
     const index = this.selectedMessages.findIndex((item) => item._id === message._id)
-    // console.log(index)
 
     this.selectedMessages.splice(index, 1)
   }
 
   onChatClickAway (): void {
-    this.setSelectMessagesOpen(false)
+    store2.setState('selectMessagesOpen', false)
   }
 
   onCloseForwardMessagePopup (): void {
     this.forwardMessage = false
-    this.setSelectMessagesOpen(false)
+    store2.setState('selectMessagesOpen', false)
   }
-
-  // isReceiverInGroup (conversation: any): boolean {
-  //   return conversation.participants.some((item: any) => item.user_token === conversation.moderator.user_token)
-  // }
 }
 </script>
 
@@ -441,7 +408,7 @@ export default class RGroupMessageContainer extends Vue {
   flex-direction: column;
   justify-content: space-between;
   position: relative;
-  /* box-shadow: 0px 0px 20px rgba(0, 104, 255, 0.07); */
+  /* z-index: 0; */
 }
 
 .robin-wrapper {

@@ -43,7 +43,8 @@
 <script lang="ts">
 import Vue from 'vue'
 import moment from 'moment'
-import { Mutation } from 'vuex-class'
+// import { Mutation } from 'vuex-class'
+import store2 from '../../store2/index'
 import Component from 'vue-class-component'
 import EventBus from '@/event-bus'
 import RText from './RText/RText.vue'
@@ -89,7 +90,7 @@ const ComponentProps = Vue.extend({
   }
 })
 export default class ArchivedChatList extends ComponentProps {
-  @Mutation('setImagePreviewOpen') setImagePreviewOpen: any
+  // @Mutation('setImagePreviewOpen') setImagePreviewOpen: any
 
   popUpStates: Array<any> = []
   activeConversation = {}
@@ -118,14 +119,16 @@ export default class ArchivedChatList extends ComponentProps {
 
     if (!this.isConversationActive(conversation) && this.screenWidth > 1200) {
       this.activeConversation = conversation
-      this.setImagePreviewOpen(false)
+      // this.setImagePreviewOpen(false)
+      store2.setState('imagePreviewOpen', false)
       EventBus.$emit('conversation-opened', conversation)
       EventBus.$emit('open-conversation')
     }
 
     if (this.screenWidth <= 1200) {
       this.activeConversation = conversation
-      this.setImagePreviewOpen(false)
+      // this.setImagePreviewOpen(false)
+      store2.setState('imagePreviewOpen', false)
       EventBus.$emit('conversation-opened', conversation)
       EventBus.$emit('open-conversation')
     }
@@ -180,12 +183,12 @@ export default class ArchivedChatList extends ComponentProps {
 
   async unArchiveChat (id: string): Promise<void> {
     const res = await this.$robin.unarchiveConversation(id, this.$user_token)
-    // console.log('unarchived', res)
 
     if (!res.error) {
-      this.$toasted.global.custom_success('Chat Unarchived')
+      // this.$toasted.global.custom_success('Chat Unarchived')
       const index = this.archivedConversations.findIndex((conversation) => conversation._id === id)
       const conversation = this.archivedConversations[index]
+      conversation.archived_for = []
 
       EventBus.$emit('archived-conversation.delete', conversation)
       EventBus.$emit('regular-conversation.add', conversation)
@@ -209,7 +212,7 @@ export default class ArchivedChatList extends ComponentProps {
   box-shadow: 0px 2px 20px rgba(0, 104, 255, 0.06);
   position: absolute;
   top: 0;
-  z-index: 1;
+  z-index: 3;
   background-color: #fff;
 }
 
