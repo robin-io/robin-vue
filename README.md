@@ -1,6 +1,5 @@
 <p align="center">
-  <img src="./src/assets/robin_icon.png" alt="drawing" width="80"/>
-  <h1 align="center">@robin/vue-sdk</h1>
+  <h1 align="start">@Robinapp/vue-sdk</h1>
 </p>
 
 
@@ -11,24 +10,85 @@
       <a href="#about">About</a>
     </li>
     <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
-      </ul>
+      <a href="#getting-started">Installation</a>
     </li>
     <li><a href="#usage">Usage</a></li>
+    <li><a href="#available-options">Available options</a></li>
     <li><a href="#license">License</a></li>
   </ol>
 </details>
 
 ## About
+Vue.js wrapper for Robin.js
 
-## Getting Started
+## Installation
+```bash
+## npm
+npm install robinapp-vue-sdk
 
-## Prerequisites
-
+## yarn
+yarn add robinapp-vue-sdk
+```
 ## Usage
+
+```
+import Vue from 'vue'
+import App from './App.vue'
+import RobinChat from 'robinapp-vue-sdk'
+import 'robinapp-vue-sdk/dist/style.css'
+
+Vue.config.productionTip = false
+
+Vue.use(RobinChat)
+
+new Vue({
+  el: '#app',
+  router,
+  store,
+  render: h => h(App)
+})
+```
+
+```
+<template>
+  <div id="app">
+    <RobinChat :api-key="apiKey" :user-token="userToken" :keys="keys" :user-name="userName" :page-loader="pageLoader" />
+  </div>
+</template>
+
+<script>
+
+export default {
+  name: 'ChatApp',
+  components: {
+    RobinChat
+  },
+  data () {
+    return {
+      apiKey: '...'
+      userToken: '...
+      pageLoader: true,
+      userName: '...',
+      keys: {
+        userToken: 'user_token',
+        profileImage: 'profile_image',
+        userName: 'fullname'
+      }
+    }
+  }
+}
+</script>
+```
+
+## Available options
+
+| Attribute        | Type                | Default              | Description      |
+| :---             | :---:               | :---:                | :---             |
+| api-key          | String              | ''               | SDK Authorization. (required)            |
+| user-token          | String              | ''               | User Authorization. (required)            |
+| user-name          | String              | ''               | Name of the current user using Robin. (required)            |
+| keys          | Object              | {}               |  User data structure you want Robin to pull from. (required)            |
+| page-loader          | Boolean             | True               | Shows a loader when first mounting <RobinChat /> Component.            |
 
 ## License
 
