@@ -95,6 +95,10 @@
   display: flex;
 }
 
+.robin-button:focus {
+  outline: 0;
+}
+
 .robin-flex-column {
   flex-direction: column;
 }

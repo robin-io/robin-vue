@@ -1,7 +1,13 @@
 import Vue from 'vue'
 
+interface Conversation {
+  [key:string]: any
+}
+
 interface State {
-  users: any[]
+  users: any[],
+  currentConversation: Conversation,
+  imagesToPreview: any[],
   isPageLoading: boolean
   isAuthenticated: boolean
   selectMessagesOpen: boolean
@@ -11,6 +17,8 @@ interface State {
 
 const state: State = {
   users: [],
+  currentConversation: {},
+  imagesToPreview: [],
   isPageLoading: true,
   isAuthenticated: false,
   selectMessagesOpen: false,

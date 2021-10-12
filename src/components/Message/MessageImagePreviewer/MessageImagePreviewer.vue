@@ -1,6 +1,6 @@
 <template>
   <div class="robin-image-box robin-squeezeOut" ref="popup-body">
-    <header>
+    <header class="robin-head">
       <div class="robin-card-container robin-flex robin-flex-align-center">
         <div class="robin-wrapper robin-mr-27" @click="closeImagePreview()">
           <RCloseButton />
@@ -219,12 +219,16 @@ export default class MessageImagePreviewer extends ComponentProps {
   transform-origin: bottom;
 }
 
-header {
+.robin-image-box .robin-head {
   width: 100%;
   background-color: #fff;
   display: flex;
   align-items: center;
-  padding: 1.738rem clamp(3%, 5vw, 2.625rem) 1.175rem clamp(0rem, 5vw, 1.5rem);
+  /* padding: 1.738rem clamp(3%, 5vw, 2.625rem) 1.175rem clamp(0rem, 5vw, 1.5rem); */
+  padding-top: 1.738rem;
+  padding-right: clamp(3%, 5vw, 2.625rem);
+  padding-bottom: 1.175rem;
+  padding-left: clamp(3%, 5vw, 1.5rem);
   position: relative;
   z-index: 3;
   min-height: max-content;
@@ -272,6 +276,7 @@ header {
   width: 100%;
   gap: 0.625rem;
   padding: 0.5rem;
+  overflow-y: hidden;
 }
 
 .selected {
@@ -294,7 +299,7 @@ header {
   height: 109px;
   border-radius: 10px;
   cursor: pointer;
-  transition: 0.2s;
+  transition: 0.05s;
   background-color: #fff;
 }
 
@@ -303,7 +308,7 @@ header {
 }
 
 @media (max-width: 768px) {
-  header {
+  .robin-image-box .robin-head {
     padding: 1rem clamp(3%, 5vw, 2.688rem) 1rem clamp(3%, 5vw, 3.125rem);
   }
 
@@ -323,7 +328,7 @@ header {
 }
 
 @media (max-width: 1200px) {
-  header {
+  .robin-image-box .robin-head {
     box-shadow: 0px 2px 20px rgba(0, 104, 255, 0.06);
   }
 }

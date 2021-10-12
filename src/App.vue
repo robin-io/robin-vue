@@ -8,6 +8,7 @@
     </transition>
     <RNoMessageSelected v-show="!isPageLoading && !conversationOpened" />
     <RPageLoader v-show="isPageLoading && pageLoader" />
+    <MessageImagePreviewer ref="popup-1" :conversation="currentConversation" v-show="imagePreviewOpen" @close="closeImagePreview()" :images-to-preview="imagesToPreview" />
      <audio
         src="@/assets/notification.wav" ref="notification">
             Your browser does not support the
@@ -21,6 +22,7 @@ import RSideContainer from './components/ChatList/RSideContainer/RSideContainer.
 import RGroupMessageContainer from './components/Message/RGroupMessageContainer/RGroupMessageContainer.vue'
 import RNoMessageSelected from './components/Message/RNoMessageSelected.vue'
 import RPageLoader from './components/RPageLoader.vue'
+import MessageImagePreviewer from './components/Message/MessageImagePreviewer/MessageImagePreviewer.vue'
 import Component from 'vue-class-component'
 // import { State } from 'vuex-class'
 // import { RootState } from './store/types'
@@ -186,7 +188,8 @@ const ComponentProps = Vue.extend({
     RSideContainer,
     RGroupMessageContainer,
     RPageLoader,
-    RNoMessageSelected
+    RNoMessageSelected,
+    MessageImagePreviewer
   },
   watch: {
     users: {
@@ -228,6 +231,18 @@ export default class App extends ComponentProps {
     return store2.state.isPageLoading
   }
 
+  get currentConversation () {
+    return store2.state.currentConversation
+  }
+
+  get imagesToPreview () {
+    return store2.state.imagesToPreview
+  }
+
+  get imagePreviewOpen () {
+    return store2.state.imagePreviewOpen
+  }
+
   initiateRobin () {
     this.robin = new Robin(this.apiKey, true)
     console.log(this.robin)
@@ -249,7 +264,6 @@ export default class App extends ComponentProps {
     })
 
     store2.setState('users', filteredUsers)
-    // Vue.prototype.$robin_users = filteredUsers
   }
 
   setPrototypes () {
@@ -374,6 +388,20 @@ export default class App extends ComponentProps {
 
   onResize () {
     this.screenWidth = window.innerWidth
+  }
+
+  closeImagePreview (): void {
+    const popup = this.$refs['popup-1'] as any
+    popup.$refs['popup-body'].classList.remove('robin-squeezeOut')
+    popup.$refs['popup-body'].classList.add('robin-squeezeIn')
+
+    window.setTimeout(() => {
+      popup.$refs['popup-body'].classList.remove('robin-squeezeIn')
+      popup.$refs['popup-body'].classList.add('robin-squeezeOut')
+
+      store2.setState('imagePreviewOpen', false)
+      store2.setState('imagesToPreview', [])
+    }, 100)
   }
 }
 </script>

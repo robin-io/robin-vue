@@ -115,6 +115,10 @@ export default class MessageGrid extends ComponentProps {
   background: rgba(0, 0, 0, 0.3);
 }
 
+.robin-grid-container:active::before {
+  background: transparent;
+}
+
 .robin-grid-container .robin-drop-shadow {
   border-radius: 0px 0px 14px 0px;
   width: 125px;

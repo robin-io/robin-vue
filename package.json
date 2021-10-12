@@ -1,6 +1,6 @@
 {
   "name": "robinapp-vue-sdk",
-  "version": "0.2.0",
+  "version": "0.2.7",
   "files": [
     "dist"
   ],
@@ -35,15 +35,11 @@
     "robin.io-js": "^0.1.7",
     "v-emoji-picker": "^2.3.3",
     "v-lazy-image": "^2.0.1",
-    "v-viewer": "^1.6.4",
     "vue": "^2.6.14",
     "vue-axios": "^3.2.5",
-    "vue-carousel-3d": "^1.0.1",
     "vue-class-component": "^7.2.6",
     "vue-clickaway": "^2.2.2",
-    "vue-promised": "^2.1.0",
     "vue-toasted": "^1.1.28",
-    "vue-web-cam": "^1.9.0",
     "vuex": "^3.6.2",
     "vuex-class": "^0.3.2"
   },

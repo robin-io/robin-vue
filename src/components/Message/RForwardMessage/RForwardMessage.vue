@@ -107,7 +107,7 @@ export default class RForwardMessage extends ComponentProps {
     if (searchText.trim() === '') {
       console.log(this.getRegularConversations(this.$conversations))
       for (const conversation of this.getRegularConversations(this.$conversations)) {
-        this.conversations[conversation.name[0] ? this.getContactKey(conversation.name) : this.getContactKey(conversation.receiver_name)] = this.getRegularConversations(this.$conversations).filter((item) => {
+        this.conversations[conversation.name[0] ? this.getContactKey(conversation.name) : this.getContactKey(conversation.sender_token !== this.$user_token ? conversation.sender_name : conversation.receiver_name)] = this.getRegularConversations(this.$conversations).filter((item) => {
           // if (item.name[0] && conversation.name[0]) return this.validateContact(item.name, conversation.name)
           // if (item.receiver_name[0] && conversation.receiver_name[0]) return this.validateContact(item.receiver_name, conversation.receiver_name)
           // if (item.receiver_name[0] && conversation.name[0]) return this.validateContact(item.receiver_name, conversation.name)
@@ -124,7 +124,7 @@ export default class RForwardMessage extends ComponentProps {
       this.sortConversations()
     } else {
       for (const conversation of this.searchData) {
-        this.conversations[conversation.name[0] ? this.getContactKey(conversation.name) : this.getContactKey(conversation.receiver_name)] = this.searchData.filter((item) => {
+        this.conversations[conversation.name[0] ? this.getContactKey(conversation.name) : this.getContactKey(conversation.sender_token !== this.$user_token ? conversation.sender_name : conversation.receiver_name)] = this.searchData.filter((item) => {
           // if (item.name[0] && conversation.name[0]) return this.validateContact(item.name, conversation.name)
           // if (item.receiver_name[0] && conversation.receiver_name[0]) return this.validateContact(item.receiver_name, conversation.receiver_name)
           // if (item.receiver_name[0] && conversation.name[0]) return this.validateContact(item.receiver_name, conversation.name)
@@ -138,6 +138,8 @@ export default class RForwardMessage extends ComponentProps {
           // return false
         })
       }
+
+      this.sortConversations()
     }
   }
 

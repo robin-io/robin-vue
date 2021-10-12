@@ -11,7 +11,7 @@
     </div>
     <RMessageInputBar :conversation="conversation" @open-camera="openCamera()" :captured-image="capturedImage" />
     <RCamera ref="popup-1" :camera-opened="popUpState.cameraOpened" @close="closeCamera()" @captured-image="handleCapturedImage" v-show="popUpState.cameraOpened" />
-    <MessageImagePreviewer ref="popup-2" :conversation="conversation" v-show="imagePreviewOpen" @close="closeImagePreview()" :images-to-preview="imagesToPreview" />
+    <!-- <MessageImagePreviewer ref="popup-2" :conversation="conversation" v-show="imagePreviewOpen" @close="closeImagePreview()" :images-to-preview="imagesToPreview" /> -->
     <RForwardMessage v-if="forwardMessage" @closemodal="onCloseForwardMessagePopup()" :selected-messages="selectedMessages" />
   </div>
 </template>
@@ -30,7 +30,7 @@ import mime from 'mime'
 import store2 from '../../../store2/index'
 import MessageContent from '../MessageContent/MessageContent.vue'
 import MessageGrid from '../MessageGrid/MessageGrid.vue'
-import MessageImagePreviewer from '../MessageImagePreviewer/MessageImagePreviewer.vue'
+// import MessageImagePreviewer from '../MessageImagePreviewer/MessageImagePreviewer.vue'
 import RMessagePopOver from '../RMessagePopOver/RMessagePopOver.vue'
 import RForwardMessage from '../RForwardMessage/RForwardMessage.vue'
 
@@ -45,7 +45,7 @@ import RForwardMessage from '../RForwardMessage/RForwardMessage.vue'
     RDownloadButton,
     MessageContent,
     MessageGrid,
-    MessageImagePreviewer,
+    // MessageImagePreviewer,
     RMessagePopOver,
     RForwardMessage
   },
@@ -148,6 +148,7 @@ export default class RGroupMessageContainer extends Vue {
     EventBus.$on('conversation-opened', (conversation: any) => {
       this.messages = []
       this.conversation = conversation || []
+      store2.setState('currentConversation', conversation)
       this.scroll = false
       this.isMessagesLoading = true
       this.getConversationMessages(conversation._id).then(() => {
@@ -257,22 +258,23 @@ export default class RGroupMessageContainer extends Vue {
 
   openImagePreview ($event: any): void {
     store2.setState('imagePreviewOpen', true)
-    this.imagesToPreview = $event
+    store2.setState('imagesToPreview', $event)
+    // this.imagesToPreview = $event
   }
 
-  closeImagePreview (): void {
-    const popup = this.$refs['popup-2'] as any
-    popup.$refs['popup-body'].classList.remove('robin-squeezeOut')
-    popup.$refs['popup-body'].classList.add('robin-squeezeIn')
+  // closeImagePreview (): void {
+  //   const popup = this.$refs['popup-2'] as any
+  //   popup.$refs['popup-body'].classList.remove('robin-squeezeOut')
+  //   popup.$refs['popup-body'].classList.add('robin-squeezeIn')
 
-    window.setTimeout(() => {
-      popup.$refs['popup-body'].classList.remove('robin-squeezeIn')
-      popup.$refs['popup-body'].classList.add('robin-squeezeOut')
+  //   window.setTimeout(() => {
+  //     popup.$refs['popup-body'].classList.remove('robin-squeezeIn')
+  //     popup.$refs['popup-body'].classList.add('robin-squeezeOut')
 
-      store2.setState('imagePreviewOpen', false)
-      this.imagesToPreview = []
-    }, 100)
-  }
+  //     store2.setState('imagePreviewOpen', false)
+  //     this.imagesToPreview = []
+  //   }, 100)
+  // }
 
   openMessagePopup (val: number): void {
     this.messagePopUpIndex = val

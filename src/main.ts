@@ -1,5 +1,4 @@
 import Vue from 'vue'
-import VueViewer from 'v-viewer'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 import RobinChat from './robinchat'
@@ -9,7 +8,6 @@ import '../types/index.d.ts'
 import './styles/main.css'
 
 Vue.use(VueAxios, axios)
-Vue.use(VueViewer)
 Vue.use(Toasted)
 
 Vue.toasted.register('custom_success', (message) => message, {

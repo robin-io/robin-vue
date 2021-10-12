@@ -113,20 +113,9 @@ export default class RSideContainer extends ComponentProps {
   onNewConversationCreated () {
     EventBus.$on('new.conversation', (conversation: any) => {
       if (conversation.sender_token === this.$user_token || conversation.receiver_token === this.$user_token) {
-        EventBus.$emit('regular-conversation.delete', conversation)
+        // EventBus.$emit('regular-conversation.delete', conversation)
         EventBus.$emit('regular-conversation.add', conversation)
       }
-      // const isArchivedConversation = this.$archivedConversations.some((item) => item._id === conversation._id)
-
-      // if (!isArchivedConversation) {
-      //   EventBus.$emit('regular-conversation.delete', conversation)
-      //   EventBus.$emit('regular-conversation.add', conversation)
-      // }
-
-      // if (isArchivedConversation) {
-      //   EventBus.$emit('archived-conversation.delete', conversation)
-      //   EventBus.$emit('archived-conversation.add', conversation)
-      // }
     })
   }
 

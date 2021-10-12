@@ -33,7 +33,7 @@
           <RArchiveChatListPopOver :ref="`popup-${index}`" :class="{ top: scrollValidate(index) }" @unarchive-chat="unArchiveChat(conversation._id)" />
         </div>
       </div>
-      <div v-show="archivedConversations.length < 1" class="robin-flex robin-flex-justify-center">
+      <div v-show="archivedConversations.length < 1" class="robin-flex robin-flex-justify-center robin-pt-15">
         <RText :font-size="18" color="#15AE73">No archived chat</RText>
       </div>
     </div>
