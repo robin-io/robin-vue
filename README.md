@@ -52,7 +52,7 @@ new Vue({
 ```
 <template>
   <div id="app">
-    <RobinChat :api-key="apiKey" :user-token="userToken" :keys="keys" :user-name="userName" :page-loader="pageLoader" />
+    <RobinChat :api-key="apiKey" :user-token="userToken" :user-name="userName" :users="users" :keys="keys" :page-loader="pageLoader" />
   </div>
 </template>
 
@@ -73,7 +73,12 @@ export default {
         userToken: 'user_token',
         profileImage: 'profile_image',
         userName: 'fullname'
-      }
+      },
+      users: [{
+        userToken: '...',
+        profileImage: '...',
+        userName: '...'
+      }]
     }
   }
 }
@@ -87,6 +92,7 @@ export default {
 | api-key          | String              | ''               | SDK Authorization. (required)            |
 | user-token          | String              | ''               | User Authorization. (required)            |
 | user-name          | String              | ''               | Name of the current user using Robin. (required)            |
+| users | Array | [] | User list - Data should model the keys option (required)
 | keys          | Object              | {}               |  User data structure you want Robin to pull from. (required)            |
 | page-loader          | Boolean             | True               | Shows a loader when first mounting <RobinChat /> Component.            |
 
