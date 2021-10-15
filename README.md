@@ -19,7 +19,7 @@
 </details>
 
 ## About
-Vue.js wrapper for Robin.js
+Robinapp/vue-sdk is a Vue SDK for communicating with the [Robin API](https://robinapp.co/). It provides an instant messaging solution when building Vue applications.
 
 ## Installation
 ```bash
