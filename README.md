@@ -10,7 +10,7 @@
     <img alt="" src="https://img.shields.io/npm/dt/robin.io-vue.svg">
 </a>
 <a href="https://npmjs.com/package/robin.io-vue">
-    <img alt="" src="https://img.shields.io/npm/l/robin.io-vue">
+    <img alt="" src="https://img.shields.io/npm/l/robin.io-vue.svg">
 </a>
 </p>
 
@@ -37,10 +37,10 @@ Robin.io-vue is a Vue SDK built to communicate with the [Robinapp API](https://r
 
 ```bash
 ## npm
-npm install robin.io-vue-sdk
+npm install robin.io-vue
 
 ## yarn
-yarn add robin.io-vue-sdk
+yarn add robin.io-vue
 ```
 
 ## Usage
@@ -48,7 +48,7 @@ yarn add robin.io-vue-sdk
 ```
 import Vue from 'vue'
 import App from './App.vue'
-import RobinChat from 'robin.io-vue-sdk'
+import RobinChat from 'robin.io-vue'
 import 'robin.io-vue-sdk/dist/style.css'
 
 Vue.config.productionTip = false
