@@ -9,10 +9,7 @@
     <RNoMessageSelected v-show="!isPageLoading && !conversationOpened" />
     <RPageLoader v-show="isPageLoading && pageLoader" />
     <MessageImagePreviewer ref="popup-1" :conversation="currentConversation" v-show="imagePreviewOpen" @close="closeImagePreview()" :images-to-preview="imagesToPreview" />
-     <audio
-        src="@/assets/notification.wav" ref="notification">
-            Your browser does not support the
-    </audio>
+    <audio src="@/assets/notification.wav" ref="notification">Your browser does not support the</audio>
   </div>
 </template>
 

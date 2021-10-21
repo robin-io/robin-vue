@@ -1,7 +1,18 @@
-<p align="center">
-  <h1 align="start">@Robinapp/vue-sdk</h1>
-</p>
+<h1 align="start">
+  Robin.io-vue
+</h1>
 
+<p align="start">
+<a href="https://npmjs.com/package/robin.io-vue">
+    <img alt="" src="https://img.shields.io/npm/v/robin.io-vue.svg">
+</a>
+<a href="https://npmjs.com/package/robin.io-vue">
+    <img alt="" src="https://img.shields.io/npm/dt/robin.io-vue.svg">
+</a>
+<a href="https://npmjs.com/package/robin.io-vue">
+    <img alt="" src="https://img.shields.io/npm/l/robin.io-vue">
+</a>
+</p>
 
 <details open="open">
   <summary>Table of Contents</summary>
@@ -19,23 +30,26 @@
 </details>
 
 ## About
-Robinapp/vue-sdk is a Vue SDK for communicating with the [Robin API](https://robinapp.co/). It provides an instant messaging solution when building Vue applications.
+
+Robin.io-vue is a Vue SDK built to communicate with the [Robinapp API](https://robinapp.co/). Now you can integrate [Robin.io](https://robinapp.co/) with minimal effort and quickly setup an real-time messaging platform in your Vue.js web application.
 
 ## Installation
+
 ```bash
 ## npm
-npm install robinapp-vue-sdk
+npm install robin.io-vue-sdk
 
 ## yarn
-yarn add robinapp-vue-sdk
+yarn add robin.io-vue-sdk
 ```
+
 ## Usage
 
 ```
 import Vue from 'vue'
 import App from './App.vue'
-import RobinChat from 'robinapp-vue-sdk'
-import 'robinapp-vue-sdk/dist/style.css'
+import RobinChat from 'robin.io-vue-sdk'
+import 'robin.io-vue-sdk/dist/style.css'
 
 Vue.config.productionTip = false
 
@@ -87,14 +101,14 @@ export default {
 
 ## Available options
 
-| Attribute        | Type                | Default              | Description      |
-| :---             | :---:               | :---:                | :---             |
-| api-key          | String              | ''               | SDK Authorization. (required)            |
-| user-token          | String              | ''               | User Authorization. (required)            |
-| user-name          | String              | ''               | Name of the current user using Robin. (required)            |
-| users | Array | [] | User list - Data should model the keys option (required)
-| keys          | Object              | {}               |  User data structure you want Robin to pull from. (required)            |
-| page-loader          | Boolean             | True               | Shows a loader when first mounting <RobinChat /> Component.            |
+| Attribute   |  Type   | Default | Description                                                 |
+| :---------- | :-----: | :-----: | :---------------------------------------------------------- |
+| api-key     | String  |   ''    | SDK Authorization. (required)                               |
+| user-token  | String  |   ''    | User Authorization. (required)                              |
+| user-name   | String  |   ''    | Name of the current user using Robin. (required)            |
+| users       |  Array  |   []    | User list - Data should model the keys option (required)    |
+| keys        | Object  |   {}    | User data structure you want Robin to pull from. (required) |
+| page-loader | Boolean |  True   | Shows a loader when first mounting <RobinChat /> Component. |
 
 ## License
 

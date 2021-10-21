@@ -1,6 +1,6 @@
 {
-  "name": "robinapp-vue-sdk",
-  "version": "0.3.0",
+  "name": "robin.io-vue",
+  "version": "0.0.2",
   "files": [
     "dist"
   ],
@@ -8,12 +8,12 @@
     "robin.io",
     "vue"
   ],
-  "main": "./dist/robinapp-vue-sdk.umd.js",
-  "module": "./dist/robinapp-vue-sdk.es.js",
+  "main": "./dist/robin.io-vue.umd.js",
+  "module": "./dist/robin.io-vue.es.js",
   "exports": {
     ".": {
-      "import": "./dist/robinapp-vue-sdk.es.js",
-      "require": "./dist/robinapp-vue-sdk.umd.js"
+      "import": "./dist/robin.io-vue.es.js",
+      "require": "./dist/robin.io-vue.umd.js"
     }
   },
   "scripts": {
