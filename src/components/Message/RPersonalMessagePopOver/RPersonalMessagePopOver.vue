@@ -19,7 +19,7 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 // import { Mutation } from 'vuex-class'
-import store2 from '../../../store2/index'
+import store from '../../../store/index'
 import RText from '@/components/ChatList/RText/RText.vue'
 
 @Component({
@@ -34,12 +34,12 @@ export default class RPersonalMessagePopOver extends Vue {
 
   handleSelectMessages () {
     // this.setSelectMessagesOpen(true)
-    store2.setState('selectMessagesOpen', true)
+    store.setState('selectMessagesOpen', true)
   }
 
   handleClearMessages () {
     // this.setClearMessages(true)
-    store2.setState('clearMessages', true)
+    store.setState('clearMessages', true)
   }
 }
 </script>

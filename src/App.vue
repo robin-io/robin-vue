@@ -21,10 +21,7 @@ import RNoMessageSelected from './components/Message/RNoMessageSelected.vue'
 import RPageLoader from './components/RPageLoader.vue'
 import MessageImagePreviewer from './components/Message/MessageImagePreviewer/MessageImagePreviewer.vue'
 import Component from 'vue-class-component'
-// import { State } from 'vuex-class'
-// import { RootState } from './store/types'
 import store from './store/index'
-import store2 from './store2/index'
 import { Robin } from 'robin.io-js'
 import EventBus from './event-bus'
 
@@ -225,19 +222,19 @@ export default class App extends ComponentProps {
   }
 
   get isPageLoading () {
-    return store2.state.isPageLoading
+    return store.state.isPageLoading
   }
 
   get currentConversation () {
-    return store2.state.currentConversation
+    return store.state.currentConversation
   }
 
   get imagesToPreview () {
-    return store2.state.imagesToPreview
+    return store.state.imagesToPreview
   }
 
   get imagePreviewOpen () {
-    return store2.state.imagePreviewOpen
+    return store.state.imagePreviewOpen
   }
 
   initiateRobin () {
@@ -260,11 +257,10 @@ export default class App extends ComponentProps {
       }
     })
 
-    store2.setState('users', filteredUsers)
+    store.setState('users', filteredUsers)
   }
 
   setPrototypes () {
-    Vue.prototype.$store = store
     Vue.prototype.$robin = this.robin
     Vue.prototype.$user_token = this.userToken
     Vue.prototype.$channel = this.channel
@@ -396,8 +392,8 @@ export default class App extends ComponentProps {
       popup.$refs['popup-body'].classList.remove('robin-squeezeIn')
       popup.$refs['popup-body'].classList.add('robin-squeezeOut')
 
-      store2.setState('imagePreviewOpen', false)
-      store2.setState('imagesToPreview', [])
+      store.setState('imagePreviewOpen', false)
+      store.setState('imagesToPreview', [])
     }, 100)
   }
 }

@@ -41,7 +41,7 @@ import Vue from 'vue'
 import Component from 'vue-class-component'
 // import { State, Mutation } from 'vuex-class'
 // import { RootState } from '@/store/types'
-import store2 from '../../../store2/index'
+import store from '../../../store/index'
 import RGroupAvatar from '@/components/ChatList/RGroupAvatar/RGroupAvatar.vue'
 import RBackButton from '../RBackButton/RBackButton.vue'
 import RAvatar from '@/components/ChatList/RAvatar/RAvatar.vue'
@@ -105,7 +105,7 @@ export default class RGroupChatHeader extends ComponentProps {
   }
 
   get selectMessagesOpen () {
-    return store2.state.selectMessagesOpen
+    return store.state.selectMessagesOpen
   }
 
   handleOpenPopUp (refKey: string): void {
@@ -148,7 +148,7 @@ export default class RGroupChatHeader extends ComponentProps {
 
   cancelSelect (): void {
     // this.setSelectMessagesOpen(false)
-    store2.setState('selectMessagesOpen', false)
+    store.setState('selectMessagesOpen', false)
   }
 
   onResize () {

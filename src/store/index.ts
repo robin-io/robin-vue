@@ -1,19 +1,37 @@
 import Vue from 'vue'
-import Vuex, { StoreOptions } from 'vuex'
-import { mutations } from './mutations'
-import { RootState } from './types'
 
-Vue.use(Vuex)
-
-const store: StoreOptions<RootState> = {
-  state: {
-    isPageLoading: true,
-    isAuthenticated: false,
-    selectMessagesOpen: false,
-    clearMessages: false,
-    imagePreviewOpen: false
-  },
-  mutations
+interface Conversation {
+  [key:string]: any
 }
 
-export default new Vuex.Store<RootState>(store)
+interface State {
+  users: any[],
+  currentConversation: Conversation,
+  imagesToPreview: any[],
+  isPageLoading: boolean
+  isAuthenticated: boolean
+  selectMessagesOpen: boolean
+  clearMessages: boolean
+  imagePreviewOpen: boolean
+}
+
+const state: State = {
+  users: [],
+  currentConversation: {},
+  imagesToPreview: [],
+  isPageLoading: true,
+  isAuthenticated: false,
+  selectMessagesOpen: false,
+  clearMessages: false,
+  imagePreviewOpen: false
+}
+
+const store = {
+  state: Vue.observable(state),
+
+  setState (key: string, val: any) {
+    Vue.set(this.state, key, val)
+  }
+}
+
+export default store

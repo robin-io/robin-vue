@@ -80,7 +80,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import store2 from '../../store2/index'
+import store from '../../store/index'
 import Component from 'vue-class-component'
 import RText from './RText/RText.vue'
 import RSearchBar from './RSearchBar/RSearchBar.vue'
@@ -125,7 +125,7 @@ export default class NewChatList extends Vue {
   }
 
   get robinUsers () {
-    return store2.state.users
+    return store.state.users
   }
 
   async createConversation (user: any) {

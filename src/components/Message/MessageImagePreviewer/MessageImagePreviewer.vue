@@ -50,7 +50,7 @@ import Vue, { PropType } from 'vue'
 import Component from 'vue-class-component'
 import EventBus from '@/event-bus'
 import VLazyImage from 'v-lazy-image/v2'
-import store2 from '../../../store2/index'
+import store from '../../../store/index'
 import RCloseButton from '../../ChatList/RCloseButton/RCloseButton.vue'
 import RGroupAvatar from '@/components/ChatList/RGroupAvatar/RGroupAvatar.vue'
 import RAvatar from '@/components/ChatList/RAvatar/RAvatar.vue'
@@ -197,7 +197,7 @@ export default class MessageImagePreviewer extends ComponentProps {
 
   onCloseForwardMessagePopup (): void {
     this.forwardMessage = false
-    store2.setState('selectMessagesOpen', false)
+    store.setState('selectMessagesOpen', false)
   }
 }
 </script>

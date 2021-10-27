@@ -43,7 +43,7 @@
 <script lang="ts">
 import Vue from 'vue'
 // import * as _ from 'lodash'
-import store2 from '../../store2/index'
+import store from '../../store/index'
 import Component from 'vue-class-component'
 import RCloseButton from './RCloseButton/RCloseButton.vue'
 import RText from './RText/RText.vue'
@@ -90,7 +90,7 @@ export default class NewGroupChatList extends Vue {
   }
 
   get robinUsers () {
-    return store2.state.users
+    return store.state.users
   }
 
   closeModal (): void {

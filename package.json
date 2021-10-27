@@ -23,9 +23,7 @@
     "serve": "vite preview --port 8080",
     "prepare": "husky install",
     "lint": "prettier --write *.{js,ts,vue} --no-error-on-unmatched-pattern . && eslint --fix --ext .js,.ts,.vue --no-error-on-unmatched-pattern .",
-    "test": "jest",
-    "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "test": "jest"
   },
   "dependencies": {
     "@types/vue-clickaway": "^2.2.0",
@@ -47,10 +45,6 @@
   "devDependencies": {
     "@babel/core": "^7.15.0",
     "@babel/preset-env": "^7.15.0",
-    "@storybook/addon-actions": "^6.3.7",
-    "@storybook/addon-essentials": "^6.3.7",
-    "@storybook/addon-links": "^6.3.7",
-    "@storybook/vue": "^6.3.7",
     "@types/jest": "^26.0.24",
     "@types/node": "^16.7.1",
     "@typescript-eslint/eslint-plugin": "^4.29.3",

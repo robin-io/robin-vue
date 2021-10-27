@@ -27,7 +27,7 @@ import RDownloadButton from '../RDownloadButton/RDownloadButton.vue'
 import RText from '@/components/ChatList/RText/RText.vue'
 import RCamera from '../RCamera/RCamera.vue'
 import mime from 'mime'
-import store2 from '../../../store2/index'
+import store from '../../../store/index'
 import MessageContent from '../MessageContent/MessageContent.vue'
 import MessageGrid from '../MessageGrid/MessageGrid.vue'
 // import MessageImagePreviewer from '../MessageImagePreviewer/MessageImagePreviewer.vue'
@@ -133,22 +133,22 @@ export default class RGroupMessageContainer extends Vue {
   }
 
   get selectMessagesOpen () {
-    return store2.state.selectMessagesOpen
+    return store.state.selectMessagesOpen
   }
 
   get clearMessages () {
-    return store2.state.clearMessages
+    return store.state.clearMessages
   }
 
   get imagePreviewOpen () {
-    return store2.state.imagePreviewOpen
+    return store.state.imagePreviewOpen
   }
 
   handleConversationOpen (): void {
     EventBus.$on('conversation-opened', (conversation: any) => {
       this.messages = []
       this.conversation = conversation || []
-      store2.setState('currentConversation', conversation)
+      store.setState('currentConversation', conversation)
       this.scroll = false
       this.isMessagesLoading = true
       this.getConversationMessages(conversation._id).then(() => {
@@ -257,8 +257,8 @@ export default class RGroupMessageContainer extends Vue {
   }
 
   openImagePreview ($event: any): void {
-    store2.setState('imagePreviewOpen', true)
-    store2.setState('imagesToPreview', $event)
+    store.setState('imagePreviewOpen', true)
+    store.setState('imagesToPreview', $event)
     // this.imagesToPreview = $event
   }
 
@@ -271,7 +271,7 @@ export default class RGroupMessageContainer extends Vue {
   //     popup.$refs['popup-body'].classList.remove('robin-squeezeIn')
   //     popup.$refs['popup-body'].classList.add('robin-squeezeOut')
 
-  //     store2.setState('imagePreviewOpen', false)
+  //     store.setState('imagePreviewOpen', false)
   //     this.imagesToPreview = []
   //   }, 100)
   // }
@@ -359,7 +359,7 @@ export default class RGroupMessageContainer extends Vue {
       this.$toasted.global.custom_error('Check your connection.')
     }
 
-    store2.setState('clearMessages', false)
+    store.setState('clearMessages', false)
   }
 
   onScroll (): void {
@@ -391,12 +391,12 @@ export default class RGroupMessageContainer extends Vue {
   }
 
   onChatClickAway (): void {
-    store2.setState('selectMessagesOpen', false)
+    store.setState('selectMessagesOpen', false)
   }
 
   onCloseForwardMessagePopup (): void {
     this.forwardMessage = false
-    store2.setState('selectMessagesOpen', false)
+    store.setState('selectMessagesOpen', false)
   }
 }
 </script>

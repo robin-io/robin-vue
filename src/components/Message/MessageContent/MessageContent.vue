@@ -95,7 +95,7 @@
 import Vue, { PropType } from 'vue'
 import VLazyImage from 'v-lazy-image/v2'
 import { mixin as clickaway } from 'vue-clickaway'
-import store2 from '../../../store2/index'
+import store from '../../../store/index'
 import Component from 'vue-class-component'
 import RDownloadButton from '../RDownloadButton/RDownloadButton.vue'
 import RText from '@/components/ChatList/RText/RText.vue'
@@ -198,11 +198,11 @@ export default class MessageContent extends ComponentProps {
   websiteRegex = /[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/
 
   get robinUsers () {
-    return store2.state.users
+    return store.state.users
   }
 
   get selectMessagesOpen () {
-    return store2.state.selectMessagesOpen
+    return store.state.selectMessagesOpen
   }
 
   formatTimeStamp (value: any): string {

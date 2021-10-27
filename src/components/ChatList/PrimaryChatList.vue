@@ -67,7 +67,7 @@ import moment from 'moment'
 import Component from 'vue-class-component'
 // import { State, Mutation } from 'vuex-class'
 // import { RootState } from '@/store/types'
-import store2 from '../../store2'
+import store from '../../store'
 import EventBus from '@/event-bus'
 import RText from './RText/RText.vue'
 import REditButton from './REditButton/REditButton.vue'
@@ -145,7 +145,7 @@ export default class PrimaryChatList extends ComponentProps {
   }
 
   get isPageLoading () {
-    return store2.state.isPageLoading
+    return store.state.isPageLoading
   }
 
   onGroupConversationCreated (): void {
@@ -159,7 +159,7 @@ export default class PrimaryChatList extends ComponentProps {
     if (!this.isConversationActive(conversation) && this.screenWidth > 1200) {
       this.activeConversation = conversation
       // this.setImagePreviewOpen(false)
-      store2.setState('imagePreviewOpen', false)
+      store.setState('imagePreviewOpen', false)
       EventBus.$emit('conversation-opened', conversation)
       EventBus.$emit('open-conversation')
     }
@@ -167,7 +167,7 @@ export default class PrimaryChatList extends ComponentProps {
     if (this.screenWidth <= 1200) {
       this.activeConversation = conversation
       // this.setImagePreviewOpen(false)
-      store2.setState('imagePreviewOpen', false)
+      store.setState('imagePreviewOpen', false)
       EventBus.$emit('conversation-opened', conversation)
       EventBus.$emit('open-conversation')
     }

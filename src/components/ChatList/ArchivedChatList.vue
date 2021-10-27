@@ -44,7 +44,7 @@
 import Vue from 'vue'
 import moment from 'moment'
 // import { Mutation } from 'vuex-class'
-import store2 from '../../store2/index'
+import store from '../../store/index'
 import Component from 'vue-class-component'
 import EventBus from '@/event-bus'
 import RText from './RText/RText.vue'
@@ -120,7 +120,7 @@ export default class ArchivedChatList extends ComponentProps {
     if (!this.isConversationActive(conversation) && this.screenWidth > 1200) {
       this.activeConversation = conversation
       // this.setImagePreviewOpen(false)
-      store2.setState('imagePreviewOpen', false)
+      store.setState('imagePreviewOpen', false)
       EventBus.$emit('conversation-opened', conversation)
       EventBus.$emit('open-conversation')
     }
@@ -128,7 +128,7 @@ export default class ArchivedChatList extends ComponentProps {
     if (this.screenWidth <= 1200) {
       this.activeConversation = conversation
       // this.setImagePreviewOpen(false)
-      store2.setState('imagePreviewOpen', false)
+      store.setState('imagePreviewOpen', false)
       EventBus.$emit('conversation-opened', conversation)
       EventBus.$emit('open-conversation')
     }

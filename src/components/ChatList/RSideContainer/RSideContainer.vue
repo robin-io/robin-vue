@@ -13,7 +13,7 @@ import Vue, { PropType } from 'vue'
 import Component from 'vue-class-component'
 // import { State, Mutation } from 'vuex-class'
 // import { RootState } from '@/store/types'
-import store2 from '../../../store2/index'
+import store from '../../../store/index'
 import EventBus from '@/event-bus'
 import PrimaryChatList from '../PrimaryChatList.vue'
 import NewChatList from '../NewChatList.vue'
@@ -62,7 +62,7 @@ export default class RSideContainer extends ComponentProps {
   }
 
   get isPageLoading () {
-    return store2.state.isPageLoading
+    return store.state.isPageLoading
   }
 
   openModal (refKey: string, type: string): void {
@@ -158,7 +158,7 @@ export default class RSideContainer extends ComponentProps {
       Vue.prototype.$regularConversations = this.getRegularConversations()
       Vue.prototype.$archivedConversations = this.getArchivedConversations()
       this.regularConversations = this.getRegularConversations()
-      store2.setState('isPageLoading', false)
+      store.setState('isPageLoading', false)
       // console.log('getconversations -> ', this.$conversations)
       this.$forceUpdate()
     }

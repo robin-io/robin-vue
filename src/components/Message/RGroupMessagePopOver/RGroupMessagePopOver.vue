@@ -20,7 +20,7 @@ import Vue from 'vue'
 import Component from 'vue-class-component'
 import EventBus from '@/event-bus'
 // import { Mutation } from 'vuex-class'
-import store2 from '../../../store2/index'
+import store from '../../../store/index'
 import RText from '@/components/ChatList/RText/RText.vue'
 
 const ComponentProps = Vue.extend({
@@ -43,7 +43,7 @@ export default class RGroupMessagePopOver extends ComponentProps {
 
   handleSelectMessages () {
     // this.setSelectMessagesOpen(true)
-    store2.setState('selectMessagesOpen', true)
+    store.setState('selectMessagesOpen', true)
   }
 
   async handleLeaveGroup () {
