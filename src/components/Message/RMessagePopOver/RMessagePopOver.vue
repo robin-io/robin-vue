@@ -3,12 +3,12 @@
     <!-- <div class="robin-wrapper robin-w-100">
       <RText :font-size="14" color="#101010">Reply</RText>
       <RReplyButton />
-    </div>
+    </div> -->
     <div class="robin-wrapper robin-w-100">
       <RText :font-size="14" color="#101010">Forward</RText>
       <RForwardButton />
     </div>
-    <div class="robin-wrapper robin-w-100">
+    <!-- <div class="robin-wrapper robin-w-100">
       <RText :font-size="14" color="#101010">Star</RText>
       <RStarButton />
     </div> -->

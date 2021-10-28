@@ -9,6 +9,7 @@
     <RNoMessageSelected v-show="!isPageLoading && !conversationOpened" />
     <RPageLoader v-show="isPageLoading && pageLoader" />
     <MessageImagePreviewer ref="popup-1" :conversation="currentConversation" v-show="imagePreviewOpen" @close="closeImagePreview()" :images-to-preview="imagesToPreview" />
+    <ViewMessageProfile ref="popup-2" v-show="viewMessageProfileOpen" @close="closeMessageProfile()" />
     <audio src="@/assets/notification.wav" ref="notification">Your browser does not support the</audio>
   </div>
 </template>
@@ -20,6 +21,7 @@ import RGroupMessageContainer from './components/Message/RGroupMessageContainer/
 import RNoMessageSelected from './components/Message/RNoMessageSelected.vue'
 import RPageLoader from './components/RPageLoader.vue'
 import MessageImagePreviewer from './components/Message/MessageImagePreviewer/MessageImagePreviewer.vue'
+import ViewMessageProfile from './components/Message/ViewMessageProfile/ViewMessageProfile.vue'
 import Component from 'vue-class-component'
 import store from './store/index'
 import { Robin } from 'robin.io-js'
@@ -183,7 +185,8 @@ const ComponentProps = Vue.extend({
     RGroupMessageContainer,
     RPageLoader,
     RNoMessageSelected,
-    MessageImagePreviewer
+    MessageImagePreviewer,
+    ViewMessageProfile
   },
   watch: {
     users: {
@@ -235,6 +238,10 @@ export default class App extends ComponentProps {
 
   get imagePreviewOpen () {
     return store.state.imagePreviewOpen
+  }
+
+  get viewMessageProfileOpen () {
+    return store.state.viewMessageProfileOpen
   }
 
   initiateRobin () {
@@ -394,6 +401,19 @@ export default class App extends ComponentProps {
 
       store.setState('imagePreviewOpen', false)
       store.setState('imagesToPreview', [])
+    }, 100)
+  }
+
+  closeMessageProfile (): void {
+    const popup = this.$refs['popup-2'] as any
+    popup.$refs['popup-body'].classList.remove('robin-slideInRight')
+    popup.$refs['popup-body'].classList.add('robin-slideOutRight')
+
+    window.setTimeout(() => {
+      popup.$refs['popup-body'].classList.remove('robin-slideOutRight')
+      popup.$refs['popup-body'].classList.add('robin-slideInRight')
+
+      store.setState('viewMessageProfileOpen', false)
     }, 100)
   }
 }

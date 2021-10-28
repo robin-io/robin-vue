@@ -13,6 +13,7 @@ interface State {
   selectMessagesOpen: boolean
   clearMessages: boolean
   imagePreviewOpen: boolean
+  viewMessageProfileOpen: boolean
 }
 
 const state: State = {
@@ -23,7 +24,8 @@ const state: State = {
   isAuthenticated: false,
   selectMessagesOpen: false,
   clearMessages: false,
-  imagePreviewOpen: false
+  imagePreviewOpen: false,
+  viewMessageProfileOpen: false
 }
 
 const store = {

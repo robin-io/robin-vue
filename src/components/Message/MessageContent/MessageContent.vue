@@ -2,8 +2,11 @@
   <div class="robin-message-bubble robin-flex robin-flex-wrap robin-flex-align-center" :class="validateMessages(message)">
     <RCheckBox v-if="selectMessagesOpen" @clicked="toggleCheckAction($event)" />
     <div class="robin-bubble" :class="validateMessages(message).includes('message-sender') ? 'robin-ml-5' : 'robin-mr-5'" v-if="!Array.isArray(message)" v-on-clickaway="closeModal">
+      <div class="robin-popup-container reactions">
+        <RReactionPopOver v-show="messagePopup.opened && validateMessages(message)" @close-modal="closeModal()" ref="popup-1" :id="message._id" :message="message" />
+      </div>
       <!-- Personal -->
-      <div class="robin-message-bubble-inner" :class="{'robin-non-clickable': selectMessagesOpen}" v-if="!message.has_attachment && !conversation.is_group" @click="openModal()">
+      <div class="robin-message-bubble-inner" :class="{ 'robin-non-clickable': selectMessagesOpen }" v-if="!message.has_attachment && !conversation.is_group" @click="openModal()">
         <RText :font-size="16" textWrap="pre-line" as="span" v-if="!emailRegex.test(message.content.msg) && !websiteRegex.test(message.content.msg)">
           {{ message.content.msg }}
         </RText>
@@ -20,7 +23,7 @@
         </span>
       </div>
       <!-- Group -->
-      <div class="robin-message-bubble-inner robin-group" :class="{'robin-non-clickable': selectMessagesOpen}" v-if="!message.has_attachment && conversation.is_group" @click="openModal()">
+      <div class="robin-message-bubble-inner robin-group" :class="{ 'robin-non-clickable': selectMessagesOpen }" v-if="!message.has_attachment && conversation.is_group" @click="openModal()">
         <RText v-if="validateMessages(message).includes('message-sender')" :font-size="12" color="#15AE73" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getContactName(message.content.sender_token) }} </RText>
         <div class="message-inner">
           <RText :font-size="16" textWrap="pre-line" wordBreak="break-all" as="span" v-if="!emailRegex.test(message.content.msg) && !websiteRegex.test(message.content.msg)">
@@ -85,8 +88,8 @@
       </div>
     </div>
     <MessageGrid :class="!validateMessages(message) ? 'robin-ml-5' : 'robin-mr-5'" v-if="Array.isArray(message) && message.filter((image) => !image.is_deleted).length > 1" :message="message.filter((image) => !image.is_deleted)" :conversation="conversation" @open-preview="openPreview($event)" />
-    <div class="robin-popup-container" :class="{ top: lastId === message._id && scroll }">
-      <RMessagePopOver v-show="messagePopup.opened && validateMessages(message)" @close-modal="closeModal()" ref="popup-1" :id="message._id" :message="message" />
+    <div class="robin-popup-container message" :class="{ top: lastId === message._id || messages.length - 3 === index && scroll }">
+      <RMessagePopOver v-show="messagePopup.opened && validateMessages(message)" @close-modal="closeModal()" ref="popup-2" :id="message._id" :message="message" />
     </div>
   </div>
 </template>
@@ -101,6 +104,7 @@ import RDownloadButton from '../RDownloadButton/RDownloadButton.vue'
 import RText from '@/components/ChatList/RText/RText.vue'
 import MessageGrid from '../MessageGrid/MessageGrid.vue'
 import RMessagePopOver from '../RMessagePopOver/RMessagePopOver.vue'
+import RReactionPopOver from '../RReactionPopOver/RReactionPopOver.vue'
 import RCheckBox from '@/components/ChatList/RCheckBox/RCheckBox.vue'
 import moment from 'moment'
 import mime from 'mime'
@@ -165,6 +169,7 @@ const ComponentProps = Vue.extend({
     VLazyImage,
     MessageGrid,
     RMessagePopOver,
+    RReactionPopOver,
     RCheckBox
   },
   mixins: [clickaway]
@@ -245,13 +250,17 @@ export default class MessageContent extends ComponentProps {
   }
 
   closeModal (): void {
-    const popup = this.$refs['popup-1'] as any
-    popup.$refs['popup-body'].classList.remove('robin-zoomIn')
-    popup.$refs['popup-body'].classList.add('robin-zoomOut')
+    const popup = this.$refs as any
+    for (const ref in popup) {
+      popup[ref].$refs['popup-body'].classList.remove('robin-zoomIn')
+      popup[ref].$refs['popup-body'].classList.add('robin-zoomOut')
+    }
 
     window.setTimeout(() => {
-      popup.$refs['popup-body'].classList.add('robin-zoomIn')
-      popup.$refs['popup-body'].classList.remove('robin-zoomOut')
+      for (const ref in popup) {
+        popup[ref].$refs['popup-body'].classList.add('robin-zoomIn')
+        popup[ref].$refs['popup-body'].classList.remove('robin-zoomOut')
+      }
 
       this.messagePopup.opened = false
     }, 300)
@@ -325,6 +334,7 @@ export default class MessageContent extends ComponentProps {
 .robin-bubble {
   width: max-content;
   border-radius: inherit;
+  position: relative;
 }
 
 /* Bubble styles */
@@ -583,32 +593,66 @@ video {
   margin-left: 0.75rem;
 }
 
-.robin-message-sender .robin-popup-container {
+.robin-message-sender .robin-popup-container.message {
   position: absolute;
   top: 100%;
   left: 0;
   z-index: 100;
 }
 
-.robin-message-receiver .robin-popup-container {
+.robin-message-receiver .robin-popup-container.message {
   position: absolute;
   top: 100%;
   right: 0;
   z-index: 100;
 }
 
-.robin-popup-container.top {
-  top: -68px;
+.robin-message-sender .robin-popup-container.reactions {
+  position: absolute;
+  top: -120%;
+  left: 0;
+  z-index: 100;
 }
 
-.robin-message-sender .robin-popup-container >>> .robin-zoomIn,
-.robin-message-sender .robin-popup-container >>> .robin-zoomOut {
+.robin-message-receiver .robin-popup-container.reactions {
+  position: absolute;
+  top: -120%;
+  right: 0;
+  z-index: 100;
+}
+
+.robin-message-receiver .robin-popup-container.reactions >>> .robin-popup::before {
+  bottom: -35%;
+  left: 10px;
+}
+
+.robin-message-receiver .robin-popup-container.reactions >>> .robin-popup::after {
+  bottom: -80%;
+  left: 17px;
+}
+
+.robin-popup-container.message.top {
+  top: -180px !important;
+}
+
+.robin-message-sender .robin-popup-container.message >>> .robin-zoomIn,
+.robin-message-sender .robin-popup-container.message >>> .robin-zoomOut {
   transform-origin: top left;
 }
 
-.robin-message-receiver .robin-popup-container >>> .robin-zoomIn,
-.robin-message-receiver .robin-popup-container >>> .robin-zoomOut {
+.robin-message-sender .robin-popup-container.reactions >>> .robin-zoomIn,
+.robin-message-sender .robin-popup-container.reactions >>> .robin-zoomOut {
+  transform-origin: bottom right;
+}
+
+.robin-message-receiver .robin-popup-container.message >>> .robin-zoomIn,
+.robin-message-receiver .robin-popup-container.message >>> .robin-zoomOut {
   transform-origin: top right;
+}
+
+.robin-message-receiver .robin-popup-container.reactions >>> .robin-zoomIn,
+.robin-message-receiver .robin-popup-container.reactions >>> .robin-zoomOut {
+  transform-origin: bottom left;
 }
 
 .robin-message-sender .robin-popup-container.top >>> .robin-zoomIn,

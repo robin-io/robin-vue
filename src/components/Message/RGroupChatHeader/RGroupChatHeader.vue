@@ -2,22 +2,24 @@
   <header>
     <div class="robin-card-container robin-flex robin-flex-align-center" v-show="!selectMessagesOpen">
       <RBackButton v-show="screenWidth <= 1200" @clicked="back()" />
-      <div class="robin-card-info robin-mr-16">
-        <RGroupAvatar v-if="conversation.is_group" />
-        <RAvatar v-else />
-      </div>
-      <div class="robin-card-info robin-h-100 robin-flex robin-flex-column robin-flex-space-between robin-flex-1">
-        <div class="robin-mt-6">
-          <RText font-weight="normal" color="#000000" :font-size="16" :line-height="20" v-if="!conversation.is_group">
-            {{ conversation.sender_token != $user_token ? conversation.sender_name : conversation.receiver_name }}
-          </RText>
-          <RText font-weight="normal" color="#000000" :font-size="16" :line-height="20" v-else>
-            {{ conversation.name }}
-          </RText>
+      <div class="robin-clickable robin-flex robin-flex-align-center" @click="openMessageProfile()">
+        <div class="robin-card-info robin-mr-16">
+          <RGroupAvatar v-if="conversation.is_group" />
+          <RAvatar v-else />
         </div>
-        <div class="robin-mt-6">
-          <!-- <RText v-show="conversation.is_group" as="p" font-weight="normal" color="#7A7A7A" :font-size="14" :line-height="18">53 Members</RText> -->
-          <RText v-show="!conversation.is_group" as="p" font-weight="normal" color="#7A7A7A" :font-size="14" :line-height="18">{{ conversation.status }}</RText>
+        <div class="robin-card-info robin-h-100 robin-flex robin-flex-column robin-flex-space-between robin-flex-1 robin-clickable" @click="openMessageProfile()">
+          <div class="robin-mt-6">
+            <RText font-weight="normal" color="#000000" :font-size="16" :line-height="20" v-if="!conversation.is_group">
+              {{ conversation.sender_token != $user_token ? conversation.sender_name : conversation.receiver_name }}
+            </RText>
+            <RText font-weight="normal" color="#000000" :font-size="16" :line-height="20" v-else>
+              {{ conversation.name }}
+            </RText>
+          </div>
+          <div class="robin-mt-6">
+            <!-- <RText v-show="conversation.is_group" as="p" font-weight="normal" color="#7A7A7A" :font-size="14" :line-height="18">53 Members</RText> -->
+            <RText v-show="!conversation.is_group" as="p" font-weight="normal" color="#7A7A7A" :font-size="14" :line-height="18">{{ conversation.status }}</RText>
+          </div>
         </div>
       </div>
     </div>
@@ -146,6 +148,10 @@ export default class RGroupChatHeader extends ComponentProps {
     })
   }
 
+  openMessageProfile () {
+    store.setState('viewMessageProfileOpen', true)
+  }
+
   cancelSelect (): void {
     // this.setSelectMessagesOpen(false)
     store.setState('selectMessagesOpen', false)
@@ -170,7 +176,7 @@ header {
   padding: 1.938rem clamp(3%, 5vw, 2.688rem) 1.375rem clamp(3%, 5vw, 3.125rem);
   position: relative;
   z-index: 1;
-   min-height: max-content;
+  min-height: max-content;
 }
 
 .robin-card-container >>> .robin-button {
