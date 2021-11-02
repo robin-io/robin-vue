@@ -8,7 +8,8 @@
       <div class="robin-wrapper robin-flex robin-flex-1 robin-pt-8 robin-pb-8 robin-pl-24 robin-pr-24 robin-overflow-y-auto">
         <div class="robin-file-upload" v-for="(file, index) in files" :key="`image-${index}`">
           <div class="robin-file-upload-delete" @click="removeFile(index)">
-            <RCloseButton />
+            <IconButton name="close" :to-emit="false" :to-click-away="false" />
+            <!-- <RCloseButton /> -->
           </div>
           <img :src="file.localUrl" :alt="`${file.name}-image`" v-if="file.type.includes('image')" />
           <div class="robin-video" v-if="file.type.includes('video')">
@@ -29,27 +30,31 @@
         </div>
       </div>
       <div class="robin-file-upload-close">
-        <RRemoveButton @clicked="handleFileUploadClose" />
+        <!-- <RRemoveButton @clicked="handleFileUploadClose" /> -->
+        <IconButton name="remove" @clicked="handleFileUploadClose" :to-emit="true" :to-click-away="false" />
       </div>
     </div>
 
     <div class="robin-message-box-inner" @keydown.enter.exact.prevent="sendMessage()" tabindex="1">
       <div class="robin-message-input">
         <div class="robin-mt-4">
-          <REmojiButton @clicked="!popUpState.emojiOpened ? handleEmojiOpenPopUp() : handleEmojiClosePopUp()" :active="popUpState.emojiOpened" />
+          <IconButton name="emoji" @clicked="!popUpState.emojiOpened ? handleEmojiOpenPopUp() : handleEmojiClosePopUp()" :active="popUpState.emojiOpened" :to-emit="true" :to-click-away="false" />
+          <!-- <REmojiButton @clicked="!popUpState.emojiOpened ? handleEmojiOpenPopUp() : handleEmojiClosePopUp()" :active="popUpState.emojiOpened" /> -->
         </div>
         <div class="robin-input-wrapper" tabindex="1">
           <textarea class="robin-input" ref="input" @input="enterText($event)" :value="text" @keydown.esc="escapeText()" placeholder="Type a message..."></textarea>
         </div>
       </div>
       <div class="robin-pl-21 robin-come-up" v-show="(text.trim().length > 0 || files.length > 0) && !isUploading">
-        <RSendButton @sendmessage="sendMessage()" />
+        <IconButton name="send" @sendmessage="sendMessage()" emit="sendmessage" :to-emit="true" :to-click-away="false" />
+        <!-- <RSendButton @sendmessage="sendMessage()" /> -->
       </div>
       <div class="robin-send-button-loader robin-ml-21" v-show="isUploading">
         <div class="robin-spinner2"></div>
       </div>
       <div class="robin-pl-25" v-show="text.trim() == '' && files.length < 1 && !isUploading" @click="handleOpenPopUp()">
-        <RAttachFileButton @clickoutside="handleClosePopUp()" />
+        <IconButton name="attachFile" @clickoutside="handleClosePopUp()" :to-click-away="true" :style-stroke="true" :to-emit="false" primary-color="rgba(21, 174, 115, 1)" :hasFocus="true" />
+        <!-- <RAttachFileButton @clickoutside="handleClosePopUp()" /> -->
       </div>
       <!-- <div class="robin-pl-21" v-show="text == ''">
         <RVoiceRecorderButton />
@@ -66,13 +71,14 @@ import Vue from 'vue'
 import { VEmojiPicker } from 'v-emoji-picker'
 import { mixin as clickaway } from 'vue-clickaway'
 import Component from 'vue-class-component'
-import RSendButton from '../RSendButton/RSendButton.vue'
+// import RSendButton from '../RSendButton/RSendButton.vue'
 // import RVoiceRecorderButton from '../RVoiceRecorderButton/RVoiceRecorderButton.vue'
-import RAttachFileButton from '../RAttachFileButton/RAttachFileButton.vue'
-import REmojiButton from '../REmojiButton/REmojiButton.vue'
+import IconButton from '../../IconButton.vue'
+// import RAttachFileButton from '../RAttachFileButton/RAttachFileButton.vue'
+// import REmojiButton from '../REmojiButton/REmojiButton.vue'
 import RAttachFilePopOver from '../RAttachFilePopOver/RAttachFilePopOver.vue'
-import RCloseButton from '../../ChatList/RCloseButton/RCloseButton.vue'
-import RRemoveButton from '../../ChatList/RRemoveButton/RRemoveButton.vue'
+// import RCloseButton from '../../ChatList/RCloseButton/RCloseButton.vue'
+// import RRemoveButton from '../../ChatList/RRemoveButton/RRemoveButton.vue'
 import RText from '../../ChatList/RText/RText.vue'
 import RFileIcon from '../RFileIcon.vue'
 
@@ -99,14 +105,15 @@ const ComponentProps = Vue.extend({
   name: 'RMessageInputBar',
   mixins: [clickaway],
   components: {
-    REmojiButton,
-    RSendButton,
-    RAttachFileButton,
+    // REmojiButton,
+    // RSendButton,
+    IconButton,
+    // RAttachFileButton,
     // RVoiceRecorderButton,
     RAttachFilePopOver,
     VEmojiPicker,
-    RCloseButton,
-    RRemoveButton,
+    // RCloseButton,
+    // RRemoveButton,
     RText,
     RFileIcon
   },

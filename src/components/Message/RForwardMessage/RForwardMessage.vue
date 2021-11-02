@@ -3,7 +3,8 @@
     <div class="robin-modal-container robin-flex">
       <div class="robin-inner-container robin-flex robin-flex-column">
         <header class="robin-wrapper robin-mb-10" :class="screenWidth > 1200 ? 'robin-mt-26' : 'robin-mt-38'">
-          <RCloseButton @close="closeModal()" v-show="screenWidth <= 1200" />
+          <IconButton name="close" @close="closeModal()" emit="emit" :to-emit="true" :to-click-away="false" />
+          <!-- <RCloseButton @close="closeModal()" v-show="screenWidth <= 1200" /> -->
           <RText v-show="screenWidth > 1200">Forward Message</RText>
           <RButton color="#15ae73" emit="clicked" @clicked="handleForwardMessages()" v-show="!isSending">Send</RButton>
           <div class="robin-spinner" v-show="isSending"></div>
@@ -39,7 +40,8 @@
         </div>
       </div>
       <div class="robin-ml-16" v-show="screenWidth > 1200">
-        <RCloseButton @close="closeModal()" />
+        <IconButton name="close" @close="closeModal()" emit="emit" :to-emit="true" :to-click-away="false" />
+        <!-- <RCloseButton @close="closeModal()" /> -->
       </div>
     </div>
   </div>
@@ -52,7 +54,8 @@ import { mixin as clickaway } from 'vue-clickaway'
 import RText from '@/components/ChatList/RText/RText.vue'
 import RGroupAvatar from '@/components/ChatList/RGroupAvatar/RGroupAvatar.vue'
 import RAvatar from '@/components/ChatList/RAvatar/RAvatar.vue'
-import RCloseButton from '@/components/ChatList/RCloseButton/RCloseButton.vue'
+import IconButton from '../../IconButton.vue'
+// import RCloseButton from '@/components/ChatList/RCloseButton/RCloseButton.vue'
 import RSearchBar from '@/components/ChatList/RSearchBar/RSearchBar.vue'
 import RAlphabetBlock from '@/components/ChatList/RAlphabetBlock/RAlphabetBlock.vue'
 import RCheckBox from '@/components/ChatList/RCheckBox/RCheckBox.vue'
@@ -71,7 +74,8 @@ const ComponentProps = Vue.extend({
   name: 'RForwardMessage',
   components: {
     RText,
-    RCloseButton,
+    IconButton,
+    // RCloseButton,
     RAvatar,
     RGroupAvatar,
     RAlphabetBlock,

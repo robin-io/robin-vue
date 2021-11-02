@@ -3,7 +3,8 @@
   <div class="robin-side-container">
     <header class="robin-header">
       <RText font-weight="400" color="rgba(83, 95, 137, 1)" :font-size="17"> Settings </RText>
-      <REditButton @edit="openEdit()" />
+      <IconButton name="edit" @edit="openEdit()" emit="edit" :to-emit="true" :to-click-away="false" />
+      <!-- <REditButton @edit="openEdit()" /> -->
     </header>
     <div class="robin-wrapper robin-w-100">
       <RSearchBar @user-typing="searchConversation($event)" :loading="isLoading" :key="key" />
@@ -48,7 +49,8 @@
                 <RUnreadMessageCount :count="10" />
               </div> -->
               <div class="robin-hidden robin-ml-10" @click="handleOpenPopUp(conversation._id, `popup-${index}`)">
-                <ROpenModalCaretButton @clickoutside="handleClosePopUp(conversation._id, `popup-${index}`)" />
+                <IconButton name="openModalCaret" @clickoutside="handleClosePopUp(conversation._id, `popup-${index}`)" :to-click-away="true" :to-emit="false" />
+                <!-- <ROpenModalCaretButton @clickoutside="handleClosePopUp(conversation._id, `popup-${index}`)" /> -->
               </div>
             </div>
           </div>
@@ -70,7 +72,8 @@ import Component from 'vue-class-component'
 import store from '../../store'
 import EventBus from '@/event-bus'
 import RText from './RText/RText.vue'
-import REditButton from './REditButton/REditButton.vue'
+import IconButton from '../IconButton.vue'
+// import REditButton from './REditButton/REditButton.vue'
 import RSearchBar from './RSearchBar/RSearchBar.vue'
 import RButton from './RButton/RButton.vue'
 import RAvatar from './RAvatar/RAvatar.vue'
@@ -94,7 +97,8 @@ const ComponentProps = Vue.extend({
   name: 'RPrimaryChatList',
   components: {
     RText,
-    REditButton,
+    IconButton,
+    // REditButton,
     RSearchBar,
     RButton,
     RAvatar,

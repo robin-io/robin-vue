@@ -2,7 +2,8 @@
   <div class="robin-side-container" ref="popup-body">
     <header class="robin-header">
       <RText font-weight="400" color="rgba(83, 95, 137, 1)" :fontSize="17"> New Chat </RText>
-      <RCloseButton @close="openPreviousModal()" />
+      <!-- <RCloseButton @close="openPreviousModal()" /> -->
+      <IconButton name="close" @close="openPreviousModal()" emit="close" :to-emit="true" :to-click-away="false" />
     </header>
     <div class="robin-wrapper robin-w-100">
       <RSearchBar @user-typing="searchContacts($event)" :loading="isLoading" :key="key" placeholder="Search or start new chat" />
@@ -84,13 +85,14 @@ import store from '../../store/index'
 import Component from 'vue-class-component'
 import RText from './RText/RText.vue'
 import RSearchBar from './RSearchBar/RSearchBar.vue'
-import RCloseButton from './RCloseButton/RCloseButton.vue'
+// import RCloseButton from './RCloseButton/RCloseButton.vue'
 import RButton from './RButton/RButton.vue'
 import RGroupAvatar from './RGroupAvatar/RGroupAvatar.vue'
 import RAvatar from './RAvatar/RAvatar.vue'
 // import RNewContactAvatar from './RNewContactAvatar/RNewContactAvatar.vue'
 import RAlphabetBlock from './RAlphabetBlock/RAlphabetBlock.vue'
 import EventBus from '@/event-bus'
+import IconButton from '../IconButton.vue'
 
 // eslint-disable-next-line
 @Component<NewChatList>({
@@ -100,8 +102,9 @@ import EventBus from '@/event-bus'
     RSearchBar,
     RButton,
     RGroupAvatar,
+    IconButton,
     // RNewContactAvatar,
-    RCloseButton,
+    // RCloseButton,
     RAvatar,
     RAlphabetBlock
   },

@@ -2,20 +2,23 @@
   <div class="robin-popup robin-zoomIn" ref="popup-body">
     <RText class="robin-wrapper robin-w-100" max-width="100%" :font-size="14" color="#101010" as="label" for-ref="camera-upload" @click.native="$emit('open-camera')">
       <div class="robin-mr-9">
-        <RPhotoButton />
+        <IconButton name="photo" :to-emit="true" :to-click-away="false" />
+        <!-- <RPhotoButton /> -->
       </div>
       Camera
     </RText>
     <RText class="robin-wrapper robin-w-100" max-width="100%" as="label" :font-size="14" color="#101010" for-ref="photo-upload" ref="photo-upload">
       <div class="robin-mr-9">
-        <RGalleryButton @clicked="openFileDialog('photo-upload')" />
+        <IconButton name="gallery" emit="clicked" :to-emit="true" :to-click-away="false" @clicked="openFileDialog('photo-upload')" />
+        <!-- <RGalleryButton @clicked="openFileDialog('photo-upload')" /> -->
       </div>
       <input  :style="{display: 'none'}" type="file" multiple :accept="acceptedVisualFiles" @change="handleFileChange($event.target.files)" @click="resetFileTarget($event)" id="photo-upload" />
       Photos & Videos
     </RText>
     <RText as="label" for-ref="document-upload" :font-size="14" max-width="100%" color="#101010" class="robin-wrapper robin-w-100" ref="document-upload">
       <div class="robin-mr-9">
-        <RDocumentButton @clicked="openFileDialog('document-upload')" />
+        <IconButton name="document" emit="clicked" :to-emit="true" :to-click-away="false" @clicked="openFileDialog('document-upload')" />
+        <!-- <RDocumentButton @clicked="openFileDialog('document-upload')" /> -->
       </div>
       <input type="file" :style="{display: 'none'}" multiple :accept="acceptedDocFiles" @change="handleFileChange($event.target.files)" @click="resetFileTarget($event)" id="document-upload" />
       Document
@@ -27,6 +30,7 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import RText from '@/components/ChatList/RText/RText.vue'
+import IconButton from '../../IconButton.vue'
 import RPhotoButton from '../RPhotoButton/RPhotoButton.vue'
 import RGalleryButton from '../RGalleryButton/RGalleryButton.vue'
 import RDocumentButton from '../RDocumentButton/RDocumentButton.vue'
@@ -35,6 +39,7 @@ import RDocumentButton from '../RDocumentButton/RDocumentButton.vue'
   name: 'RAttachFilePopOver',
   components: {
     RText,
+    IconButton,
     RPhotoButton,
     RGalleryButton,
     RDocumentButton

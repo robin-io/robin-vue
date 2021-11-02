@@ -2,7 +2,8 @@
   <div class="robin-side-container" ref="popup-body">
     <header class="robin-header">
       <div class="robin-mr-10" @click="openPreviousModal()">
-        <RCloseButton />
+        <IconButton name="close" :to-emit="false" :to-click-away="false" />
+        <!-- <RCloseButton /> -->
       </div>
       <div class="robin-mb-5">
         <RText font-weight="400" color="rgba(83, 95, 137, 1)" :font-size="16">New Group Chat</RText>
@@ -45,7 +46,8 @@ import Vue from 'vue'
 // import * as _ from 'lodash'
 import store from '../../store/index'
 import Component from 'vue-class-component'
-import RCloseButton from './RCloseButton/RCloseButton.vue'
+import IconButton from '../IconButton.vue'
+// import RCloseButton from './RCloseButton/RCloseButton.vue'
 import RText from './RText/RText.vue'
 import RSearchBar from './RSearchBar/RSearchBar.vue'
 import RButton from './RButton/RButton.vue'
@@ -62,7 +64,8 @@ import RAlphabetBlock from './RAlphabetBlock/RAlphabetBlock.vue'
     RSearchBar,
     RButton,
     RAvatar,
-    RCloseButton,
+    IconButton,
+    // RCloseButton,
     RCheckBox,
     CreateGroup,
     RAlphabetBlock

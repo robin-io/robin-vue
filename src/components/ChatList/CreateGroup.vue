@@ -2,7 +2,8 @@
   <div class="robin-shim robin-flex-justify-end">
     <div class="robin-modal-container robin-flex robin-fadeIn" ref="popup-1">
       <div class="robin-inner-container robin-flex robin-flex-column">
-        <RCloseButton @close="closeModal()" v-show="screenWidth <= 1024" />
+        <IconButton name="close" @close="closeModal()" v-show="screenWidth <= 1024" emit="close" :to-emit="true" :to-click-away="false" />
+        <!-- <RCloseButton @close="closeModal()" v-show="screenWidth <= 1024" /> -->
         <header class="robin-flex robin-flex-justify-end" :class="groupName.trim().length > 0 ? 'robin-pulse-2' : 'robin-invisible'">
           <RButton :emit="'clicked'" @clicked="createGroupConversation()" v-show="!isLoading">Create Group</RButton>
           <div class="robin-spinner" v-show="isLoading"></div>
@@ -36,14 +37,16 @@
                 <RText :font-size="14" :line-height="18">{{ user.userName }}</RText>
               </div>
               <div class="robin-ml-auto">
-                <RRemoveButton @clicked="$emit('remove-user', user)" />
+                <IconButton name="remove" @clicked="$emit('remove-user', user)" :to-emit="true" :to-click-away="false" />
+                <!-- <RRemoveButton @clicked="$emit('remove-user', user)" /> -->
               </div>
             </div>
           </div>
         </div>
       </div>
       <div class="robin-wrapper robin-ml-16" v-show="screenWidth > 1024">
-        <RCloseButton @close="closeModal()" />
+        <IconButton name="close" @close="closeModal()" emit="close" :to-emit="true" :to-click-away="false" />
+        <!-- <RCloseButton @close="closeModal()" /> -->
       </div>
     </div>
   </div>
@@ -57,9 +60,10 @@ import RButton from './RButton/RButton.vue'
 import RAvatar from './RAvatar/RAvatar.vue'
 // import EventBus from '@/event-bus'
 // import RGroupAvatar from './RGroupAvatar/RGroupAvatar.vue'
-import RCloseButton from './RCloseButton/RCloseButton.vue'
+// import RCloseButton from './RCloseButton/RCloseButton.vue'
 import RInput from './RInput/RInput.vue'
-import RRemoveButton from './RRemoveButton/RRemoveButton.vue'
+// import RRemoveButton from './RRemoveButton/RRemoveButton.vue'
+import IconButton from '../IconButton.vue'
 
 const ComponentProps = Vue.extend({
   props: {
@@ -75,11 +79,12 @@ const ComponentProps = Vue.extend({
   components: {
     RText,
     RButton,
-    RCloseButton,
+    IconButton,
+    // RCloseButton,
     RAvatar,
     // RGroupAvatar,
-    RInput,
-    RRemoveButton
+    RInput
+    // RRemoveButton
   }
 })
 export default class CreateGroup extends ComponentProps {

@@ -23,7 +23,6 @@ import Component from 'vue-class-component'
 import { mixin as clickaway } from 'vue-clickaway'
 import RGroupChatHeader from '../RGroupChatHeader/RGroupChatHeader.vue'
 import RMessageInputBar from '../RMessageInputBar/RMessageInputBar.vue'
-import RDownloadButton from '../RDownloadButton/RDownloadButton.vue'
 import RText from '@/components/ChatList/RText/RText.vue'
 import RCamera from '../RCamera/RCamera.vue'
 import mime from 'mime'
@@ -42,7 +41,6 @@ import RForwardMessage from '../RForwardMessage/RForwardMessage.vue'
     RText,
     RMessageInputBar,
     RCamera,
-    RDownloadButton,
     MessageContent,
     MessageGrid,
     // MessageImagePreviewer,

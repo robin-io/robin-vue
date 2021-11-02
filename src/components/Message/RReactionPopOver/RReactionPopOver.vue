@@ -1,7 +1,11 @@
 <template>
   <div class="robin-popup robin-zoomIn" ref="popup-body">
     <div class="robin-reaction-container">
-
+      <IconButton name="like" :to-emit="false" :to-click-away="false" />
+      <IconButton name="thumbsUp" :to-emit="false" :to-click-away="false" />
+      <IconButton name="thumbsDown" :to-emit="false" :to-click-away="false" />
+      <IconButton name="lol" :to-emit="false" :to-click-away="false" />
+      <IconButton name="exclamation" :to-emit="false" :to-click-away="false" />
     </div>
   </div>
 </template>
@@ -9,6 +13,7 @@
 <script lang="ts">
 import Vue, { PropType } from 'vue'
 import Component from 'vue-class-component'
+import IconButton from '../../IconButton.vue'
 
 const ComponentProps = Vue.extend({
   props: {
@@ -24,7 +29,10 @@ const ComponentProps = Vue.extend({
 })
 
 @Component({
-  name: 'RReactionPopOver'
+  name: 'RReactionPopOver',
+  components: {
+    IconButton
+  }
 })
 export default class RReactionPopOver extends ComponentProps {
 }
@@ -34,8 +42,8 @@ export default class RReactionPopOver extends ComponentProps {
 .robin-popup {
   width: 200px;
   max-width: 220px;
-  padding: 0.649rem 0.925rem 0.649rem 0.649rem;
-  border-radius: 16px;
+  padding: 0.349rem 0.925rem 0.349rem 0.649rem;
+  border-radius: 24px;
   background-color: #fff;
   position: relative;
 }
@@ -43,10 +51,10 @@ export default class RReactionPopOver extends ComponentProps {
 .robin-popup::before {
   content: '';
   position: absolute;
-  bottom: -35%;
-  right: 10px;
-  width: 9px;
-  height: 9px;
+  bottom: -3px;
+  right: 100px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background-color: #fff;
 }
@@ -54,15 +62,22 @@ export default class RReactionPopOver extends ComponentProps {
 .robin-popup::after {
   content: '';
   position: absolute;
-  bottom: -80%;
-  right: 17px;
-  width: 5px;
-  height: 5px;
+  bottom: -8px;
+  left: 85px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background-color: #fff;
 }
 
 .robin-reaction-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.2rem 0 0;
+}
 
+.robin-reaction-container >>> .robin-button:hover {
+  transform: scale(1.2);
 }
 </style>

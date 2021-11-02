@@ -3,7 +3,8 @@
   <div class="robin-side-container" ref="popup-body">
     <header class="robin-header">
       <RText fontWeight="400" color="rgba(83, 95, 137, 1)" :fontSize="17"> Archived Chats </RText>
-      <RCloseButton @close="$emit('closemodal', 'primary')" />
+      <IconButton name="close" @close="$emit('closemodal', 'primary')" emit="close" :to-emit="true" :to-click-away="false" />
+      <!-- <RCloseButton @close="$emit('closemodal', 'primary')" /> -->
     </header>
     <div class="robin-wrapper robin-card-container robin-flex robin-flex-column robin-mt-42" @scroll="onScroll()">
       <div class="robin-card robin-flex robin-flex-align-center" :class="{ 'robin-card-active': isConversationActive(conversation)  && screenWidth > 1200 }" v-for="(conversation, index) in archivedConversations" :key="`conversation-${index}`" @click.self="openConversation(conversation)" v-show="archivedConversations.length > 0">
@@ -24,7 +25,8 @@
             <div class="robin-mini-info-container robin-flex robin-flex-align-center">
               <RText as="p" fontWeight="normal" color="#15AE73" :fontSize="12" @click.native="openConversation(conversation)"> Archived </RText>
               <div class="robin-hidden robin-ml-10" @click="handleOpenPopUp(conversation._id, `popup-${index}`)">
-                <ROpenModalCaretButton @clickoutside="handleClosePopUp(conversation._id, `popup-${index}`)" />
+                <IconButton name="openModalCaret" @clickoutside="handleClosePopUp(conversation._id, `popup-${index}`)" :to-emit="false" :to-click-away="true" />
+                <!-- <ROpenModalCaretButton @clickoutside="handleClosePopUp(conversation._id, `popup-${index}`)" /> -->
               </div>
             </div>
           </div>
@@ -48,10 +50,11 @@ import store from '../../store/index'
 import Component from 'vue-class-component'
 import EventBus from '@/event-bus'
 import RText from './RText/RText.vue'
-import RCloseButton from './RCloseButton/RCloseButton.vue'
+import IconButton from '../IconButton.vue'
+// import RCloseButton from './RCloseButton/RCloseButton.vue'
 import RAvatar from './RAvatar/RAvatar.vue'
 import RGroupAvatar from './RGroupAvatar/RGroupAvatar.vue'
-import ROpenModalCaretButton from './ROpenModalCaretButton/ROpenModalCaretButton.vue'
+// import ROpenModalCaretButton from './ROpenModalCaretButton/ROpenModalCaretButton.vue'
 import RArchiveChatListPopOver from './RArchiveChatListPopOver/RArchiveChatListPopOver.vue'
 
 const ComponentProps = Vue.extend({
@@ -68,10 +71,11 @@ const ComponentProps = Vue.extend({
   name: 'ArchivedChatList',
   components: {
     RText,
-    RCloseButton,
+    IconButton,
+    // RCloseButton,
     RAvatar,
     RGroupAvatar,
-    ROpenModalCaretButton,
+    // ROpenModalCaretButton,
     RArchiveChatListPopOver
   },
   watch: {

@@ -2,11 +2,13 @@
   <div class="robin-popup robin-zoomIn" ref="popup-body">
     <div class="robin-wrapper robin-w-100" @click="$emit('download')">
       <RText :font-size="14" color="#101010">Save Image</RText>
-      <RImageDownloadButton />
+      <IconButton name="imageDownload" :to-emit="false" :to-click-away="false" />
+      <!-- <RImageDownloadButton /> -->
     </div>
     <div class="robin-wrapper robin-w-100" @click="$emit('forward')">
       <RText :font-size="14" color="#101010">Forward</RText>
-      <RForwardButton />
+      <IconButton name="forward" :to-emit="false" :to-click-away="false" />
+      <!-- <RForwardButton /> -->
     </div>
     <!-- <div class="robin-wrapper robin-w-100">
       <RText :font-size="14" color="#101010">Reply</RText>
@@ -22,7 +24,8 @@
     </div> -->
     <div class="robin-wrapper robin-w-100" @click="$emit('delete')">
       <RText :font-size="14" color="#101010">Delete</RText>
-      <RDeleteButton />
+      <IconButton name="delete" :to-emit="false" :to-click-away="false" />
+      <!-- <RDeleteButton /> -->
     </div>
   </div>
 </template>
@@ -31,9 +34,10 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import RText from '@/components/ChatList/RText/RText.vue'
-import RDeleteButton from '../RDeleteButton/RDeleteButton.vue'
-import RForwardButton from '../RForwardButton/RForwardButton.vue'
-import RImageDownloadButton from '../RImageDownloadButton/RImageDownloadButton.vue'
+// import RDeleteButton from '../RDeleteButton/RDeleteButton.vue'
+// import RForwardButton from '../RForwardButton/RForwardButton.vue'
+import IconButton from '../../IconButton.vue'
+// import RImageDownloadButton from '../RImageDownloadButton/RImageDownloadButton.vue'
 
 const ComponentProps = Vue.extend({
   props: {
@@ -48,9 +52,10 @@ const ComponentProps = Vue.extend({
   name: 'MessagePreviewPopOver',
   components: {
     RText,
-    RDeleteButton,
-    RForwardButton,
-    RImageDownloadButton
+    // RDeleteButton,
+    // RForwardButton,
+    IconButton
+    // RImageDownloadButton
   }
 })
 export default class MessagePreviewPopOver extends ComponentProps {}

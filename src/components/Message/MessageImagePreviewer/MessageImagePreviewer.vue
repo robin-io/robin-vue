@@ -3,7 +3,8 @@
     <header class="robin-head">
       <div class="robin-card-container robin-flex robin-flex-align-center">
         <div class="robin-wrapper robin-mr-27" @click="closeImagePreview()">
-          <RCloseButton />
+          <IconButton name="close" :to-emit="false" :to-click-away="false" />
+          <!-- <RCloseButton /> -->
         </div>
         <div class="robin-card-info robin-mr-16">
           <RGroupAvatar v-if="conversation.is_group" />
@@ -24,7 +25,9 @@
         </div>
       </div>
       <div class="robin-options robin-ml-auto" @click="handleOpenPopUp()">
-        <ROptionButton @clickoutside="handleClosePopUp()" />
+
+        <IconButton name="option" @clickoutside="handleClosePopUp()" :to-emit="false" :to-click-away="true" primary-color="rgba(21, 174, 115, 1)" :hasFocus="true" />
+        <!-- <ROptionButton @clickoutside="handleClosePopUp()" /> -->
 
         <div class="robin-popup-container" v-show="popUpState.opened">
           <MessagePreviewPopOver ref="popup-1" @delete="deleteImage()" @download="downloadImage()" @forward="openForwardMessage()" />
@@ -51,7 +54,8 @@ import Component from 'vue-class-component'
 import EventBus from '@/event-bus'
 import VLazyImage from 'v-lazy-image/v2'
 import store from '../../../store/index'
-import RCloseButton from '../../ChatList/RCloseButton/RCloseButton.vue'
+import IconButton from '../../IconButton.vue'
+// import RCloseButton from '../../ChatList/RCloseButton/RCloseButton.vue'
 import RGroupAvatar from '@/components/ChatList/RGroupAvatar/RGroupAvatar.vue'
 import RAvatar from '@/components/ChatList/RAvatar/RAvatar.vue'
 import ROptionButton from '../ROptionButton/ROptionButton.vue'
@@ -81,7 +85,8 @@ const ComponentProps = Vue.extend({
   name: 'MessageImagePreviewer',
   components: {
     RText,
-    RCloseButton,
+    IconButton,
+    // RCloseButton,
     RGroupAvatar,
     ROptionButton,
     RAvatar,
@@ -274,8 +279,8 @@ export default class MessageImagePreviewer extends ComponentProps {
 
 .robin-image-row {
   width: 100%;
-  gap: 0.625rem;
-  padding: 0.5rem;
+  /* gap: 0.625rem; */
+  /* padding: 0.5rem; */
   overflow-y: hidden;
 }
 
@@ -299,6 +304,7 @@ export default class MessageImagePreviewer extends ComponentProps {
   height: 109px;
   border-radius: 10px;
   cursor: pointer;
+  margin: 0.3rem;
   transition: 0.05s;
   background-color: #fff;
 }

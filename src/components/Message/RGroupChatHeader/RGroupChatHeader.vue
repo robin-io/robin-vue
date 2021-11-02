@@ -1,7 +1,8 @@
 <template>
   <header>
     <div class="robin-card-container robin-flex robin-flex-align-center" v-show="!selectMessagesOpen">
-      <RBackButton v-show="screenWidth <= 1200" @clicked="back()" />
+      <IconButton name="back" :to-emit="true" :to-click-away="false" emit="clicked" v-show="screenWidth <= 1200" @clicked="back()" />
+      <!-- <RBackButton v-show="screenWidth <= 1200" @clicked="back()" /> -->
       <div class="robin-clickable robin-flex robin-flex-align-center" @click="openMessageProfile()">
         <div class="robin-card-info robin-mr-16">
           <RGroupAvatar v-if="conversation.is_group" />
@@ -25,7 +26,8 @@
     </div>
     <RButton v-show="selectMessagesOpen" color="#7A7A7A" class="robin-pulse" emit="clicked" @clicked="cancelSelect()">Cancel</RButton>
     <div class="robin-options robin-ml-auto" @click="handleOpenPopUp(conversation.is_group ? 'popup-1' : 'popup-2')" v-show="!selectMessagesOpen">
-      <ROptionButton @clickoutside="handleClosePopUp(conversation.is_group ? 'popup-1' : 'popup-2')" />
+      <IconButton @clickoutside="handleClosePopUp(conversation.is_group ? 'popup-1' : 'popup-2')" :to-click-away="true" :to-emit="false" name="option" primary-color="rgba(21, 174, 115, 1)" :hasFocus="true" />
+      <!-- <ROptionButton @clickoutside="handleClosePopUp(conversation.is_group ? 'popup-1' : 'popup-2')" /> -->
 
       <div class="robin-popup-container" v-show="popUpState.opened && !selectMessagesOpen">
         <RGroupMessagePopOver ref="popup-1" v-show="conversation.is_group" :conversation="conversation" />
@@ -44,6 +46,7 @@ import Component from 'vue-class-component'
 // import { State, Mutation } from 'vuex-class'
 // import { RootState } from '@/store/types'
 import store from '../../../store/index'
+import IconButton from '../../IconButton.vue'
 import RGroupAvatar from '@/components/ChatList/RGroupAvatar/RGroupAvatar.vue'
 import RBackButton from '../RBackButton/RBackButton.vue'
 import RAvatar from '@/components/ChatList/RAvatar/RAvatar.vue'
@@ -74,6 +77,7 @@ const ComponentProps = Vue.extend({
 @Component({
   name: 'RGroupChatHeader',
   components: {
+    IconButton,
     RGroupAvatar,
     RText,
     RButton,

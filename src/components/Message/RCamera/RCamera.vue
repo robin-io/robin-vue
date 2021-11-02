@@ -2,7 +2,8 @@
   <div class="robin-camera-box robin-squeezeOut" ref="popup-body">
     <header class="robin-head">
       <div class="robin-wrapper robin-mr-12" @click="closeCamera()">
-        <RRemoveButton />
+        <IconButton name="remove" :to-emit="false" :to-click-away="false"/>
+        <!-- <RRemoveButton /> -->
       </div>
       <RText as="h3" :font-size="18"> Take photo </RText>
     </header>
@@ -16,7 +17,8 @@
 <script lang="ts">
 import Vue, { PropType } from 'vue'
 import Component from 'vue-class-component'
-import RRemoveButton from '../../ChatList/RRemoveButton/RRemoveButton.vue'
+import IconButton from '../../IconButton.vue'
+// import RRemoveButton from '../../ChatList/RRemoveButton/RRemoveButton.vue'
 import RText from '@/components/ChatList/RText/RText.vue'
 import RCameraButton from '../RCameraButton/RCameraButton.vue'
 
@@ -34,7 +36,8 @@ const ComponentProps = Vue.extend({
   name: 'RCamera',
   components: {
     RText,
-    RRemoveButton,
+    IconButton,
+    // RRemoveButton,
     RCameraButton
   },
   watch: {

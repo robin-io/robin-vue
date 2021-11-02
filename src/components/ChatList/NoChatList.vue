@@ -2,7 +2,8 @@
   <div class="robin-side-container">
     <header class="robin-header">
       <RText font-weight="400" color="rgba(83, 95, 137, 1)" :font-size="17"> Settings </RText>
-      <REditButton @edit="$emit('openmodal', 'newchat')" />
+      <IconButton name="edit" @edit="$emit('openmodal', 'newchat')" emit="edit" :to-emit="true" :to-click-away="false" />
+      <!-- <REditButton @edit="$emit('openmodal', 'newchat')" /> -->
     </header>
     <div class="robin-wrapper robin-w-100">
       <RSearchBar />
@@ -21,7 +22,8 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import RText from './RText/RText.vue'
-import REditButton from './REditButton/REditButton.vue'
+import IconButton from '../IconButton.vue'
+// import REditButton from './REditButton/REditButton.vue'
 import RSearchBar from './RSearchBar/RSearchBar.vue'
 import RButton from './RButton/RButton.vue'
 import RNoChatIcon from './RNoChatIcon/RNoChatIcon.vue'
@@ -30,7 +32,8 @@ import RNoChatIcon from './RNoChatIcon/RNoChatIcon.vue'
   name: 'NoChatList',
   components: {
     RText,
-    REditButton,
+    IconButton,
+    // REditButton,
     RSearchBar,
     RButton,
     RNoChatIcon

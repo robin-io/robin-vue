@@ -88,7 +88,7 @@
       </div>
     </div>
     <MessageGrid :class="!validateMessages(message) ? 'robin-ml-5' : 'robin-mr-5'" v-if="Array.isArray(message) && message.filter((image) => !image.is_deleted).length > 1" :message="message.filter((image) => !image.is_deleted)" :conversation="conversation" @open-preview="openPreview($event)" />
-    <div class="robin-popup-container message" :class="{ top: lastId === message._id || messages.length - 3 === index && scroll }">
+    <div class="robin-popup-container message" :class="{ top: (lastId === message._id || messages.length - 3 === index) && scroll }">
       <RMessagePopOver v-show="messagePopup.opened && validateMessages(message)" @close-modal="closeModal()" ref="popup-2" :id="message._id" :message="message" />
     </div>
   </div>
@@ -609,26 +609,26 @@ video {
 
 .robin-message-sender .robin-popup-container.reactions {
   position: absolute;
-  top: -120%;
-  left: 0;
+  top: -50px;
+  left: 50%;
   z-index: 100;
 }
 
 .robin-message-receiver .robin-popup-container.reactions {
   position: absolute;
-  top: -120%;
-  right: 0;
+  top: -50px;
+  right: 50%;
   z-index: 100;
 }
 
 .robin-message-receiver .robin-popup-container.reactions >>> .robin-popup::before {
-  bottom: -35%;
-  left: 10px;
+  bottom: -3px;
+  left: 100px;
 }
 
 .robin-message-receiver .robin-popup-container.reactions >>> .robin-popup::after {
-  bottom: -80%;
-  left: 17px;
+  bottom: -8px;
+  left: 109px;
 }
 
 .robin-popup-container.message.top {
@@ -642,7 +642,7 @@ video {
 
 .robin-message-sender .robin-popup-container.reactions >>> .robin-zoomIn,
 .robin-message-sender .robin-popup-container.reactions >>> .robin-zoomOut {
-  transform-origin: bottom right;
+  transform-origin: bottom top;
 }
 
 .robin-message-receiver .robin-popup-container.message >>> .robin-zoomIn,
@@ -652,7 +652,7 @@ video {
 
 .robin-message-receiver .robin-popup-container.reactions >>> .robin-zoomIn,
 .robin-message-receiver .robin-popup-container.reactions >>> .robin-zoomOut {
-  transform-origin: bottom left;
+  transform-origin: bottom top;
 }
 
 .robin-message-sender .robin-popup-container.top >>> .robin-zoomIn,

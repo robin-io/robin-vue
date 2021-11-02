@@ -73,7 +73,7 @@ import RMessageCheckBox from '../RMessageCheckBox/RMessageCheckBox.vue'
 export default class RPersonalMessageContainer extends Vue {
   text = ''
 
-  userTyping(val: string): void {
+  userTyping (val: string): void {
     this.text = val
   }
 }

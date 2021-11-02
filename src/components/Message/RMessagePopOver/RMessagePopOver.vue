@@ -1,12 +1,13 @@
 <template>
   <div class="robin-popup robin-zoomIn" ref="popup-body">
-    <!-- <div class="robin-wrapper robin-w-100">
+    <div class="robin-wrapper robin-w-100">
       <RText :font-size="14" color="#101010">Reply</RText>
-      <RReplyButton />
-    </div> -->
+      <IconButton name="reply" :to-emit="false" :to-click-away="false" />
+    </div>
     <div class="robin-wrapper robin-w-100">
       <RText :font-size="14" color="#101010">Forward</RText>
-      <RForwardButton />
+      <IconButton name="forward" :to-emit="false" :to-click-away="false" />
+      <!-- <RForwardButton /> -->
     </div>
     <!-- <div class="robin-wrapper robin-w-100">
       <RText :font-size="14" color="#101010">Star</RText>
@@ -14,7 +15,8 @@
     </div> -->
     <div class="robin-wrapper robin-w-100" @click="deleteMessage()">
       <RText :font-size="14" color="#101010">Delete</RText>
-      <RDeleteButton />
+      <IconButton name="delete" :to-emit="false" :to-click-away="false" />
+      <!-- <RDeleteButton /> -->
     </div>
   </div>
 </template>
@@ -24,10 +26,11 @@ import Vue, { PropType } from 'vue'
 import Component from 'vue-class-component'
 import EventBus from '@/event-bus'
 import RText from '@/components/ChatList/RText/RText.vue'
-import RReplyButton from '../RReplyButton/RReplyButton.vue'
-import RForwardButton from '../RForwardButton/RForwardButton.vue'
-import RStarButton from '../RStarButton/RStarButton.vue'
-import RDeleteButton from '../RDeleteButton/RDeleteButton.vue'
+// import RReplyButton from '../RReplyButton/RReplyButton.vue'
+// import RForwardButton from '../RForwardButton/RForwardButton.vue'
+import IconButton from '../../IconButton.vue'
+// import RStarButton from '../RStarButton/RStarButton.vue'
+// import RDeleteButton from '../RDeleteButton/RDeleteButton.vue'
 
 const ComponentProps = Vue.extend({
   props: {
@@ -46,10 +49,11 @@ const ComponentProps = Vue.extend({
   name: 'RMessagePopOver',
   components: {
     RText,
-    RReplyButton,
-    RForwardButton,
-    RStarButton,
-    RDeleteButton
+    IconButton
+    // RReplyButton,
+    // RForwardButton,
+    // RStarButton,
+    // RDeleteButton
   }
 })
 export default class RMessagePopOver extends ComponentProps {
