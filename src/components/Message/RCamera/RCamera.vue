@@ -17,7 +17,7 @@
 <script lang="ts">
 import Vue, { PropType } from 'vue'
 import Component from 'vue-class-component'
-import IconButton from '../../IconButton.vue'
+import IconButton from '../../IconButton/IconButton.vue'
 // import RRemoveButton from '../../ChatList/RRemoveButton/RRemoveButton.vue'
 import RText from '@/components/ChatList/RText/RText.vue'
 import RCameraButton from '../RCameraButton/RCameraButton.vue'

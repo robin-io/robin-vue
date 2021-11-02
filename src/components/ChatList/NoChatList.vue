@@ -22,7 +22,7 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import RText from './RText/RText.vue'
-import IconButton from '../IconButton.vue'
+import IconButton from '../IconButton/IconButton.vue'
 // import REditButton from './REditButton/REditButton.vue'
 import RSearchBar from './RSearchBar/RSearchBar.vue'
 import RButton from './RButton/RButton.vue'

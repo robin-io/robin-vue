@@ -13,7 +13,7 @@
 <script lang="ts">
 import Vue, { PropType } from 'vue'
 import Component from 'vue-class-component'
-import IconButton from '../../IconButton.vue'
+import IconButton from '../../IconButton/IconButton.vue'
 
 const ComponentProps = Vue.extend({
   props: {

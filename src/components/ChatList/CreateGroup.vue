@@ -63,7 +63,7 @@ import RAvatar from './RAvatar/RAvatar.vue'
 // import RCloseButton from './RCloseButton/RCloseButton.vue'
 import RInput from './RInput/RInput.vue'
 // import RRemoveButton from './RRemoveButton/RRemoveButton.vue'
-import IconButton from '../IconButton.vue'
+import IconButton from '../IconButton/IconButton.vue'
 
 const ComponentProps = Vue.extend({
   props: {

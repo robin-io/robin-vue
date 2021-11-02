@@ -36,7 +36,7 @@ import Component from 'vue-class-component'
 import RText from '@/components/ChatList/RText/RText.vue'
 // import RDeleteButton from '../RDeleteButton/RDeleteButton.vue'
 // import RForwardButton from '../RForwardButton/RForwardButton.vue'
-import IconButton from '../../IconButton.vue'
+import IconButton from '../../IconButton/IconButton.vue'
 // import RImageDownloadButton from '../RImageDownloadButton/RImageDownloadButton.vue'
 
 const ComponentProps = Vue.extend({

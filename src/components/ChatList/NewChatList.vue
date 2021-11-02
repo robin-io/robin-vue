@@ -92,7 +92,7 @@ import RAvatar from './RAvatar/RAvatar.vue'
 // import RNewContactAvatar from './RNewContactAvatar/RNewContactAvatar.vue'
 import RAlphabetBlock from './RAlphabetBlock/RAlphabetBlock.vue'
 import EventBus from '@/event-bus'
-import IconButton from '../IconButton.vue'
+import IconButton from '../IconButton/IconButton.vue'
 
 // eslint-disable-next-line
 @Component<NewChatList>({

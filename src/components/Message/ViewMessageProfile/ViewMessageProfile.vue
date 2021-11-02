@@ -51,7 +51,7 @@ import Component from 'vue-class-component'
 import RText from '@/components/ChatList/RText/RText.vue'
 import RAvatar from '@/components/ChatList/RAvatar/RAvatar.vue'
 // import RDownloadButton from '../RDownloadButton/RDownloadButton.vue'
-import IconButton from '../../IconButton.vue'
+import IconButton from '../../IconButton/IconButton.vue'
 // import RCloseButton from '@/components/ChatList/RCloseButton/RCloseButton.vue'
 import RButton from '@/components/ChatList/RButton/RButton.vue'
 

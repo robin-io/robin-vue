@@ -28,7 +28,7 @@ import EventBus from '@/event-bus'
 import RText from '@/components/ChatList/RText/RText.vue'
 // import RReplyButton from '../RReplyButton/RReplyButton.vue'
 // import RForwardButton from '../RForwardButton/RForwardButton.vue'
-import IconButton from '../../IconButton.vue'
+import IconButton from '../../IconButton/IconButton.vue'
 // import RStarButton from '../RStarButton/RStarButton.vue'
 // import RDeleteButton from '../RDeleteButton/RDeleteButton.vue'
 
