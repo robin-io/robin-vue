@@ -1,14 +1,13 @@
 <template>
   <div class="robin-popup robin-zoomIn" ref="popup-body">
-    <div class="robin-wrapper robin-w-100">
+    <div class="robin-wrapper robin-w-100" @click="$emit('reply-message')">
       <RText :font-size="14" color="#101010">Reply</RText>
       <IconButton name="reply" :to-emit="false" :to-click-away="false" />
     </div>
-    <div class="robin-wrapper robin-w-100">
+    <!-- <div class="robin-wrapper robin-w-100">
       <RText :font-size="14" color="#101010">Forward</RText>
       <IconButton name="forward" :to-emit="false" :to-click-away="false" />
-      <!-- <RForwardButton /> -->
-    </div>
+    </div> -->
     <!-- <div class="robin-wrapper robin-w-100">
       <RText :font-size="14" color="#101010">Star</RText>
       <RStarButton />

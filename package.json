@@ -31,7 +31,7 @@
     "axios": "^0.21.1",
     "mime": "^2.5.2",
     "moment": "^2.29.1",
-    "robin.io-js": "^0.1.7",
+    "robin.io-js": "^0.2.2",
     "v-emoji-picker": "^2.3.3",
     "v-lazy-image": "^2.0.1",
     "vue": "^2.6.14",

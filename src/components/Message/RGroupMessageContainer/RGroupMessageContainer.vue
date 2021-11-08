@@ -6,12 +6,11 @@
         <div class="robin-spinner"></div>
       </div>
       <div class="robin-inner-wrapper" ref="message" @scroll="onScroll()" v-else>
-        <MessageContent v-for="(message, index) in messages" @open-preview="openImagePreview($event)" :key="`message-${String(index + key)}`" v-show="!message.is_deleted" :message="message" :conversation="conversation" :message-popup="getMessagePopup(index)" :messages="messages" :index="index" :scroll="scroll" :last-id="!Array.isArray(message) && messages.length - 3 < parseInt(String(index)) ? message._id : ''" @toggle-check-action="toggleCheckAction($event, message)" />
+        <MessageContent v-for="(message, index) in messages" @open-preview="openImagePreview($event)" :key="`message-${String(index + key)}`" v-show="!message.is_deleted" :message="message" :conversation="conversation" :message-popup="getMessagePopup(index)" :messages="messages" :index="index" :scroll="scroll" :last-id="!Array.isArray(message) && messages.length - 3 < parseInt(String(index)) ? message._id : ''" @toggle-check-action="toggleCheckAction($event, message)" @reply-message="replyMessage($event)" />
       </div>
     </div>
-    <RMessageInputBar :conversation="conversation" @open-camera="openCamera()" :captured-image="capturedImage" />
+    <RMessageInputBar :conversation="conversation" :message-reply="messageReply" @open-camera="openCamera()" :captured-image="capturedImage" @on-close-reply="onCloseReply()" />
     <RCamera ref="popup-1" :camera-opened="popUpState.cameraOpened" @close="closeCamera()" @captured-image="handleCapturedImage" v-show="popUpState.cameraOpened" />
-    <!-- <MessageImagePreviewer ref="popup-2" :conversation="conversation" v-show="imagePreviewOpen" @close="closeImagePreview()" :images-to-preview="imagesToPreview" /> -->
     <RForwardMessage v-if="forwardMessage" @closemodal="onCloseForwardMessagePopup()" :selected-messages="selectedMessages" />
   </div>
 </template>
@@ -29,7 +28,6 @@ import mime from 'mime'
 import store from '../../../store/index'
 import MessageContent from '../MessageContent/MessageContent.vue'
 import MessageGrid from '../MessageGrid/MessageGrid.vue'
-// import MessageImagePreviewer from '../MessageImagePreviewer/MessageImagePreviewer.vue'
 import RMessagePopOver from '../RMessagePopOver/RMessagePopOver.vue'
 import RForwardMessage from '../RForwardMessage/RForwardMessage.vue'
 
@@ -43,7 +41,6 @@ import RForwardMessage from '../RForwardMessage/RForwardMessage.vue'
     RCamera,
     MessageContent,
     MessageGrid,
-    // MessageImagePreviewer,
     RMessagePopOver,
     RForwardMessage
   },
@@ -74,6 +71,11 @@ import RForwardMessage from '../RForwardMessage/RForwardMessage.vue'
           this.clearAllMessages()
         }
       }
+    },
+    isImageReplying: {
+      handler (val): void {
+        this.messageReply = this.imagesToPreview[this.imageSelected]
+      }
     }
   }
 })
@@ -82,7 +84,7 @@ export default class RGroupMessageContainer extends Vue {
   forwardMessage = false as boolean
   conversation = {} as any
   messages = [] as any
-  imagesToPreview = [] as any
+  // imagesToPreview = [] as any
   promise = null as any
   capturedImage = null as any
   scroll = false as boolean
@@ -90,6 +92,8 @@ export default class RGroupMessageContainer extends Vue {
     cameraOpened: false,
     messagePopUp: [] as Array<any>
   }
+
+  messageReply = {} as any
 
   isMessagesLoading = true as boolean
 
@@ -142,8 +146,21 @@ export default class RGroupMessageContainer extends Vue {
     return store.state.imagePreviewOpen
   }
 
+  get imagesToPreview () {
+    return store.state.imagesToPreview
+  }
+
+  get imageSelected () {
+    return store.state.imageSelected
+  }
+
+  get isImageReplying () {
+    return store.state.isImageReplying
+  }
+
   handleConversationOpen (): void {
     EventBus.$on('conversation-opened', (conversation: any) => {
+      this.messageReply = {}
       this.messages = []
       this.conversation = conversation || []
       store.setState('currentConversation', conversation)
@@ -183,8 +200,6 @@ export default class RGroupMessageContainer extends Vue {
           this.$conversations[index].updated_at = message.content.timestamp
           this.$conversations[index].last_message = message.content
           const newConv = this.$conversations[index]
-          // EventBus.$emit('regular-conversation.delete', newConv)
-          // EventBus.$emit('regular-conversation.add', newConv)
           if (!newConv.archived_for || newConv.archived_for.length === 0) {
             EventBus.$emit('regular-conversation.delete', newConv)
             EventBus.$emit('regular-conversation.add', newConv)
@@ -197,10 +212,59 @@ export default class RGroupMessageContainer extends Vue {
     })
   }
 
+  // onNewReaction () {
+  //   EventBus.$on('message.reaction', (message: any) => {
+  //     const messageIndex: any = this.messages.findIndex((messageItem: any) => {
+  //       if (Array.isArray(messageItem)) {
+  //         return !!messageItem.findIndex((item) => item._id === message.message_id)
+  //       }
+
+  //       if (!Array.isArray(messageItem)) {
+  //         if (messageItem._id === message.message_id) {
+  //           return true
+  //         }
+  //       }
+
+  //       return false
+  //     })
+
+  //     if (!this.messages[messageIndex].reactions) {
+  //       this.messages[messageIndex].reactions = []
+  //     }
+
+  //     this.messages[messageIndex].reactions = [...this.messages[messageIndex].reactions, message]
+  //     console.log(this.messages[messageIndex].reactions, message)
+  //   })
+  // }
+
+  // onReactionDelete () {
+  //   EventBus.$on('message.remove.reaction', (message: any) => {
+  //     const messageIndex: any = this.messages.findIndex((messageItem: any) => {
+  //       if (Array.isArray(messageItem)) {
+  //         return !!messageItem.findIndex((item) => item._id === message.message_id)
+  //       }
+
+  //       if (!Array.isArray(messageItem)) {
+  //         if (messageItem._id === message.message_id) {
+  //           return true
+  //         }
+  //       }
+
+  //       return false
+  //     })
+
+  //     const reactions = this.messages[messageIndex].reactions as Array<any>
+
+  //     const reactionIndex = reactions.findIndex((item: any) => item.reaction_id === message.reaction_id)
+  //     reactions.splice(reactionIndex, 1)
+  //   })
+  // }
+
   onMessageDelete () {
     EventBus.$on('message-deleted', (message: any) => {
       const index = this.messages.findIndex((item: any) => item._id === message._id) as number
       this.messages[index].is_deleted = true
+      this.$forceUpdate()
     })
   }
 
@@ -213,6 +277,7 @@ export default class RGroupMessageContainer extends Vue {
 
       const index = this.messages[messageIndex].findIndex((item: any) => item._id === message._id) as number
       this.messages[messageIndex][index].is_deleted = true
+      this.$forceUpdate()
     })
   }
 
@@ -259,20 +324,6 @@ export default class RGroupMessageContainer extends Vue {
     store.setState('imagesToPreview', $event)
     // this.imagesToPreview = $event
   }
-
-  // closeImagePreview (): void {
-  //   const popup = this.$refs['popup-2'] as any
-  //   popup.$refs['popup-body'].classList.remove('robin-squeezeOut')
-  //   popup.$refs['popup-body'].classList.add('robin-squeezeIn')
-
-  //   window.setTimeout(() => {
-  //     popup.$refs['popup-body'].classList.remove('robin-squeezeIn')
-  //     popup.$refs['popup-body'].classList.add('robin-squeezeOut')
-
-  //     store.setState('imagePreviewOpen', false)
-  //     this.imagesToPreview = []
-  //   }, 100)
-  // }
 
   openMessagePopup (val: number): void {
     this.messagePopUpIndex = val
@@ -396,6 +447,14 @@ export default class RGroupMessageContainer extends Vue {
     this.forwardMessage = false
     store.setState('selectMessagesOpen', false)
   }
+
+  replyMessage (message: any): void {
+    this.messageReply = message
+  }
+
+  onCloseReply (): void {
+    this.messageReply = {}
+  }
 }
 </script>
 
@@ -440,7 +499,6 @@ export default class RGroupMessageContainer extends Vue {
   }
 
   ::-webkit-scrollbar-track {
-    /* border: 1px solid #00000017; */
     border-radius: 24px;
   }
 

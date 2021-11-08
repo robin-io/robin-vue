@@ -294,6 +294,7 @@ export default class App extends ComponentProps {
         EventBus.$emit('new-message', message)
         if (message.content.receiver_token === this.$user_token) notification.play()
       } else {
+        console.log(message)
         // move new conversation to the top
         // console.log('new conversation')
         // EventBus.$emit('new-conversation', message)
@@ -352,7 +353,6 @@ export default class App extends ComponentProps {
         EventBus.$emit('user.disconnect', message.value)
         break
       case 'new.conversation':
-        console.log('new conversation', message.value)
         if (message.value.is_group) {
           EventBus.$emit('new-group.conversation', message.value)
         } else {
@@ -366,6 +366,12 @@ export default class App extends ComponentProps {
         // else update last_message and unshift
         EventBus.$emit('message.forward', message.value)
         // console.log('forwarded message', message.value)
+        break
+      case 'message.reaction':
+        EventBus.$emit('message.reaction', message.value)
+        break
+      case 'message.remove.reaction':
+        EventBus.$emit('message.remove.reaction', message.value)
         break
       default:
         // console.log('cannot handle event')

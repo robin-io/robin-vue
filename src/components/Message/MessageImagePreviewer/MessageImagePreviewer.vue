@@ -30,7 +30,7 @@
         <!-- <ROptionButton @clickoutside="handleClosePopUp()" /> -->
 
         <div class="robin-popup-container" v-show="popUpState.opened">
-          <MessagePreviewPopOver ref="popup-1" @delete="deleteImage()" @download="downloadImage()" @forward="openForwardMessage()" />
+          <MessagePreviewPopOver ref="popup-1" @delete="deleteImage()" @download="downloadImage()" @forward="openForwardMessage()" @reply="replyImageMessage()" />
         </div>
       </div>
     </header>
@@ -198,6 +198,12 @@ export default class MessageImagePreviewer extends ComponentProps {
   openForwardMessage () {
     this.forwardMessage = true
     this.selectedMessages = [this.imagesToPreview[0]]
+  }
+
+  replyImageMessage () {
+    store.setState('imageSelected', this.imageSelected)
+    store.setState('isImageReplying', true)
+    this.closeImagePreview()
   }
 
   onCloseForwardMessagePopup (): void {

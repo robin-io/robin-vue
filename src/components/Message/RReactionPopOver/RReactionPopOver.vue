@@ -1,11 +1,11 @@
 <template>
   <div class="robin-popup robin-zoomIn" ref="popup-body">
     <div class="robin-reaction-container">
-      <IconButton name="like" :to-emit="false" :to-click-away="false" />
-      <IconButton name="thumbsUp" :to-emit="false" :to-click-away="false" />
-      <IconButton name="thumbsDown" :to-emit="false" :to-click-away="false" />
-      <IconButton name="lol" :to-emit="false" :to-click-away="false" />
-      <IconButton name="exclamation" :to-emit="false" :to-click-away="false" />
+      <RButton :font-size="18" @click.native="$emit('reaction', '❤️')">❤️</RButton>
+      <RButton :font-size="18" @click.native="$emit('reaction', '👍')">👍</RButton>
+      <RButton :font-size="18" @click.native="$emit('reaction', '👎')">👎</RButton>
+      <RButton :font-size="18" @click.native="$emit('reaction', '😂')">😂</RButton>
+      <RButton :font-size="18" color="initial" @click.native="$emit('reaction', '⁉️')">⁉️</RButton>
     </div>
   </div>
 </template>
@@ -13,7 +13,7 @@
 <script lang="ts">
 import Vue, { PropType } from 'vue'
 import Component from 'vue-class-component'
-import IconButton from '../../IconButton/IconButton.vue'
+import RButton from '../../ChatList/RButton/RButton.vue'
 
 const ComponentProps = Vue.extend({
   props: {
@@ -31,10 +31,21 @@ const ComponentProps = Vue.extend({
 @Component({
   name: 'RReactionPopOver',
   components: {
-    IconButton
+    RButton
   }
 })
 export default class RReactionPopOver extends ComponentProps {
+  async addReaction (reaction: string): Promise<void> {
+    // const res = await this.$robin.reactToMessage({
+    //   user_token: this.$user_token,
+    //   reaction: reaction,
+    //   conversation_id: this.message.conversation_id,
+    //   message_id: this.message._id
+    // })
+    // if (!res.error) {
+    //   //
+    // }
+  }
 }
 </script>
 

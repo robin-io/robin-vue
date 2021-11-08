@@ -77,7 +77,7 @@ import IconButton from '../IconButton/IconButton.vue'
 import RSearchBar from './RSearchBar/RSearchBar.vue'
 import RButton from './RButton/RButton.vue'
 import RAvatar from './RAvatar/RAvatar.vue'
-import ROpenModalCaretButton from './ROpenModalCaretButton/ROpenModalCaretButton.vue'
+// import ROpenModalCaretButton from './ROpenModalCaretButton/ROpenModalCaretButton.vue'
 import RMention from './RMention/RMention.vue'
 import RChatListPopOver from './RChatListPopOver/RChatListPopOver.vue'
 import RGroupAvatar from './RGroupAvatar/RGroupAvatar.vue'
@@ -103,7 +103,7 @@ const ComponentProps = Vue.extend({
     RButton,
     RAvatar,
     RMention,
-    ROpenModalCaretButton,
+    // ROpenModalCaretButton,
     RGroupAvatar,
     RUnreadMessageCount,
     RChatListPopOver

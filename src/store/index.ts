@@ -8,6 +8,8 @@ interface State {
   users: any[],
   currentConversation: Conversation,
   imagesToPreview: any[],
+  imageSelected: number,
+  isImageReplying: boolean,
   isPageLoading: boolean
   isAuthenticated: boolean
   selectMessagesOpen: boolean
@@ -20,6 +22,8 @@ const state: State = {
   users: [],
   currentConversation: {},
   imagesToPreview: [],
+  imageSelected: 0,
+  isImageReplying: false,
   isPageLoading: true,
   isAuthenticated: false,
   selectMessagesOpen: false,

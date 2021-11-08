@@ -31,18 +31,18 @@ import Vue from 'vue'
 import Component from 'vue-class-component'
 import RText from '@/components/ChatList/RText/RText.vue'
 import IconButton from '../../IconButton/IconButton.vue'
-import RPhotoButton from '../RPhotoButton/RPhotoButton.vue'
-import RGalleryButton from '../RGalleryButton/RGalleryButton.vue'
-import RDocumentButton from '../RDocumentButton/RDocumentButton.vue'
+// import RPhotoButton from '../RPhotoButton/RPhotoButton.vue'
+// import RGalleryButton from '../RGalleryButton/RGalleryButton.vue'
+// import RDocumentButton from '../RDocumentButton/RDocumentButton.vue'
 
 @Component({
   name: 'RAttachFilePopOver',
   components: {
     RText,
-    IconButton,
-    RPhotoButton,
-    RGalleryButton,
-    RDocumentButton
+    IconButton
+    // RPhotoButton,
+    // RGalleryButton,
+    // RDocumentButton
   }
 })
 export default class RAttachFilePopOver extends Vue {

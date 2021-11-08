@@ -1,15 +1,57 @@
 <template>
   <div class="robin-message-box" v-on-clickaway="handleEmojiClosePopUp">
-    <div class="robin-emoji-container robin-emoji-out robin-squeezeOut" v-show="popUpState.emojiOpened" ref="popup-1" @keydown.enter.exact.prevent="sendMessage()" tabindex="1">
+    <div class="robin-emoji-container robin-emoji-out robin-squeezeOut" v-show="popUpState.emojiOpened" ref="popup-1" @keydown.enter.exact.prevent="!replying ? sendMessage() : replyMessage()" tabindex="1">
       <VEmojiPicker @select="selectEmoji" :emojisByRow="15" label-search="Search" lang="pt-BR" class="robin-emoji" />
     </div>
+
+    <!-- reply message -->
+
+    <div class="robin-reply-container robin-squeezeOut" ref="popup-3" v-show="replying">
+      <div class="robin-wrapper robin-flex robin-flex-1 robin-pt-8 robin-pb-8 robin-pl-24 robin-pr-24 robin-overflow-y-auto">
+        <div class="robin-reply robin-w-100" v-if="!messageReply.has_attachment">
+          <RText :font-size="10" textWrap="pre-line" wordBreak="break-word" as="span" v-if="!emailRegex.test(messageReply.content ? messageReply.content.msg : '') && !websiteRegex.test(messageReply.content ? messageReply.content.msg : '')">
+            {{ messageReply.content ? messageReply.content.msg : '' }}
+          </RText>
+          <RText :font-size="10" textWrap="pre-line" wordBreak="break-word" as="span" v-else-if="emailRegex.test(messageReply.content ? messageReply.content.msg : '') && !websiteRegex.test(messageReply.content ? messageReply.content.msg : '')">
+            <a target="_blank" :href="`mailto:${messageReply.content.msg}`">{{ messageReply.content.msg }}</a>
+          </RText>
+          <RText :font-size="10" textWrap="pre-line" wordBreak="break-word" as="span" v-else>
+            <a target="_blank" :href="messageReply.content.msg.includes('http') || messageReply.content.msg.includes('https') ? messageReply.content.msg : `https://${messageReply.content.msg}`">{{ messageReply.content.msg }}</a>
+          </RText>
+        </div>
+        <div class="robin-reply robin-w-100" v-else>
+          <div class="robin-file-upload">
+            <img :src="messageReply.content.attachment" :alt="`${getFileDetails(messageReply.content.attachment).name}-image`" v-if="imageRegex.test(checkAttachmentType(messageReply.content.attachment))" />
+            <div class="robin-video" v-if="videoRegex.test(checkAttachmentType(messageReply.content.attachment))">
+              <video width="100%" height="100%" controls>
+                <source :src="messageReply.content.attachment" />
+                Your browser does not support the video tag.
+              </video>
+            </div>
+            <div class="robin-file" v-if="acceptedDocFiles.includes(getFileDetails(messageReply.content.attachment).extension)">
+              <RFileIcon />
+              <RText as="span">
+                {{ getFileDetails(messageReply.content.attachment).name.length > 6 ? getFileDetails(messageReply.content.attachment).name.substring(0, 6) + '..' : getFileDetails(messageReply.content.attachment).name }}
+              </RText>
+              <RText as="span">
+                {{ '.' + getFileDetails(messageReply.content.attachment).extension }}
+              </RText>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="robin-reply-close">
+        <IconButton name="remove" @clicked="handleReplyMessageClose" :to-emit="true" :to-click-away="false" />
+      </div>
+    </div>
+
+    <!-- normal message -->
 
     <div class="robin-file-upload-container robin-squeezeOut" ref="popup-2" v-show="files && files.length > 0">
       <div class="robin-wrapper robin-flex robin-flex-1 robin-pt-8 robin-pb-8 robin-pl-24 robin-pr-24 robin-overflow-y-auto">
         <div class="robin-file-upload" v-for="(file, index) in files" :key="`image-${index}`">
           <div class="robin-file-upload-delete" @click="removeFile(index)">
             <IconButton name="close" :to-emit="false" :to-click-away="false" />
-            <!-- <RCloseButton /> -->
           </div>
           <img :src="file.localUrl" :alt="`${file.name}-image`" v-if="file.type.includes('image')" />
           <div class="robin-video" v-if="file.type.includes('video')">
@@ -30,37 +72,33 @@
         </div>
       </div>
       <div class="robin-file-upload-close">
-        <!-- <RRemoveButton @clicked="handleFileUploadClose" /> -->
         <IconButton name="remove" @clicked="handleFileUploadClose" :to-emit="true" :to-click-away="false" />
       </div>
     </div>
 
-    <div class="robin-message-box-inner" @keydown.enter.exact.prevent="sendMessage()" tabindex="1">
+    <div class="robin-message-box-inner" @keydown.enter.exact.prevent="!replying ? sendMessage() : replyMessage()" tabindex="1">
       <div class="robin-message-input">
         <div class="robin-mt-4">
           <IconButton name="emoji" @clicked="!popUpState.emojiOpened ? handleEmojiOpenPopUp() : handleEmojiClosePopUp()" :active="popUpState.emojiOpened" :to-emit="true" :to-click-away="false" />
-          <!-- <REmojiButton @clicked="!popUpState.emojiOpened ? handleEmojiOpenPopUp() : handleEmojiClosePopUp()" :active="popUpState.emojiOpened" /> -->
         </div>
         <div class="robin-input-wrapper" tabindex="1">
           <textarea class="robin-input" ref="input" @input="enterText($event)" :value="text" @keydown.esc="escapeText()" placeholder="Type a message..."></textarea>
         </div>
       </div>
       <div class="robin-pl-21 robin-come-up" v-show="(text.trim().length > 0 || files.length > 0) && !isUploading">
-        <IconButton name="send" @sendmessage="sendMessage()" emit="sendmessage" :to-emit="true" :to-click-away="false" />
-        <!-- <RSendButton @sendmessage="sendMessage()" /> -->
+        <IconButton name="send" @sendmessage="!replying ? sendMessage() : replyMessage()" emit="sendmessage" :to-emit="true" :to-click-away="false" />
       </div>
       <div class="robin-send-button-loader robin-ml-21" v-show="isUploading">
         <div class="robin-spinner2"></div>
       </div>
       <div class="robin-pl-25" v-show="text.trim() == '' && files.length < 1 && !isUploading" @click="handleOpenPopUp()">
         <IconButton name="attachFile" @clickoutside="handleClosePopUp()" :to-click-away="true" :style-stroke="true" :to-emit="false" primary-color="rgba(21, 174, 115, 1)" :hasFocus="true" />
-        <!-- <RAttachFileButton @clickoutside="handleClosePopUp()" /> -->
       </div>
       <!-- <div class="robin-pl-21" v-show="text == ''">
         <RVoiceRecorderButton />
       </div> -->
       <div class="robin-popup-container" v-show="popUpState.opened">
-        <RAttachFilePopOver ref="popup-3" @file-upload="handleFileUpload" @open-camera="$emit('open-camera')" />
+        <RAttachFilePopOver ref="popup-4" @file-upload="handleFileUpload" @open-camera="$emit('open-camera')" />
       </div>
     </div>
   </div>
@@ -70,17 +108,31 @@
 import Vue from 'vue'
 import { VEmojiPicker } from 'v-emoji-picker'
 import { mixin as clickaway } from 'vue-clickaway'
+import mime from 'mime'
 import Component from 'vue-class-component'
-// import RSendButton from '../RSendButton/RSendButton.vue'
-// import RVoiceRecorderButton from '../RVoiceRecorderButton/RVoiceRecorderButton.vue'
+import store from '../../../store/index'
 import IconButton from '../../IconButton/IconButton.vue'
-// import RAttachFileButton from '../RAttachFileButton/RAttachFileButton.vue'
-// import REmojiButton from '../REmojiButton/REmojiButton.vue'
 import RAttachFilePopOver from '../RAttachFilePopOver/RAttachFilePopOver.vue'
-// import RCloseButton from '../../ChatList/RCloseButton/RCloseButton.vue'
-// import RRemoveButton from '../../ChatList/RRemoveButton/RRemoveButton.vue'
 import RText from '../../ChatList/RText/RText.vue'
 import RFileIcon from '../RFileIcon.vue'
+
+// file-extension-images
+import pdf from '@/assets/pdf.png'
+import doc from '@/assets/doc.png'
+import docx from '@/assets/docx.png'
+import csv from '@/assets/csv.png'
+import ppt from '@/assets/ppt.png'
+import rtf from '@/assets/rtf.png'
+import rar from '@/assets/rar.png'
+import tar from '@/assets/tar.png'
+import xls from '@/assets/xls.png'
+import xlsx from '@/assets/xlsx.png'
+import txt from '@/assets/txt.png'
+import odt from '@/assets/odt.png'
+import md from '@/assets/md.png'
+import zipSeven from '@/assets/7z.png'
+import zip from '@/assets/zip.png'
+import html from '@/assets/html.png'
 
 interface PopUpState {
   opened: boolean
@@ -96,6 +148,10 @@ const ComponentProps = Vue.extend({
     capturedImage: {
       type: Object,
       default: (): any => {}
+    },
+    messageReply: {
+      type: Object,
+      default: (): any => {}
     }
   }
 })
@@ -105,15 +161,9 @@ const ComponentProps = Vue.extend({
   name: 'RMessageInputBar',
   mixins: [clickaway],
   components: {
-    // REmojiButton,
-    // RSendButton,
     IconButton,
-    // RAttachFileButton,
-    // RVoiceRecorderButton,
     RAttachFilePopOver,
     VEmojiPicker,
-    // RCloseButton,
-    // RRemoveButton,
     RText,
     RFileIcon
   },
@@ -126,6 +176,16 @@ const ComponentProps = Vue.extend({
         localUrl: image.localUrl,
         file: image.file
       })
+    },
+    messageReply: {
+      handler (val) {
+        if (Object.keys(val).length > 0) {
+          this.replying = true
+        } else {
+          this.replying = false
+        }
+      },
+      deep: true
     }
   }
 })
@@ -134,6 +194,30 @@ export default class RMessageInputBar extends ComponentProps {
   files = [] as Array<any>
   acceptedDocFiles = '.csv, .xlsx, .xls, .doc, .docx, .ppt, .pptx, .txt, .pdf, .html, .7z, .zip, .rtf, .rar, .tar, .odt, .md' as string
   isUploading = false as boolean
+  replying = false as boolean
+
+  imageRegex = /^image/ as any
+  emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+  websiteRegex = /[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/
+  videoRegex = /^video/ as any
+  images = {
+    pdf: pdf,
+    doc: doc,
+    docx: docx,
+    csv: csv,
+    ppt: ppt,
+    rtf: rtf,
+    rar: rar,
+    tar: tar,
+    xls: xls,
+    xlsx: xlsx,
+    txt: txt,
+    odt: odt,
+    md: md,
+    '7z': zipSeven,
+    zip: zip,
+    html: html
+  } as any
 
   popUpState: PopUpState = {
     opened: false,
@@ -164,6 +248,27 @@ export default class RMessageInputBar extends ComponentProps {
     this.popUpState.emojiOpened = false
   }
 
+  async replyMessage () {
+    this.isUploading = true
+    if (this.files.length > 0 && this.text.trim().length === 0) {
+      await this.replyFileMessage()
+    } else if (this.text.trim().length > 0 && this.files.length < 1) {
+      await this.replyTextMessage()
+    } else if (this.text.trim().length > 0 && this.files.length > 0) {
+      await Promise.all([this.replyTextMessage(), this.replyFileMessage()])
+    } else {
+      // Do nothing
+    }
+
+    const input = this.$refs.input as HTMLInputElement
+    input.value = ''
+    this.text = ''
+    this.files = []
+    this.isUploading = false
+    this.replying = false
+    this.popUpState.emojiOpened = false
+  }
+
   async sendTextMessage () {
     this.$robin.sendMessageToConversation(
       {
@@ -184,6 +289,33 @@ export default class RMessageInputBar extends ComponentProps {
     return await Promise.all(
       this.files.map(async (file) => {
         await this.$robin.sendMessageAttachment(this.$user_token, this.conversation._id, file.file)
+      })
+    )
+  }
+
+  async replyTextMessage (): Promise<void> {
+    const robin = this.$robin as any
+    robin.replyToMessage(
+      {
+        msg: this.text,
+        sender_token: this.$user_token,
+        receiver_token: this.conversation.receiver_token === this.$user_token ? this.conversation.sender_token : this.conversation.receiver_token,
+        timestamp: new Date()
+      },
+      this.$conn,
+      this.$channel,
+      this.conversation._id,
+      this.messageReply._id,
+      this.$user_token
+    )
+    return await new Promise((resolve) => setTimeout(resolve, 250))
+  }
+
+  async replyFileMessage (): Promise<any> {
+    const robin = this.$robin as any
+    return await Promise.all(
+      this.files.map(async (file) => {
+        await robin.replyMessageWithAttachment(this.$user_token, this.conversation._id, this.messageReply._id, file.file)
       })
     )
   }
@@ -217,7 +349,6 @@ export default class RMessageInputBar extends ComponentProps {
     popup.classList.add('robin-squeezeIn')
 
     window.setTimeout(() => {
-      const popup = this.$refs['popup-1'] as any
       popup.classList.remove('robin-squeezeIn')
       popup.classList.add('robin-squeezeOut')
 
@@ -226,18 +357,17 @@ export default class RMessageInputBar extends ComponentProps {
   }
 
   handleOpenPopUp (): void {
-    const popup = this.$refs['popup-3'] as any
+    const popup = this.$refs['popup-4'] as any
     popup.$refs['popup-body'].classList.remove('robin-zoomOut')
 
     this.popUpState.opened = true
   }
 
   handleClosePopUp (): void {
-    const popup = this.$refs['popup-3'] as any
+    const popup = this.$refs['popup-4'] as any
     popup.$refs['popup-body'].classList.add('robin-zoomOut')
 
     window.setTimeout(() => {
-      const popup = this.$refs['popup-3'] as any
       popup.$refs['popup-body'].classList.remove('robin-zoomOut')
 
       this.popUpState.opened = false
@@ -254,7 +384,6 @@ export default class RMessageInputBar extends ComponentProps {
     popup.classList.add('robin-squeezeIn')
 
     window.setTimeout(() => {
-      const popup = this.$refs['popup-2'] as any
       popup.classList.remove('robin-squeezeIn')
       popup.classList.add('robin-squeezeOut')
 
@@ -271,12 +400,45 @@ export default class RMessageInputBar extends ComponentProps {
       popup.classList.add('robin-squeezeIn')
 
       window.setTimeout(() => {
-        const popup = this.$refs['popup-2'] as any
         popup.classList.remove('robin-squeezeIn')
         popup.classList.add('robin-squeezeOut')
 
         this.files = []
       }, 100)
+    }
+  }
+
+  handleReplyMessageClose (): void {
+    const popup = this.$refs['popup-3'] as any
+    popup.classList.remove('robin-squeezeOut')
+    popup.classList.add('robin-squeezeIn')
+
+    window.setTimeout(() => {
+      popup.classList.remove('robin-squeezeIn')
+      popup.classList.add('robin-squeezeOut')
+
+      this.$emit('on-close-reply')
+      store.setState('isImageReplying', false)
+    }, 100)
+  }
+
+  checkAttachmentType (attachmentUrl: String): string {
+    const strArr = attachmentUrl.split('.')
+
+    if (mime.getType(strArr[strArr.length - 1]) === 'application/msword') {
+      return 'doc'
+    }
+
+    return `${mime.getType(strArr[strArr.length - 1])}`
+  }
+
+  getFileDetails (attachmentUrl: string): { name: any; extension: any } {
+    const fileName = attachmentUrl.substring(attachmentUrl.lastIndexOf('/') + 1)
+    const strArr = fileName.split('.')
+
+    return {
+      name: strArr[strArr.length - 2],
+      extension: strArr[strArr.length - 1]
     }
   }
 }
@@ -316,18 +478,30 @@ export default class RMessageInputBar extends ComponentProps {
   width: 100%;
   flex: 1;
   height: 140px;
-  top: -140px;
+  /* top: -140px;
   left: 0;
-  bottom: 0;
+  bottom: 0; */
   transform-origin: bottom;
   display: flex;
   align-items: center;
   background-color: #fff;
-  position: absolute;
+  /* position: absolute; */
   z-index: 1;
 }
 
-.robin-file-upload-container .robin-wrapper {
+.robin-reply-container {
+  box-shadow: 0px 0px 20px rgba(0, 104, 255, 0.07);
+  width: 100%;
+  flex: 1;
+  height: max-content;
+  display: flex;
+  align-items: center;
+  transform-origin: bottom;
+  background-color: #fff;
+}
+
+.robin-file-upload-container .robin-wrapper,
+.robin-reply-container .robin-wrapper {
   gap: 1rem;
 }
 
@@ -428,11 +602,28 @@ export default class RMessageInputBar extends ComponentProps {
   z-index: 100;
 }
 
-.robin-file-upload {
+.robin-file-upload,
+.robin-reply {
   position: relative;
+  word-break: break-word;
+  /* font-size: 0.8rem; */
 }
 
-.robin-file-upload-close {
+.robin-reply {
+  background-color: #f4f6f8;
+  padding: 1rem;
+}
+
+.robin-reply .robin-file-upload img {
+  width: 80px;
+}
+
+.robin-reply .robin-file-upload .robin-file {
+  background-color: #fff;
+}
+
+.robin-file-upload-close,
+.robin-reply-close {
   flex: 1;
   max-width: 50px;
   min-height: 100%;
@@ -466,6 +657,13 @@ export default class RMessageInputBar extends ComponentProps {
   cursor: default;
 }
 
+a {
+  display: block;
+  text-decoration: none;
+  color: #4568d1;
+  max-width: 220px;
+}
+
 /* Input focus */
 .robin-input:focus {
   outline: none;
@@ -489,7 +687,8 @@ export default class RMessageInputBar extends ComponentProps {
 }
 
 @media (min-width: 768px) {
-  .robin-file-upload-container .robin-wrapper::-webkit-scrollbar {
+  .robin-file-upload-container .robin-wrapper::-webkit-scrollbar,
+  .robin-reply-container .robin-wrapper::-webkit-scrollbar {
     width: 4px;
     height: 4px;
   }

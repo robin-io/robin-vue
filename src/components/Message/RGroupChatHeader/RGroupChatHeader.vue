@@ -48,7 +48,7 @@ import Component from 'vue-class-component'
 import store from '../../../store/index'
 import IconButton from '../../IconButton/IconButton.vue'
 import RGroupAvatar from '@/components/ChatList/RGroupAvatar/RGroupAvatar.vue'
-import RBackButton from '../RBackButton/RBackButton.vue'
+// import RBackButton from '../RBackButton/RBackButton.vue'
 import RAvatar from '@/components/ChatList/RAvatar/RAvatar.vue'
 import RText from '@/components/ChatList/RText/RText.vue'
 import RButton from '@/components/ChatList/RButton/RButton.vue'
@@ -84,8 +84,8 @@ const ComponentProps = Vue.extend({
     ROptionButton,
     RAvatar,
     RGroupMessagePopOver,
-    RPersonalMessagePopOver,
-    RBackButton
+    RPersonalMessagePopOver
+    // RBackButton
   }
 })
 export default class RGroupChatHeader extends ComponentProps {

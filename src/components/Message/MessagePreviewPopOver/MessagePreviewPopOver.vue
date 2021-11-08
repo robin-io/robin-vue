@@ -3,12 +3,14 @@
     <div class="robin-wrapper robin-w-100" @click="$emit('download')">
       <RText :font-size="14" color="#101010">Save Image</RText>
       <IconButton name="imageDownload" :to-emit="false" :to-click-away="false" />
-      <!-- <RImageDownloadButton /> -->
+    </div>
+    <div class="robin-wrapper robin-w-100" @click="$emit('reply')">
+      <RText :font-size="14" color="#101010">Reply</RText>
+      <IconButton name="reply" :to-emit="false" :to-click-away="false" />
     </div>
     <div class="robin-wrapper robin-w-100" @click="$emit('forward')">
       <RText :font-size="14" color="#101010">Forward</RText>
       <IconButton name="forward" :to-emit="false" :to-click-away="false" />
-      <!-- <RForwardButton /> -->
     </div>
     <!-- <div class="robin-wrapper robin-w-100">
       <RText :font-size="14" color="#101010">Reply</RText>
