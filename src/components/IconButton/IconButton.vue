@@ -10,6 +10,10 @@ import Vue, { PropType } from 'vue'
 import { mixin as clickaway } from 'vue-clickaway'
 import Component from 'vue-class-component'
 
+interface IconItem {
+  [item: string]: any
+}
+
 const ComponentProps = Vue.extend({
   props: {
     name: {
@@ -281,7 +285,7 @@ export default class IconButton extends ComponentProps {
         width: 'max-content'
       }
     }
-  }
+  } as IconItem
 
   get focusType (): string {
     if (this.focused && this.styleStroke && this.hasFocus) {

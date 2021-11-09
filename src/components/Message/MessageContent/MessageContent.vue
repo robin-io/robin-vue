@@ -96,12 +96,12 @@
       </div>
     </div>
     <div class="robin-bubble" :class="validateMessages(message).includes('message-sender') ? 'robin-ml-5' : 'robin-mr-5'" v-if="Array.isArray(message) && message.filter((image) => !image.is_deleted).length === 1">
-      <div class="robin-reactions" v-if="message && message.reactions">
-        <div class="robin-reaction" v-for="(item, index) in message.reactions.slice(0, 4)" :key="index" @click="removeReaction(item)">{{ item.reaction }}</div>
+      <div class="robin-reactions" v-if="message && message[0].reactions">
+        <div class="robin-reaction" v-for="(item, index) in message[0].reactions.slice(0, 4)" :key="index" @click="removeReaction(item)">{{ item.reaction }}</div>
       </div>
       <div class="robin-message-bubble-image" v-if="message[0].content.is_attachment && imageRegex.test(checkAttachmentType(message[0].content.attachment))">
         <!-- place reply here -->
-        <ReplyMessageBubble :messages="messages" :message="message" v-if="message.is_reply" :sender="validateMessages(message).includes('message-sender')" />
+        <ReplyMessageBubble :messages="messages" :message="message" v-if="message[0].is_reply" :sender="validateMessages(message).includes('message-sender')" />
         <!-- place reply here -->
         <v-lazy-image class="robin-uploaded-image" :src="message[0].content.attachment" @click.native="$emit('open-preview', [message[0]])" />
         <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
