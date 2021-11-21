@@ -198,8 +198,6 @@ const ComponentProps = Vue.extend({
   }
 })
 export default class App extends ComponentProps {
-  // @State('isPageLoading') isPageLoading?: RootState
-
   robin = null as any
   conn = null as any
   conversationOpened = false as boolean
@@ -214,7 +212,6 @@ export default class App extends ComponentProps {
     this.onGroupConversationCreated()
     this.onExitGroup()
     this.onExitMessage()
-    // console.log(this.$store)
   }
 
   mounted () {
@@ -281,7 +278,6 @@ export default class App extends ComponentProps {
     this.conn = this.robin.connect(this.userToken)
 
     this.conn.onopen = () => {
-      // console.log('connected')
       this.robin.subscribe(this.channel, this.conn)
     }
 
@@ -334,6 +330,7 @@ export default class App extends ComponentProps {
   }
 
   handleEvents (message: any): void {
+    console.log('event->', message)
     switch (message.name) {
       case 'user.connect':
         // set user status to online
@@ -372,6 +369,9 @@ export default class App extends ComponentProps {
         break
       case 'message.remove.reaction':
         EventBus.$emit('message.remove.reaction', message.value)
+        break
+      case 'read.reciept':
+        EventBus.$emit('read.reciept', message.value)
         break
       default:
         // console.log('cannot handle event')

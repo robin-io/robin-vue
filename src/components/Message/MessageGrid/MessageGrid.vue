@@ -13,6 +13,7 @@
     </div>
     <RText :font-size="12" color="#7a7a7a" as="p" class="robin-side-text">
       {{ formatTimeStamp(message[0].content.timestamp) }}
+      <RReadIcon :is-message-read="readReceipts.length > 0 ? readReceipts.some((item) => item === message[0]._id) : message[0].is_read" v-if="validateMessageClass()" />
     </RText>
   </div>
 </template>
@@ -23,6 +24,7 @@ import VLazyImage from 'v-lazy-image/v2'
 import Component from 'vue-class-component'
 import RReactionPopOver from '../RReactionPopOver/RReactionPopOver.vue'
 import RText from '@/components/ChatList/RText/RText.vue'
+import RReadIcon from '../../RReadIcon.vue'
 import moment from 'moment'
 
 interface Message {
@@ -42,6 +44,10 @@ const ComponentProps = Vue.extend({
     conversation: {
       type: Object,
       default: () => {}
+    },
+    readReceipts: {
+      type: Array as PropType<Array<string>>,
+      default: () => []
     }
   }
 })
@@ -52,7 +58,8 @@ const ComponentProps = Vue.extend({
   components: {
     RText,
     VLazyImage,
-    RReactionPopOver
+    RReactionPopOver,
+    RReadIcon
   },
   watch: {
     message: {

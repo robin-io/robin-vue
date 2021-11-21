@@ -82,6 +82,7 @@ import RMention from './RMention/RMention.vue'
 import RChatListPopOver from './RChatListPopOver/RChatListPopOver.vue'
 import RGroupAvatar from './RGroupAvatar/RGroupAvatar.vue'
 import RUnreadMessageCount from './RUnreadMessageCount/RUnreadMessageCount.vue'
+import RReadIcon from '../RReadIcon.vue'
 
 const ComponentProps = Vue.extend({
   props: {
@@ -106,7 +107,8 @@ const ComponentProps = Vue.extend({
     // ROpenModalCaretButton,
     RGroupAvatar,
     RUnreadMessageCount,
-    RChatListPopOver
+    RChatListPopOver,
+    RReadIcon
   },
   watch: {
     regularConversations: {
@@ -138,7 +140,6 @@ export default class PrimaryChatList extends ComponentProps {
 
   created () {
     this.onGroupConversationCreated()
-    this.handleMessageForward()
   }
 
   mounted () {

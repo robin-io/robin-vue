@@ -1,6 +1,6 @@
 {
-  "name": "robin.io-vue",
-  "version": "0.0.5",
+  "name": "robin.io-vue2",
+  "version": "0.0.8",
   "license": "MIT",
   "files": [
     "dist"
@@ -9,12 +9,12 @@
     "robin.io",
     "vue"
   ],
-  "main": "./dist/robin.io-vue.umd.js",
-  "module": "./dist/robin.io-vue.es.js",
+  "main": "./dist/robin.io-vue2.umd.js",
+  "module": "./dist/robin.io-vue2.es.js",
   "exports": {
     ".": {
-      "import": "./dist/robin.io-vue.es.js",
-      "require": "./dist/robin.io-vue.umd.js"
+      "import": "./dist/robin.io-vue2.es.js",
+      "require": "./dist/robin.io-vue2.umd.js"
     }
   },
   "scripts": {
@@ -31,7 +31,7 @@
     "axios": "^0.21.1",
     "mime": "^2.5.2",
     "moment": "^2.29.1",
-    "robin.io-js": "^0.2.2",
+    "robin.io-js": "^0.2.4",
     "v-emoji-picker": "^2.3.3",
     "v-lazy-image": "^2.0.1",
     "vue": "^2.6.14",

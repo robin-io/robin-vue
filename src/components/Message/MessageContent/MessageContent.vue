@@ -25,6 +25,7 @@
         <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
           <RText :font-size="12" color="#7a7a7a" as="p">
             {{ formatTimeStamp(message.content.timestamp) }}
+            <RReadIcon :is-message-read="readReceipts.length > 0 ? readReceipts.some((item) => item === message._id) : message.is_read" v-if="!validateMessages(message).includes('message-sender')" />
           </RText>
         </span>
       </div>
@@ -47,7 +48,8 @@
           <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
             <RText :font-size="12" color="#7a7a7a" as="p">
               {{ formatTimeStamp(message.content.timestamp) }}
-            </RText>
+              <RReadIcon :is-message-read="readReceipts.length > 0 ? readReceipts.some((item) => item === message._id) : message.is_read" v-if="!validateMessages(message).includes('message-sender')" />
+          </RText>
           </span>
         </div>
       </div>
@@ -59,6 +61,7 @@
         <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
           <RText :font-size="12" color="#fff" as="p">
             {{ formatTimeStamp(message.content.timestamp) }}
+            <RReadIcon :is-message-read="readReceipts.length > 0 ? readReceipts.some((item) => item === message._id) : message.is_read" v-if="!validateMessages(message).includes('message-sender')" />
           </RText>
         </span>
       </div>
@@ -73,6 +76,7 @@
         <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
           <RText :font-size="12" color="#7a7a7a" as="p">
             {{ formatTimeStamp(message.content.timestamp) }}
+            <RReadIcon :is-message-read="readReceipts.length > 0 ? readReceipts.some((item) => item === message._id) : message.is_read" v-if="!validateMessages(message).includes('message-sender')" />
           </RText>
         </span>
       </div>
@@ -91,6 +95,7 @@
         <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
           <RText :font-size="12" color="#7a7a7a" as="p">
             {{ formatTimeStamp(message.content.timestamp) }}
+            <RReadIcon :is-message-read="readReceipts.length > 0 ? readReceipts.some((item) => item === message._id) : message.is_read" v-if="!validateMessages(message).includes('message-sender')" />
           </RText>
         </span>
       </div>
@@ -107,6 +112,7 @@
         <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
           <RText :font-size="12" color="#fff" as="p">
             {{ formatTimeStamp(message[0].content.timestamp) }}
+            <RReadIcon :is-message-read="readReceipts.length > 0 ? readReceipts.some((item) => item === message._id) : message[0].is_read" v-if="!validateMessages(message).includes('message-sender')" />
           </RText>
         </span>
       </div>
@@ -114,7 +120,7 @@
     <div class="robin-reactions" v-if="Array.isArray(message) && message[0] && message[0].reactions">
       <div class="robin-reaction" v-for="(item, index) in message[0].reactions.slice(0, 4)" :key="index" @click="removeReaction(item)">{{ item.reaction }}</div>
     </div>
-    <MessageGrid ref="popup-2" :class="!validateMessages(message) ? 'robin-ml-5' : 'robin-mr-5'" v-if="Array.isArray(message) && message.filter((image) => !image.is_deleted).length > 1" :messages="messages" :message="message.filter((image) => !image.is_deleted)" :conversation="conversation" :message-popup="messagePopup" @open-preview="openPreview($event)" @open-modal="openModal()" @close-modal="closeModal()" @add-reaction="addReaction" v-on-clickaway="closeModal" />
+    <MessageGrid ref="popup-2" :class="!validateMessages(message) ? 'robin-ml-5' : 'robin-mr-5'" v-if="Array.isArray(message) && message.filter((image) => !image.is_deleted).length > 1" :messages="messages" :message="message.filter((image) => !image.is_deleted)" :read-receipts="readReceipts" :conversation="conversation" :message-popup="messagePopup" @open-preview="openPreview($event)" @open-modal="openModal()" @close-modal="closeModal()" @add-reaction="addReaction" v-on-clickaway="closeModal" />
     <div class="robin-popup-container message" :class="{ top: (lastId === message._id || messages.length - 3 === index) && scroll }">
       <RMessagePopOver v-show="messagePopup.opened && validateMessages(message) && !Array.isArray(message)" @close-modal="closeModal()" @reply-message="$emit('reply-message', message)" ref="popup-3" :id="message._id" :message="message" />
     </div>
@@ -135,6 +141,8 @@ import MessageGrid from '../MessageGrid/MessageGrid.vue'
 import RMessagePopOver from '../RMessagePopOver/RMessagePopOver.vue'
 import RReactionPopOver from '../RReactionPopOver/RReactionPopOver.vue'
 import RCheckBox from '@/components/ChatList/RCheckBox/RCheckBox.vue'
+import
+RReadIcon from '../../RReadIcon.vue'
 import moment from 'moment'
 import mime from 'mime'
 
@@ -189,6 +197,10 @@ const ComponentProps = Vue.extend({
     scroll: {
       type: Boolean as PropType<boolean>,
       default: false
+    },
+    readReceipts: {
+      type: Array as PropType<Array<string>>,
+      default: () => []
     }
   }
 })
@@ -205,7 +217,9 @@ const ComponentProps = Vue.extend({
     RReactionPopOver,
     RCheckBox,
     IconButton,
-    ReplyMessageBubble
+    ReplyMessageBubble,
+
+    RReadIcon
   },
   mixins: [clickaway]
 })
@@ -376,18 +390,22 @@ export default class MessageContent extends ComponentProps {
   async addReaction (emoji: string): Promise<void> {
     const robin = this.$robin as any
     const message = Array.isArray(this.message) ? this.message[0] : (this.message as any)
-    console.log('message ->', message)
-    console.log('convo ->', this.conversation._id)
+    console.log(message)
 
-    await robin.reactToMessage(emoji, this.conversation._id, message._id, this.$user_token)
+    const filteredMessage = message.reactions?.filter((reaction: { reaction: any }) => reaction.reaction === emoji)
+
+    if (!filteredMessage || filteredMessage.length === 0) {
+      await robin.reactToMessage(emoji, this.conversation._id, message._id, this.$user_token)
+    } else {
+      this.removeReaction(filteredMessage[0])
+    }
   }
 
   async removeReaction (reaction: any): Promise<void> {
     const robin = this.$robin as any
     const message = Array.isArray(this.message) ? this.message[0] : (this.message as any)
-    console.log('message ->', message)
 
-    await robin.RemoveReaction(reaction.reaction_id, message._id)
+    await robin.RemoveReaction(reaction._id, message._id)
   }
 
   onNewReaction () {
@@ -396,26 +414,28 @@ export default class MessageContent extends ComponentProps {
         if (!this.message.reactions) this.message.reactions = []
 
         if (this.message._id === message.message_id) {
-          const filteredMessage = this.message.reactions.filter((reaction: { reaction: any }) => reaction.reaction === message.reaction)
-          if (filteredMessage.length === 0) {
-            console.log(filteredMessage)
-            this.message.reactions.push(message)
-          } else {
-            this.removeReaction(message)
-          }
+          this.message.reactions.push(message)
+          //   const filteredMessage = this.message.reactions.filter((reaction: { reaction: any }) => reaction.reaction === message.reaction)
+          //   if (filteredMessage.length === 0) {
+          //     console.log(filteredMessage)
+          //     this.message.reactions.push(message)
+          //   } else {
+          //     this.removeReaction(message)
+          //   }
         }
       } else {
         const messageArray = this.message as any
         if (!messageArray[0].reactions) messageArray[0].reactions = []
 
         if (this.message[0]._id === message.message_id) {
-          const filteredMessage = this.message[0].reactions.filter((reaction: { reaction: any }) => reaction.reaction === message.reaction)
-          if (filteredMessage.length === 0) {
-            console.log(filteredMessage)
-            this.message[0].reactions.push(message)
-          } else {
-            this.removeReaction(message)
-          }
+          this.message[0].reactions.push(message)
+          //   const filteredMessage = this.message[0].reactions.filter((reaction: { reaction: any }) => reaction.reaction === message.reaction)
+          //   console.log(filteredMessage)
+          //   if (filteredMessage.length === 0) {
+          //     this.message[0].reactions.push(message)
+          //   } else {
+          //     this.removeReaction(message)
+          //   }
         }
       }
 
@@ -425,18 +445,26 @@ export default class MessageContent extends ComponentProps {
 
   onReactionDelete () {
     EventBus.$on('message.remove.reaction', (message: any) => {
-      if (!Array.isArray(this.message)) {
+      if (message.message_id === this.message._id) {
         const reactions = this.message.reactions as any
 
-        const reactionIndex = reactions.findIndex((item: any) => item.reaction === message.reaction)
-        reactions.splice(reactionIndex, 1)
-      } else {
+        const reactionIndex = reactions.findIndex((item: any) => item._id === message._id)
+        console.log(reactions, reactionIndex)
+        if (reactionIndex > -1) {
+          reactions.splice(reactionIndex, 1)
+          this.$forceUpdate()
+        }
+      }
+
+      if (this.message[0] && message.message_id === this.message[0]._id) {
         const reactions = this.message[0].reactions as any
 
-        const reactionIndex = reactions.findIndex((item: any) => item.reaction === message.reaction)
-        reactions.splice(reactionIndex, 1)
+        const reactionIndex = reactions.findIndex((item: any) => item._id === message._id)
+        if (reactionIndex > -1) {
+          reactions.splice(reactionIndex, 1)
+          this.$forceUpdate()
+        }
       }
-      this.$forceUpdate()
     })
   }
 }
@@ -496,6 +524,15 @@ export default class MessageContent extends ComponentProps {
   flex: 1;
   display: flex;
   justify-content: flex-end;
+}
+
+.robin-message-receiver .robin-side-text >>> p {
+  display: flex;
+  align-items: center;
+}
+
+.robin-message-receiver .robin-side-text >>> p svg {
+  margin-left: 0.438rem;
 }
 
 .robin-message-sender .robin-side-text {
@@ -806,8 +843,8 @@ video.video-reply {
 .robin-reactions {
   width: 100%;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(30px, 30px));
-  gap: 0.2rem 0.1rem;
+  grid-template-columns: repeat(auto-fit, minmax(22px, 22px));
+  gap: 0.1rem 0.1rem;
 }
 
 .robin-message-receiver .robin-reactions {
@@ -819,7 +856,7 @@ video.video-reply {
 }
 
 .robin-reaction {
-  padding: 0 0.5rem;
+  padding: 0 0.3rem;
   font-size: 0.825rem;
   border-radius: 16px;
   /* background-color: #15ae73; */
@@ -827,6 +864,7 @@ video.video-reply {
   min-height: 22px;
   display: flex;
   align-items: center;
+  margin-bottom: -5px;
 }
 
 .robin-reaction:active {

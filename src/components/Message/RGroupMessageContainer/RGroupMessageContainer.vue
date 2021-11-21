@@ -6,7 +6,7 @@
         <div class="robin-spinner"></div>
       </div>
       <div class="robin-inner-wrapper" ref="message" @scroll="onScroll()" v-else>
-        <MessageContent v-for="(message, index) in messages" @open-preview="openImagePreview($event)" :key="`message-${String(index + key)}`" v-show="!message.is_deleted" :message="message" :conversation="conversation" :message-popup="getMessagePopup(index)" :messages="messages" :index="index" :scroll="scroll" :last-id="!Array.isArray(message) && messages.length - 3 < parseInt(String(index)) ? message._id : ''" @toggle-check-action="toggleCheckAction($event, message)" @reply-message="replyMessage($event)" />
+        <MessageContent v-for="(message, index) in messages" @open-preview="openImagePreview($event)" :key="`message-${String(index + key)}`" v-show="!message.is_deleted" :message="message" :conversation="conversation" :message-popup="getMessagePopup(index)" :messages="messages" :index="index" :scroll="scroll" :last-id="!Array.isArray(message) && messages.length - 3 < parseInt(String(index)) ? message._id : ''" :read-receipts="readReceipts" @toggle-check-action="toggleCheckAction($event, message)" @reply-message="replyMessage($event)" />
       </div>
     </div>
     <RMessageInputBar :conversation="conversation" :message-reply="messageReply" @open-camera="openCamera()" :captured-image="capturedImage" @on-close-reply="onCloseReply()" />
@@ -30,6 +30,7 @@ import MessageContent from '../MessageContent/MessageContent.vue'
 import MessageGrid from '../MessageGrid/MessageGrid.vue'
 import RMessagePopOver from '../RMessagePopOver/RMessagePopOver.vue'
 import RForwardMessage from '../RForwardMessage/RForwardMessage.vue'
+import RReadIcon from '../../RReadIcon.vue'
 
 // eslint-disable-next-line
 @Component<RGroupMessageContainer>({
@@ -42,7 +43,8 @@ import RForwardMessage from '../RForwardMessage/RForwardMessage.vue'
     MessageContent,
     MessageGrid,
     RMessagePopOver,
-    RForwardMessage
+    RForwardMessage,
+    RReadIcon
   },
   mixins: [clickaway],
   watch: {
@@ -80,6 +82,7 @@ import RForwardMessage from '../RForwardMessage/RForwardMessage.vue'
   }
 })
 export default class RGroupMessageContainer extends Vue {
+  readReceipts = [] as Array<string>
   selectedMessages = [] as Array<any>
   forwardMessage = false as boolean
   conversation = {} as any
@@ -132,6 +135,7 @@ export default class RGroupMessageContainer extends Vue {
     this.onImageDelete()
     this.handleUserConnect()
     this.handleUserDisconnect()
+    this.getReadReceipts()
   }
 
   get selectMessagesOpen () {
@@ -172,6 +176,20 @@ export default class RGroupMessageContainer extends Vue {
     })
   }
 
+  async initializeReadReceipts (messageIds: Array<string>): Promise<void> {
+    const res = await this.$robin.sendReadReceipts(messageIds, this.conversation._id)
+
+    if (!res || res.error) {
+      this.$toasted.global.custom_error('Check your connection.')
+    }
+  }
+
+  getReadReceipts () {
+    EventBus.$on('read.reciept', (message: any) => {
+      this.readReceipts = message.messageIds
+    })
+  }
+
   handleUserConnect () {
     EventBus.$on('user.connect', (conversation: string) => {
       this.refresh()
@@ -193,6 +211,7 @@ export default class RGroupMessageContainer extends Vue {
       if (message.conversation_id === this.conversation._id) {
         this.messages.push(message)
         this.scrollToBottom()
+        this.initializeReadReceipts(message.sender_token !== this.$user_token ? [message._id] : [])
       }
       this.$conversations.forEach((conversation, index) => {
         if (conversation._id === message.conversation_id) {
@@ -211,54 +230,6 @@ export default class RGroupMessageContainer extends Vue {
       })
     })
   }
-
-  // onNewReaction () {
-  //   EventBus.$on('message.reaction', (message: any) => {
-  //     const messageIndex: any = this.messages.findIndex((messageItem: any) => {
-  //       if (Array.isArray(messageItem)) {
-  //         return !!messageItem.findIndex((item) => item._id === message.message_id)
-  //       }
-
-  //       if (!Array.isArray(messageItem)) {
-  //         if (messageItem._id === message.message_id) {
-  //           return true
-  //         }
-  //       }
-
-  //       return false
-  //     })
-
-  //     if (!this.messages[messageIndex].reactions) {
-  //       this.messages[messageIndex].reactions = []
-  //     }
-
-  //     this.messages[messageIndex].reactions = [...this.messages[messageIndex].reactions, message]
-  //     console.log(this.messages[messageIndex].reactions, message)
-  //   })
-  // }
-
-  // onReactionDelete () {
-  //   EventBus.$on('message.remove.reaction', (message: any) => {
-  //     const messageIndex: any = this.messages.findIndex((messageItem: any) => {
-  //       if (Array.isArray(messageItem)) {
-  //         return !!messageItem.findIndex((item) => item._id === message.message_id)
-  //       }
-
-  //       if (!Array.isArray(messageItem)) {
-  //         if (messageItem._id === message.message_id) {
-  //           return true
-  //         }
-  //       }
-
-  //       return false
-  //     })
-
-  //     const reactions = this.messages[messageIndex].reactions as Array<any>
-
-  //     const reactionIndex = reactions.findIndex((item: any) => item.reaction_id === message.reaction_id)
-  //     reactions.splice(reactionIndex, 1)
-  //   })
-  // }
 
   onMessageDelete () {
     EventBus.$on('message-deleted', (message: any) => {
@@ -285,7 +256,13 @@ export default class RGroupMessageContainer extends Vue {
     const res = await this.$robin.getConversationMessages(id, this.$user_token)
 
     if (res && !res.error) {
-      this.testMessages(res.data == null ? [] : res.data)
+      this.testMessages(res.data ? res.data : [])
+      const filterMessage = res.data ? res.data.filter((item: any) => !item.is_read && item.sender_token !== this.$user_token) : []
+      const messageIds = filterMessage.map((item: any) => item._id)
+
+      if (messageIds.length > 0) {
+        this.initializeReadReceipts(messageIds)
+      }
     } else {
       this.$toasted.global.custom_error('Check your connection.')
     }
