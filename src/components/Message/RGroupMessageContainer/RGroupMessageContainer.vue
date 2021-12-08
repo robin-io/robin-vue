@@ -178,16 +178,18 @@ export default class RGroupMessageContainer extends Vue {
 
   async initializeReadReceipts (messageIds: Array<string>): Promise<void> {
     const res = await this.$robin.sendReadReceipts(messageIds, this.conversation._id)
+    console.log(res, messageIds)
 
     if (!res || res.error) {
       this.$toasted.global.custom_error('Check your connection.')
+    } else {
+      console.log(res)
     }
   }
 
   getReadReceipts () {
     EventBus.$on('read.reciept', (message: any) => {
-      console.log(message)
-      this.readReceipts = message.messageIds
+      this.readReceipts = message.message_ids
     })
   }
 
@@ -209,11 +211,36 @@ export default class RGroupMessageContainer extends Vue {
 
   onNewMessage () {
     EventBus.$on('new-message', (message: any) => {
+      console.log('new-message', message)
       if (message.conversation_id === this.conversation._id) {
         this.messages.push(message)
         this.scrollToBottom()
-        if (message.sender_token !== this.$user_token) {
-          this.initializeReadReceipts([message._id])
+
+        if (message.sender_token !== this.$user_token) { // other user sending the message
+          const messageIds = this.messages.filter((item: any) => {
+            if (!Array.isArray(item) && !item.is_reply) {
+              return item
+            }
+
+            if (Array.isArray(item)) {
+              item.forEach(i => {
+                if (!i.is_reply) {
+                  return item
+                }
+              })
+            }
+
+            return false
+          }).map((item: any) => {
+            if (Array.isArray(item)) {
+              item.forEach(i => {
+                return i._id
+              })
+            }
+            return item._id
+          })
+          console.log(messageIds)
+          this.initializeReadReceipts(messageIds)
         }
       }
       this.$conversations.forEach((conversation, index) => {
@@ -223,6 +250,7 @@ export default class RGroupMessageContainer extends Vue {
           this.$conversations[index].last_message = message.content
           const newConv = this.$conversations[index]
           if (!newConv.archived_for || newConv.archived_for.length === 0) {
+            EventBus.$emit('search-text.reset')
             EventBus.$emit('regular-conversation.delete', newConv)
             EventBus.$emit('regular-conversation.add', newConv)
           } else {
@@ -255,17 +283,21 @@ export default class RGroupMessageContainer extends Vue {
     })
   }
 
+  handleReadReceipts (data: any) {
+    const filterMessage = data ? data.filter((item: any) => !item.is_read && item.sender_token !== this.$user_token) : []
+    const messageIds = filterMessage.map((item: any) => item._id)
+
+    if (messageIds.length > 0) {
+      this.initializeReadReceipts(messageIds)
+    }
+  }
+
   async getConversationMessages (id: string): Promise<void> {
     const res = await this.$robin.getConversationMessages(id, this.$user_token)
 
     if (res && !res.error) {
       this.testMessages(res.data ? res.data : [])
-      const filterMessage = res.data ? res.data.filter((item: any) => !item.is_read && item.sender_token !== this.$user_token) : []
-      const messageIds = filterMessage.map((item: any) => item._id)
-
-      if (messageIds.length > 0) {
-        this.initializeReadReceipts(messageIds)
-      }
+      this.handleReadReceipts(res.data)
     } else {
       this.$toasted.global.custom_error('Check your connection.')
     }

@@ -25,7 +25,7 @@
         <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
           <RText :font-size="12" color="#7a7a7a" as="p">
             {{ formatTimeStamp(message.content.timestamp) }}
-            <RReadIcon :is-message-read="readReceipts.length > 0 ? readReceipts.some((item) => item === message._id) : message.is_read" v-if="!validateMessages(message).includes('message-sender')" />
+            <RReadIcon :is-message-read="message.is_read ? message.is_read : readReceipts.some((item) => item === message._id)" v-if="!validateMessages(message).includes('message-sender')" />
           </RText>
         </span>
       </div>
@@ -48,7 +48,7 @@
           <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
             <RText :font-size="12" color="#7a7a7a" as="p">
               {{ formatTimeStamp(message.content.timestamp) }}
-              <RReadIcon :is-message-read="readReceipts.length > 0 ? readReceipts.some((item) => item === message._id) : message.is_read" v-if="!validateMessages(message).includes('message-sender')" />
+              <RReadIcon :is-message-read="message.is_read ? message.is_read : readReceipts.some((item) => item === message._id)" v-if="!validateMessages(message).includes('message-sender')" />
           </RText>
           </span>
         </div>
@@ -61,7 +61,7 @@
         <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
           <RText :font-size="12" color="#fff" as="p">
             {{ formatTimeStamp(message.content.timestamp) }}
-            <RReadIcon :is-message-read="readReceipts.length > 0 ? readReceipts.some((item) => item === message._id) : message.is_read" v-if="!validateMessages(message).includes('message-sender')" />
+            <RReadIcon :is-message-read="message.is_read ? message.is_read : readReceipts.some((item) => item === message._id)" v-if="!validateMessages(message).includes('message-sender')" />
           </RText>
         </span>
       </div>
@@ -76,7 +76,7 @@
         <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
           <RText :font-size="12" color="#7a7a7a" as="p">
             {{ formatTimeStamp(message.content.timestamp) }}
-            <RReadIcon :is-message-read="readReceipts.length > 0 ? readReceipts.some((item) => item === message._id) : message.is_read" v-if="!validateMessages(message).includes('message-sender')" />
+            <RReadIcon :is-message-read="message.is_read ? message.is_read : readReceipts.some((item) => item === message._id)" v-if="!validateMessages(message).includes('message-sender')" />
           </RText>
         </span>
       </div>
@@ -95,7 +95,7 @@
         <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
           <RText :font-size="12" color="#7a7a7a" as="p">
             {{ formatTimeStamp(message.content.timestamp) }}
-            <RReadIcon :is-message-read="readReceipts.length > 0 ? readReceipts.some((item) => item === message._id) : message.is_read" v-if="!validateMessages(message).includes('message-sender')" />
+            <RReadIcon :is-message-read="message.is_read ? message.is_read : readReceipts.some((item) => item === message._id)" v-if="!validateMessages(message).includes('message-sender')" />
           </RText>
         </span>
       </div>
@@ -112,7 +112,7 @@
         <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
           <RText :font-size="12" color="#fff" as="p">
             {{ formatTimeStamp(message[0].content.timestamp) }}
-            <RReadIcon :is-message-read="readReceipts.length > 0 ? readReceipts.some((item) => item === message._id) : message[0].is_read" v-if="!validateMessages(message).includes('message-sender')" />
+            <RReadIcon :is-message-read="message[0].is_read ? message[0].is_read  : readReceipts.some((item) => item === message[0]._id)" v-if="!validateMessages(message).includes('message-sender')" />
           </RText>
         </span>
       </div>

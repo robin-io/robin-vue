@@ -45,6 +45,7 @@ export default class RSideContainer extends ComponentProps {
   // @Mutation('setPageLoading') setPageLoading: any
 
   key = 0 as number
+  searchText = '' as string
 
   regularConversations = [] as Array<any>
   sideBarType = 'primary'
@@ -148,7 +149,6 @@ export default class RSideContainer extends ComponentProps {
   }
 
   async getUserToken () {
-    // console.log(this.$robin)
     const res = await this.$robin.getUserToken({
       user_token: this.user_token
     })
@@ -162,7 +162,6 @@ export default class RSideContainer extends ComponentProps {
       // console.log('getconversations -> ', this.$conversations)
       this.$forceUpdate()
     }
-    // console.log(res)
   }
 
   getArchivedConversations (): Array<any> {
@@ -184,10 +183,13 @@ export default class RSideContainer extends ComponentProps {
   }
 
   searchedData (event: any): void {
+    this.searchText = event.text.trim()
+
     if (event.text.trim() !== '') {
       this.regularConversations = event.data
     } else {
       this.regularConversations = this.getRegularConversations()
+      this.refresh()
     }
   }
 }

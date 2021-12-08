@@ -13,7 +13,7 @@
     </div>
     <RText :font-size="12" color="#7a7a7a" as="p" class="robin-side-text">
       {{ formatTimeStamp(message[0].content.timestamp) }}
-      <RReadIcon :is-message-read="readReceipts.length > 0 ? readReceipts.some((item) => item === message[0]._id) : message[0].is_read" v-if="validateMessageClass()" />
+      <RReadIcon :is-message-read="message[0].is_read ? message[0].is_read : readReceipts.some((item) => item === message[0]._id)" v-if="validateMessageClass()" />
     </RText>
   </div>
 </template>

@@ -12,6 +12,7 @@
 <script lang="ts">
 import Vue, { PropType } from 'vue'
 import Component from 'vue-class-component'
+import EventBus from '@/event-bus'
 
 const ComponentProps = Vue.extend({
   props: {
@@ -34,6 +35,19 @@ export default class RSeachBar extends ComponentProps {
 
   userTyping (): void {
     this.$emit('user-typing', this.text)
+  }
+
+  created () {
+    this.resetSearchText()
+  }
+
+  resetSearchText (): void {
+    EventBus.$on('search-text.reset', () => {
+      if (this.text !== '') {
+        this.text = ''
+        this.userTyping()
+      }
+    })
   }
 }
 </script>
