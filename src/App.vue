@@ -283,6 +283,7 @@ export default class App extends ComponentProps {
 
     this.conn.onmessage = (evt: any) => {
       const notification = this.$refs.notification as any
+      console.log('this event->', evt.data)
       // console.log('new message', evt.data)
       const message = JSON.parse(evt.data)
       // console.log(message)
@@ -290,7 +291,7 @@ export default class App extends ComponentProps {
         EventBus.$emit('new-message', message)
         if (message.content.receiver_token === this.$user_token) notification.play()
       } else {
-        console.log(message)
+        // console.log(message)
         // move new conversation to the top
         // console.log('new conversation')
         // EventBus.$emit('new-conversation', message)
@@ -330,7 +331,7 @@ export default class App extends ComponentProps {
   }
 
   handleEvents (message: any): void {
-    console.log('event->', message)
+    // console.log('event->', message)
     switch (message.name) {
       case 'user.connect':
         // set user status to online

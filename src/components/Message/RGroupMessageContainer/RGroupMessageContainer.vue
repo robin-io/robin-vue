@@ -164,6 +164,7 @@ export default class RGroupMessageContainer extends Vue {
 
   handleConversationOpen (): void {
     EventBus.$on('conversation-opened', (conversation: any) => {
+      console.log('conversation-opened', conversation)
       this.messageReply = {}
       this.messages = []
       this.conversation = conversation || []
@@ -183,7 +184,7 @@ export default class RGroupMessageContainer extends Vue {
     if (!res || res.error) {
       this.$toasted.global.custom_error('Check your connection.')
     } else {
-      console.log(res)
+      EventBus.$emit('read.reciept', { message_ids: messageIds })
     }
   }
 
@@ -286,6 +287,7 @@ export default class RGroupMessageContainer extends Vue {
   handleReadReceipts (data: any) {
     const filterMessage = data ? data.filter((item: any) => !item.is_read && item.sender_token !== this.$user_token) : []
     const messageIds = filterMessage.map((item: any) => item._id)
+    console.log(messageIds)
 
     if (messageIds.length > 0) {
       this.initializeReadReceipts(messageIds)
