@@ -184,7 +184,7 @@ export default class RGroupMessageContainer extends Vue {
     if (!res || res.error) {
       this.$toasted.global.custom_error('Check your connection.')
     } else {
-      EventBus.$emit('read.reciept', { message_ids: messageIds })
+      EventBus.$emit('read.reciept', messageIds)
     }
   }
 
@@ -217,30 +217,8 @@ export default class RGroupMessageContainer extends Vue {
         this.messages.push(message)
         this.scrollToBottom()
 
-        if (message.sender_token !== this.$user_token) { // other user sending the message
-          const messageIds = this.messages.filter((item: any) => {
-            if (!Array.isArray(item) && !item.is_reply) {
-              return item
-            }
-
-            if (Array.isArray(item)) {
-              item.forEach(i => {
-                if (!i.is_reply) {
-                  return item
-                }
-              })
-            }
-
-            return false
-          }).map((item: any) => {
-            if (Array.isArray(item)) {
-              item.forEach(i => {
-                return i._id
-              })
-            }
-            return item._id
-          })
-          console.log(messageIds)
+        if (message.sender_token !== this.$user_token) {
+          const messageIds = [this.messages[this.messages.length - 1]._id]
           this.initializeReadReceipts(messageIds)
         }
       }
@@ -287,7 +265,6 @@ export default class RGroupMessageContainer extends Vue {
   handleReadReceipts (data: any) {
     const filterMessage = data ? data.filter((item: any) => !item.is_read && item.sender_token !== this.$user_token) : []
     const messageIds = filterMessage.map((item: any) => item._id)
-    console.log(messageIds)
 
     if (messageIds.length > 0) {
       this.initializeReadReceipts(messageIds)

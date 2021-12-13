@@ -243,7 +243,7 @@ export default class App extends ComponentProps {
 
   initiateRobin () {
     this.robin = new Robin(this.apiKey, true)
-    console.log(this.robin)
+    // console.log(this.robin)
     this.connect()
     this.setPrototypes()
   }
@@ -283,7 +283,7 @@ export default class App extends ComponentProps {
 
     this.conn.onmessage = (evt: any) => {
       const notification = this.$refs.notification as any
-      console.log('this event->', evt.data)
+      console.log(evt.data)
       // console.log('new message', evt.data)
       const message = JSON.parse(evt.data)
       // console.log(message)

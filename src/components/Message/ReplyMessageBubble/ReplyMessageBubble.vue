@@ -162,7 +162,7 @@ export default class ReplyMessageBubble extends ComponentProps {
       return false
     })
 
-    console.log(message)
+    // console.log(message)
 
     if (Array.isArray(message)) {
       return message[this.imageSelected]

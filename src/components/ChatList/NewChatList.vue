@@ -132,7 +132,7 @@ export default class NewChatList extends Vue {
   }
 
   async createConversation (user: any) {
-    console.log(this.$user_token, user.userToken)
+    // console.log(this.$user_token, user.userToken)
 
     const res = await this.$robin.createConversation({
       sender_name: this.$senderName,
@@ -145,7 +145,7 @@ export default class NewChatList extends Vue {
       if (!this.checkConversations(res.data)) {
         this.$conversations.push(res.data)
       }
-      console.log(res)
+      // console.log(res)
       EventBus.$emit('conversation-opened', res.data)
       EventBus.$emit('open-conversation')
     } else {
@@ -164,7 +164,7 @@ export default class NewChatList extends Vue {
   }
 
   getContacts (searchText: string): void {
-    console.log(this.robinUsers)
+    // console.log(this.robinUsers)
     this.contacts = {}
 
     if (searchText.trim() === '') {
