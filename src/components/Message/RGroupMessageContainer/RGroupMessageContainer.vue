@@ -6,7 +6,7 @@
         <div class="robin-spinner"></div>
       </div>
       <div class="robin-inner-wrapper" ref="message" @scroll="onScroll()" v-else>
-        <MessageContent v-for="(message, index) in messages" @open-preview="openImagePreview($event)" :key="`message-${String(index + key)}`" v-show="!message.is_deleted" :message="message" :conversation="conversation" :message-popup="getMessagePopup(index)" :messages="messages" :index="index" :scroll="scroll" :last-id="!Array.isArray(message) && messages.length - 3 < parseInt(String(index)) ? message._id : ''" :read-receipts="readReceipts" @toggle-check-action="toggleCheckAction($event, message)" @reply-message="replyMessage($event)" />
+        <MessageContent v-for="(message, index) in messages" :ref="`message-${String(index)}`" @open-preview="openImagePreview($event)" :key="`message-${String(index + key)}`" v-show="!message.is_deleted" :message="message" :conversation="conversation" :message-popup="getMessagePopup(index)" :messages="messages" :index="index" :scroll="scroll" :last-id="!Array.isArray(message) && messages.length - 3 < parseInt(String(index)) ? message._id : ''" :read-receipts="readReceipts" @toggle-check-action="toggleCheckAction($event, message)" @reply-message="replyMessage($event)" @scroll-replied-message="scrollToRepliedMessage" />
       </div>
     </div>
     <RMessageInputBar :conversation="conversation" :message-reply="messageReply" @open-camera="openCamera()" :captured-image="capturedImage" @on-close-reply="onCloseReply()" />
@@ -181,16 +181,18 @@ export default class RGroupMessageContainer extends Vue {
     const res = await this.$robin.sendReadReceipts(messageIds, this.conversation._id)
     console.log(res, messageIds)
 
-    if (!res || res.error) {
+    if (!res.error) {
+      console.log(res.error, res)
+    }
+
+    if (res.error) {
       this.$toasted.global.custom_error('Check your connection.')
-    } else {
-      EventBus.$emit('read.reciept', messageIds)
     }
   }
 
   getReadReceipts () {
     EventBus.$on('read.reciept', (message: any) => {
-      this.readReceipts = message.message_ids
+      this.readReceipts.push(...message.message_ids)
     })
   }
 
@@ -445,6 +447,25 @@ export default class RGroupMessageContainer extends Vue {
 
   onCloseReply (): void {
     this.messageReply = {}
+  }
+
+  // Method to scroll to the position of a replied message
+  scrollToRepliedMessage (id: string): void {
+    const messageIndex: any = this.messages.findIndex((element: any) => {
+      if (Array.isArray(element)) {
+        return element.find((item) => item._id === id)
+      }
+
+      if (!Array.isArray(element)) {
+        if (element._id === id) {
+          return element
+        }
+      }
+
+      return false
+    })
+    const messageRef: any = this.$refs[`message-${messageIndex}`]
+    messageRef[0].$el.scrollIntoView({ behavior: 'smooth', block: 'end' })
   }
 }
 </script>

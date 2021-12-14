@@ -9,11 +9,11 @@
         <div class="robin-reaction" v-for="(item, index) in message.reactions.slice(0, 4)" :key="index" @click="removeReaction(item)">{{ item.reaction }}</div>
       </div>
       <!-- Personal -->
-      <div class="robin-message-bubble-inner" :class="{ 'robin-non-clickable': selectMessagesOpen }" v-if="!message.has_attachment && !conversation.is_group" @click="openModal()">
+      <div class="robin-message-bubble-inner" :class="{ 'robin-non-clickable': selectMessagesOpen }" v-if="!message.has_attachment && !conversation.is_group" @click.self="openModal()">
         <!-- place reply here -->
-        <ReplyMessageBubble :messages="messages" :message="message" v-if="message.is_reply" :sender="validateMessages(message).includes('message-sender')" />
+        <ReplyMessageBubble :messages="messages" :message="message" v-if="message.is_reply" :sender="validateMessages(message).includes('message-sender')" @scroll-replied-message="scrollToRepliedMessage" />
         <!-- place reply here -->
-        <RText :font-size="16" textWrap="pre-line" wordBreak="break-word" as="span" v-if="!emailRegex.test(message.content.msg) && !websiteRegex.test(message.content.msg)">
+        <RText :font-size="16" textWrap="pre-line" wordBreak="break-word" as="span" v-if="!emailRegex.test(message.content.msg) && !websiteRegex.test(message.content.msg)" @click.native="openModal()">
           {{ message.content.msg }}
         </RText>
         <RText :font-size="14" textWrap="pre-line" wordBreak="break-word" as="span" v-else-if="emailRegex.test(message.content.msg) && !websiteRegex.test(message.content.msg)">
@@ -22,21 +22,21 @@
         <RText :font-size="14" textWrap="pre-line" wordBreak="break-word" as="span" v-else>
           <a target="_blank" :href="message.content.msg.includes('http') || message.content.msg.includes('https') ? message.content.msg : `https://${message.content.msg}`">{{ message.content.msg }}</a>
         </RText>
-        <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
-          <RText :font-size="12" color="#7a7a7a" as="p">
+        <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto" @click.self="openModal()">
+          <RText :font-size="12" color="#7a7a7a" as="p" @click.native="openModal()">
             {{ formatTimeStamp(message.content.timestamp) }}
             <RReadIcon :is-message-read="message.is_read ? message.is_read : readReceipts.some((item) => item === message._id)" v-if="!validateMessages(message).includes('message-sender')" />
           </RText>
         </span>
       </div>
       <!-- Group -->
-      <div class="robin-message-bubble-inner robin-group" :class="{ 'robin-non-clickable': selectMessagesOpen }" v-if="!message.has_attachment && conversation.is_group" @click="openModal()">
+      <div class="robin-message-bubble-inner robin-group" :class="{ 'robin-non-clickable': selectMessagesOpen }" v-if="!message.has_attachment && conversation.is_group" @click.self="openModal()">
         <RText v-if="validateMessages(message).includes('message-sender')" :font-size="12" color="#15AE73" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getContactName(message.content.sender_token) }} </RText>
         <!-- place reply here -->
-        <ReplyMessageBubble :messages="messages" :message="message" v-if="message.is_reply" :sender="validateMessages(message).includes('message-sender')" />
+        <ReplyMessageBubble :messages="messages" :message="message" v-if="message.is_reply" :sender="validateMessages(message).includes('message-sender')" @scroll-replied-message="scrollToRepliedMessage" />
         <!-- place reply here -->
         <div class="message-inner">
-          <RText :font-size="16" textWrap="pre-line" wordBreak="break-all" as="span" v-if="!emailRegex.test(message.content.msg) && !websiteRegex.test(message.content.msg)">
+          <RText :font-size="16" textWrap="pre-line" wordBreak="break-all" as="span" v-if="!emailRegex.test(message.content.msg) && !websiteRegex.test(message.content.msg)" @click.native="openModal()">
             {{ message.content.msg }}
           </RText>
           <RText :font-size="14" textWrap="pre-line" as="span" v-else-if="emailRegex.test(message.content.msg) && !websiteRegex.test(message.content.msg)">
@@ -45,46 +45,46 @@
           <RText :font-size="14" textWrap="pre-line" as="span" v-else>
             <a target="_blank" :href="message.content.msg.includes('http') || message.content.msg.includes('https') ? message.content.msg : `https://${message.content.msg}`">{{ message.content.msg }}</a>
           </RText>
-          <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
-            <RText :font-size="12" color="#7a7a7a" as="p">
+          <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto" @click.self="openModal()">
+            <RText :font-size="12" color="#7a7a7a" as="p" @click.native="openModal()">
               {{ formatTimeStamp(message.content.timestamp) }}
               <RReadIcon :is-message-read="message.is_read ? message.is_read : readReceipts.some((item) => item === message._id)" v-if="!validateMessages(message).includes('message-sender')" />
-          </RText>
+            </RText>
           </span>
         </div>
       </div>
       <div class="robin-message-bubble-image" v-if="message.content.is_attachment && imageRegex.test(checkAttachmentType(message.content.attachment))">
         <!-- place reply here -->
-        <ReplyMessageBubble :messages="messages" :message="message" v-if="message.is_reply" :sender="validateMessages(message).includes('message-sender')" />
+        <ReplyMessageBubble :messages="messages" :message="message" v-if="message.is_reply" :sender="validateMessages(message).includes('message-sender')" @scroll-replied-message="scrollToRepliedMessage" />
         <!-- place reply here -->
         <v-lazy-image class="robin-uploaded-image" :src="message.content.attachment" @click.native="$emit('open-preview', [message])" />
-        <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
-          <RText :font-size="12" color="#fff" as="p">
+        <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto" @click.self="openModal()">
+          <RText :font-size="12" color="#fff" as="p" @click.native="openModal()">
             {{ formatTimeStamp(message.content.timestamp) }}
             <RReadIcon :is-message-read="message.is_read ? message.is_read : readReceipts.some((item) => item === message._id)" v-if="!validateMessages(message).includes('message-sender')" />
           </RText>
         </span>
       </div>
-      <div class="robin-message-bubble-video" v-if="message.content.is_attachment && videoRegex.test(checkAttachmentType(message.content.attachment))" @click="openModal()">
+      <div class="robin-message-bubble-video" v-if="message.content.is_attachment && videoRegex.test(checkAttachmentType(message.content.attachment))" @click.self="openModal()">
         <!-- place reply here -->
-        <ReplyMessageBubble :messages="messages" :message="message" v-if="message.is_reply" :sender="validateMessages(message).includes('message-sender')" />
+        <ReplyMessageBubble :messages="messages" :message="message" v-if="message.is_reply" :sender="validateMessages(message).includes('message-sender')" @scroll-replied-message="scrollToRepliedMessage" />
         <!-- place reply here -->
         <video controls :class="message.is_reply ? 'video-reply' : ''">
           <source :src="message.content.attachment" />
           Your browser does not support the video tag.
         </video>
-        <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
-          <RText :font-size="12" color="#7a7a7a" as="p">
+        <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto" @click.self="openModal()">
+          <RText :font-size="12" color="#7a7a7a" as="p" @click.native="openModal()">
             {{ formatTimeStamp(message.content.timestamp) }}
             <RReadIcon :is-message-read="message.is_read ? message.is_read : readReceipts.some((item) => item === message._id)" v-if="!validateMessages(message).includes('message-sender')" />
           </RText>
         </span>
       </div>
-      <div class="robin-message-bubble-document" v-if="message.content.is_attachment && documentRegex.test(checkAttachmentType(message.content.attachment))" @click="openModal()">
+      <div class="robin-message-bubble-document" v-if="message.content.is_attachment && documentRegex.test(checkAttachmentType(message.content.attachment))" @click.self="openModal()">
         <!-- place reply here -->
         <ReplyMessageBubble :messages="messages" :message="message" v-if="message.is_reply" :sender="validateMessages(message).includes('message-sender')" class="robin-mb-8" />
         <!-- place reply here -->
-        <div class="robin-uploaded-document">
+        <div class="robin-uploaded-document" @click.self="openModal()">
           <img v-if="images[getFileDetails(message.content.attachment).extension]" :src="images[getFileDetails(message.content.attachment).extension]" />
           <img v-else src="@/assets/default.png" />
           <div class="details robin-flex robin-h-100 robin-flex-align-center">
@@ -92,8 +92,8 @@
           </div>
           <IconButton name="download" color="#15AE73" @clicked="downloadFile(message.content.attachment)" :to-emit="true" :to-click-away="false" />
         </div>
-        <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
-          <RText :font-size="12" color="#7a7a7a" as="p">
+        <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto" @click.self="openModal()">
+          <RText :font-size="12" color="#7a7a7a" as="p" @click.native="openModal()">
             {{ formatTimeStamp(message.content.timestamp) }}
             <RReadIcon :is-message-read="message.is_read ? message.is_read : readReceipts.some((item) => item === message._id)" v-if="!validateMessages(message).includes('message-sender')" />
           </RText>
@@ -106,13 +106,13 @@
       </div>
       <div class="robin-message-bubble-image" v-if="message[0].content.is_attachment && imageRegex.test(checkAttachmentType(message[0].content.attachment))">
         <!-- place reply here -->
-        <ReplyMessageBubble :messages="messages" :message="message" v-if="message[0].is_reply" :sender="validateMessages(message).includes('message-sender')" />
+        <ReplyMessageBubble :messages="messages" :message="message" v-if="message[0].is_reply" :sender="validateMessages(message).includes('message-sender')" @scroll-replied-message="scrollToRepliedMessage" />
         <!-- place reply here -->
         <v-lazy-image class="robin-uploaded-image" :src="message[0].content.attachment" @click.native="$emit('open-preview', [message[0]])" />
         <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
           <RText :font-size="12" color="#fff" as="p">
             {{ formatTimeStamp(message[0].content.timestamp) }}
-            <RReadIcon :is-message-read="message[0].is_read ? message[0].is_read  : readReceipts.some((item) => item === message[0]._id)" v-if="!validateMessages(message).includes('message-sender')" />
+            <RReadIcon :is-message-read="message[0].is_read ? message[0].is_read : readReceipts.some((item) => item === message[0]._id)" v-if="!validateMessages(message).includes('message-sender')" />
           </RText>
         </span>
       </div>
@@ -141,8 +141,7 @@ import MessageGrid from '../MessageGrid/MessageGrid.vue'
 import RMessagePopOver from '../RMessagePopOver/RMessagePopOver.vue'
 import RReactionPopOver from '../RReactionPopOver/RReactionPopOver.vue'
 import RCheckBox from '@/components/ChatList/RCheckBox/RCheckBox.vue'
-import
-RReadIcon from '../../RReadIcon.vue'
+import RReadIcon from '../../RReadIcon.vue'
 import moment from 'moment'
 import mime from 'mime'
 
@@ -390,7 +389,6 @@ export default class MessageContent extends ComponentProps {
   async addReaction (emoji: string): Promise<void> {
     const robin = this.$robin as any
     const message = Array.isArray(this.message) ? this.message[0] : (this.message as any)
-    console.log(message)
 
     const filteredMessage = message.reactions?.filter((reaction: { reaction: any }) => reaction.reaction === emoji)
 
@@ -466,6 +464,11 @@ export default class MessageContent extends ComponentProps {
         }
       }
     })
+  }
+
+  // Method to scroll to the position of a replied message
+  scrollToRepliedMessage (id: string) {
+    this.$emit('scroll-replied-message', id)
   }
 }
 </script>

@@ -283,8 +283,7 @@ export default class App extends ComponentProps {
 
     this.conn.onmessage = (evt: any) => {
       const notification = this.$refs.notification as any
-      console.log(evt.data)
-      // console.log('new message', evt.data)
+
       const message = JSON.parse(evt.data)
       // console.log(message)
       if (message.is_event !== true) {
