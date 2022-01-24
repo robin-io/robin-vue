@@ -120,7 +120,11 @@ export default class CreateGroup extends ComponentProps {
       this.$emit('closemodal')
       this.isLoading = false
     } else {
-      this.$toasted.global.custom_error('Check your connection.')
+      this.$toast.open({
+        message: 'Check your connection.',
+        type: 'error',
+        position: 'bottom-left'
+      })
       this.isLoading = false
     }
   }
@@ -151,7 +155,7 @@ export default class CreateGroup extends ComponentProps {
   width: 100vw;
   height: 100vh;
   background-color: rgba(107, 116, 145, 0.1);
-  backdrop-filter: blur(3.8731px);
+  /* backdrop-filter: blur(3.8731px); */
   position: absolute;
   top: 0;
   left: 0;

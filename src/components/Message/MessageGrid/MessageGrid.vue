@@ -3,17 +3,23 @@
     <div class="robin-popup-container reactions" ref="popup-body">
       <RReactionPopOver v-show="messagePopup.opened" @close-modal="closeModal()" :id="message[0]._id" :message="message[0]" @reaction="$emit('add-reaction', $event)" />
     </div>
+
     <div class="robin-bubble-inner robin-grid-container" :class="getSizeOfGridClass" @click="openPreview(message)">
       <div class="robin-message-bubble-image" v-for="(image, index) in images" :key="image._id" :class="validateImageClass(index)">
         <v-lazy-image class="robin-uploaded-image" :src="image.content.attachment" />
       </div>
+
       <span :class="message.length > 4 ? 'back-drop robin-flex-column robin-flex-space-between' : 'robin-flex-end'" class="robin-drop-shadow robin-flex">
         <RText v-show="message.length > 4" :font-size="26" color="#fff" as="p" class="robin-message-count"> {{ message.length - 4 }}+ </RText>
       </span>
     </div>
-    <RText :font-size="12" color="#7a7a7a" as="p" class="robin-side-text">
+
+    <RText :font-size="10" :font-weight="'300'" color="#7a7a7a" as="p" class="robin-side-text">
       {{ formatTimeStamp(message[0].content.timestamp) }}
-      <RReadIcon :is-message-read="message[0].is_read ? message[0].is_read : readReceipts.some((item) => item === message[0]._id)" v-if="validateMessageClass()" />
+
+      <SvgIcon name="read" v-if="message[0].is_read" />
+
+      <SvgIcon name="not-read" v-if="!message[0].is_read" />
     </RText>
   </div>
 </template>
@@ -24,7 +30,7 @@ import VLazyImage from 'v-lazy-image/v2'
 import Component from 'vue-class-component'
 import RReactionPopOver from '../RReactionPopOver/RReactionPopOver.vue'
 import RText from '@/components/ChatList/RText/RText.vue'
-import RReadIcon from '../../RReadIcon.vue'
+import SvgIcon from '../../SvgIcon/SvgIcon.vue'
 import moment from 'moment'
 
 interface Message {
@@ -59,7 +65,7 @@ const ComponentProps = Vue.extend({
     RText,
     VLazyImage,
     RReactionPopOver,
-    RReadIcon
+    SvgIcon
   },
   watch: {
     message: {
@@ -110,7 +116,7 @@ export default class MessageGrid extends ComponentProps {
 .robin-bubble {
   width: max-content;
   border-radius: inherit;
-  padding-bottom: 0.5rem;
+  padding: 0.813rem 0.625rem 0.813rem 0.75rem;
   position: relative;
 }
 
@@ -123,7 +129,7 @@ export default class MessageGrid extends ComponentProps {
 
 .robin-grid-container {
   display: grid;
-  gap: 0.125rem 0.125rem;
+  gap: 0.25rem 0.25rem;
 }
 
 .robin-grid-container::before {
@@ -133,8 +139,8 @@ export default class MessageGrid extends ComponentProps {
   position: absolute;
   top: 0;
   z-index: 1;
-  border-radius: 16px;
-  transition: background-color 0.3s;
+  border-radius: 8px;
+  transition: background-color 0.1s;
   cursor: pointer;
 }
 
@@ -178,7 +184,7 @@ export default class MessageGrid extends ComponentProps {
 
 .robin-grid-2-by-2 {
   grid-template-columns: 125px 125px;
-  grid-template-rows: 226px;
+  grid-template-rows: 192px;
 }
 
 .robin-image-receiver {
@@ -193,73 +199,73 @@ export default class MessageGrid extends ComponentProps {
 
 /* 4 by 4 */
 .robin-grid-4-by-4 .robin-grid-0 {
-  border-radius: 16px 0px 0px 0px;
+  border-radius: 4px;
 }
 
 .robin-grid-4-by-4 .robin-grid-1 {
-  border-radius: 0px 16px 0px 0px;
+  border-radius: 4px;
 }
 
 .robin-grid-4-by-4 .robin-grid-2 {
-  border-radius: 0px 0px 0px 16px;
+  border-radius: 4px;
 }
 
 .robin-grid-4-by-4 .robin-grid-3 {
-  border-radius: 0px 0px 16px 0px;
+  border-radius: 4px;
 }
 
 /* 3 by 3 */
 .robin-grid-3-by-3 .robin-image-receiver.robin-grid-0 {
   grid-column: 1;
   grid-row: 1;
-  border-radius: 16px 0px 0px 0px;
+  border-radius: 4px;
 }
 
 .robin-grid-3-by-3 .robin-image-receiver.robin-grid-1 {
   grid-column: 2;
-  grid-row: 1 / span 2;
-  border-radius: 0px 16px 0px 0px;
+  grid-row: 1;
+  border-radius: 4px;
 }
 
 .robin-grid-3-by-3 .robin-image-receiver.robin-grid-2 {
-  grid-column: 1;
+  grid-column: 1 / span 2;
   grid-row: 2;
-  border-radius: 0px 0px 0px 16px;
+  border-radius: 4px;
 }
 
 .robin-grid-3-by-3 .robin-image-sender.robin-grid-0 {
   grid-column: 2;
   grid-row: 1;
-  border-radius: 0px 16px 0px 0px;
+  border-radius: 4px;
 }
 
 .robin-grid-3-by-3 .robin-image-sender.robin-grid-1 {
   grid-column: 1;
   grid-row: 1 / span 2;
-  border-radius: 16px 0px 0px 0px;
+  border-radius: 4px;
 }
 
 .robin-grid-3-by-3 .robin-image-sender.robin-grid-2 {
   grid-column: 2;
   grid-row: 2;
-  border-radius: 0px 0px 16px 0px;
+  border-radius: 4px;
 }
 
 /* 2 by 2 */
 .robin-grid-2-by-2 .robin-grid-0 {
-  border-radius: 16px 0px 0px 16px;
+  border-radius: 4px;
 }
 
 .robin-grid-2-by-2 .robin-image-sender.robin-grid-0 {
-  border-radius: 16px 0px 0px 0px;
+  border-radius: 4px;
 }
 
 .robin-grid-2-by-2 .robin-image-receiver.robin-grid-1 {
-  border-radius: 0px 16px 0px 0px;
+  border-radius: 4px;
 }
 
 .robin-grid-2-by-2 .robin-image-sender.robin-grid-1 {
-  border-radius: 0px 16px 16px 0px;
+  border-radius: 4px;
 }
 
 /* Image */
@@ -269,24 +275,29 @@ export default class MessageGrid extends ComponentProps {
   width: 100%;
   border-radius: inherit;
   background-color: #fff;
+  object-fit: cover;
   /* max-width: 90px; */
   /* max-height: 350px; */
 }
 
 .robin-grid-sender {
-  background-color: #f4f6f8;
+  background-color: #f5f7fc;
 }
 
 .robin-grid-receiver {
-  background-color: #d3d7ea;
+  background-color: #dbe4ff;
 }
 
 .robin-grid-sender .robin-side-text {
-  margin: 0.375rem 0.3rem 0;
+  display: flex;
+  align-items: flex-start;
+  margin: 0.375rem 0 0;
 }
 
 .robin-grid-receiver .robin-side-text {
-  margin: 0.375rem 1rem 0 auto;
+  display: flex;
+  align-items: flex-start;
+  margin: 0.375rem 0 0 auto;
 }
 
 .robin-grid-sender .robin-popup-container.reactions {

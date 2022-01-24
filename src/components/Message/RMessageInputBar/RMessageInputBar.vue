@@ -9,27 +9,26 @@
     <div class="robin-reply-container robin-squeezeOut" ref="popup-3" v-show="replying">
       <div class="robin-wrapper robin-flex robin-flex-1 robin-pt-8 robin-pb-8 robin-pl-24 robin-pr-24 robin-overflow-y-auto">
         <div class="robin-reply robin-w-100" v-if="!messageReply.has_attachment">
-          <RText :font-size="10" textWrap="pre-line" wordBreak="break-word" as="span" v-if="!emailRegex.test(messageReply.content ? messageReply.content.msg : '') && !websiteRegex.test(messageReply.content ? messageReply.content.msg : '')">
+          <RText :font-size="10" textWrap="pre-line" wordBreak="break-word" as="span" v-if="!validateLinkInMessage().containsEmail && !validateLinkInMessage().containsWebsite">
             {{ messageReply.content ? messageReply.content.msg : '' }}
           </RText>
-          <RText :font-size="10" textWrap="pre-line" wordBreak="break-word" as="span" v-else-if="emailRegex.test(messageReply.content ? messageReply.content.msg : '') && !websiteRegex.test(messageReply.content ? messageReply.content.msg : '')">
-            <a target="_blank" :href="`mailto:${messageReply.content.msg}`">{{ messageReply.content.msg }}</a>
-          </RText>
-          <RText :font-size="10" textWrap="pre-line" wordBreak="break-word" as="span" v-else>
-            <a target="_blank" :href="messageReply.content.msg.includes('http') || messageReply.content.msg.includes('https') ? messageReply.content.msg : `https://${messageReply.content.msg}`">{{ messageReply.content.msg }}</a>
-          </RText>
+
+          <div class="robin-link-container" v-html="injectHtml()" v-if="(validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) || validateLinkInMessage().containsEmail || validateLinkInMessage().containsWebsite"></div>
         </div>
+
         <div class="robin-reply robin-w-100" v-else>
           <div class="robin-file-upload">
             <img :src="messageReply.content.attachment" :alt="`${getFileDetails(messageReply.content.attachment).name}-image`" v-if="imageRegex.test(checkAttachmentType(messageReply.content.attachment))" />
+
             <div class="robin-video" v-if="videoRegex.test(checkAttachmentType(messageReply.content.attachment))">
               <video width="100%" height="100%" controls>
                 <source :src="messageReply.content.attachment" />
                 Your browser does not support the video tag.
               </video>
             </div>
+
             <div class="robin-file" v-if="acceptedDocFiles.includes(getFileDetails(messageReply.content.attachment).extension)">
-              <RFileIcon />
+              <SvgIcon name="file" />
               <RText as="span">
                 {{ getFileDetails(messageReply.content.attachment).name.length > 6 ? getFileDetails(messageReply.content.attachment).name.substring(0, 6) + '..' : getFileDetails(messageReply.content.attachment).name }}
               </RText>
@@ -53,15 +52,18 @@
           <div class="robin-file-upload-delete" @click="removeFile(index)">
             <IconButton name="close" :to-emit="false" :to-click-away="false" />
           </div>
+
           <img :src="file.localUrl" :alt="`${file.name}-image`" v-if="file.type.includes('image')" />
+
           <div class="robin-video" v-if="file.type.includes('video')">
             <video width="100%" height="100%" @click="removeFile(index)" controls>
               <source :src="file.localUrl" :type="file.type" />
               Your browser does not support the video tag.
             </video>
           </div>
+
           <div class="robin-file" v-if="acceptedDocFiles.includes(file.extension)">
-            <RFileIcon />
+            <SvgIcon name="file" />
             <RText as="span">
               {{ file.name.length > 6 ? file.name.substring(0, 6) + '..' : file.name }}
             </RText>
@@ -77,12 +79,17 @@
     </div>
 
     <div class="robin-message-box-inner" @keydown.enter.exact.prevent="!replying ? sendMessage() : replyMessage()" tabindex="1">
+      <div class="robin-mr-8" v-show="text.trim() == '' && files.length < 1 && !isUploading" @click="handleOpenPopUp()">
+        <IconButton name="attachFileClose" v-if="!popUpState.opened"  :to-click-away="false" :to-emit="false" />
+        <IconButton name="attachFileOpen" v-else @clicked="handleClosePopUp()" @clickoutside="handleClosePopUp()" :to-click-away="true" :to-emit="true" />
+        <!-- <IconButton name="attachFile" @clickoutside="handleClosePopUp()" :to-click-away="true" :style-stroke="true" :to-emit="false" primary-color="rgba(21, 174, 115, 1)" :hasFocus="true" /> -->
+      </div>
       <div class="robin-message-input">
         <div class="robin-mt-4">
           <IconButton name="emoji" @clicked="!popUpState.emojiOpened ? handleEmojiOpenPopUp() : handleEmojiClosePopUp()" :active="popUpState.emojiOpened" :to-emit="true" :to-click-away="false" />
         </div>
         <div class="robin-input-wrapper" tabindex="1">
-          <textarea class="robin-input" ref="input" @input="enterText($event)" :value="text" @keydown.esc="escapeText()" placeholder="Type a message..."></textarea>
+          <textarea class="robin-input" ref="input" @input="enterText($event)" :value="text" @keydown.esc="escapeText()" placeholder="Type your message..."></textarea>
         </div>
       </div>
       <div class="robin-pl-21 robin-come-up" v-show="(text.trim().length > 0 || files.length > 0) && !isUploading">
@@ -91,12 +98,11 @@
       <div class="robin-send-button-loader robin-ml-21" v-show="isUploading">
         <div class="robin-spinner2"></div>
       </div>
-      <div class="robin-pl-25" v-show="text.trim() == '' && files.length < 1 && !isUploading" @click="handleOpenPopUp()">
-        <IconButton name="attachFile" @clickoutside="handleClosePopUp()" :to-click-away="true" :style-stroke="true" :to-emit="false" primary-color="rgba(21, 174, 115, 1)" :hasFocus="true" />
+      <div v-show="text.trim() == '' && files.length < 1 && !isUploading" @click="handleOpenPopUp()">
+        <IconButton name="voice" :to-click-away="false" :to-emit="false" />
+        <!-- <IconButton name="attachFile" @clickoutside="handleClosePopUp()" :to-click-away="true" :style-stroke="true" :to-emit="false" primary-color="rgba(21, 174, 115, 1)" :hasFocus="true" /> -->
       </div>
-      <!-- <div class="robin-pl-21" v-show="text == ''">
-        <RVoiceRecorderButton />
-      </div> -->
+
       <div class="robin-popup-container" v-show="popUpState.opened">
         <RAttachFilePopOver ref="popup-4" @file-upload="handleFileUpload" @open-camera="$emit('open-camera')" />
       </div>
@@ -114,25 +120,7 @@ import store from '../../../store/index'
 import IconButton from '../../IconButton/IconButton.vue'
 import RAttachFilePopOver from '../RAttachFilePopOver/RAttachFilePopOver.vue'
 import RText from '../../ChatList/RText/RText.vue'
-import RFileIcon from '../RFileIcon.vue'
-
-// file-extension-images
-import pdf from '@/assets/pdf.png'
-import doc from '@/assets/doc.png'
-import docx from '@/assets/docx.png'
-import csv from '@/assets/csv.png'
-import ppt from '@/assets/ppt.png'
-import rtf from '@/assets/rtf.png'
-import rar from '@/assets/rar.png'
-import tar from '@/assets/tar.png'
-import xls from '@/assets/xls.png'
-import xlsx from '@/assets/xlsx.png'
-import txt from '@/assets/txt.png'
-import odt from '@/assets/odt.png'
-import md from '@/assets/md.png'
-import zipSeven from '@/assets/7z.png'
-import zip from '@/assets/zip.png'
-import html from '@/assets/html.png'
+import SvgIcon from '../../SvgIcon/SvgIcon.vue'
 
 interface PopUpState {
   opened: boolean
@@ -165,7 +153,7 @@ const ComponentProps = Vue.extend({
     RAttachFilePopOver,
     VEmojiPicker,
     RText,
-    RFileIcon
+    SvgIcon
   },
   watch: {
     capturedImage: function (image) {
@@ -179,7 +167,7 @@ const ComponentProps = Vue.extend({
     },
     messageReply: {
       handler (val) {
-        if (Object.keys(val).length > 0) {
+        if (Object.keys(this.messageReply).length > 0) {
           this.replying = true
         } else {
           this.replying = false
@@ -192,7 +180,7 @@ const ComponentProps = Vue.extend({
 export default class RMessageInputBar extends ComponentProps {
   text = '' as string
   files = [] as Array<any>
-  acceptedDocFiles = '.csv, .xlsx, .xls, .doc, .docx, .ppt, .pptx, .txt, .pdf, .html, .7z, .zip, .rtf, .rar, .tar, .odt, .md' as string
+  acceptedDocFiles = '.xls, .doc, .ppt, .txt, .pdf, .html, .zip, .psd' as string
   isUploading = false as boolean
   replying = false as boolean
 
@@ -200,24 +188,6 @@ export default class RMessageInputBar extends ComponentProps {
   emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   websiteRegex = /[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/
   videoRegex = /^video/ as any
-  images = {
-    pdf: pdf,
-    doc: doc,
-    docx: docx,
-    csv: csv,
-    ppt: ppt,
-    rtf: rtf,
-    rar: rar,
-    tar: tar,
-    xls: xls,
-    xlsx: xlsx,
-    txt: txt,
-    odt: odt,
-    md: md,
-    '7z': zipSeven,
-    zip: zip,
-    html: html
-  } as any
 
   popUpState: PopUpState = {
     opened: false,
@@ -357,17 +327,17 @@ export default class RMessageInputBar extends ComponentProps {
   }
 
   handleOpenPopUp (): void {
-    const popup = this.$refs['popup-4'] as any
-    popup.$refs['popup-body'].classList.remove('robin-zoomOut')
-
     this.popUpState.opened = true
   }
 
   handleClosePopUp (): void {
     const popup = this.$refs['popup-4'] as any
+    popup.$refs['popup-body'].classList.remove('robin-zoomIn')
     popup.$refs['popup-body'].classList.add('robin-zoomOut')
+    console.log(popup.$refs['popup-body'].classList)
 
     window.setTimeout(() => {
+      popup.$refs['popup-body'].classList.add('robin-zoomIn')
       popup.$refs['popup-body'].classList.remove('robin-zoomOut')
 
       this.popUpState.opened = false
@@ -440,6 +410,37 @@ export default class RMessageInputBar extends ComponentProps {
       name: strArr[strArr.length - 2],
       extension: strArr[strArr.length - 1]
     }
+  }
+
+  validateLinkInMessage () {
+    const messageReply = this.messageReply.content ? this.messageReply.content.msg : ''
+    const texts = messageReply.split(' ')
+
+    return {
+      containsWebsite: texts.some((text: string) => this.websiteRegex.test(text)),
+      containsEmail: texts.some((text: string) => this.emailRegex.test(text))
+    }
+  }
+
+  injectHtml (): String {
+    let returnedMessage = ''
+    const messageReply = this.messageReply.content ? this.messageReply.content.msg : ''
+
+    for (const word of messageReply.split(' ')) {
+      if (this.emailRegex.test(word)) {
+        returnedMessage += String.raw` <a target="_blank" href="mailto:${word}" > ${word} <a/>`
+      } else if (this.websiteRegex.test(word)) {
+        if (word.includes('http://') || word.includes('https://')) {
+          returnedMessage += String.raw` <a target="_blank" href="${word}" > ${word} <a/>`
+        } else {
+          returnedMessage += String.raw` <a target="_blank" href="http://${word}"> ${word} <a/>`
+        }
+      } else {
+        returnedMessage += ` ${word}`
+      }
+    }
+
+    return returnedMessage
   }
 }
 </script>
@@ -541,7 +542,7 @@ export default class RMessageInputBar extends ComponentProps {
   height: 44px;
   display: flex;
   align-items: center;
-  padding: clamp(2.3rem, 4vh, 2.875rem) 2.688rem clamp(2.3rem, 4vh, 2.875rem) 3.125rem;
+  padding: clamp(2.3rem, 4vh, 2.875rem) 2.688rem clamp(2.3rem, 4vh, 2.875rem) 1rem;
   position: relative;
   z-index: 2;
 }
@@ -553,8 +554,8 @@ export default class RMessageInputBar extends ComponentProps {
 /* Input styles */
 .robin-message-input {
   flex: 1;
-  background-color: #f4f6f8;
-  border: 1px solid rgba(35, 107, 248, 0.2);
+  background-color: #FBFBFB;
+  border: 1px solid #9999BC;
   border-radius: 24px;
   display: flex;
   align-items: center;
@@ -596,8 +597,8 @@ export default class RMessageInputBar extends ComponentProps {
 
 .robin-popup-container {
   position: absolute;
-  top: -140px;
-  right: 52px;
+  top: -150px;
+  left: 12px;
   /* right: 89px; */
   z-index: 100;
 }
@@ -664,6 +665,14 @@ a {
   max-width: 220px;
 }
 
+.robin-link-container {
+  font-size: 0.625rem;
+}
+
+.robin-link-container >>> a {
+  color: #4568d1;
+}
+
 /* Input focus */
 .robin-input:focus {
   outline: none;
@@ -671,19 +680,23 @@ a {
 
 /* Input placeholder */
 ::placeholder {
-  color: #bbc1d6;
+  font-size: 1rem;
+  color: #CCCCCC;
 }
 
 ::-moz-placeholder {
-  color: #bbc1d6;
+  font-size: 1rem;
+  color: #CCCCCC;
 }
 
 :-ms-input-placeholder {
-  color: #bbc1d6;
+  font-size: 1rem;
+  color: #CCCCCC;
 }
 
 ::-ms-input-placeholder {
-  color: #bbc1d6;
+  font-size: 1rem;
+  color: #CCCCCC;
 }
 
 @media (min-width: 768px) {

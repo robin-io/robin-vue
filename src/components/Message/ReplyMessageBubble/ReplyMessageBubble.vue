@@ -1,26 +1,51 @@
 <template>
-  <div :class="sender ? 'robin-reply-sender' : 'robin-reply-receiver'" class="robin-reply-message-bubble" v-if="getReplyMessage(message.reply_to) && !getReplyMessage(message.reply_to).content.is_attachment" @click="scrollToRepliedMessage(message.reply_to)">
-    <RText :font-size="14" color="#15AE73" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getReplyMessage(message.reply_to).sender_token === $user_token ? 'You' : getContactName(getReplyMessage(message.reply_to).content.sender_token) }} </RText>
-    <RText :font-size="12" textWrap="pre-line" wordBreak="break-word" as="span">
-      {{ getReplyMessage(message.reply_to).content.msg }}
-    </RText>
+  <div :class="sender ? 'robin-reply-sender' : 'robin-reply-receiver'" class="robin-reply-message-bubble robin-flex robin-flex-align-start" v-if="getReplyMessage(message.reply_to) && !getReplyMessage(message.reply_to).content.is_attachment" @click="scrollToRepliedMessage(message.reply_to)">
+    <div>
+      <RText :font-size="14" color="#51545C" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getReplyMessage(message.reply_to).sender_token === $user_token ? 'You' : getContactName(getReplyMessage(message.reply_to).content.sender_token) }} </RText>
+
+      <RText :font-size="10" color="#8D9091" textWrap="pre-line" wordBreak="break-word" as="span" v-if="!validateLinkInMessage().containsEmail && !validateLinkInMessage().containsWebsite">
+        {{ getReplyMessage(message.reply_to).content.msg }}
+      </RText>
+
+      <div class="robin-link-container" v-html="injectHtml()" v-if="(validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) || validateLinkInMessage().containsEmail || validateLinkInMessage().containsWebsite"></div>
+    </div>
+
+    <link-prevue class="robin-link-preview" v-if="websiteRegex.test(getTextsInMessage().texts[getTextsInMessage().length - 1]) && !emailRegex.test(getTextsInMessage().texts[getTextsInMessage().length - 1])" :url="getTextsInMessage().texts[getTextsInMessage().length - 1].includes('http') || getTextsInMessage().texts[getTextsInMessage().length - 1].includes('https') ? getTextsInMessage().texts[getTextsInMessage().length - 1] : `https://${getTextsInMessage().texts[getTextsInMessage().length - 1]}`">
+      <template slot-scope="props">
+        <a :href="props.url" class="robin-card" v-show="props.img">
+          <img class="robin-card-img-top" :src="props.img" :alt="props.title" />
+        </a>
+      </template>
+
+      <template slot="loading">
+        <div></div>
+      </template>
+    </link-prevue>
   </div>
+
   <div :class="sender ? 'robin-reply-sender' : 'robin-reply-receiver'" class="robin-reply-message-bubble" v-else-if="getReplyMessage(message.reply_to) && imageRegex.test(checkAttachmentType(getReplyMessage(message.reply_to).content.attachment))" @click="scrollToRepliedMessage(message.reply_to)">
-    <RText :font-size="14" color="#15AE73" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getReplyMessage(message.reply_to).sender_token === $user_token ? 'You' : getContactName(getReplyMessage(message.reply_to).content.sender_token) }} </RText>
+    <RText :font-size="14" color="#51545C" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getReplyMessage(message.reply_to).sender_token === $user_token ? 'You' : getContactName(getReplyMessage(message.reply_to).content.sender_token) }} </RText>
+
     <v-lazy-image class="robin-uploaded-image" :src="getReplyMessage(message.reply_to).content.attachment" />
   </div>
+
   <div :class="sender ? 'robin-reply-sender' : 'robin-reply-receiver'" class="robin-reply-message-bubble" v-else-if="getReplyMessage(message.reply_to) && videoRegex.test(checkAttachmentType(getReplyMessage(message.reply_to).content.attachment))" @click="scrollToRepliedMessage(message.reply_to)">
-    <RText :font-size="14" color="#15AE73" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getReplyMessage(message.reply_to).sender_token === $user_token ? 'You' : getContactName(getReplyMessage(message.reply_to).content.sender_token) }} </RText>
+    <RText :font-size="14" color="#51545C" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getReplyMessage(message.reply_to).sender_token === $user_token ? 'You' : getContactName(getReplyMessage(message.reply_to).content.sender_token) }} </RText>
+
     <video controls>
       <source :src="getReplyMessage(message.reply_to).content.attachment" />
       Your browser does not support the video tag.
     </video>
   </div>
+
   <div :class="sender ? 'robin-reply-sender' : 'robin-reply-receiver'" class="robin-reply-message-bubble" v-else-if="getReplyMessage(message.reply_to) && documentRegex.test(checkAttachmentType(getReplyMessage(message.reply_to).content.attachment))" @click="scrollToRepliedMessage(message.reply_to)">
-    <RText :font-size="14" color="#15AE73" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getReplyMessage(message.reply_to).sender_token === $user_token ? 'You' : getContactName(getReplyMessage(message.reply_to).content.sender_token) }} </RText>
+    <RText :font-size="14" color="#51545C" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getReplyMessage(message.reply_to).sender_token === $user_token ? 'You' : getContactName(getReplyMessage(message.reply_to).content.sender_token) }} </RText>
+
     <div class="robin-reply-document robin-flex robin-flex-align-center">
-      <img v-if="images[getFileDetails(getReplyMessage(message.reply_to).content.attachment).extension]" :src="images[getFileDetails(getReplyMessage(message.reply_to).content.attachment).extension]" />
+      <inline-svg v-if="images[getFileDetails(getReplyMessage(message.reply_to).content.attachment).extension]" :src="images[getFileDetails(getReplyMessage(message.reply_to).content.attachment).extension]" />
+
       <img v-else src="@/assets/default.png" />
+
       <div class="details robin-ml-5">
         <RText as="span" :fontSize="14"> {{ getFileDetails(getReplyMessage(message.reply_to).content.attachment).name.length > 9 ? getFileDetails(getReplyMessage(message.reply_to).content.attachment).name.substring(0, 9) + '...' + '.' + getFileDetails(getReplyMessage(message.reply_to).content.attachment).extension : getFileDetails(getReplyMessage(message.reply_to).content.attachment).name + '.' + getFileDetails(getReplyMessage(message.reply_to).content.attachment).extension }} </RText>
       </div>
@@ -31,28 +56,27 @@
 <script lang="ts">
 import Vue, { PropType } from 'vue'
 import VLazyImage from 'v-lazy-image/v2'
+import InlineSvg from 'vue-inline-svg'
+import LinkPrevue from 'link-prevue'
 import store from '../../../store/index'
 import Component from 'vue-class-component'
 import RText from '@/components/ChatList/RText/RText.vue'
 import mime from 'mime'
 
 // file-extension-images
-import pdf from '@/assets/pdf.png'
-import doc from '@/assets/doc.png'
-import docx from '@/assets/docx.png'
-import csv from '@/assets/csv.png'
-import ppt from '@/assets/ppt.png'
-import rtf from '@/assets/rtf.png'
-import rar from '@/assets/rar.png'
-import tar from '@/assets/tar.png'
-import xls from '@/assets/xls.png'
-import xlsx from '@/assets/xlsx.png'
-import txt from '@/assets/txt.png'
-import odt from '@/assets/odt.png'
-import md from '@/assets/md.png'
-import zipSeven from '@/assets/7z.png'
-import zip from '@/assets/zip.png'
-import html from '@/assets/html.png'
+import pdf from '@/assets/pdf.svg'
+import doc from '@/assets/doc.svg'
+import ppt from '@/assets/ppt.svg'
+import xls from '@/assets/xls.svg'
+import txt from '@/assets/txt.svg'
+import zip from '@/assets/zip.svg'
+import avi from '@/assets/avi.svg'
+import psd from '@/assets/psd.svg'
+import gif from '@/assets/gif.svg'
+import svg from '@/assets/svg.svg'
+import ai from '@/assets/ai.svg'
+import mp3 from '@/assets/mp3.svg'
+import mkv from '@/assets/mkv.svg'
 
 interface ReplyMessage {
   [index: string]: any
@@ -80,28 +104,28 @@ const ComponentProps = Vue.extend({
   name: 'ReplyMessageBubble',
   components: {
     RText,
-    VLazyImage
+    VLazyImage,
+    LinkPrevue,
+    InlineSvg
   }
 })
 export default class ReplyMessageBubble extends ComponentProps {
-  images = {
-    pdf: pdf,
-    doc: doc,
-    docx: docx,
-    csv: csv,
-    ppt: ppt,
-    rtf: rtf,
-    rar: rar,
-    tar: tar,
-    xls: xls,
-    xlsx: xlsx,
-    txt: txt,
-    odt: odt,
-    md: md,
-    '7z': zipSeven,
-    zip: zip,
-    html: html
-  } as any
+  props = {} as any
+   images = {
+     pdf: pdf,
+     doc: doc,
+     ppt: ppt,
+     xls: xls,
+     txt: txt,
+     zip: zip,
+     avi: avi,
+     psd: psd,
+     svg: svg,
+     ai: ai,
+     mp3: mp3,
+     mkv: mkv,
+     gif: gif
+   } as any
 
   imageRegex = /^image/ as any
   videoRegex = /^video/ as any
@@ -163,10 +187,46 @@ export default class ReplyMessageBubble extends ComponentProps {
     })
 
     if (Array.isArray(message)) {
-      return message[this.imageSelected]
+      return message.find((element: any) => element._id === id)
     }
 
     return message
+  }
+
+  validateLinkInMessage () {
+    const texts = this.getReplyMessage(this.message.reply_to).content.msg.split(' ')
+
+    return {
+      containsWebsite: texts.some((text: string) => this.websiteRegex.test(text)),
+      containsEmail: texts.some((text: string) => this.emailRegex.test(text))
+    }
+  }
+
+  getTextsInMessage () {
+    return {
+      texts: this.getReplyMessage(this.message.reply_to).content.msg.split(' '),
+      length: this.getReplyMessage(this.message.reply_to).content.msg.split(' ').length
+    }
+  }
+
+  injectHtml (): String {
+    let returnedMessage = ''
+
+    for (const word of this.getReplyMessage(this.message.reply_to).content.msg.split(' ')) {
+      if (this.emailRegex.test(word)) {
+        returnedMessage += String.raw` <a target="_blank" href="mailto:${word}" > ${word} <a/>`
+      } else if (this.websiteRegex.test(word)) {
+        if (word.includes('http://') || word.includes('https://')) {
+          returnedMessage += String.raw` <a target="_blank" href="${word}" > ${word} <a/>`
+        } else {
+          returnedMessage += String.raw` <a target="_blank" href="http://${word}"> ${word} <a/>`
+        }
+      } else {
+        returnedMessage += ` ${word}`
+      }
+    }
+
+    return returnedMessage
   }
 
   // Method to scroll to the position of a replied message
@@ -178,18 +238,19 @@ export default class ReplyMessageBubble extends ComponentProps {
 
 <style scoped>
 .robin-reply-sender.robin-reply-message-bubble {
-  background-color: rgba(177, 179, 180, 0.2);
-  border-radius: 7.5px;
+  background-color: #ffffff;
   width: 100%;
-  padding: 0.4rem 0.3rem;
+  padding: 0.4rem 0.625rem;
+  border-left: 3px solid #9999bc;
+  position: relative;
 }
 
 .robin-reply-receiver.robin-reply-message-bubble {
-  background-color: rgba(163, 166, 180, 0.2);
-  border-radius: 7.5px;
+  background-color: #ffffff;
   width: 100%;
   position: relative;
-  padding: 0.4rem 0.3rem;
+  padding: 0.4rem 0.625rem;
+  border-left: 3px solid #9999bc;
 }
 
 .robin-uploaded-image {
@@ -204,6 +265,37 @@ video {
 
 .robin-reply-document img {
   width: 20px;
+}
+
+.robin-link-container {
+  font-size: 0.625rem;
+  max-width: 120px;
+}
+
+.robin-link-container >>> a {
+  color: #4568d1;
+  max-width: 120px;
+}
+
+.robin-link-preview {
+  width: max-content;
+  height: 100%;
+  display: flex;
+  margin-left: auto;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.robin-link-preview .robin-card {
+  width: 100%;
+  height: 100%;
+}
+
+.robin-link-preview .robin-card-img-top {
+  width: 40px;
+  height: 100%;
+  object-fit: cover;
 }
 
 /* Website & Email */

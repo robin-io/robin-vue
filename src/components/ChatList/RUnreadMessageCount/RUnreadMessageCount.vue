@@ -1,8 +1,9 @@
 <template>
-  <div v-if="count > 0 && count <= 100" class="robin-unread-messages">
-    {{ count }}
+  <div v-if="unread > 0 && unread <= 9" class="robin-unread-messages" :style="{ 'background-color': backgroundColor }">
+    {{ unread }}
   </div>
-  <div v-else-if="count > 100" class="robin-unread-messages">100+</div>
+  <div v-else-if="unread > 9" class="robin-unread-messages" :style="{ 'background-color': backgroundColor }">9+</div>
+  <div v-else class="robin-unread-messages" :style="{ 'background-color': backgroundColor }"></div>
 </template>
 
 <script lang="ts">
@@ -11,8 +12,8 @@ import Component from 'vue-class-component'
 
 const ComponentProps = Vue.extend({
   props: {
-    count: {
-      type: Number as PropType<number>,
+    unread: {
+      type: [Number, String],
       default: 0
     },
     backgroundColor: {
@@ -24,34 +25,19 @@ const ComponentProps = Vue.extend({
 
 // eslint-disable-next-line
 @Component<RUnreadMessageCount>({
-  name: 'RUnreadMessageCount',
-  watch: {
-    backgroundColor (): void {
-      this.setRootVariables()
-    }
-  }
+  name: 'RUnreadMessageCount'
 })
-export default class RUnreadMessageCount extends ComponentProps {
-  root = null as any
-
-  mounted (): void {
-    this.root = document.documentElement
-    this.setRootVariables()
-  }
-
-  setRootVariables (): void {
-    this.root.style.setProperty('--primary-color', this.backgroundColor)
-  }
-}
+export default class RUnreadMessageCount extends ComponentProps {}
 </script>
 
 <style scoped>
 .robin-unread-messages {
-  background-color: var(--primary-color);
   font-size: 0.875rem;
   border-radius: 20px;
   font-weight: 100;
   white-space: nowrap;
+  width: 22px;
+  height: 22px;
   padding: 0.2rem 0.25rem;
   min-width: 1.4rem;
   max-width: max-content;

@@ -59,7 +59,7 @@ input[type='checkbox'] {
   width: 1rem;
   height: 1rem;
   border-radius: 50%;
-  border: 0.1rem solid #bbc1d6;
+  border: 2px solid #bbc1d6;
   cursor: pointer;
   position: relative;
 }

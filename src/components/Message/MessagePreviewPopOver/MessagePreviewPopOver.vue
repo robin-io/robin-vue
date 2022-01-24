@@ -5,7 +5,7 @@
       <IconButton name="imageDownload" :to-emit="false" :to-click-away="false" />
     </div>
     <div class="robin-wrapper robin-w-100" @click="$emit('reply')">
-      <RText :font-size="14" color="#101010">Reply</RText>
+      <RText :font-size="14" color="#101010">Reply Message</RText>
       <IconButton name="reply" :to-emit="false" :to-click-away="false" />
     </div>
     <div class="robin-wrapper robin-w-100" @click="$emit('forward')">
@@ -25,7 +25,7 @@
       <RStarButton />
     </div> -->
     <div class="robin-wrapper robin-w-100" @click="$emit('delete')">
-      <RText :font-size="14" color="#101010">Delete</RText>
+      <RText :font-size="14" color="#101010">Delete Message</RText>
       <IconButton name="delete" :to-emit="false" :to-click-away="false" />
       <!-- <RDeleteButton /> -->
     </div>
@@ -67,16 +67,16 @@ export default class MessagePreviewPopOver extends ComponentProps {}
 .robin-popup {
   width: 220px;
   /* max-width: 174px; */
-  padding: 0.5rem 0.563rem;
-  border: 1px solid rgba(35, 107, 248, 0.2);
-  border-radius: 24px;
+  /* padding: 0.5rem 0.563rem; */
+  border: 1px solid #F5F7FC;
+  border-radius: 6px;
   background-color: #fff;
   will-change: transform;
 }
 
 .robin-wrapper {
-  border-top: 1px solid #f4f6f8;
-  padding: 0.813rem 0.5rem;
+  border-top: 1px solid #EFEFEF;
+  padding: 0.813rem 1rem;
   display: flex;
   align-items: center;
   justify-content: space-between;

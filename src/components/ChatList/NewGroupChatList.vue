@@ -1,60 +1,74 @@
 <template>
   <div class="robin-side-container" ref="popup-body">
     <header class="robin-header">
-      <div class="robin-mr-10" @click="openPreviousModal()">
-        <IconButton name="close" :to-emit="false" :to-click-away="false" />
-        <!-- <RCloseButton /> -->
-      </div>
-      <div class="robin-mb-5">
-        <RText font-weight="400" color="rgba(83, 95, 137, 1)" :font-size="16">New Group Chat</RText>
-      </div>
+      <IconButton name="remove" @close="openPreviousModal()" emit="close" :to-emit="true" :to-click-away="false" />
+
+      <RText font-weight="400" :font-size="16" class="robin-ml-12">New Group Chat</RText>
+
       <div class="robin-ml-auto">
-        <RButton emit="done" @done="openModal()" v-show="users.length > 0 && !modalOpen" class="robin-pulse-2">Done</RButton>
+        <RButton emit="done" @done="createGroupConversation()" v-show="users.length > 0 && !isUploading" class="robin-pulse-2">Done</RButton>
+        <div class="robin-spinner" v-show="isUploading"></div>
       </div>
     </header>
-    <div class="robin-wrapper robin-w-100">
+
+    <div class="robin-w-100 robin-pl-16 robin-pr-16">
       <RSearchBar @user-typing="searchContacts($event)" :loading="isLoading" placeholder="Search or start new group" />
     </div>
+
+    <div class="robin-select robin-flex robin-flex-align-center robin-flex-justify-end robin-w-100 robin-pl-16 robin-pr-16 robin-pt-24 robin-pb-23">
+      <RText color="#9999BC">
+        Select All
+      </RText>
+      <RCheckBox class="robin-ml-8" @clicked="toggleSelectAllCheckAction($event)" />
+    </div>
+
     <div class="robin-contact-container robin-overflow-y-auto">
       <div v-for="(contact, key, index) in contacts" :key="`contact-${index}`">
-        <div class="robin-w-100">
+        <div class="robin-w-100" v-show="key.toString() != '*'">
           <RAlphabetBlock :text="key" />
         </div>
-        <div class="robin-wrapper robin-card-container robin-flex robin-flex-column robin-grey-200">
+
+        <div class="robin-card-container robin-flex robin-flex-column">
           <div class="robin-card robin-flex robin-flex-align-center" v-for="(user, userIndex) in contact" :key="user.userToken">
             <div class="robin-card-info robin-mr-12">
               <RAvatar />
             </div>
+
             <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4˝ robin-flex-1">
               <div class="robin-flex">
                 <RText :font-size="14" :line-height="18">{{ user.userName }}</RText>
               </div>
               <div class="robin-ml-auto">
-                <RCheckBox :key="addIndexToCheckBoxState(userIndex, checkBoxKeyState)" @clicked="toggleCheckAction($event, user)" />
+                <RCheckBox :key="addIndexToCheckBoxState(userIndex, checkBoxKeyState)" @clicked="toggleCheckAction($event, user)" ref="checkbox-comp" />
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <CreateGroup v-show="modalOpen" @closemodal="closeModal()" :users="users" @remove-user="removeUser($event)" @changesidebartype="$emit('openmodal', $event)" />
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
-// import * as _ from 'lodash'
 import store from '../../store/index'
 import Component from 'vue-class-component'
 import IconButton from '../IconButton/IconButton.vue'
-// import RCloseButton from './RCloseButton/RCloseButton.vue'
 import RText from './RText/RText.vue'
 import RSearchBar from './RSearchBar/RSearchBar.vue'
 import RButton from './RButton/RButton.vue'
 import RAvatar from './RAvatar/RAvatar.vue'
 import RCheckBox from './RCheckBox/RCheckBox.vue'
-import CreateGroup from './CreateGroup.vue'
 import RAlphabetBlock from './RAlphabetBlock/RAlphabetBlock.vue'
+
+const ComponentProps = Vue.extend({
+  props: {
+    groupName: {
+      type: String,
+      default: ''
+    }
+  }
+})
 
 // eslint-disable-next-line
 @Component<NewGroupChatList>({
@@ -65,9 +79,7 @@ import RAlphabetBlock from './RAlphabetBlock/RAlphabetBlock.vue'
     RButton,
     RAvatar,
     IconButton,
-    // RCloseButton,
     RCheckBox,
-    CreateGroup,
     RAlphabetBlock
   },
   watch: {
@@ -79,12 +91,13 @@ import RAlphabetBlock from './RAlphabetBlock/RAlphabetBlock.vue'
     }
   }
 })
-export default class NewGroupChatList extends Vue {
+export default class NewGroupChatList extends ComponentProps {
   modalOpen = false as boolean
   contacts = {} as any
   checkBoxKeyState = 0 as number
   users = [] as Array<any>
   isLoading = false as boolean
+  isUploading = false as boolean
   searchData = [] as Array<any>
   key = 0 as number
 
@@ -129,6 +142,51 @@ export default class NewGroupChatList extends Vue {
       this.addUser(user)
     } else {
       this.removeUser(user)
+    }
+  }
+
+  toggleSelectAllCheckAction (val: boolean) {
+    const checkboxComponents = this.$refs['checkbox-comp'] as any
+
+    if (!val) {
+      this.users = [...this.robinUsers]
+
+      for (let i = 0; i < checkboxComponents.length; i += 1) {
+        checkboxComponents[i].checked = true
+      }
+    } else {
+      this.users = []
+
+      for (let i = 0; i < checkboxComponents.length; i += 1) {
+        checkboxComponents[i].checked = false
+      }
+    }
+  }
+
+  async createGroupConversation (): Promise<void> {
+    const users = this.users.map(user => {
+      return {
+        user_token: user.userToken,
+        profile_image: user.profileImage,
+        user_name: user.userName
+      }
+    })
+
+    this.isUploading = true
+    const res = await this.$robin.createGroupConversation(this.groupName, { user_token: this.$user_token }, users)
+
+    if (res && !res.error) {
+      this.$emit('changesidebartype', 'primary')
+      this.$emit('closemodal')
+      this.$emit('reset-groupname')
+      this.isUploading = false
+    } else {
+      this.$toast.open({
+        message: 'Check your connection.',
+        type: 'error',
+        position: 'bottom-left'
+      })
+      this.isUploading = false
     }
   }
 
@@ -185,7 +243,7 @@ export default class NewGroupChatList extends Vue {
     return username !== '' && isNaN(parseInt(username[0])) ? username[0].toUpperCase() : '*'
   }
 
-  validateContact (usernameVal:any, username: any): boolean {
+  validateContact (usernameVal: any, username: any): boolean {
     if (!usernameVal[0] && !username[0]) {
       return usernameVal.trim() === username.trim()
     }
@@ -198,7 +256,7 @@ export default class NewGroupChatList extends Vue {
   }
 
   openPreviousModal (): void {
-    this.$emit('closemodal', 'newchat')
+    this.$emit('closemodal', 'newgroup')
     setTimeout(() => {
       this.refresh()
     }, 300)
@@ -228,15 +286,15 @@ header {
   width: 100%;
   display: flex;
   align-items: center;
-  padding: clamp(10%, 4vh, 3.563rem) clamp(2%, 4vw, 1.5rem) 1.5rem;
+  padding: clamp(10%, 4vh, 3.563rem) clamp(2%, 4vw, 1rem) 1.5rem;
 }
 
 .robin-contact-container {
   width: 100%;
 }
 
-.robin-wrapper {
-  padding: 0 clamp(2%, 4vw, 1.5rem);
+.robin-select {
+  border-bottom: 1px solid #EFEFEF;
 }
 
 .robin-card-container {
@@ -248,20 +306,19 @@ header {
 }
 
 .robin-card-container .robin-card {
-  border-bottom: 1px solid #f4f6f8;
-  padding: 1rem 0 1.1rem;
+  box-shadow: 0px 1px 0px 2.5px rgba(69, 104, 209, 0.05);
+  padding: 0.875rem 1rem 1rem;
   transition: all 0.15s;
+  background-color: #fff;
 }
 
-.robin-card-container:last-child .robin-card {
-  border-bottom: none;
+.robin-card-container .robin-card + .robin-card {
+  margin-top: 0.25rem;
 }
 
-.robin-alphabet-block {
-  width: 100%;
-  padding: 0 1.5rem;
-  height: 28px;
-  background-color: #f3f3f3;
+.robin-spinner {
+  width: 19px;
+  height: 19px;
 }
 
 @media (min-width: 768px) {

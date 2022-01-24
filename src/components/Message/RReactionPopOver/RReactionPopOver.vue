@@ -55,7 +55,7 @@ export default class RReactionPopOver extends ComponentProps {
   max-width: 220px;
   padding: 0.349rem 0.925rem 0.349rem 0.649rem;
   border-radius: 24px;
-  background-color: #fff;
+  background-color: #E6E6E6;
   position: relative;
 }
 
@@ -67,7 +67,7 @@ export default class RReactionPopOver extends ComponentProps {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background-color: #fff;
+  background-color: #E6E6E6;
 }
 
 .robin-popup::after {
@@ -78,7 +78,7 @@ export default class RReactionPopOver extends ComponentProps {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background-color: #fff;
+  background-color: #E6E6E6;
 }
 
 .robin-reaction-container {

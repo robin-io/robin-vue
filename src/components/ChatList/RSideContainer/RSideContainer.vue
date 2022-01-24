@@ -1,23 +1,23 @@
 <template>
   <div class="robin-chat-list-container">
-    <PrimaryChatList v-show="$conversations.length > 0 || isPageLoading" :key="key" @search="searchedData($event)" :regular-conversations="regularConversations" @opennewchatmodal="openModal('slide-1', $event)" @openarchivedchatmodal="openModal('slide-3', $event)" @closemodal="closeModal('slide-1', $event)" @refresh="refresh" />
+    <PrimaryChatList v-show="$conversations.length > 0 || isPageLoading" :key="key" @search="searchedData($event)" :regular-conversations="regularConversations" :archived-conversations="$archivedConversations" @opennewchatmodal="openModal('slide-1', $event)" @openarchivedchatmodal="openModal('slide-3', $event)" @closemodal="closeModal('slide-1', $event)" @refresh="refresh" />
     <NewChatList ref="slide-1" v-show="sideBarType == 'newchat'" @openmodal="openModal('slide-2', $event)" @closemodal="closeModal('slide-1', $event)" />
     <NoChatList v-show="$conversations.length < 1 && !isPageLoading" @openmodal="openModal('slide-1', $event)" />
-    <NewGroupChatList ref="slide-2" v-show="sideBarType == 'newgroupchat'" @openmodal="openModal('slide-0', $event)" @closemodal="closeModal('slide-2', $event)" />
-    <ArchivedChatList ref="slide-3" v-show="sideBarType == 'archivedchat'" @closemodal="closeModal('slide-3', $event)" :archived-conversations="$archivedConversations" :key="key + 1" @refresh="refresh" />
+    <NewGroupChat ref="slide-2" v-show="sideBarType == 'newgroup'" @openmodal="openModal('slide-3', $event)" @set-groupname="setGroupName($event)" @closemodal="closeModal('slide-2', $event)" />
+    <NewGroupChatList ref="slide-3" v-show="sideBarType == 'newgroupchat'" :group-name="groupName" @openmodal="openModal('slide-0', $event)" @closemodal="closeModal('slide-3', $event)" @reset-groupname="resetGroupName()" />
+    <ArchivedChatList ref="slide-4" v-show="sideBarType == 'archivedchat'" @closemodal="closeModal('slide-4', $event)" :archived-conversations="$archivedConversations" :key="key + 1" @refresh="refresh" />
   </div>
 </template>
 
 <script lang="ts">
 import Vue, { PropType } from 'vue'
 import Component from 'vue-class-component'
-// import { State, Mutation } from 'vuex-class'
-// import { RootState } from '@/store/types'
 import store from '../../../store/index'
 import EventBus from '@/event-bus'
 import PrimaryChatList from '../PrimaryChatList.vue'
 import NewChatList from '../NewChatList.vue'
 import NoChatList from '../NoChatList.vue'
+import NewGroupChat from '../NewGroupChat.vue'
 import NewGroupChatList from '../NewGroupChatList.vue'
 import ArchivedChatList from '../ArchivedChatList.vue'
 
@@ -36,20 +36,19 @@ const ComponentProps = Vue.extend({
     PrimaryChatList,
     NewChatList,
     NoChatList,
+    NewGroupChat,
     NewGroupChatList,
     ArchivedChatList
   }
 })
 export default class RSideContainer extends ComponentProps {
-  // @State('isPageLoading') isPageLoading?: RootState
-  // @Mutation('setPageLoading') setPageLoading: any
-
   key = 0 as number
   searchText = '' as string
 
   regularConversations = [] as Array<any>
   sideBarType = 'primary'
   conversations = [] as Array<any>
+  groupName = ''
 
   created () {
     this.getUserToken()
@@ -60,10 +59,20 @@ export default class RSideContainer extends ComponentProps {
     this.handleRemoveRegularConversation()
     this.handleAddArchivedConversation()
     this.handleRemoveArchivedConversation()
+    this.handleMarkAsRead()
+    this.handleMarkAsUnread()
   }
 
   get isPageLoading () {
     return store.state.isPageLoading
+  }
+
+  setGroupName (val: string) {
+    this.groupName = val
+  }
+
+  resetGroupName () {
+    this.groupName = ''
   }
 
   openModal (refKey: string, type: string): void {
@@ -83,8 +92,8 @@ export default class RSideContainer extends ComponentProps {
   closeModal (refKey: string = 'slide-1', type: string): void {
     if (type === 'primary' && refKey === 'slide-0') {
       this.sideBarType = type
+      this.resetGroupName()
     } else {
-      // console.log(this.$refs, refKey, type)
       const popup = this.$refs[refKey] as any
       popup.$refs['popup-body'].classList.add('robin-slideOutLeft')
 
@@ -114,7 +123,6 @@ export default class RSideContainer extends ComponentProps {
   onNewConversationCreated () {
     EventBus.$on('new.conversation', (conversation: any) => {
       if (conversation.sender_token === this.$user_token || conversation.receiver_token === this.$user_token) {
-        // EventBus.$emit('regular-conversation.delete', conversation)
         EventBus.$emit('regular-conversation.add', conversation)
       }
     })
@@ -159,7 +167,6 @@ export default class RSideContainer extends ComponentProps {
       Vue.prototype.$archivedConversations = this.getArchivedConversations()
       this.regularConversations = this.getRegularConversations()
       store.setState('isPageLoading', false)
-      // console.log('getconversations -> ', this.$conversations)
       this.$forceUpdate()
     }
   }
@@ -171,10 +178,78 @@ export default class RSideContainer extends ComponentProps {
     })
   }
 
-  getRegularConversations (): Array<any> {
-    return this.$conversations.filter((user: any) => {
+  getRegularConversations () {
+    const regularConversations = this.$conversations.filter((user: any) => {
       if (!user.archived_for || user.archived_for.length === 0) return true
       return !user.archived_for.includes(this.$user_token)
+    })
+
+    return this.addUnreadMessagesToConversation(regularConversations)
+  }
+
+  addUnreadMessagesToConversation (conversations: any): Array<any> {
+    let unreadMessages = 0
+
+    const data = conversations.map((conversation: any) => {
+      this.getConversationMessages(conversation._id).then((messages) => {
+        if (messages) {
+          messages.forEach((message: any) => {
+            if (message.sender_token !== this.$user_token && !message.is_read) {
+              unreadMessages += 1
+            }
+          })
+        }
+
+        conversation.unread_messages = unreadMessages
+        unreadMessages = 0
+      })
+
+      return conversation
+    })
+
+    return data
+  }
+
+  async getConversationMessages (id: string): Promise<Array<any>> {
+    const res = await this.$robin.getConversationMessages(id, this.$user_token)
+
+    if (res && !res.error) {
+      return res.data
+    } else {
+      this.$toast.open({
+        message: 'Check your connection.',
+        type: 'error',
+        position: 'bottom-left'
+      })
+    }
+
+    return []
+  }
+
+  handleMarkAsRead () {
+    EventBus.$on('mark-as-read', (conversation: any) => {
+      if (!conversation.archived_for || conversation.archived_for.length === 0) {
+        const index = this.$regularConversations.findIndex((item) => item._id === conversation._id)
+        this.regularConversations[index].unread_messages = 0
+        this.$regularConversations[index].unread_messages = 0
+      }
+    })
+  }
+
+  handleMarkAsUnread () {
+    EventBus.$on('mark-as-unread', (conversation: any) => {
+      if (!conversation.archived_for || conversation.archived_for.length === 0) {
+        const index = this.$regularConversations.findIndex((item) => item._id === conversation._id)
+        this.$regularConversations[index].unread_messages += 1
+      }
+    })
+
+    EventBus.$on('mark-as-unread.modified', (conversation: any) => {
+      if (!conversation.archived_for || conversation.archived_for.length === 0) {
+        const index = this.$regularConversations.findIndex((item) => item._id === conversation._id)
+        this.regularConversations[index].unread_messages = 'marked'
+        this.$regularConversations[index].unread_messages = 'marked'
+      }
     })
   }
 
@@ -197,11 +272,12 @@ export default class RSideContainer extends ComponentProps {
 
 <style scoped>
 .robin-chat-list-container {
-  position: relative;
+  /* position: relative;
+  z-index: 0; */
   flex-basis: 30%;
   max-width: 450px;
   height: 100%;
-  box-shadow: 0px 2px 20px rgba(0, 104, 255, 0.06);
+  border-right: 1px solid #EFEFEF;
 }
 
 @media (max-width: 1200px) {

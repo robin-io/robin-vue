@@ -2,39 +2,45 @@
   <!-- eslint-disable vue/no-parsing-error -->
   <div class="robin-side-container" ref="popup-body">
     <header class="robin-header">
-      <RText fontWeight="400" color="rgba(83, 95, 137, 1)" :fontSize="17"> Archived Chats </RText>
-      <IconButton name="close" @close="$emit('closemodal', 'primary')" emit="close" :to-emit="true" :to-click-away="false" />
-      <!-- <RCloseButton @close="$emit('closemodal', 'primary')" /> -->
+      <IconButton name="remove" color="#000" @close="$emit('closemodal', 'primary')" emit="close" :to-emit="true" :to-click-away="false" />
+
+      <RText fontWeight="400" :fontSize="16" class="robin-ml-12"> Archived Messages </RText>
     </header>
+
     <div class="robin-wrapper robin-card-container robin-flex robin-flex-column robin-mt-42" @scroll="onScroll()">
       <div class="robin-card robin-flex robin-flex-align-center" :class="{ 'robin-card-active': isConversationActive(conversation)  && screenWidth > 1200 }" v-for="(conversation, index) in archivedConversations" :key="`conversation-${index}`" @click.self="openConversation(conversation)" v-show="archivedConversations.length > 0">
         <div class="robin-card-info robin-mr-12" @click="openConversation(conversation)">
           <RAvatar v-if="!conversation.is_group" />
+
           <RGroupAvatar v-else />
         </div>
+
         <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-column robin-flex-space-between robin-pt-4 robin-pb-4˝ robin-flex-1">
           <div class="robin-flex robin-flex-space-between" @click="openConversation(conversation)">
             <RText fontWeight="normal" color="#000000" :fontSize="16" :lineHeight="20" v-if="!conversation.is_group"> {{ conversation.sender_token != $user_token ? conversation.sender_name : conversation.receiver_name }} </RText>
+
             <RText font-weight="normal" color="#000000" :font-size="16" :line-height="20" v-else>
               {{ conversation.name }}
             </RText>
-            <RText as="p" fontWeight="normal" color="#566BA0" :fontSize="10" :lineHeight="18"> {{ formatRecentMessageTime(conversation.last_message ? conversation.last_message.timestamp : conversation.updated_at) }} </RText>
+
+            <RText as="p" fontWeight="normal" color="#51545C" :fontSize="14" :lineHeight="18"> {{ formatRecentMessageTime(conversation.last_message ? conversation.last_message.timestamp : conversation.updated_at) }} </RText>
           </div>
           <div class="robin-flex robin-flex-space-between" @click.self="openConversation(conversation)">
-            <RText as="p" fontWeight="normal" color="#7A7A7A" :fontSize="14" :lineHeight="18" @click.native="openConversation(conversation)"> {{ conversation.last_message && conversation.last_message.msg.length < 20 ? conversation.last_message.msg : conversation.last_message ? conversation.last_message.msg.substring(0, 20) + ' ...' : '' }} </RText>
+            <RText as="p" fontWeight="normal" color="#8D9091" :fontSize="14" :lineHeight="18" @click.native="openConversation(conversation)"> {{ conversation.last_message && conversation.last_message.msg.length < 20 ? conversation.last_message.msg : conversation.last_message ? conversation.last_message.msg.substring(0, 20) + ' ...' : '' }} </RText>
+
             <div class="robin-mini-info-container robin-flex robin-flex-align-center">
-              <RText as="p" fontWeight="normal" color="#15AE73" :fontSize="12" @click.native="openConversation(conversation)"> Archived </RText>
-              <div class="robin-hidden robin-ml-10" @click="handleOpenPopUp(conversation._id, `popup-${index}`)">
-                <IconButton name="openModalCaret" @clickoutside="handleClosePopUp(conversation._id, `popup-${index}`)" :to-emit="false" :to-click-away="true" />
-                <!-- <ROpenModalCaretButton @clickoutside="handleClosePopUp(conversation._id, `popup-${index}`)" /> -->
+              <div class="robin-hidden robin-ml-10" @click="handleOpenPopUp($event, conversation._id, `popup-container-${index}`, `popup-${index}`, index.toString())">
+                <IconButton name="openModalDot" @clickoutside="handleClosePopUp(conversation._id, `popup-${index}`)" :to-emit="false" :to-click-away="true" />
               </div>
             </div>
           </div>
         </div>
-        <div class="robin-popup-container" :class="{ top: scrollValidate(index) }" v-show="popUpStates[index].opened">
-          <RArchiveChatListPopOver :ref="`popup-${index}`" :class="{ top: scrollValidate(index) }" @unarchive-chat="unArchiveChat(conversation._id)" />
+
+        <div class="robin-popup-container" :ref="`popup-container-${index}`" v-show="popUpStates[index].opened">
+          <RArchiveChatListPopOver :ref="`popup-${index}`" @unarchive-chat="unArchiveChat(conversation._id)" />
         </div>
       </div>
+
       <div v-show="archivedConversations.length < 1" class="robin-flex robin-flex-justify-center robin-pt-15">
         <RText :font-size="18" color="#15AE73">No archived chat</RText>
       </div>
@@ -101,9 +107,9 @@ export default class ArchivedChatList extends ComponentProps {
   scroll = false as boolean
   screenWidth = 0 as number
 
-  scrollValidate (index: number) {
-    return (this.archivedConversations.length > 3 && this.scroll && this.archivedConversations.length - 2 === index) || (this.archivedConversations.length > 3 && this.scroll && this.archivedConversations.length - 1 === index)
-  }
+  // scrollValidate (index: number) {
+  //   return (this.archivedConversations.length > 3 && this.scroll && this.archivedConversations.length - 2 === index) || (this.archivedConversations.length > 3 && this.scroll && this.archivedConversations.length - 1 === index)
+  // }
 
   mounted () {
     this.$nextTick(function () {
@@ -113,17 +119,8 @@ export default class ArchivedChatList extends ComponentProps {
   }
 
   openConversation (conversation: object): void {
-    // if (!this.isConversationActive(conversation)) {
-    //   this.activeConversation = conversation
-    //   this.setImagePreviewOpen(false)
-    //   EventBus.$emit('conversation-opened', conversation)
-    //   EventBus.$emit('open-conversation')
-    //   // this.$emit('coversationopened')
-    // }
-
     if (!this.isConversationActive(conversation) && this.screenWidth > 1200) {
       this.activeConversation = conversation
-      // this.setImagePreviewOpen(false)
       store.setState('imagePreviewOpen', false)
       EventBus.$emit('conversation-opened', conversation)
       EventBus.$emit('open-conversation')
@@ -131,7 +128,6 @@ export default class ArchivedChatList extends ComponentProps {
 
     if (this.screenWidth <= 1200) {
       this.activeConversation = conversation
-      // this.setImagePreviewOpen(false)
       store.setState('imagePreviewOpen', false)
       EventBus.$emit('conversation-opened', conversation)
       EventBus.$emit('open-conversation')
@@ -142,9 +138,17 @@ export default class ArchivedChatList extends ComponentProps {
     return Object.is(this.activeConversation, object)
   }
 
-  handleOpenPopUp (_id: string, refKey: string): void {
+  handleOpenPopUp (event: any, _id: string, refContainerKey: string, refKey: string, id: string): void {
+    const popupContainer = this.$refs[refContainerKey] as any
     const popup = this.$refs[refKey] as any
     popup[0].$refs['popup-body'].classList.remove('robin-zoomOut')
+    console.log(popupContainer)
+
+    if ((!this.scroll && this.archivedConversations.length - 2 !== parseInt(id)) || this.archivedConversations.length - 1 !== parseInt(id)) {
+      popupContainer[0].style.top = event.clientY - 12 + 'px'
+    } else {
+      popupContainer[0].style.top = event.clientY - 60 + 'px'
+    }
 
     const index = this.popUpStates.findIndex((val) => val._id === _id)
     this.popUpStates[index].opened = true
@@ -189,7 +193,6 @@ export default class ArchivedChatList extends ComponentProps {
     const res = await this.$robin.unarchiveConversation(id, this.$user_token)
 
     if (!res.error) {
-      // this.$toasted.global.custom_success('Chat Unarchived')
       const index = this.archivedConversations.findIndex((conversation) => conversation._id === id)
       const conversation = this.archivedConversations[index]
       conversation.archived_for = []
@@ -224,13 +227,12 @@ header {
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   padding: clamp(10%, 4vh, 3.563rem) clamp(2%, 4vw, 1.5rem) 1.5rem;
 }
 
-.robin-wrapper {
+/* .robin-wrapper {
   padding: 0 clamp(2%, 4vw, 1.5rem);
-}
+} */
 
 .robin-card-container {
   width: 100%;
@@ -240,18 +242,18 @@ header {
 }
 
 .robin-card-container .robin-card {
-  border-bottom: 1px solid #f4f6f8;
-  padding: 1rem 0 1.1rem;
+  border-bottom: 3.5px solid #f5f7fc;
+  padding: 1rem 1rem 1.1rem;
   transition: all 0.15s;
-  position: relative;
+  /* position: relative; */
 }
 
-.robin-card-container:last-child .robin-card {
+.robin-card-container .robin-card:nth-last-child(2) {
   border-bottom: none;
 }
 
 .robin-card-active {
-  background-color: #f0f3f5;
+  background-color: #efefef;
   cursor: default;
 }
 
@@ -274,13 +276,8 @@ header {
 
 .robin-popup-container {
   position: absolute;
-  top: 75%;
-  right: 0px;
+  right: -30px;
   z-index: 100;
-}
-
-.robin-popup-container.top {
-  top: -2px;
 }
 
 .robin-mini-info-container {

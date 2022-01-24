@@ -9,7 +9,7 @@
       <RSearchBar />
     </div>
     <div class="robin-wrapper robin-flex robin-flex-column robin-flex-align-center robin-h-100 robin-w-100 robin-flex-1 robin-pt-100">
-      <RNoChatIcon />
+      <SvgIcon name="nochat" />
       <div class="robin-mb-13 robin-mt-33">
         <RText fontWeight="normal" color="#535F89">No Messages Yet</RText>
       </div>
@@ -26,7 +26,7 @@ import IconButton from '../IconButton/IconButton.vue'
 // import REditButton from './REditButton/REditButton.vue'
 import RSearchBar from './RSearchBar/RSearchBar.vue'
 import RButton from './RButton/RButton.vue'
-import RNoChatIcon from './RNoChatIcon/RNoChatIcon.vue'
+import SvgIcon from '../SvgIcon/SvgIcon.vue'
 
 @Component({
   name: 'NoChatList',
@@ -36,7 +36,7 @@ import RNoChatIcon from './RNoChatIcon/RNoChatIcon.vue'
     // REditButton,
     RSearchBar,
     RButton,
-    RNoChatIcon
+    SvgIcon
   }
 })
 

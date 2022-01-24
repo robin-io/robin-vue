@@ -3,42 +3,46 @@
     <header class="robin-head">
       <div class="robin-card-container robin-flex robin-flex-align-center">
         <div class="robin-wrapper robin-mr-27" @click="closeImagePreview()">
-          <IconButton name="close" :to-emit="false" :to-click-away="false" />
-          <!-- <RCloseButton /> -->
+          <IconButton name="remove" :to-emit="false" :to-click-away="false" />
         </div>
+
         <div class="robin-card-info robin-mr-16">
           <RGroupAvatar v-if="conversation.is_group" />
           <RAvatar v-else />
         </div>
+
         <div class="robin-card-info robin-h-100 robin-flex robin-flex-column robin-flex-space-between robin-flex-1">
           <div class="robin-mt-6">
             <RText font-weight="normal" color="#000000" :font-size="16" :line-height="20" v-if="!conversation.is_group">
               {{ conversation.sender_token != $user_token ? conversation.sender_name : conversation.receiver_name }}
             </RText>
+
             <RText font-weight="normal" color="#000000" :font-size="16" :line-height="20" v-else>
               {{ conversation.name }}
             </RText>
           </div>
+
           <div class="robin-mt-6">
             <RText v-show="!conversation.is_group" as="p" font-weight="normal" color="#7A7A7A" :font-size="14" :line-height="18">{{ conversation.status }}</RText>
           </div>
         </div>
       </div>
-      <div class="robin-options robin-ml-auto" @click="handleOpenPopUp()">
 
-        <IconButton name="option" @clickoutside="handleClosePopUp()" :to-emit="false" :to-click-away="true" primary-color="rgba(21, 174, 115, 1)" :hasFocus="true" />
-        <!-- <ROptionButton @clickoutside="handleClosePopUp()" /> -->
+      <div class="robin-options robin-ml-auto" @click="handleOpenPopUp()">
+        <IconButton name="openModalDot" @clickoutside="handleClosePopUp()" :to-emit="false" :to-click-away="true" />
 
         <div class="robin-popup-container" v-show="popUpState.opened">
           <MessagePreviewPopOver ref="popup-1" @delete="deleteImage()" @download="downloadImage()" @forward="openForwardMessage()" @reply="replyImageMessage()" />
         </div>
       </div>
     </header>
+
     <div class="robin-body">
       <div class="robin-wrapper robin-h-100 robin-flex robin-flex-column robin-flex-align-center robin-flex-space-between">
         <div class="robin-image-preview">
           <v-lazy-image class="robin-uploaded-image" :src="imagePreview" />
         </div>
+
         <div class="robin-image-row robin-overflow-x-auto robin-flex robin-flex-align-center robin-mt-16">
           <v-lazy-image class="robin-uploaded-image" v-for="(image, index) in images" :key="index" :src="image.content.attachment" @click.native="onSelectChange(index)" :class="[index === imageSelected && images.length > 1 ? 'selected' : '', images.length === 1 && 'not-selected']" />
         </div>
@@ -55,7 +59,6 @@ import EventBus from '@/event-bus'
 import VLazyImage from 'v-lazy-image/v2'
 import store from '../../../store/index'
 import IconButton from '../../IconButton/IconButton.vue'
-// import RCloseButton from '../../ChatList/RCloseButton/RCloseButton.vue'
 import RGroupAvatar from '@/components/ChatList/RGroupAvatar/RGroupAvatar.vue'
 import RAvatar from '@/components/ChatList/RAvatar/RAvatar.vue'
 import ROptionButton from '../ROptionButton/ROptionButton.vue'
@@ -86,7 +89,6 @@ const ComponentProps = Vue.extend({
   components: {
     RText,
     IconButton,
-    // RCloseButton,
     RGroupAvatar,
     ROptionButton,
     RAvatar,
@@ -191,7 +193,11 @@ export default class MessageImagePreviewer extends ComponentProps {
         EventBus.$emit('image-deleted', this.images[this.imageSelected], this.images)
       }, 300)
     } else {
-      this.$toasted.global.custom_error('Check your connection.')
+      this.$toast.open({
+        message: 'Check your connection.',
+        type: 'error',
+        position: 'bottom-left'
+      })
     }
   }
 
@@ -235,7 +241,6 @@ export default class MessageImagePreviewer extends ComponentProps {
   background-color: #fff;
   display: flex;
   align-items: center;
-  /* padding: 1.738rem clamp(3%, 5vw, 2.625rem) 1.175rem clamp(0rem, 5vw, 1.5rem); */
   padding-top: 1.738rem;
   padding-right: clamp(3%, 5vw, 2.625rem);
   padding-bottom: 1.175rem;

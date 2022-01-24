@@ -168,7 +168,7 @@ export default class RCamera extends ComponentProps {
 
 <style scoped>
 .robin-camera-box {
-  height: calc(100% - 6.3rem);
+  height: calc(100% - 4.96rem);
   position: absolute;
   /* top: 300px; */
   bottom: 0;

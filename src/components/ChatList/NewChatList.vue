@@ -1,53 +1,33 @@
 <template>
   <div class="robin-side-container" ref="popup-body">
     <header class="robin-header">
-      <RText font-weight="400" color="rgba(83, 95, 137, 1)" :fontSize="17"> New Chat </RText>
-      <!-- <RCloseButton @close="openPreviousModal()" /> -->
-      <IconButton name="close" @close="openPreviousModal()" emit="close" :to-emit="true" :to-click-away="false" />
+      <IconButton name="remove" @close="openPreviousModal()" emit="close" :to-emit="true" :to-click-away="false" />
+
+      <RText font-weight="400" :font-size="16" class="robin-ml-12"> New Chat </RText>
     </header>
-    <div class="robin-wrapper robin-w-100">
+
+    <div class="robin-w-100 robin-pl-16 robin-pr-16">
       <RSearchBar @user-typing="searchContacts($event)" :loading="isLoading" :key="key" placeholder="Search or start new chat" />
     </div>
-    <div class="robin-wrapper robin-card-container robin-flex robin-flex-column robin-mt-42">
-      <div class="robin-card robin-flex robin-flex-align-center">
-        <div class="robin-card-info robin-mr-12">
-          <RGroupAvatar />
-        </div>
-        <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4˝ robin-flex-1">
-          <div class="robin-flex">
-            <RButton color="#15AE73" :font-size="14" :line-height="18" emit="newgroupchat" @newgroupchat="openGroupChat()">Create A New Group</RButton>
-          </div>
-        </div>
-      </div>
+
+    <div class="robin-w-100 robin-create-group robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pl-16 robin-pr-16 robin-flex-1 robin-mt-42 robin-pb-16">
+      <RButton color="#15AE73" :font-size="14" :line-height="18" emit="newgroupchat" @newgroupchat="openGroupChat()" class="robin-flex robin-flex-align-center">
+        <SvgIcon name="3users" />
+
+        <RText class="robin-ml-5" color="#15AE73">Create Group Chat</RText>
+      </RButton>
     </div>
-    <!-- <div
-      class="robin-wrapper robin-card-container robin-flex robin-flex-column"
-    >
-      <div class="robin-card robin-flex robin-flex-align-center">
-        <div class="robin-card-info robin-mr-12">
-          <RNewContactAvatar />
-        </div>
-        <div
-          class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4˝ robin-flex-1"
-        >
-          <div class="robin-flex">
-            <RButton
-              color="#15AE73"
-              :font-size="14"
-              :line-height="18"
-            >Add New Contact</RButton>
-          </div>
-        </div>
-      </div>
-    </div> -->
+
     <div class="robin-contact-container robin-overflow-y-auto">
       <div v-for="(contact, key, index) in contacts" :key="`contact-${index}`">
-        <RAlphabetBlock :text="key" />
+        <RAlphabetBlock :text="key" v-show="key.toString() != '*'" />
+
         <div class="robin-wrapper robin-card-container robin-flex robin-flex-column robin-grey-200">
           <div class="robin-card robin-flex robin-flex-align-center robin-clickable" v-for="user in contact" :key="user.userToken" @click="createConversation(user)">
             <div class="robin-card-info robin-mr-12">
               <RAvatar />
             </div>
+
             <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4˝ robin-flex-1">
               <div class="robin-flex">
                 <RText :font-size="14" :line-height="18">{{ user.userName }}</RText>
@@ -57,25 +37,6 @@
         </div>
       </div>
     </div>
-    <!-- <RAlphabetBlock text="B" /> -->
-    <!-- <div
-      class="robin-wrapper robin-card-container robin-flex robin-flex-column robin-grey-200"
-    >
-      <div
-        class="robin-card robin-flex robin-flex-align-center robin-clickable"
-      >
-        <div class="robin-card-info robin-mr-12">
-          <RAvatar />
-        </div>
-        <div
-          class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4˝ robin-flex-1"
-        >
-          <div class="robin-flex">
-            <RText text="Temi Obadofin" :fontSize="14" :lineHeight="18" />
-          </div>
-        </div>
-      </div>
-    </div> -->
   </div>
 </template>
 
@@ -85,11 +46,9 @@ import store from '../../store/index'
 import Component from 'vue-class-component'
 import RText from './RText/RText.vue'
 import RSearchBar from './RSearchBar/RSearchBar.vue'
-// import RCloseButton from './RCloseButton/RCloseButton.vue'
 import RButton from './RButton/RButton.vue'
-import RGroupAvatar from './RGroupAvatar/RGroupAvatar.vue'
+import SvgIcon from '../SvgIcon/SvgIcon.vue'
 import RAvatar from './RAvatar/RAvatar.vue'
-// import RNewContactAvatar from './RNewContactAvatar/RNewContactAvatar.vue'
 import RAlphabetBlock from './RAlphabetBlock/RAlphabetBlock.vue'
 import EventBus from '@/event-bus'
 import IconButton from '../IconButton/IconButton.vue'
@@ -101,10 +60,8 @@ import IconButton from '../IconButton/IconButton.vue'
     RText,
     RSearchBar,
     RButton,
-    RGroupAvatar,
+    SvgIcon,
     IconButton,
-    // RNewContactAvatar,
-    // RCloseButton,
     RAvatar,
     RAlphabetBlock
   },
@@ -149,7 +106,11 @@ export default class NewChatList extends Vue {
       EventBus.$emit('conversation-opened', res.data)
       EventBus.$emit('open-conversation')
     } else {
-      this.$toasted.global.custom_error('Check your connection.')
+      this.$toast.open({
+        message: 'Check your connection.',
+        type: 'error',
+        position: 'bottom-left'
+      })
     }
   }
 
@@ -220,7 +181,7 @@ export default class NewChatList extends Vue {
   }
 
   openGroupChat (): void {
-    this.$emit('openmodal', 'newgroupchat')
+    this.$emit('openmodal', 'newgroup')
     setTimeout(() => {
       this.refresh()
     }, 300)
@@ -230,7 +191,7 @@ export default class NewChatList extends Vue {
     return username.trim() !== '' && isNaN(parseInt(username[0])) ? username[0].toUpperCase() : '*'
   }
 
-  validateContact (usernameVal:any, username: any): boolean {
+  validateContact (usernameVal: any, username: any): boolean {
     if (!usernameVal[0] && !username[0]) {
       return usernameVal.trim() === username.trim()
     }
@@ -266,42 +227,42 @@ header {
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: clamp(10%, 4vh, 3.563rem) clamp(2%, 4vw, 1.5rem) 1.5rem;
+  padding: clamp(10%, 4vh, 3.563rem) clamp(2%, 4vw, 1rem) 1.5rem;
 }
 
 .robin-contact-container {
   width: 100%;
 }
 
-.robin-wrapper {
-  padding: 0 clamp(2%, 4vw, 1.5rem);
+.robin-create-group {
+  border-bottom: 1px solid #EFEFEF;
 }
+
+/* .robin-wrapper {
+  padding: 0 clamp(2%, 4vw, 1.5rem);
+} */
 
 .robin-card-container {
   width: 100%;
 }
 
 .robin-card-container .robin-card {
-  border-bottom: 1px solid #f4f6f8;
-  padding: 1rem 0 1.1rem;
+  box-shadow: 0px 1px 0px 2.5px rgba(69, 104, 209, 0.05);
+  padding: 0.875rem 1rem 1rem;
   transition: all 0.15s;
+  background-color: #fff;
 }
 
-.robin-card-container:last-child .robin-card {
-  border-bottom: none;
-}
-
-.robin-alphabet-block {
-  width: 100%;
-  padding: 0 1.5rem;
-  height: 28px;
-  background-color: #f3f3f3;
+.robin-card-container .robin-card + .robin-card {
+  margin-top: 0.25rem;
 }
 
 .robin-alphabet-block + .robin-card-container .robin-card:hover {
-  background-color: #c8c8c8;
-  /* padding: 1rem 0.75rem 1.1rem; */
+  background-color: #f5f7fc;
+}
+
+.robin-flex .robin-svg {
+  height: 16px;
 }
 
 @media (min-width: 768px) {

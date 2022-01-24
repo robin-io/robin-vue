@@ -4,9 +4,9 @@
       <RSideContainer v-show="(!isPageLoading && !conversationOpened && screenWidth <= 1200) || (conversationOpened && screenWidth > 1200) || (!conversationOpened && screenWidth > 1200)" :user_token="userToken" :key="key" />
     </transition>
     <transition name="robin-fadeIn">
-      <RGroupMessageContainer v-show="!isPageLoading && conversationOpened" :key="key" />
+      <RGroupMessageContainer v-show="!isPageLoading && conversationOpened && (screenWidth > 1200 && !viewMessageProfileOpen) || (screenWidth > 1200 && viewMessageProfileOpen) || (screenWidth <= 1200 && !viewMessageProfileOpen)" :key="key" />
     </transition>
-    <RNoMessageSelected v-show="!isPageLoading && !conversationOpened" />
+    <RNoMessageSelected v-show="!isPageLoading && !conversationOpened " />
     <RPageLoader v-show="isPageLoading && pageLoader" />
     <MessageImagePreviewer ref="popup-1" :conversation="currentConversation" v-show="imagePreviewOpen" @close="closeImagePreview()" :images-to-preview="imagesToPreview" />
     <ViewMessageProfile ref="popup-2" v-show="viewMessageProfileOpen" @close="closeMessageProfile()" />
@@ -47,7 +47,7 @@ const ComponentProps = Vue.extend({
     },
     userName: {
       type: String as PropType<string>,
-      default: ''
+      default: 'Elvis Chuks'
     },
     users: {
       type: Array as PropType<Array<any>>,
@@ -448,7 +448,7 @@ export default class App extends ComponentProps {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Google Sans', sans-serif;
+  font-family: 'Hanken Sans', sans-serif;
   font-kerning: normal;
   -moz-font-feature-settings: 'kern', 'liga', 'clig', 'calt';
   -ms-font-feature-settings: 'kern', 'liga', 'clig', 'calt';

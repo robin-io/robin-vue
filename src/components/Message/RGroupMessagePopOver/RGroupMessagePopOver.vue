@@ -1,16 +1,22 @@
 <template>
   <div class="robin-popup robin-zoomIn" ref="popup-body">
-    <!-- <div class="robin-wrapper robin-w-100">
-      <RText :font-size="14" as="span" color="#101010">Group Info</RText>
-    </div> -->
+    <div class="robin-wrapper robin-w-100" @click="$emit('view-group-profile')">
+      <RText :font-size="14" as="span" color="#51545C">Group Info</RText>
+
+      <SvgIcon name="user-circle" />
+    </div>
     <div class="robin-wrapper robin-w-100" @click="handleSelectMessages()">
-      <RText :font-size="14" as="span" color="#101010">Forward Messages</RText>
+      <RText :font-size="14" as="span" color="#51545C">Select Messages</RText>
+
+      <SvgIcon name="check-circle" />
     </div>
     <!-- <div class="robin-wrapper robin-w-100">
-      <RText :font-size="14" as="span" color="#101010">Mute Group</RText>
+      <RText :font-size="14" as="span" color="#51545C">Mute Group</RText>
     </div> -->
     <div class="robin-wrapper robin-w-100" @click="handleLeaveGroup()">
-      <RText :font-size="14" as="span" color="#101010">Leave Group</RText>
+      <RText :font-size="14" as="span" color="#51545C">Leave Group</RText>
+
+      <SvgIcon name="times-square" />
     </div>
   </div>
 </template>
@@ -19,7 +25,7 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import EventBus from '@/event-bus'
-// import { Mutation } from 'vuex-class'
+import SvgIcon from '../../SvgIcon/SvgIcon.vue'
 import store from '../../../store/index'
 import RText from '@/components/ChatList/RText/RText.vue'
 
@@ -35,14 +41,12 @@ const ComponentProps = Vue.extend({
 @Component({
   name: 'RGroupMessagePopOver',
   components: {
-    RText
+    RText,
+    SvgIcon
   }
 })
 export default class RGroupMessagePopOver extends ComponentProps {
-  // @Mutation('setSelectMessagesOpen') setSelectMessagesOpen: any
-
   handleSelectMessages () {
-    // this.setSelectMessagesOpen(true)
     store.setState('selectMessagesOpen', true)
   }
 
@@ -50,11 +54,20 @@ export default class RGroupMessagePopOver extends ComponentProps {
     const res = await this.$robin.removeGroupParticipant(this.conversation._id, this.$user_token)
 
     if (res && !res.error) {
-      this.$toasted.global.custom_success('You left group')
+      this.$toast.open({
+        message: 'You left group',
+        type: 'success',
+        position: 'bottom-left'
+      })
+
       EventBus.$emit('left.group')
       EventBus.$emit('regular-conversation.delete', this.conversation)
     } else {
-      this.$toasted.global.custom_error('Check your connection.')
+      this.$toast.open({
+        message: 'Check your connection.',
+        type: 'error',
+        position: 'bottom-left'
+      })
     }
   }
 }
@@ -63,16 +76,14 @@ export default class RGroupMessagePopOver extends ComponentProps {
 <style scoped>
 .robin-popup {
   width: 174px;
-  /* max-width: 174px; */
-  padding: 0.5rem 0.563rem;
-  border: 1px solid rgba(35, 107, 248, 0.2);
-  border-radius: 24px;
+  border: 1px solid #F5F7FC;
+  border-radius: 6px;
   background-color: #fff;
 }
 
 .robin-wrapper {
-  border-top: 1px solid #f4f6f8;
-  padding: 0.813rem 0.5rem;
+  border-top: 1px solid #EFEFEF;
+  padding: 0.813rem 1rem;
   display: flex;
   align-items: center;
   justify-content: space-between;

@@ -18,7 +18,7 @@ const ComponentProps = Vue.extend({
 })
 
 @Component({
-  name: 'RForwardMessage'
+  name: 'RAlphabetBlock'
 })
 export default class RAlphabetBlock extends ComponentProps {}
 </script>
@@ -26,9 +26,9 @@ export default class RAlphabetBlock extends ComponentProps {}
 <style scoped>
 .robin-alphabet-block {
   width: 100%;
-  padding: 0 1.5rem;
-  height: 28px;
-  background-color: #f3f3f3;
+  padding: 0 1rem;
+  min-height: 42px;
+  background-color: #fff;
   font-size: clamp(0.3rem, 5vw, 1rem);
   text-transform: uppercase;
 }

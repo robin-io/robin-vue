@@ -54,33 +54,31 @@ export default class RInput extends ComponentProps {
 <style scoped>
 /* Input styles */
 .robin-input {
-  background-color: #f4f6f8;
-  border: 1px solid rgba(35, 107, 248, 0.2);
+  background-color: #F5F7FC;
+  border: none;
   font-size: 0.875rem;
   padding-left: 1rem;
   transition: all 0.1s;
 }
 
 .robin-input:focus {
-  background-color: #fff;
-  box-shadow: 0px 0px 0px 1px rgba(35, 107, 248, 0.2);
   outline: none;
 }
 
 /* Input placeholder */
 ::placeholder {
-  color: #bbc1d6;
+  color: #8D9091;
 }
 
 ::-moz-placeholder {
-  color: #bbc1d6;
+  color: #8D9091;
 }
 
 :-ms-input-placeholder {
-  color: #bbc1d6;
+  color: #8D9091;
 }
 
 ::-ms-input-placeholder {
-  color: #bbc1d6;
+  color: #8D9091;
 }
 </style>

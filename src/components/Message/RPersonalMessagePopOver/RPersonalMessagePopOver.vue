@@ -1,16 +1,22 @@
 <template>
   <div class="robin-popup robin-zoomIn" ref="popup-body">
-    <!-- <div class="robin-wrapper robin-w-100">
-      <RText :font-size="14" color="#101010">Contact Info</RText>
-    </div> -->
+    <div class="robin-wrapper robin-w-100" @click="$emit('view-profile')">
+      <RText :font-size="14" color="#51545C">Contact Info</RText>
+
+      <SvgIcon name="user-circle" />
+    </div>
     <div class="robin-wrapper robin-w-100" @click="handleSelectMessages()">
-      <RText :font-size="14" color="#101010">Forward Messages</RText>
+      <RText :font-size="14" color="#51545C">Select Messages</RText>
+
+      <SvgIcon name="check-circle" />
     </div>
     <div class="robin-wrapper robin-w-100" @click="handleClearMessages()">
-      <RText :font-size="14" color="#101010">Clear Messages</RText>
+      <RText :font-size="14" color="#51545C">Delete Chat</RText>
+
+      <SvgIcon name="trash" />
     </div>
     <!-- <div class="robin-wrapper robin-w-100">
-      <RText :font-size="14" color="#101010">Delete Chat</RText>
+      <RText :font-size="14" color="#51545C">Delete Chat</RText>
     </div> -->
   </div>
 </template>
@@ -18,27 +24,23 @@
 <script lang="ts">
 import Vue from 'vue'
 import Component from 'vue-class-component'
-// import { Mutation } from 'vuex-class'
+import SvgIcon from '../../SvgIcon/SvgIcon.vue'
 import store from '../../../store/index'
 import RText from '@/components/ChatList/RText/RText.vue'
 
 @Component({
   name: 'RPersonalMessagePopOverr',
   components: {
-    RText
+    RText,
+    SvgIcon
   }
 })
 export default class RPersonalMessagePopOver extends Vue {
-  // @Mutation('setSelectMessagesOpen') setSelectMessagesOpen: any
-  // @Mutation('setClearMessages') setClearMessages: any
-
   handleSelectMessages () {
-    // this.setSelectMessagesOpen(true)
     store.setState('selectMessagesOpen', true)
   }
 
   handleClearMessages () {
-    // this.setClearMessages(true)
     store.setState('clearMessages', true)
   }
 }
@@ -47,16 +49,14 @@ export default class RPersonalMessagePopOver extends Vue {
 <style scoped>
 .robin-popup {
   width: 174px;
-  /* max-width: 174px; */
-  padding: 0.5rem 0.563rem;
-  border: 1px solid rgba(35, 107, 248, 0.2);
-  border-radius: 24px;
+  border: 1px solid #F5F7FC;
+  border-radius: 6px;
   background-color: #fff;
 }
 
 .robin-wrapper {
-  border-top: 1px solid #f4f6f8;
-  padding: 0.813rem 0.5rem;
+  border-top: 1px solid #EFEFEF;
+  padding: 0.813rem 1rem;
   display: flex;
   align-items: center;
   justify-content: space-between;

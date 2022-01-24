@@ -1,17 +1,34 @@
 <template>
   <div class="robin-message-container" v-on-clickaway="onChatClickAway">
-    <RGroupChatHeader :conversation="conversation" @forward-message="forwardMessage = true" :key="key" :selected-messages="selectedMessages" />
+    <RGroupChatHeader :conversation="conversation" :key="key" :selected-messages="selectedMessages" @delete-selected-messages="openPrompt()" />
+
     <div class="robin-wrapper robin-flex robin-flex-column robin-flex-space-between">
       <div class="robin-inner-wrapper robin-flex robin-flex-align-center" v-if="isMessagesLoading">
         <div class="robin-spinner"></div>
       </div>
+
       <div class="robin-inner-wrapper" ref="message" @scroll="onScroll()" v-else>
-        <MessageContent v-for="(message, index) in messages" :ref="`message-${String(index)}`" @open-preview="openImagePreview($event)" :key="`message-${String(index + key)}`" v-show="!message.is_deleted" :message="message" :conversation="conversation" :message-popup="getMessagePopup(index)" :messages="messages" :index="index" :scroll="scroll" :last-id="!Array.isArray(message) && messages.length - 3 < parseInt(String(index)) ? message._id : ''" :read-receipts="readReceipts" @toggle-check-action="toggleCheckAction($event, message)" @reply-message="replyMessage($event)" @scroll-replied-message="scrollToRepliedMessage" />
+        <MessageContent v-for="(message, index) in messages" :ref="`message-${String(index)}`" @open-preview="openImagePreview($event)" :key="`message-${String(index + key)}`" v-show="!message.is_deleted" :message="message" :conversation="conversation" :message-popup="getMessagePopup(index)" :messages="messages" :index="index" :scroll="scroll" :last-id="!Array.isArray(message) && messages.length - 3 < parseInt(String(index)) ? message._id : ''" :read-receipts="readReceipts" @toggle-check-action="toggleCheckAction($event, message)" @reply-message="replyMessage($event)" @forward-message="forwardMessage = true" @scroll-replied-message="scrollToRepliedMessage" />
       </div>
     </div>
-    <RMessageInputBar :conversation="conversation" :message-reply="messageReply" @open-camera="openCamera()" :captured-image="capturedImage" @on-close-reply="onCloseReply()" />
+
+    <RMessageInputBar :conversation="conversation" :message-reply="messageReply" @open-camera="openCamera()" :captured-image="capturedImage" @on-close-reply="onCloseReply()" v-show="!selectMessagesOpen" />
+
+    <div class="robin-forward-tab" v-show="selectMessagesOpen">
+      <RText color="#51545C">
+        {{ selectedMessages.length }} Messages Selected
+      </RText>
+
+      <RButton emit="forward-message" v-show="selectedMessages.length > 0" @forward-message="forwardMessage = true">
+        Forward Messages
+      </RButton>
+    </div>
+
     <RCamera ref="popup-1" :camera-opened="popUpState.cameraOpened" @close="closeCamera()" @captured-image="handleCapturedImage" v-show="popUpState.cameraOpened" />
-    <RForwardMessage v-if="forwardMessage" @closemodal="onCloseForwardMessagePopup()" :selected-messages="selectedMessages" />
+
+    <RForwardMessage v-if="forwardMessage == true" @closemodal="onCloseForwardMessagePopup()" :selected-messages="selectedMessages" />
+
+    <RPrompt @proceed="deleteSelectedMessages()" v-show="promptOpen" @closemodal="closePrompt()" />
   </div>
 </template>
 
@@ -23,15 +40,13 @@ import { mixin as clickaway } from 'vue-clickaway'
 import RGroupChatHeader from '../RGroupChatHeader/RGroupChatHeader.vue'
 import RMessageInputBar from '../RMessageInputBar/RMessageInputBar.vue'
 import RText from '@/components/ChatList/RText/RText.vue'
+import RButton from '@/components/ChatList/RButton/RButton.vue'
 import RCamera from '../RCamera/RCamera.vue'
 import mime from 'mime'
 import store from '../../../store/index'
 import MessageContent from '../MessageContent/MessageContent.vue'
-import MessageGrid from '../MessageGrid/MessageGrid.vue'
-import RMessagePopOver from '../RMessagePopOver/RMessagePopOver.vue'
 import RForwardMessage from '../RForwardMessage/RForwardMessage.vue'
-import RReadIcon from '../../RReadIcon.vue'
-
+import RPrompt from '../RPrompt/RPrompt.vue'
 // eslint-disable-next-line
 @Component<RGroupMessageContainer>({
   name: 'RGroupMessageContainer',
@@ -41,10 +56,9 @@ import RReadIcon from '../../RReadIcon.vue'
     RMessageInputBar,
     RCamera,
     MessageContent,
-    MessageGrid,
-    RMessagePopOver,
     RForwardMessage,
-    RReadIcon
+    RButton,
+    RPrompt
   },
   mixins: [clickaway],
   watch: {
@@ -77,11 +91,13 @@ import RReadIcon from '../../RReadIcon.vue'
     isImageReplying: {
       handler (val): void {
         this.messageReply = this.imagesToPreview[this.imageSelected]
+        console.log('->', this.imagesToPreview[this.imageSelected], this.imageSelected)
       }
     }
   }
 })
 export default class RGroupMessageContainer extends Vue {
+  promptOpen = false
   readReceipts = [] as Array<string>
   selectedMessages = [] as Array<any>
   forwardMessage = false as boolean
@@ -103,25 +119,6 @@ export default class RGroupMessageContainer extends Vue {
   messagePopUpIndex = 0 as number
   key = 0 as number
 
-  images = {
-    pdf: 'pdf.png',
-    doc: 'doc.png',
-    docx: 'docx.png',
-    csv: 'csv.csv',
-    ppt: 'ppt.png',
-    rtf: 'rtf.png',
-    rar: 'rar.png',
-    tar: 'tar.png',
-    xls: 'xls.png',
-    xlsx: 'xlsx.png',
-    txt: 'txt.png',
-    odt: 'odt.png',
-    md: 'md.png',
-    '7z': '7z.png',
-    zip: 'zip.png',
-    html: 'html.png'
-  }
-
   imageRegex = /^image/ as any
   videoRegex = /^video/ as any
   documentRegex = /(csv|xlsx|xls|doc|docx|ppt|pptx|txt|pdf|ppt|rtf|rar|tar|odt|md|zip|7z|zip|html)$/
@@ -136,6 +133,10 @@ export default class RGroupMessageContainer extends Vue {
     this.handleUserConnect()
     this.handleUserDisconnect()
     this.getReadReceipts()
+  }
+
+  get currentConversation () {
+    return store.state.currentConversation
   }
 
   get selectMessagesOpen () {
@@ -171,6 +172,7 @@ export default class RGroupMessageContainer extends Vue {
       store.setState('currentConversation', conversation)
       this.scroll = false
       this.isMessagesLoading = true
+      EventBus.$emit('mark-as-read', conversation)
       this.getConversationMessages(conversation._id).then(() => {
         this.isMessagesLoading = false
       })
@@ -186,7 +188,11 @@ export default class RGroupMessageContainer extends Vue {
     }
 
     if (res.error) {
-      this.$toasted.global.custom_error('Check your connection.')
+      this.$toast.open({
+        message: 'Check your connection.',
+        type: 'error',
+        position: 'bottom-left'
+      })
     }
   }
 
@@ -223,6 +229,11 @@ export default class RGroupMessageContainer extends Vue {
           const messageIds = [this.messages[this.messages.length - 1]._id]
           this.initializeReadReceipts(messageIds)
         }
+      }
+      if (message.conversation_id !== this.currentConversation._id) {
+        const index = this.$regularConversations.findIndex((item) => item._id === message.conversation_id)
+
+        EventBus.$emit('mark-as-unread', this.$regularConversations[index])
       }
       this.$conversations.forEach((conversation, index) => {
         if (conversation._id === message.conversation_id) {
@@ -280,7 +291,11 @@ export default class RGroupMessageContainer extends Vue {
       this.testMessages(res.data ? res.data : [])
       this.handleReadReceipts(res.data)
     } else {
-      this.$toasted.global.custom_error('Check your connection.')
+      this.$toast.open({
+        message: 'Check your connection.',
+        type: 'error',
+        position: 'bottom-left'
+      })
     }
 
     this.scrollToBottom()
@@ -392,13 +407,21 @@ export default class RGroupMessageContainer extends Vue {
 
     const res = await this.$robin.deleteMessages([...id], this.$user_token)
     if (res && !res.error) {
-      this.$toasted.global.custom_success('Messages Deleted.')
+      this.$toast.open({
+        message: 'Messages Deleted.',
+        type: 'success',
+        position: 'bottom-left'
+      })
       this.promise = this.getConversationMessages(this.conversation._id)
       this.promise.then(() => {
         this.scrollToBottom()
       })
     } else {
-      this.$toasted.global.custom_error('Check your connection.')
+      this.$toast.open({
+        message: 'Check your connection.',
+        type: 'error',
+        position: 'bottom-left'
+      })
     }
 
     store.setState('clearMessages', false)
@@ -449,6 +472,38 @@ export default class RGroupMessageContainer extends Vue {
     this.messageReply = {}
   }
 
+  async deleteSelectedMessages () {
+    const res = await this.$robin.deleteMessages(this.selectedMessages.map(message => message._id), this.$user_token)
+
+    if (res && !res.error) {
+      this.selectedMessages.forEach(message => EventBus.$emit('message-deleted', message))
+
+      this.selectedMessages = []
+      store.setState('selectMessagesOpen', false)
+      this.promptOpen = false
+
+      this.$toast.open({
+        message: this.selectedMessages.length > 0 ? 'Messages Deleted.' : 'Message Deleted.',
+        type: 'success',
+        position: 'bottom-left'
+      })
+    } else {
+      this.$toast.open({
+        message: 'Check your connection.',
+        type: 'error',
+        position: 'bottom-left'
+      })
+    }
+  }
+
+  openPrompt () {
+    this.promptOpen = true
+  }
+
+  closePrompt () {
+    this.promptOpen = false
+  }
+
   // Method to scroll to the position of a replied message
   scrollToRepliedMessage (id: string): void {
     const messageIndex: any = this.messages.findIndex((element: any) => {
@@ -479,14 +534,14 @@ export default class RGroupMessageContainer extends Vue {
   flex-direction: column;
   justify-content: space-between;
   position: relative;
-  /* z-index: 0; */
+  z-index: 0;
 }
 
 .robin-wrapper {
   flex: 1;
   height: 100%;
   overflow-y: hidden;
-  background-color: #fafafa;
+  background-color: #fff;
 }
 
 .robin-inner-wrapper {
@@ -502,6 +557,17 @@ export default class RGroupMessageContainer extends Vue {
 .network-error {
   font-size: 1rem;
   color: var(--primary-color);
+}
+
+.robin-forward-tab {
+  height: 88px;
+  display: flex;
+  align-items: center;
+  padding-left: 1rem;
+  padding-right: 2.5rem;
+  justify-content: space-between;
+  box-shadow: 0px 3px 20px 5px rgba(69, 104, 209, 0.1);
+  background-color: #fff;
 }
 
 @media (min-width: 768px) {
