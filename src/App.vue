@@ -4,7 +4,7 @@
       <RSideContainer v-show="(!isPageLoading && !conversationOpened && screenWidth <= 1200) || (conversationOpened && screenWidth > 1200) || (!conversationOpened && screenWidth > 1200)" :user_token="userToken" :key="key" />
     </transition>
     <transition name="robin-fadeIn">
-      <RGroupMessageContainer v-show="!isPageLoading && conversationOpened && (screenWidth <= 1200 && !viewMessageProfileOpen)" :key="key" />
+      <RGroupMessageContainer v-show="(!isPageLoading && conversationOpened && screenWidth > 1200 && !viewMessageProfileOpen) || (!isPageLoading && conversationOpened && screenWidth <= 1200 && !viewMessageProfileOpen) || (!isPageLoading && conversationOpened && screenWidth > 1200 && viewMessageProfileOpen)" :key="key" />
     </transition>
     <RNoMessageSelected v-show="!isPageLoading && !conversationOpened " />
     <RPageLoader v-show="isPageLoading && pageLoader" />

@@ -165,7 +165,6 @@ export default class RGroupMessageContainer extends Vue {
 
   handleConversationOpen (): void {
     EventBus.$on('conversation-opened', (conversation: any) => {
-      console.log('conversation-opened', conversation)
       this.messageReply = {}
       this.messages = []
       this.conversation = conversation || []
@@ -173,6 +172,7 @@ export default class RGroupMessageContainer extends Vue {
       this.scroll = false
       this.isMessagesLoading = true
       EventBus.$emit('mark-as-read', conversation)
+      store.setState('viewMessageProfileOpen', false)
       this.getConversationMessages(conversation._id).then(() => {
         this.isMessagesLoading = false
       })
