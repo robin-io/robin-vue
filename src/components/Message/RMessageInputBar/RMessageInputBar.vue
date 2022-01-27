@@ -98,10 +98,10 @@
       <div class="robin-send-button-loader robin-ml-21" v-show="isUploading">
         <div class="robin-spinner2"></div>
       </div>
-      <div v-show="text.trim() == '' && files.length < 1 && !isUploading" @click="handleOpenPopUp()">
-        <IconButton name="voice" :to-click-away="false" :to-emit="false" />
+      <!-- <div v-show="text.trim() == '' && files.length < 1 && !isUploading" @click="handleOpenPopUp()"> -->
+        <!-- <IconButton name="voice" :to-click-away="false" :to-emit="false" /> -->
         <!-- <IconButton name="attachFile" @clickoutside="handleClosePopUp()" :to-click-away="true" :style-stroke="true" :to-emit="false" primary-color="rgba(21, 174, 115, 1)" :hasFocus="true" /> -->
-      </div>
+      <!-- </div> -->
 
       <div class="robin-popup-container" v-show="popUpState.opened">
         <RAttachFilePopOver ref="popup-4" @file-upload="handleFileUpload" @open-camera="$emit('open-camera')" />
