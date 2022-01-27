@@ -60,7 +60,8 @@ const ComponentProps = Vue.extend({
     // RImageDownloadButton
   }
 })
-export default class MessagePreviewPopOver extends ComponentProps {}
+export default class MessagePreviewPopOver extends ComponentProps {
+}
 </script>
 
 <style scoped>

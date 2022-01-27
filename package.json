@@ -1,6 +1,6 @@
 {
   "name": "robin.io-vue2",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "license": "MIT",
   "files": [
     "dist"
@@ -32,7 +32,7 @@
     "link-prevue": "^1.2.0",
     "mime": "^2.5.2",
     "moment": "^2.29.1",
-    "robin.io-js": "^0.2.4",
+    "robin.io-js": "^0.2.7",
     "v-emoji-picker": "^2.3.3",
     "v-lazy-image": "^2.0.1",
     "vue": "^2.6.14",

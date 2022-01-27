@@ -1,5 +1,5 @@
 <template>
-  <div class="robin-bubble" :class="!validateMessageClass() ? 'robin-grid-sender' : 'robin-grid-receiver'" @click="$emit('open-modal')">
+  <div class="robin-bubble" :class="!validateMessageClass() ? 'robin-grid-sender' : 'robin-grid-receiver'" @click.self="$emit('open-modal')">
     <div class="robin-popup-container reactions" ref="popup-body">
       <RReactionPopOver v-show="messagePopup.opened" @close-modal="closeModal()" :id="message[0]._id" :message="message[0]" @reaction="$emit('add-reaction', $event)" />
     </div>
@@ -21,6 +21,8 @@
 
       <SvgIcon name="not-read" v-if="!message[0].is_read" />
     </RText>
+
+    <IconButton class="download-btn" @clicked="downloadImages(message)" name="downloadImage" :to-emit="true" :to-click-away="false" />
   </div>
 </template>
 
@@ -30,6 +32,7 @@ import VLazyImage from 'v-lazy-image/v2'
 import Component from 'vue-class-component'
 import RReactionPopOver from '../RReactionPopOver/RReactionPopOver.vue'
 import RText from '@/components/ChatList/RText/RText.vue'
+import IconButton from '../../IconButton/IconButton.vue'
 import SvgIcon from '../../SvgIcon/SvgIcon.vue'
 import moment from 'moment'
 
@@ -65,7 +68,8 @@ const ComponentProps = Vue.extend({
     RText,
     VLazyImage,
     RReactionPopOver,
-    SvgIcon
+    SvgIcon,
+    IconButton
   },
   watch: {
     message: {
@@ -108,6 +112,39 @@ export default class MessageGrid extends ComponentProps {
 
   validateMessageClass (): boolean {
     return this.message.some((item: any) => item.content && item.content.sender_token === this.$user_token)
+  }
+
+  getFileDetails (attachmentUrl: string): { name: any; extension: any } {
+    const fileName = attachmentUrl.substring(attachmentUrl.lastIndexOf('/') + 1)
+    const strArr = fileName.split('.')
+
+    return {
+      name: strArr[strArr.length - 2],
+      extension: strArr[strArr.length - 1]
+    }
+  }
+
+  async downloadImages (messages: any) {
+    let intervalLevel = 0
+
+    const interval = setInterval(() => {
+      if (intervalLevel === messages.length) {
+        clearInterval(interval)
+
+        return
+      }
+
+      const element = document.createElement('a')
+      const fileDetails = this.getFileDetails(messages[intervalLevel].content.attachment) as any
+      element.setAttribute('href', messages[intervalLevel].content.attachment)
+      element.setAttribute('download', fileDetails.name + ' ' + fileDetails.extension)
+
+      document.body.appendChild(element)
+      element.click()
+      document.body.removeChild(element)
+
+      intervalLevel += 1
+    }, 1000)
   }
 }
 </script>
@@ -332,5 +369,21 @@ export default class MessageGrid extends ComponentProps {
 .robin-grid-sender .robin-popup-container.reactions >>> .robin-zoomIn,
 .robin-grid-sender .robin-popup-container.reactions >>> .robin-zoomOut {
   transform-origin: bottom top;
+}
+
+.robin-grid-receiver .download-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+  left: -20%;
+}
+
+.robin-grid-sender .download-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+  left: -20%;
 }
 </style>

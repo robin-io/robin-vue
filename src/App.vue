@@ -243,7 +243,6 @@ export default class App extends ComponentProps {
 
   initiateRobin () {
     this.robin = new Robin(this.apiKey, true)
-    // console.log(this.robin)
     this.connect()
     this.setPrototypes()
   }

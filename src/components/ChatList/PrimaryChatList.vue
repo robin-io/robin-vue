@@ -71,7 +71,7 @@
         </div>
 
         <div class="robin-popup-container" :ref="`popup-container-${index}`" v-show="popUpStates[index] ? popUpStates[index].opened : false">
-          <RChatListPopOver :ref="`popup-${index}`" :conversation="conversation" @archive-chat="handleArchiveChat(conversation)" @mark-as-read="handleMarkAsRead(conversation)" @mark-as-unread="handleMarkAsUnread(conversation)" />
+          <RChatListPopOver :ref="`popup-${index}`" :conversation="conversation" @archive-chat="handleArchiveChat(conversation)" @delete-conversation="handleDeleteConversation(conversation)"  @mark-as-read="handleMarkAsRead(conversation)" @mark-as-unread="handleMarkAsUnread(conversation)" />
         </div>
       </div>
     </div>
@@ -209,7 +209,6 @@ export default class PrimaryChatList extends ComponentProps {
   }
 
   handleOpenPopUp (event: any, _id: string, refContainerKey: string, refKey: string, id: string): void {
-    console.log(event)
     const popupContainer = this.$refs[refContainerKey] as any
     const popup = this.$refs[refKey] as any
     popup[0].$refs['popup-body'].classList.remove('robin-zoomOut')
@@ -281,16 +280,8 @@ export default class PrimaryChatList extends ComponentProps {
             EventBus.$emit('regular-conversation.delete', this.conversations[index])
             EventBus.$emit('regular-conversation.add', this.conversations[index])
             this.$emit('refresh')
-            // this.$regularConversations.splice(index, 1)
-            // this.$regularConversations.unshift(conv)
           }
         })
-        // this.$archivedConversations.forEach((conversation: any, index: any) => {
-        //   if (conversation._id === msg.conversation_id) {
-        //     msg.content.timestamp = new Date()
-        //     this.$archivedConversations[index].last_message = msg.content
-        //   }
-        // })
       })
     })
   }
@@ -346,6 +337,25 @@ export default class PrimaryChatList extends ComponentProps {
 
   handleMarkAsUnread (conversation: any) {
     EventBus.$emit('mark-as-unread.modified', conversation)
+  }
+
+  async handleDeleteConversation (conversation: any) {
+    const res = await this.$robin.deleteConversation(this.$user_token, conversation._id)
+
+    if (res && !res.error) {
+      EventBus.$emit('regular-conversation.delete', conversation)
+      this.$toast.open({
+        message: 'Conversation deleted.',
+        type: 'success',
+        position: 'bottom-left'
+      })
+    } else {
+      this.$toast.open({
+        message: 'Check your connection.',
+        type: 'error',
+        position: 'bottom-left'
+      })
+    }
   }
 
   onResize () {

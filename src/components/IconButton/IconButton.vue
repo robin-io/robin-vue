@@ -138,6 +138,20 @@ export default class IconButton extends ComponentProps {
         cursor: 'pointer'
       }
     },
+    downloadImage: {
+      innerHTML: '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10.5 7.5V9.5C10.5 9.76522 10.3946 10.0196 10.2071 10.2071C10.0196 10.3946 9.76522 10.5 9.5 10.5H2.5C2.23478 10.5 1.98043 10.3946 1.79289 10.2071C1.60536 10.0196 1.5 9.76522 1.5 9.5V7.5" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 5L6 7.5L8.5 5" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 7.5V1.5" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+      buttonStyle: {
+        width: '44px',
+        height: '44px',
+        'border-radius': '50%',
+        background: '#15ae73',
+        display: 'flex',
+        'justify-content': 'center',
+        'align-items': 'center',
+        border: 'none',
+        cursor: 'pointer'
+      }
+    },
     edit: {
       innerHTML: `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9.16699 3.33337H3.33366C2.89163 3.33337 2.46771 3.50897 2.15515 3.82153C1.84259 4.13409 1.66699 4.55801 1.66699 5.00004V16.6667C1.66699 17.1087 1.84259 17.5327 2.15515 17.8452C2.46771 18.1578 2.89163 18.3334 3.33366 18.3334H15.0003C15.4424 18.3334 15.8663 18.1578 16.1788 17.8452C16.4914 17.5327 16.667 17.1087 16.667 16.6667V10.8334" stroke="${this.color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /><path d="M15.417 2.08332C15.7485 1.7518 16.1981 1.56555 16.667 1.56555C17.1358 1.56555 17.5855 1.7518 17.917 2.08332C18.2485 2.41484 18.4348 2.86448 18.4348 3.33332C18.4348 3.80216 18.2485 4.2518 17.917 4.58332L10.0003 12.5L6.66699 13.3333L7.50033 9.99998L15.417 2.08332Z" stroke="${this.color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>`,
       buttonStyle: {

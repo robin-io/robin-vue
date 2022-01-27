@@ -322,7 +322,18 @@ const ComponentProps = Vue.extend({
 
     SvgIcon
   },
-  mixins: [clickaway]
+  mixins: [clickaway],
+  watch: {
+    selectMessagesOpen: {
+      handler (val) {
+        console.log(val)
+        if (this.selectMessagesOpen) {
+          const checkbox = this.$refs.checkbox as any
+          checkbox.checked = false
+        }
+      }
+    }
+  }
 })
 export default class MessageContent extends ComponentProps {
   props = {} as any
@@ -721,7 +732,7 @@ export default class MessageContent extends ComponentProps {
 
 .robin-bubble .robin-caret-container {
   position: absolute;
-  z-index: 10;
+  z-index: 0;
   top: 1px;
   right: 5px;
   width: 14px;
@@ -914,7 +925,7 @@ video.video-reply {
 .robin-message-bubble-document .robin-uploaded-document {
   display: flex;
   align-items: center;
-  background-color: #fff;
+  background-color: #F5F7FC;
   border: 1px solid #ecebeb;
   border-radius: 4px;
 }

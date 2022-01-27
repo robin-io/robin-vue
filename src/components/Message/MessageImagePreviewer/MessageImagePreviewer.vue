@@ -188,9 +188,11 @@ export default class MessageImagePreviewer extends ComponentProps {
     if (res && !res.error) {
       if (this.images.length < 2) this.closeImagePreview()
 
+      EventBus.$emit('image-deleted', this.images[this.imageSelected])
+      console.log(this.images[this.imageSelected])
+
       window.setTimeout(() => {
         this.images.splice(this.imageSelected, 1)
-        EventBus.$emit('image-deleted', this.images[this.imageSelected], this.images)
       }, 300)
     } else {
       this.$toast.open({
@@ -204,11 +206,13 @@ export default class MessageImagePreviewer extends ComponentProps {
   openForwardMessage () {
     this.forwardMessage = true
     this.selectedMessages = [this.imagesToPreview[0]]
+    store.setState('viewMessageProfileOpen', false)
   }
 
   replyImageMessage () {
     store.setState('imageSelected', this.imageSelected)
     store.setState('isImageReplying', true)
+    store.setState('viewMessageProfileOpen', false)
     this.closeImagePreview()
   }
 

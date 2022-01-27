@@ -36,10 +36,10 @@
 
     <IconButton v-show="selectMessagesOpen && selectedMessages.length > 0" name="trash" :to-emit="true" :to-click-away="false" emit="delete" @delete="deleteSelectedMessages()" class="robin-ml-auto" />
 
-    <div class="robin-options robin-ml-auto" @click="handleOpenPopUp(conversation.is_group ? 'popup-1' : 'popup-2')" v-show="!selectMessagesOpen">
+    <div class="robin-options robin-ml-auto" @click="handleOpenPopUp($event, conversation.is_group ? 'popup-1' : 'popup-2')" v-show="!selectMessagesOpen">
       <IconButton @clickoutside="handleClosePopUp(conversation.is_group ? 'popup-1' : 'popup-2')" :to-click-away="true" :to-emit="false" name="openModalDot" />
 
-      <div class="robin-popup-container" v-show="popUpState.opened && !selectMessagesOpen">
+      <div class="robin-popup-container" ref="popup-container" v-show="popUpState.opened && !selectMessagesOpen">
         <RGroupMessagePopOver ref="popup-1" v-show="conversation.is_group" :conversation="conversation" @view-group-profile="openMessageProfile()" />
 
         <RPersonalMessagePopOver ref="popup-2" v-show="!conversation.is_group" @view-profile="openMessageProfile()" />
@@ -90,11 +90,11 @@ const ComponentProps = Vue.extend({
     RAvatar,
     RGroupMessagePopOver,
     RPersonalMessagePopOver
-    // RBackButton
   }
 })
 export default class RGroupChatHeader extends ComponentProps {
   screenWidth = 0 as number
+  viewMessageProfileCloseCount = 0
 
   popUpState: PopUpState = {
     opened: false
@@ -112,13 +112,24 @@ export default class RGroupChatHeader extends ComponentProps {
     window.addEventListener('resize', this.onResize)
   }
 
+  get viewMessageProfileOpen () {
+    return store.state.viewMessageProfileOpen
+  }
+
   get selectMessagesOpen () {
     return store.state.selectMessagesOpen
   }
 
-  handleOpenPopUp (refKey: string): void {
+  handleOpenPopUp (event: any, refKey: string): void {
+    const popupContainer = this.$refs['popup-container'] as any
     const popup = this.$refs[refKey] as any
     popup.$refs['popup-body'].classList.remove('robin-zoomOut')
+
+    if (!this.viewMessageProfileOpen) {
+      popupContainer.style.right = Math.floor(event.clientX / 26) + 'px'
+    } else {
+      popupContainer.style.right = Math.floor(event.clientX / 2.47) + 'px'
+    }
 
     this.popUpState.opened = true
   }
@@ -139,7 +150,6 @@ export default class RGroupChatHeader extends ComponentProps {
 
   handleUserConnect () {
     EventBus.$on('user.connect', (conversation: string) => {
-      // console.log(conversation, '<--')
       if (conversation !== this.$user_token) {
         this.conversation.status = 'online'
       }
@@ -187,7 +197,7 @@ header {
   height: 79px;
   position: relative;
   z-index: 1;
-  border-bottom: 1px solid #F5F7FC;
+  border-bottom: 1px solid #f5f7fc;
   min-height: max-content;
 }
 
@@ -200,9 +210,9 @@ header {
 }
 
 .robin-popup-container {
-  position: absolute;
-  top: 30px;
-  right: 5px;
+  position: fixed;
+  top: 50px;
+  /* right: 55px; */
   z-index: 100;
 }
 

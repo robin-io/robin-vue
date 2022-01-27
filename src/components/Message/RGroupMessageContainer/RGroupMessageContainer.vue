@@ -64,6 +64,7 @@ import RPrompt from '../RPrompt/RPrompt.vue'
   watch: {
     messages: {
       handler (val: any): void {
+        console.log([...val])
         this.popUpState.messagePopUp = []
         ;[...val].forEach((val) => {
           this.popUpState.messagePopUp.push({
@@ -71,6 +72,8 @@ import RPrompt from '../RPrompt/RPrompt.vue'
             _id: val._id
           })
         })
+
+        EventBus.$emit('messages.get', [...val])
       },
       immediate: true
     },
@@ -91,7 +94,6 @@ import RPrompt from '../RPrompt/RPrompt.vue'
     isImageReplying: {
       handler (val): void {
         this.messageReply = this.imagesToPreview[this.imageSelected]
-        console.log('->', this.imagesToPreview[this.imageSelected], this.imageSelected)
       }
     }
   }
@@ -103,7 +105,6 @@ export default class RGroupMessageContainer extends Vue {
   forwardMessage = false as boolean
   conversation = {} as any
   messages = [] as any
-  // imagesToPreview = [] as any
   promise = null as any
   capturedImage = null as any
   scroll = false as boolean
@@ -264,14 +265,25 @@ export default class RGroupMessageContainer extends Vue {
 
   onImageDelete () {
     EventBus.$on('image-deleted', (message: any) => {
+      console.log(message)
       const messageIndex = this.messages.findIndex((item: any) => {
         if (Array.isArray(item)) return item.some((image) => image._id === message._id)
         return false
       }) as number
 
-      const index = this.messages[messageIndex].findIndex((item: any) => item._id === message._id) as number
-      this.messages[messageIndex][index].is_deleted = true
-      this.$forceUpdate()
+      if (messageIndex >= 0) {
+        // Delete message from image grid.
+        const index = this.messages[messageIndex].findIndex((item: any) => item._id === message._id) as number
+        this.messages[messageIndex][index].is_deleted = true
+        this.$forceUpdate()
+      }
+
+      if (messageIndex === -1) {
+        // Delete message from message list.
+        EventBus.$emit('message-deleted', message)
+      }
+
+      EventBus.$emit('messages.get', this.messages)
     })
   }
 
@@ -462,6 +474,7 @@ export default class RGroupMessageContainer extends Vue {
   onCloseForwardMessagePopup (): void {
     this.forwardMessage = false
     store.setState('selectMessagesOpen', false)
+    this.refresh()
   }
 
   replyMessage (message: any): void {
@@ -481,6 +494,7 @@ export default class RGroupMessageContainer extends Vue {
       this.selectedMessages = []
       store.setState('selectMessagesOpen', false)
       this.promptOpen = false
+      this.refresh()
 
       this.$toast.open({
         message: this.selectedMessages.length > 0 ? 'Messages Deleted.' : 'Message Deleted.',

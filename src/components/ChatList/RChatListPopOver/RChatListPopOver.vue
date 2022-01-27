@@ -11,10 +11,10 @@
     <!-- <div class="robin-wrapper robin-w-100" @click="$emit('mute-chat')">
       <RText :font-size="14" color="#101010">Mute Notifications</RText>
     </div> -->
-    <!-- <div class="robin-wrapper robin-w-100" @click="$emit('delete-chat')">
+    <div class="robin-wrapper robin-w-100" @click="$emit('delete-conversation')">
       <RText :font-size="14" color="#D53120">Delete Chat</RText>
-      <RTrash />
-    </div> -->
+      <SvgIcon name="trash" />
+    </div>
   </div>
 </template>
 
@@ -22,7 +22,6 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import SvgIcon from '../../SvgIcon/SvgIcon.vue'
-// import RTrash from '../RTrash/RTrash.vue'
 import RText from '../RText/RText.vue'
 
 const ComponentProps = Vue.extend({
@@ -39,7 +38,6 @@ const ComponentProps = Vue.extend({
   components: {
     RText,
     SvgIcon
-    // RTrash
   }
 })
 export default class RChatListPopOver extends ComponentProps {}

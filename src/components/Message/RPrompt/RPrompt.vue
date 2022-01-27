@@ -2,9 +2,9 @@
   <div class="robin-shim robin-fadeIn" ref="popup-2" @click.self="closeModal()">
     <div class="robin-card">
       <div class="robin-wrapper">
-        <RText :font-size="17" :font-weight="'500'" class="robin-mb-11"> Title Here </RText>
+        <RText :font-size="17" :font-weight="'500'" class="robin-mb-11"> Delete Message </RText>
 
-        <RText color="#51545C" text-wrap="normal" text-align="center"> Here’s an alert description that uses Auto Layout! </RText>
+        <RText color="#51545C" text-wrap="normal" text-align="center"> Are you sure you want to proceed? </RText>
       </div>
 
       <div class="robin-button-container">
@@ -55,8 +55,7 @@ export default class RPrompt extends Vue {
   width: 100%;
   height: 100vh;
   background-color: rgba(81, 84, 92, 0.4);
-  /* backdrop-filter: blur(3.8731px); */
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   z-index: 3;
