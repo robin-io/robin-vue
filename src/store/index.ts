@@ -5,7 +5,6 @@ interface Conversation {
 }
 
 interface State {
-  users: any[],
   currentConversation: Conversation,
   imagesToPreview: any[],
   imageSelected: number,
@@ -19,7 +18,6 @@ interface State {
 }
 
 const state: State = {
-  users: [],
   currentConversation: {},
   imagesToPreview: [],
   imageSelected: 0,

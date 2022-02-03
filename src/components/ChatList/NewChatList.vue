@@ -25,7 +25,7 @@
         <div class="robin-wrapper robin-card-container robin-flex robin-flex-column robin-grey-200">
           <div class="robin-card robin-flex robin-flex-align-center robin-clickable" v-for="user in contact" :key="user.userToken" @click="createConversation(user)">
             <div class="robin-card-info robin-mr-12">
-              <RAvatar />
+              <RAvatar :img-url="user.profileImage" />
             </div>
 
             <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4˝ robin-flex-1">
@@ -42,7 +42,6 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import store from '../../store/index'
 import Component from 'vue-class-component'
 import RText from './RText/RText.vue'
 import RSearchBar from './RSearchBar/RSearchBar.vue'
@@ -66,7 +65,7 @@ import IconButton from '../IconButton/IconButton.vue'
     RAlphabetBlock
   },
   watch: {
-    robinUsers: {
+    $robin_users: {
       handler (val) {
         this.getContacts('')
       },
@@ -82,10 +81,6 @@ export default class NewChatList extends Vue {
 
   created () {
     this.getContacts('')
-  }
-
-  get robinUsers () {
-    return store.state.users
   }
 
   async createConversation (user: any) {
@@ -125,12 +120,11 @@ export default class NewChatList extends Vue {
   }
 
   getContacts (searchText: string): void {
-    // console.log(this.robinUsers)
     this.contacts = {}
 
     if (searchText.trim() === '') {
-      this.robinUsers.forEach((user) => {
-        this.contacts[this.getContactKey(user.userName)] = this.robinUsers.filter((item) => this.validateContact(item.userName, user.userName))
+      this.$robin_users.forEach((user) => {
+        this.contacts[this.getContactKey(user.userName)] = this.$robin_users.filter((item) => this.validateContact(item.userName, user.userName))
       })
 
       this.sortContacts()
@@ -144,7 +138,7 @@ export default class NewChatList extends Vue {
   searchContacts (searchText: string): void {
     this.isLoading = true
     // eslint-disable-next-line array-callback-return
-    const data = this.robinUsers.filter((obj) => {
+    const data = this.$robin_users.filter((obj) => {
       let stopSearch = false
       Object.values(obj).forEach((val) => {
         const filter = String(val).toLowerCase().includes(searchText.toLowerCase())
@@ -219,7 +213,7 @@ export default class NewChatList extends Vue {
   box-shadow: 0px 2px 20px rgba(0, 104, 255, 0.06);
   position: absolute;
   top: 0;
-  z-index: 1;
+  z-index: 0;
   background-color: #fff;
 }
 

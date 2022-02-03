@@ -1,11 +1,11 @@
 <template>
   <div class="robin-chat-list-container">
-    <PrimaryChatList v-show="$conversations.length > 0 || isPageLoading" :key="key" @search="searchedData($event)" :regular-conversations="regularConversations" :archived-conversations="$archivedConversations" @opennewchatmodal="openModal('slide-1', $event)" @openarchivedchatmodal="openModal('slide-3', $event)" @closemodal="closeModal('slide-1', $event)" @refresh="refresh" />
+    <PrimaryChatList v-show="$conversations.length > 0 || isPageLoading" :key="key" @search="searchedData($event)" :regular-conversations="regularConversations" :archived-conversations="archivedConversations" @opennewchatmodal="openModal('slide-1', $event)" @openarchivedchatmodal="openModal('slide-3', $event)" @closemodal="closeModal('slide-1', $event)" @refresh="refresh" />
     <NewChatList ref="slide-1" v-show="sideBarType == 'newchat'" @openmodal="openModal('slide-2', $event)" @closemodal="closeModal('slide-1', $event)" />
     <NoChatList v-show="$conversations.length < 1 && !isPageLoading" @openmodal="openModal('slide-1', $event)" />
-    <NewGroupChat ref="slide-2" v-show="sideBarType == 'newgroup'" @openmodal="openModal('slide-3', $event)" @set-groupname="setGroupName($event)" @closemodal="closeModal('slide-2', $event)" />
-    <NewGroupChatList ref="slide-3" v-show="sideBarType == 'newgroupchat'" :group-name="groupName" @openmodal="openModal('slide-0', $event)" @closemodal="closeModal('slide-3', $event)" @reset-groupname="resetGroupName()" />
-    <ArchivedChatList ref="slide-4" v-show="sideBarType == 'archivedchat'" @closemodal="closeModal('slide-4', $event)" :archived-conversations="$archivedConversations" :key="key + 1" @refresh="refresh" />
+    <NewGroupChat ref="slide-2" v-show="sideBarType == 'newgroup'" @openmodal="openModal('slide-3', $event)" @set-groupname="setGroupName($event)" @set-groupicon="setGroupIcon($event)" @closemodal="closeModal('slide-2', $event)" />
+    <NewGroupChatList ref="slide-3" v-show="sideBarType == 'newgroupchat'" :group-name="groupName" :group-icon="groupIcon" @openmodal="openModal('slide-0', $event)" @closemodal="closeModal('slide-3', $event)" @reset-groupname="resetGroupName()" @reset-groupicon="resetGroupIcon()" />
+    <ArchivedChatList ref="slide-4" v-show="sideBarType == 'archivedchat'" @closemodal="closeModal('slide-4', $event)" :archived-conversations="archivedConversations" :key="key + 1" @refresh="refresh" />
   </div>
 </template>
 
@@ -46,9 +46,11 @@ export default class RSideContainer extends ComponentProps {
   searchText = '' as string
 
   regularConversations = [] as Array<any>
+  archivedConversations = [] as Array<any>
   sideBarType = 'primary'
   conversations = [] as Array<any>
   groupName = ''
+  groupIcon = {}
 
   created () {
     this.getUserToken()
@@ -73,6 +75,14 @@ export default class RSideContainer extends ComponentProps {
 
   resetGroupName () {
     this.groupName = ''
+  }
+
+  setGroupIcon (val: string) {
+    this.groupIcon = val
+  }
+
+  resetGroupIcon () {
+    this.groupIcon = {}
   }
 
   openModal (refKey: string, type: string): void {
@@ -146,12 +156,15 @@ export default class RSideContainer extends ComponentProps {
   handleRemoveArchivedConversation () {
     EventBus.$on('archived-conversation.delete', (conversation: any) => {
       const index = this.$archivedConversations.findIndex((item) => item._id === conversation._id)
+
+      this.archivedConversations.splice(index, 1)
       this.$archivedConversations.splice(index, 1)
     })
   }
 
   handleAddArchivedConversation () {
     EventBus.$on('archived-conversation.add', (conversation: any) => {
+      this.archivedConversations.unshift(conversation)
       this.$archivedConversations.unshift(conversation)
     })
   }
@@ -166,6 +179,7 @@ export default class RSideContainer extends ComponentProps {
       Vue.prototype.$regularConversations = this.getRegularConversations()
       Vue.prototype.$archivedConversations = this.getArchivedConversations()
       this.regularConversations = this.getRegularConversations()
+      this.archivedConversations = this.getArchivedConversations()
       store.setState('isPageLoading', false)
       this.$forceUpdate()
     }
@@ -272,12 +286,11 @@ export default class RSideContainer extends ComponentProps {
 
 <style scoped>
 .robin-chat-list-container {
-  /* position: relative;
-  z-index: 0; */
+  position: relative;
   flex-basis: 30%;
   max-width: 450px;
   height: 100%;
-  border-right: 1px solid #EFEFEF;
+  border-right: 1px solid #efefef;
 }
 
 @media (max-width: 1200px) {

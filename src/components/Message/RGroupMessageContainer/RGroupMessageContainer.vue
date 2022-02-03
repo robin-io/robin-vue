@@ -8,7 +8,7 @@
       </div>
 
       <div class="robin-inner-wrapper" ref="message" @scroll="onScroll()" v-else>
-        <MessageContent v-for="(message, index) in messages" :ref="`message-${String(index)}`" @open-preview="openImagePreview($event)" :key="`message-${String(index + key)}`" v-show="!message.is_deleted" :message="message" :conversation="conversation" :message-popup="getMessagePopup(index)" :messages="messages" :index="index" :scroll="scroll" :last-id="!Array.isArray(message) && messages.length - 3 < parseInt(String(index)) ? message._id : ''" :read-receipts="readReceipts" @toggle-check-action="toggleCheckAction($event, message)" @reply-message="replyMessage($event)" @forward-message="forwardMessage = true" @scroll-replied-message="scrollToRepliedMessage" />
+        <MessageContent v-for="(message, index) in messages" :ref="`message-${String(index)}`" :uncheck="uncheck" @open-preview="openImagePreview($event)" :key="`message-${String(index + key)}`" v-show="!message.is_deleted" :message="message" :conversation="conversation" :message-popup="getMessagePopup(index)" :messages="messages" :index="index" :scroll="scroll" :last-id="!Array.isArray(message) && messages.length - 3 < parseInt(String(index)) ? message._id : ''" :read-receipts="readReceipts" @toggle-check-action="toggleCheckAction($event, message)" @reply-message="replyMessage($event)" @forward-message="forwardMessage = true" @scroll-replied-message="scrollToRepliedMessage" />
       </div>
     </div>
 
@@ -64,7 +64,6 @@ import RPrompt from '../RPrompt/RPrompt.vue'
   watch: {
     messages: {
       handler (val: any): void {
-        console.log([...val])
         this.popUpState.messagePopUp = []
         ;[...val].forEach((val) => {
           this.popUpState.messagePopUp.push({
@@ -81,6 +80,11 @@ import RPrompt from '../RPrompt/RPrompt.vue'
       handler (val): void {
         if (!val) {
           this.selectedMessages = []
+          this.uncheck = true
+        }
+
+        if (val) {
+          this.uncheck = false
         }
       }
     },
@@ -100,6 +104,7 @@ import RPrompt from '../RPrompt/RPrompt.vue'
 })
 export default class RGroupMessageContainer extends Vue {
   promptOpen = false
+  uncheck = false
   readReceipts = [] as Array<string>
   selectedMessages = [] as Array<any>
   forwardMessage = false as boolean
@@ -474,6 +479,7 @@ export default class RGroupMessageContainer extends Vue {
   onCloseForwardMessagePopup (): void {
     this.forwardMessage = false
     store.setState('selectMessagesOpen', false)
+    this.uncheck = true
     this.refresh()
   }
 
@@ -493,6 +499,7 @@ export default class RGroupMessageContainer extends Vue {
 
       this.selectedMessages = []
       store.setState('selectMessagesOpen', false)
+      this.uncheck = true
       this.promptOpen = false
       this.refresh()
 

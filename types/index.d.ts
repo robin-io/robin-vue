@@ -11,6 +11,7 @@ declare module 'vue/types/vue' {
     $conversations: Array<any>
     $regularConversations: Array<any>
     $archivedConversations: Array<any>,
-    $senderName: string
+    $senderName: string,
+    $apiKey: string
   }
 }

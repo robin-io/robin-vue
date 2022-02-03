@@ -5,7 +5,7 @@
 
       <div class="robin-flex robin-flex-align-center">
         <div class="robin-card-info robin-mr-8">
-          <RGroupAvatar v-if="conversation.is_group" />
+          <RGroupAvatar v-if="conversation.is_group"  :img-url="conversation.group_icon" />
 
           <RAvatar v-else :status="conversation.status" />
         </div>
@@ -196,7 +196,7 @@ header {
   padding: 0 clamp(3%, 5vw, 2.688rem) 0 clamp(3%, 5vw, 3.125rem);
   height: 79px;
   position: relative;
-  z-index: 1;
+  z-index: 3;
   border-bottom: 1px solid #f5f7fc;
   min-height: max-content;
 }

@@ -8,11 +8,11 @@
     </header>
 
     <div class="robin-wrapper robin-card-container robin-flex robin-flex-column robin-mt-42" @scroll="onScroll()">
-      <div class="robin-card robin-flex robin-flex-align-center" :class="{ 'robin-card-active': isConversationActive(conversation)  && screenWidth > 1200 }" v-for="(conversation, index) in archivedConversations" :key="`conversation-${index}`" @click.self="openConversation(conversation)" v-show="archivedConversations.length > 0">
+      <div class="robin-card robin-flex robin-flex-align-center" :class="{ 'robin-card-active': isConversationActive(conversation)  && screenWidth > 1200 }" v-for="(conversation, index) in conversations" :key="`conversation-${index}`" @click.self="openConversation(conversation)" v-show="conversations.length > 0">
         <div class="robin-card-info robin-mr-12" @click="openConversation(conversation)">
-          <RAvatar v-if="!conversation.is_group" />
+          <RAvatar v-if="!conversation.is_group" :img-url="getProfileImage(conversation)" />
 
-          <RGroupAvatar v-else />
+          <RGroupAvatar v-else :img-url="conversation.group_icon" />
         </div>
 
         <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-column robin-flex-space-between robin-pt-4 robin-pb-4˝ robin-flex-1">
@@ -41,7 +41,7 @@
         </div>
       </div>
 
-      <div v-show="archivedConversations.length < 1" class="robin-flex robin-flex-justify-center robin-pt-15">
+      <div v-show="conversations.length < 1" class="robin-flex robin-flex-justify-center robin-pt-15">
         <RText :font-size="18" color="#15AE73">No archived chat</RText>
       </div>
     </div>
@@ -87,7 +87,22 @@ const ComponentProps = Vue.extend({
   watch: {
     archivedConversations: {
       handler (val: Array<any>): void {
+        this.conversations = [...val].sort((a, b) => {
+          const dateA = moment(a.last_message ? a.last_message.timestamp : a.updated_at).valueOf()
+          const dateB = moment(b.last_message ? b.last_message.timestamp : b.updated_at).valueOf()
+
+          if (dateA > dateB) {
+            return -1
+          }
+
+          if (dateB < dateA) {
+            return 1
+          }
+
+          return 0
+        })
         this.popUpStates = []
+
         ;[...val].forEach((val) => {
           this.popUpStates.push({
             opened: false,
@@ -100,16 +115,11 @@ const ComponentProps = Vue.extend({
   }
 })
 export default class ArchivedChatList extends ComponentProps {
-  // @Mutation('setImagePreviewOpen') setImagePreviewOpen: any
-
+  conversations: Array<any> = []
   popUpStates: Array<any> = []
   activeConversation = {}
   scroll = false as boolean
   screenWidth = 0 as number
-
-  // scrollValidate (index: number) {
-  //   return (this.archivedConversations.length > 3 && this.scroll && this.archivedConversations.length - 2 === index) || (this.archivedConversations.length > 3 && this.scroll && this.archivedConversations.length - 1 === index)
-  // }
 
   mounted () {
     this.$nextTick(function () {
@@ -134,6 +144,12 @@ export default class ArchivedChatList extends ComponentProps {
     }
   }
 
+  getProfileImage (conversation: any) {
+    const index = this.$robin_users.findIndex((user: any) => user.userToken === conversation.sender_token)
+
+    return this.$robin_users[index] ? this.$robin_users[index].profileImage : ''
+  }
+
   isConversationActive (object: Object) {
     return Object.is(this.activeConversation, object)
   }
@@ -144,7 +160,7 @@ export default class ArchivedChatList extends ComponentProps {
     popup[0].$refs['popup-body'].classList.remove('robin-zoomOut')
     console.log(popupContainer)
 
-    if ((!this.scroll && this.archivedConversations.length - 2 !== parseInt(id)) || this.archivedConversations.length - 1 !== parseInt(id)) {
+    if ((!this.scroll && this.conversations.length - 2 !== parseInt(id)) || this.conversations.length - 1 !== parseInt(id)) {
       popupContainer[0].style.top = event.clientY - 12 + 'px'
     } else {
       popupContainer[0].style.top = event.clientY - 60 + 'px'
@@ -193,12 +209,17 @@ export default class ArchivedChatList extends ComponentProps {
     const res = await this.$robin.unarchiveConversation(id, this.$user_token)
 
     if (!res.error) {
-      const index = this.archivedConversations.findIndex((conversation) => conversation._id === id)
-      const conversation = this.archivedConversations[index]
+      const index = this.conversations.findIndex((conversation) => conversation._id === id)
+      const conversation = this.conversations[index]
       conversation.archived_for = []
 
       EventBus.$emit('archived-conversation.delete', conversation)
       EventBus.$emit('regular-conversation.add', conversation)
+      this.$toast.open({
+        message: 'Conversation unarchived.',
+        type: 'success',
+        position: 'bottom-left'
+      })
       this.$emit('refresh')
     }
   }

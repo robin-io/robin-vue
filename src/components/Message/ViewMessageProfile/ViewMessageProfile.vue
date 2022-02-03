@@ -248,10 +248,6 @@ export default class ViewMessageProfile extends Vue {
     return store.state.currentConversation
   }
 
-  get robinUsers () {
-    return store.state.users
-  }
-
   created () {
     this.handleConversationMessages()
   }
@@ -284,12 +280,14 @@ export default class ViewMessageProfile extends Vue {
 
   getGroupCreator () {
     const groupchatCreator = this.currentConversation.participants.find((participant: { is_moderator: any }) => participant.is_moderator) as any
-    const user = this.robinUsers.find((user) => user.user_token === groupchatCreator.user_token)
+    if (groupchatCreator) {
+      const user = this.$robin_users.find((user) => user.user_token === groupchatCreator.user_token)
 
-    if (user && user.userToken !== this.$user_token) {
-      return user.userName
-    } else {
-      return this.$senderName
+      if (user && user.userToken !== this.$user_token) {
+        return user.userName
+      } else {
+        return this.$senderName
+      }
     }
   }
 

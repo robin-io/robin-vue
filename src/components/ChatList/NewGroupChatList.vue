@@ -12,7 +12,7 @@
     </header>
 
     <div class="robin-w-100 robin-pl-16 robin-pr-16">
-      <RSearchBar @user-typing="searchContacts($event)" :loading="isLoading" placeholder="Search or start new group" />
+      <RSearchBar @user-typing="searchContacts($event)" :loading="isLoading" placeholder="Search" />
     </div>
 
     <div class="robin-select robin-flex robin-flex-align-center robin-flex-justify-end robin-w-100 robin-pl-16 robin-pr-16 robin-pt-24 robin-pb-23">
@@ -31,7 +31,7 @@
         <div class="robin-card-container robin-flex robin-flex-column">
           <div class="robin-card robin-flex robin-flex-align-center" v-for="(user, userIndex) in contact" :key="user.userToken">
             <div class="robin-card-info robin-mr-12">
-              <RAvatar />
+              <RAvatar :img-url="user.profileImage" />
             </div>
 
             <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4˝ robin-flex-1">
@@ -51,7 +51,6 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import store from '../../store/index'
 import Component from 'vue-class-component'
 import IconButton from '../IconButton/IconButton.vue'
 import RText from './RText/RText.vue'
@@ -66,6 +65,10 @@ const ComponentProps = Vue.extend({
     groupName: {
       type: String,
       default: ''
+    },
+    groupIcon: {
+      type: Object,
+      default: () => {}
     }
   }
 })
@@ -83,7 +86,7 @@ const ComponentProps = Vue.extend({
     RAlphabetBlock
   },
   watch: {
-    robinUsers: {
+    $robin_users: {
       handler (val) {
         this.getContacts('')
       },
@@ -105,10 +108,6 @@ export default class NewGroupChatList extends ComponentProps {
     this.getContacts('')
   }
 
-  get robinUsers () {
-    return store.state.users
-  }
-
   closeModal (): void {
     this.modalOpen = false
     this.users = []
@@ -125,8 +124,8 @@ export default class NewGroupChatList extends ComponentProps {
     this.contacts = {}
 
     if (searchText.trim() === '') {
-      this.robinUsers.forEach((user) => {
-        this.contacts[this.getContactKey(user.userName)] = this.robinUsers.filter((item) => this.validateContact(item.userName, user.userName))
+      this.$robin_users.forEach((user) => {
+        this.contacts[this.getContactKey(user.userName)] = this.$robin_users.filter((item) => this.validateContact(item.userName, user.userName))
       })
 
       this.sortContacts()
@@ -149,7 +148,7 @@ export default class NewGroupChatList extends ComponentProps {
     const checkboxComponents = this.$refs['checkbox-comp'] as any
 
     if (!val) {
-      this.users = [...this.robinUsers]
+      this.users = [...this.$robin_users]
 
       for (let i = 0; i < checkboxComponents.length; i += 1) {
         checkboxComponents[i].checked = true
@@ -176,10 +175,12 @@ export default class NewGroupChatList extends ComponentProps {
     const res = await this.$robin.createGroupConversation(this.groupName, { user_token: this.$user_token }, users)
 
     if (res && !res.error) {
-      this.$emit('changesidebartype', 'primary')
-      this.$emit('closemodal')
-      this.$emit('reset-groupname')
-      this.isUploading = false
+      this.uploadGroupIcon(res.data).then(() => {
+        this.$emit('changesidebartype', 'primary')
+        this.$emit('closemodal')
+        this.$emit('reset-groupname')
+        this.isUploading = false
+      })
     } else {
       this.$toast.open({
         message: 'Check your connection.',
@@ -187,6 +188,16 @@ export default class NewGroupChatList extends ComponentProps {
         position: 'bottom-left'
       })
       this.isUploading = false
+    }
+  }
+
+  async uploadGroupIcon (conversation: any): Promise<void> {
+    console.log(this.groupIcon.file)
+    const robin = this.$robin as any
+    const res = await robin.uploadGroupIcon(conversation._id, this.groupIcon.file)
+
+    if (res && !res.error) {
+      this.$emit('reset-groupicon')
     }
   }
 
@@ -210,7 +221,7 @@ export default class NewGroupChatList extends ComponentProps {
   searchContacts (searchText: string): void {
     this.isLoading = true
     // eslint-disable-next-line array-callback-return
-    const data = this.robinUsers.filter((obj) => {
+    const data = this.$robin_users.filter((obj) => {
       let stopSearch = false
       Object.values(obj).forEach((val) => {
         const filter = String(val).toLowerCase().includes(searchText.toLowerCase())

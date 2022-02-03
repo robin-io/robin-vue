@@ -377,6 +377,7 @@ export default class MessageGrid extends ComponentProps {
   transform: translateY(-50%);
   z-index: 1;
   left: -20%;
+  transition: transform 100ms ease-in;
 }
 
 .robin-grid-sender .download-btn {
@@ -385,5 +386,10 @@ export default class MessageGrid extends ComponentProps {
   transform: translateY(-50%);
   z-index: 1;
   left: -20%;
+  transition: transform 100ms ease-in;
+}
+
+.download-btn:hover {
+  transform: translateY(-50%) scale(1.05);
 }
 </style>

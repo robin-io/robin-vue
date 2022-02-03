@@ -1,11 +1,11 @@
 <template>
   <div class="robin-popup robin-zoomIn" ref="popup-body">
     <div class="robin-reaction-container">
-      <RButton :font-size="18" @click.native="$emit('reaction', '❤️')">❤️</RButton>
-      <RButton :font-size="18" @click.native="$emit('reaction', '👍')">👍</RButton>
-      <RButton :font-size="18" @click.native="$emit('reaction', '👎')">👎</RButton>
-      <RButton :font-size="18" @click.native="$emit('reaction', '😂')">😂</RButton>
-      <RButton :font-size="18" color="initial" @click.native="$emit('reaction', '⁉️')">⁉️</RButton>
+      <RButton :font-size="18" emit="click" @click="$emit('reaction', '❤️')">❤️</RButton>
+      <RButton :font-size="18" emit="click" @click="$emit('reaction', '👍')">👍</RButton>
+      <RButton :font-size="18" emit="click" @click="$emit('reaction', '👎')">👎</RButton>
+      <RButton :font-size="18" emit="click" @click="$emit('reaction', '😂')">😂</RButton>
+      <RButton :font-size="18" color="initial" emit="click" @click="$emit('reaction', '⁉️')">⁉️</RButton>
     </div>
   </div>
 </template>
@@ -35,17 +35,6 @@ const ComponentProps = Vue.extend({
   }
 })
 export default class RReactionPopOver extends ComponentProps {
-  async addReaction (reaction: string): Promise<void> {
-    // const res = await this.$robin.reactToMessage({
-    //   user_token: this.$user_token,
-    //   reaction: reaction,
-    //   conversation_id: this.message.conversation_id,
-    //   message_id: this.message._id
-    // })
-    // if (!res.error) {
-    //   //
-    // }
-  }
 }
 </script>
 

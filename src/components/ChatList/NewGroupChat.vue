@@ -10,11 +10,16 @@
       </div>
     </header>
 
-    <div class="robin-group-image robin-mb-7">
+    <RText as="label" for-ref="group-icon-upload" class="robin-clickable">
+      <div class="robin-group-image robin-mb-7" v-show="!groupIcon.name">
+        <input type="file" :accept="acceptedVisualFiles" @change="handleFileChange($event.target.files)" @click="resetFileTarget($event)" id="group-icon-upload" />
         <RText color="#fff" :fontSize="24">RG</RText>
-    </div>
+      </div>
 
-    <RText fontWeight="400" :fontSize="14" class="robin-mb-32">Tap To Add Group Image</RText>
+      <img class="robin-group-image robin-mb-7" :src="groupIcon.localUrl" :alt="groupIcon.name" v-show="groupIcon.name">
+
+      <RText fontWeight="400" :fontSize="14" class="robin-mb-32">Tap To Add Group Image</RText>
+    </RText>
 
     <div class="robin-wrapper robin-w-100">
       <RText fontWeight="400" :fontSize="14" class="robin-mb-8">Group Name</RText>
@@ -46,6 +51,8 @@ import RGroupAvatar from './RGroupAvatar/RGroupAvatar.vue'
 })
 export default class NewGroupChatList extends Vue {
   groupName = ''
+  groupIcon = {} as any
+  acceptedVisualFiles = 'image/png, image/jpg, image/jpeg' as string
 
   userTyping (val: string): void {
     this.groupName = val
@@ -57,7 +64,34 @@ export default class NewGroupChatList extends Vue {
 
   openGroupChatList (): void {
     this.$emit('openmodal', 'newgroupchat')
+    this.$emit('set-groupicon', this.groupIcon)
     this.$emit('set-groupname', this.groupName)
+  }
+
+  resetFileTarget (event: any): void {
+    event.target.value = ''
+  }
+
+  handleFileChange (file: any): void {
+    const fileURL = URL.createObjectURL(file[0])
+    const typeIndex = file[0].name.lastIndexOf('.')
+
+    if (file[0].size < 5000001) {
+      this.groupIcon = {
+        name: file[0].name.substring(0, typeIndex),
+        size: file[0].size,
+        type: file[0].type,
+        extension: file[0].name.substring(typeIndex + 1),
+        localUrl: fileURL,
+        file: file[0]
+      }
+    } else {
+      this.$toast.open({
+        message: 'Image upload cannot be more than 5mb',
+        type: 'error',
+        position: 'bottom-left'
+      })
+    }
   }
 }
 </script>
@@ -83,17 +117,32 @@ header {
   padding: clamp(10%, 4vh, 3.563rem) clamp(2%, 4vw, 1.5rem) 1.5rem;
 }
 
+.robin-side-container >>> label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .robin-contact-container {
   width: 100%;
 }
 
-.robin-group-image {
+div.robin-group-image {
   background-color: #9999bc;
   width: 80px;
   height: 80px;
   border-radius: 50%;
   display: grid;
   place-items: center;
+}
+
+img.robin-group-image {
+  width: 80px;
+  min-height: 80px;
+  max-height: 80px;
+  border-radius: 50%;
+  background-color: #9999bc;
+  object-fit: cover;
 }
 
 .robin-wrapper {
@@ -123,6 +172,30 @@ header {
   padding: 0 1.5rem;
   height: 28px;
   background-color: #f3f3f3;
+}
+
+input[type='file'] {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+input[type='file']::file-upload-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+input[type='file']::-webkit-file-upload-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+input[type='file']::-moz-file-upload-button {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 @media (min-width: 768px) {

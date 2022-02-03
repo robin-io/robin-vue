@@ -25,9 +25,9 @@
     <div v-show="!isPageLoading" class="robin-wrapper robin-card-container robin-pb-16 robin-flex robin-flex-column" @scroll="onScroll()" :class="{ 'robin-come-down': screenWidth > 1200 }">
       <div class="robin-card robin-flex robin-flex-align-center" :class="{ 'robin-card-active': isConversationActive(conversation) && screenWidth > 1200 }" v-for="(conversation, index) in conversations" :key="`conversation-${index}`" @click.self="openConversation(conversation)">
         <div class="robin-card-info robin-mr-12" @click="openConversation(conversation)">
-          <RAvatar v-if="!conversation.is_group" />
+          <RAvatar v-if="!conversation.is_group" :img-url="getProfileImage(conversation)" />
 
-          <RGroupAvatar v-else />
+          <RGroupAvatar v-else :img-url="conversation.group_icon" />
         </div>
 
         <div class="robin-card-info robin-h-100 robin-flex robin-flex-column robin-flex-space-between robin-pt-4 robin-pb-4˝ robin-flex-1" @click.self="openConversation(conversation)">
@@ -82,8 +82,6 @@
 import Vue from 'vue'
 import moment from 'moment'
 import Component from 'vue-class-component'
-// import { State, Mutation } from 'vuex-class'
-// import { RootState } from '@/store/types'
 import store from '../../store'
 import EventBus from '@/event-bus'
 import RText from './RText/RText.vue'
@@ -128,7 +126,20 @@ const ComponentProps = Vue.extend({
   watch: {
     regularConversations: {
       handler (val: Array<any>): void {
-        this.conversations = [...val]
+        this.conversations = [...val].sort((a, b) => {
+          const dateA = moment(a.last_message ? a.last_message.timestamp : a.updated_at).valueOf()
+          const dateB = moment(b.last_message ? b.last_message.timestamp : b.updated_at).valueOf()
+
+          if (dateA > dateB) {
+            return -1
+          }
+
+          if (dateB < dateA) {
+            return 1
+          }
+
+          return 0
+        })
         this.popUpStates = []
         ;[...val].forEach((val) => {
           this.popUpStates.push({
@@ -142,9 +153,6 @@ const ComponentProps = Vue.extend({
   }
 })
 export default class PrimaryChatList extends ComponentProps {
-  // @State('isPageLoading') isPageLoading?: RootState
-  // @Mutation('setImagePreviewOpen') setImagePreviewOpen: any
-
   popUpStates: Array<any> = []
   activeConversation = {}
   scroll = false as boolean
@@ -154,7 +162,7 @@ export default class PrimaryChatList extends ComponentProps {
   screenWidth = 0 as number
 
   created () {
-    this.onGroupConversationCreated()
+    this.onGroupIconUpdate()
   }
 
   mounted () {
@@ -168,10 +176,11 @@ export default class PrimaryChatList extends ComponentProps {
     return store.state.isPageLoading
   }
 
-  onGroupConversationCreated (): void {
-    EventBus.$on('new-group.conversation', (conversation: object) => {
-      // console.log(conversation)
-      // this.openConversation(conversation)
+  onGroupIconUpdate (): void {
+    EventBus.$on('group.icon.update', (conversation: any) => {
+      const index = this.conversations.findIndex(item => item._id === conversation._id)
+      this.conversations[index] = conversation
+      this.$forceUpdate()
     })
   }
 
@@ -202,6 +211,12 @@ export default class PrimaryChatList extends ComponentProps {
       lastWeek: 'DD/MM/YYYY',
       sameElse: 'DD/MM/YYYY'
     })
+  }
+
+  getProfileImage (conversation: any) {
+    const index = this.$robin_users.findIndex((user: any) => user.userToken === conversation.sender_token)
+
+    return this.$robin_users[index] ? this.$robin_users[index].profileImage : ''
   }
 
   onScroll (): void {
@@ -265,6 +280,11 @@ export default class PrimaryChatList extends ComponentProps {
     if (!res.error) {
       EventBus.$emit('regular-conversation.delete', conversation)
       EventBus.$emit('archived-conversation.add', conversation)
+      this.$toast.open({
+        message: 'Conversation archived.',
+        type: 'success',
+        position: 'bottom-left'
+      })
       this.$emit('refresh')
     }
   }

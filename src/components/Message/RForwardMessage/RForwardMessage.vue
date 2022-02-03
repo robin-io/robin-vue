@@ -66,6 +66,7 @@ import RSearchBar from '@/components/ChatList/RSearchBar/RSearchBar.vue'
 import RAlphabetBlock from '@/components/ChatList/RAlphabetBlock/RAlphabetBlock.vue'
 import RCheckBox from '@/components/ChatList/RCheckBox/RCheckBox.vue'
 import RButton from '@/components/ChatList/RButton/RButton.vue'
+import EventBus from '@/event-bus'
 
 const ComponentProps = Vue.extend({
   props: {
@@ -227,13 +228,15 @@ export default class RForwardMessage extends ComponentProps {
     const res = await this.$robin.forwardMessages(this.$user_token, messageIds, conversationIds)
 
     if (res && !res.error) {
-      // console.log(res)
+      const conversation = this.$conversations.find((conversation: any) => conversation._id === conversationIds[0])
+
       this.isSending = false
       this.$toast.open({
         message: 'Forwarded messages.',
         type: 'success',
         position: 'bottom-left'
       })
+      EventBus.$emit('conversation-opened', conversation)
       this.closeModal()
       return new Promise((resolve) => resolve)
     } else {

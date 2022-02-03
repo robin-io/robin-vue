@@ -19,6 +19,8 @@
         </div>
         <!-- Modal Open Caret -->
 
+        <SvgIcon class="robin-forwarded" name="forwarded" v-show="message.is_forwarded" />
+
         <!-- place reply here -->
         <ReplyMessageBubble :messages="messages" :message="message" v-if="message.is_reply" :sender="validateMessages(message).includes('message-sender')" @scroll-replied-message="scrollToRepliedMessage" />
         <!-- place reply here -->
@@ -28,7 +30,7 @@
 
         <div class="robin-link-container" v-html="injectHtml()" v-if="(validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) || validateLinkInMessage().containsEmail || validateLinkInMessage().containsWebsite"></div>
 
-        <link-prevue class="robin-link-preview" v-if="websiteRegex.test(getTextsInMessage().texts[getTextsInMessage().length - 1]) && !emailRegex.test(getTextsInMessage().texts[getTextsInMessage().length - 1])" :url="getTextsInMessage().texts[getTextsInMessage().length - 1].includes('http') || getTextsInMessage().texts[getTextsInMessage().length - 1].includes('https') ? getTextsInMessage().texts[getTextsInMessage().length - 1] : `https://${getTextsInMessage().texts[getTextsInMessage().length - 1]}`">
+        <!-- <link-prevue class="robin-link-preview" v-if="websiteRegex.test(getTextsInMessage().texts[getTextsInMessage().length - 1]) && !emailRegex.test(getTextsInMessage().texts[getTextsInMessage().length - 1])" :url="getTextsInMessage().texts[getTextsInMessage().length - 1].includes('http') || getTextsInMessage().texts[getTextsInMessage().length - 1].includes('https') ? getTextsInMessage().texts[getTextsInMessage().length - 1] : `https://${getTextsInMessage().texts[getTextsInMessage().length - 1]}`">
           <template slot-scope="props">
             <a :href="props.url" class="card" v-show="props.img">
               <img class="robin-card-img-top" :src="props.img" :alt="props.title" />
@@ -48,7 +50,7 @@
           <template slot="loading">
             <div></div>
           </template>
-        </link-prevue>
+        </link-prevue> -->
 
         <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
           <RText :font-weight="'300'" :font-size="10" color="#7a7a7a" as="p" @click.native="openModal()" class="robin-flex">
@@ -71,6 +73,8 @@
         </div>
         <!-- Modal Open Caret -->
 
+        <SvgIcon class="robin-forwarded" name="forwarded" v-show="message.is_forwarded" />
+
         <!-- place reply here -->
         <ReplyMessageBubble :messages="messages" :message="message" v-if="message.is_reply" :sender="validateMessages(message).includes('message-sender')" @scroll-replied-message="scrollToRepliedMessage" />
         <!-- place reply here -->
@@ -82,7 +86,7 @@
 
           <div class="robin-link-container" v-html="injectHtml()" v-if="(validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) || validateLinkInMessage().containsEmail || validateLinkInMessage().containsWebsite"></div>
 
-          <link-prevue class="robin-link-preview" v-if="websiteRegex.test(getTextsInMessage().texts[getTextsInMessage().length - 1]) && !emailRegex.test(getTextsInMessage().texts[getTextsInMessage().length - 1])" :url="getTextsInMessage().texts[getTextsInMessage().length - 1].includes('http') || getTextsInMessage().texts[getTextsInMessage().length - 1].includes('https') ? getTextsInMessage().texts[getTextsInMessage().length - 1] : `https://${getTextsInMessage().texts[getTextsInMessage().length - 1]}`">
+          <!-- <link-prevue class="robin-link-preview" v-if="websiteRegex.test(getTextsInMessage().texts[getTextsInMessage().length - 1]) && !emailRegex.test(getTextsInMessage().texts[getTextsInMessage().length - 1])" :url="getTextsInMessage().texts[getTextsInMessage().length - 1].includes('http') || getTextsInMessage().texts[getTextsInMessage().length - 1].includes('https') ? getTextsInMessage().texts[getTextsInMessage().length - 1] : `https://${getTextsInMessage().texts[getTextsInMessage().length - 1]}`">
             <template slot-scope="props">
               <a :href="props.url" class="card" v-show="props.img">
                 <img class="robin-card-img-top" :src="props.img" :alt="props.title" />
@@ -102,7 +106,7 @@
             <template slot="loading">
               <div></div>
             </template>
-          </link-prevue>
+          </link-prevue> -->
 
           <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
             <RText :font-weight="'300'" :font-size="10" color="#7a7a7a" as="p" @click.native="openModal()" class="robin-flex">
@@ -123,6 +127,8 @@
         </div>
         <!-- Modal Open Caret -->
 
+        <SvgIcon class="robin-forwarded" name="forwarded" v-show="message.is_forwarded" />
+
         <!-- place reply here -->
         <ReplyMessageBubble :messages="messages" :message="message" v-if="message.is_reply" :sender="validateMessages(message).includes('message-sender')" @scroll-replied-message="scrollToRepliedMessage" />
         <!-- place reply here -->
@@ -138,6 +144,14 @@
         </span>
       </div>
       <div class="robin-message-bubble-video" :class="{'robin-non-clickable': selectMessagesOpen}"  v-if="message.content.is_attachment && videoRegex.test(checkAttachmentType(message.content.attachment))">
+        <!-- Modal Open Caret -->
+        <div class="robin-caret-container" v-show="caretOpen || (messagePopup.opened && validateMessages(message))" @click="openModal()">
+          <IconButton name="messagePopupCaret" :to-emit="false" :to-click-away="false" />
+        </div>
+        <!-- Modal Open Caret -->
+
+        <SvgIcon class="robin-forwarded" name="forwarded" v-show="message.is_forwarded" />
+
         <!-- place reply here -->
         <ReplyMessageBubble :messages="messages" :message="message" v-if="message.is_reply" :sender="validateMessages(message).includes('message-sender')" @scroll-replied-message="scrollToRepliedMessage" />
         <!-- place reply here -->
@@ -164,6 +178,8 @@
           <IconButton name="messagePopupCaret" :to-emit="false" :to-click-away="false" />
         </div>
         <!-- Modal Open Caret -->
+
+        <SvgIcon class="robin-forwarded" name="forwarded" v-show="message.is_forwarded" />
 
         <!-- place reply here -->
         <ReplyMessageBubble :messages="messages" :message="message" v-if="message.is_reply" :sender="validateMessages(message).includes('message-sender')" class="robin-mb-8" />
@@ -233,7 +249,7 @@
 import Vue, { PropType } from 'vue'
 import VLazyImage from 'v-lazy-image/v2'
 import InlineSvg from 'vue-inline-svg'
-import LinkPrevue from 'link-prevue'
+// import LinkPrevue from 'link-prevue'
 import { mixin as clickaway } from 'vue-clickaway'
 import store from '../../../store/index'
 import Component from 'vue-class-component'
@@ -301,6 +317,10 @@ const ComponentProps = Vue.extend({
     readReceipts: {
       type: Array as PropType<Array<string>>,
       default: () => []
+    },
+    uncheck: {
+      type: Boolean as PropType<boolean>,
+      default: false
     }
   }
 })
@@ -312,7 +332,7 @@ const ComponentProps = Vue.extend({
     RText,
     VLazyImage,
     InlineSvg,
-    LinkPrevue,
+    // LinkPrevue,
     MessageGrid,
     RMessagePopOver,
     RReactionPopOver,
@@ -324,10 +344,9 @@ const ComponentProps = Vue.extend({
   },
   mixins: [clickaway],
   watch: {
-    selectMessagesOpen: {
+    uncheck: {
       handler (val) {
-        console.log(val)
-        if (this.selectMessagesOpen) {
+        if (this.uncheck) {
           const checkbox = this.$refs.checkbox as any
           checkbox.checked = false
         }
@@ -360,10 +379,6 @@ export default class MessageContent extends ComponentProps {
   documentRegex = /(xls|doc|ppt|txt|pdf|ppt|zip|html|avi|psd|svg|ai|gif|mp3|ai|mkv)$/
   emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   websiteRegex = /[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/
-
-  get robinUsers () {
-    return store.state.users
-  }
 
   get selectMessagesOpen () {
     return store.state.selectMessagesOpen
@@ -415,7 +430,6 @@ export default class MessageContent extends ComponentProps {
   }
 
   openModal (): void {
-    console.log('clicked')
     if (!this.selectMessagesOpen) {
       this.messagePopup.opened = true
     }
@@ -485,8 +499,8 @@ export default class MessageContent extends ComponentProps {
   }
 
   getContactName (sender_token: string): string {
-    const index = this.robinUsers.findIndex((user) => user.userToken === sender_token) as number
-    const user = this.robinUsers[index] as any
+    const index = this.$robin_users.findIndex((user) => user.userToken === sender_token) as number
+    const user = this.$robin_users[index] as any
     return user ? user.userName : ''
   }
 
@@ -513,9 +527,11 @@ export default class MessageContent extends ComponentProps {
     const message = Array.isArray(this.message) ? this.message[0] : (this.message as any)
 
     const filteredMessage = message.reactions?.filter((reaction: { reaction: any }) => reaction.reaction === emoji)
+    console.log(filteredMessage, emoji)
 
     if (!filteredMessage || filteredMessage.length === 0) {
       await robin.reactToMessage(emoji, this.conversation._id, message._id, this.$user_token)
+      this.closeModal()
     } else {
       this.removeReaction(filteredMessage[0])
     }
@@ -530,17 +546,23 @@ export default class MessageContent extends ComponentProps {
 
   onNewReaction () {
     EventBus.$on('message.reaction', (message: any) => {
+      console.log('emoji', message)
       if (!Array.isArray(this.message)) {
         if (!this.message.reactions) this.message.reactions = []
 
-        if (this.message._id === message.message_id) {
+        const reactionExist = this.message.reactions.some((item: any) => item.reaction === message.reaction)
+
+        if (!reactionExist && this.message._id === message.message_id) {
           this.message.reactions.push(message)
         }
       } else {
         const messageArray = this.message as any
+
         if (!messageArray[0].reactions) messageArray[0].reactions = []
 
-        if (this.message[0]._id === message.message_id) {
+        const reactionExist = messageArray[0].reactions.some((item: any) => item.reaction === messageArray[0].reaction)
+
+        if (!reactionExist && this.message[0]._id === message.message_id) {
           this.message[0].reactions.push(message)
         }
       }
@@ -732,7 +754,7 @@ export default class MessageContent extends ComponentProps {
 
 .robin-bubble .robin-caret-container {
   position: absolute;
-  z-index: 0;
+  z-index: 1;
   top: 1px;
   right: 5px;
   width: 14px;
@@ -837,8 +859,7 @@ export default class MessageContent extends ComponentProps {
 .robin-message-bubble-image img {
   cursor: pointer;
   /* height: 100%; */
-  min-height: 90px;
-  height: 90px;
+  min-height: 120px;
   max-height: 350px;
   object-fit: cover;
 }
@@ -1057,7 +1078,7 @@ video.video-reply {
   /* height: 24px; */
   /* display: grid; */
   /* grid-template-columns: repeat(auto-fit, minmax(22px, 22px)); */
-  gap: 0.25rem 0.25rem;
+  gap: 0.25rem 0.5rem;
   padding: 0.25rem 0.375rem;
   background-color: #e6e6e6;
   border: 2px solid #E5E5E5;
@@ -1141,11 +1162,12 @@ video.video-reply {
 } */
 
 .robin-reaction {
-  font-size: 0.825rem;
-  width: 16px;
-  height: 16px;
+  font-size: 0.625rem;
+  width: 10px;
+  height: 14px;
   cursor: pointer;
   display: flex;
+  justify-content: center;
   align-items: center;
 }
 
@@ -1201,6 +1223,10 @@ a {
 
 .robin-link-preview .robin-card-text {
   margin: 0;
+}
+
+.robin-forwarded {
+  margin-bottom: 0.125rem;
 }
 
 @media (max-width: 480px) {

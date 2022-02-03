@@ -79,7 +79,8 @@
     </div>
 
     <div class="robin-message-box-inner" @keydown.enter.exact.prevent="!replying ? sendMessage() : replyMessage()" tabindex="1">
-      <div class="robin-mr-8" v-show="text.trim() == '' && files.length < 1 && !isUploading" @click="handleOpenPopUp()">
+      <!-- v-show="text.trim() == '' && files.length < 1 && !isUploading" -->
+      <div class="robin-mr-8" @click="handleOpenPopUp()">
         <IconButton name="attachFileClose" v-if="!popUpState.opened"  :to-click-away="false" :to-emit="false" />
         <IconButton name="attachFileOpen" v-else @clicked="handleClosePopUp()" @clickoutside="handleClosePopUp()" :to-click-away="true" :to-emit="true" />
         <!-- <IconButton name="attachFile" @clickoutside="handleClosePopUp()" :to-click-away="true" :style-stroke="true" :to-emit="false" primary-color="rgba(21, 174, 115, 1)" :hasFocus="true" /> -->
@@ -575,8 +576,8 @@ export default class RMessageInputBar extends ComponentProps {
 .robin-input {
   width: 100%;
   min-width: 100%;
-  min-height: 44px;
-  max-height: 44px;
+  min-height: 42px;
+  max-height: 42px;
   background-color: transparent;
   border: none;
   font-size: 1rem;

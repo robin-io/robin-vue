@@ -133,10 +133,6 @@ export default class ReplyMessageBubble extends ComponentProps {
   emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   websiteRegex = /[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/
 
-  get robinUsers () {
-    return store.state.users
-  }
-
   get imageSelected () {
     return store.state.imageSelected
   }
@@ -166,8 +162,8 @@ export default class ReplyMessageBubble extends ComponentProps {
   }
 
   getContactName (sender_token: string): string {
-    const index = this.robinUsers.findIndex((user) => user.userToken === sender_token) as number
-    const user = this.robinUsers[index] as any
+    const index = this.$robin_users.findIndex((user) => user.userToken === sender_token) as number
+    const user = this.$robin_users[index] as any
     return user ? user.userName : ''
   }
 

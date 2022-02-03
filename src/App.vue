@@ -31,11 +31,11 @@ const ComponentProps = Vue.extend({
   props: {
     userToken: {
       type: String as PropType<string>,
-      default: 'JUevyXRRpyLNwzyGAStMSrXR'
+      default: 'lYcofFsZtJOZWgHtpgjvhHhR'
     },
     apiKey: {
       type: String as PropType<string>,
-      default: 'NT-npUbpwzapYoTUtHSufMWQkNNnZePbqqFycjb'
+      default: 'NT-XmIzEmWUlsrQYypZOFRlogDFvQUsaEuxMfZf'
     },
     pageLoader: {
       type: Boolean as PropType<boolean>,
@@ -212,6 +212,18 @@ export default class App extends ComponentProps {
     this.onGroupConversationCreated()
     this.onExitGroup()
     this.onExitMessage()
+
+    if (this.conn) {
+      this.conn.onopen = () => {
+        console.log('opened')
+        this.robin.subscribe(this.channel, this.conn)
+      }
+
+      this.conn.onclosed = () => {
+        console.log('closed')
+        this.connect()
+      }
+    }
   }
 
   mounted () {
@@ -260,11 +272,12 @@ export default class App extends ComponentProps {
       }
     })
 
-    store.setState('users', filteredUsers)
+    Vue.prototype.$robin_users = filteredUsers
   }
 
   setPrototypes () {
     Vue.prototype.$robin = this.robin
+    Vue.prototype.$apiKey = this.apiKey
     Vue.prototype.$user_token = this.userToken
     Vue.prototype.$channel = this.channel
     Vue.prototype.$conversations = []
@@ -275,10 +288,6 @@ export default class App extends ComponentProps {
 
   connect () {
     this.conn = this.robin.connect(this.userToken)
-
-    this.conn.onopen = () => {
-      this.robin.subscribe(this.channel, this.conn)
-    }
 
     this.conn.onmessage = (evt: any) => {
       const notification = this.$refs.notification as any
@@ -301,10 +310,6 @@ export default class App extends ComponentProps {
         // }
         this.handleEvents(message)
       }
-    }
-
-    this.conn.onclosed = () => {
-      this.connect()
     }
 
     const WebSocket: WebSocket = this.conn
@@ -371,6 +376,9 @@ export default class App extends ComponentProps {
         break
       case 'read.reciept':
         EventBus.$emit('read.reciept', message.value)
+        break
+      case 'group.icon.update':
+        EventBus.$emit('group.icon.update', message.value)
         break
       default:
         // console.log('cannot handle event')
