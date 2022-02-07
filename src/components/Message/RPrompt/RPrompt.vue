@@ -61,7 +61,7 @@ export default class RPrompt extends Vue {
   z-index: 3;
   display: flex;
   justify-content: center;
-  align-items: start;
+  align-items: flex-start;
   overflow-y: auto;
 }
 

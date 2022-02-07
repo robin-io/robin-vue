@@ -43,7 +43,7 @@ const ComponentProps = Vue.extend({
     },
     channel: {
       type: String as PropType<string>,
-      default: 'robin-chat'
+      default: 'private_chat'
     },
     userName: {
       type: String as PropType<string>,
