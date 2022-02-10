@@ -42,9 +42,9 @@
     <RText :font-size="14" color="#51545C" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getReplyMessage(message.reply_to).sender_token === $user_token ? 'You' : getContactName(getReplyMessage(message.reply_to).content.sender_token) }} </RText>
 
     <div class="robin-reply-document robin-flex robin-flex-align-center">
-      <inline-svg v-if="images[getFileDetails(getReplyMessage(message.reply_to).content.attachment).extension]" :src="images[getFileDetails(getReplyMessage(message.reply_to).content.attachment).extension]" />
+      <img v-if="assets[getFileDetails(getReplyMessage(message.reply_to).content.attachment).extension]" :src="assets[getFileDetails(getReplyMessage(message.reply_to).content.attachment).extension]" alt="document" />
 
-      <img v-else src="@/assets/default.png" />
+      <img v-else :src="assets['default']" />
 
       <div class="details robin-ml-5">
         <RText as="span" :fontSize="14"> {{ getFileDetails(getReplyMessage(message.reply_to).content.attachment).name.length > 9 ? getFileDetails(getReplyMessage(message.reply_to).content.attachment).name.substring(0, 9) + '...' + '.' + getFileDetails(getReplyMessage(message.reply_to).content.attachment).extension : getFileDetails(getReplyMessage(message.reply_to).content.attachment).name + '.' + getFileDetails(getReplyMessage(message.reply_to).content.attachment).extension }} </RText>
@@ -56,27 +56,12 @@
 <script lang="ts">
 import Vue, { PropType } from 'vue'
 import VLazyImage from 'v-lazy-image/v2'
-import InlineSvg from 'vue-inline-svg'
 import LinkPrevue from 'link-prevue'
 import store from '../../../store/index'
 import Component from 'vue-class-component'
 import RText from '@/components/ChatList/RText/RText.vue'
 import mime from 'mime'
-
-// file-extension-images
-import pdf from '@/assets/pdf.svg'
-import doc from '@/assets/doc.svg'
-import ppt from '@/assets/ppt.svg'
-import xls from '@/assets/xls.svg'
-import txt from '@/assets/txt.svg'
-import zip from '@/assets/zip.svg'
-import avi from '@/assets/avi.svg'
-import psd from '@/assets/psd.svg'
-import gif from '@/assets/gif.svg'
-import svg from '@/assets/svg.svg'
-import ai from '@/assets/ai.svg'
-import mp3 from '@/assets/mp3.svg'
-import mkv from '@/assets/mkv.svg'
+import assets from '@/utils/assets.json'
 
 interface ReplyMessage {
   [index: string]: any
@@ -105,28 +90,11 @@ const ComponentProps = Vue.extend({
   components: {
     RText,
     VLazyImage,
-    LinkPrevue,
-    InlineSvg
+    LinkPrevue
   }
 })
 export default class ReplyMessageBubble extends ComponentProps {
   props = {} as any
-   images = {
-     pdf: pdf,
-     doc: doc,
-     ppt: ppt,
-     xls: xls,
-     txt: txt,
-     zip: zip,
-     avi: avi,
-     psd: psd,
-     svg: svg,
-     ai: ai,
-     mp3: mp3,
-     mkv: mkv,
-     gif: gif
-   } as any
-
   imageRegex = /^image/ as any
   videoRegex = /^video/ as any
   documentRegex = /(csv|xlsx|xls|doc|docx|ppt|pptx|txt|pdf|ppt|rtf|rar|tar|odt|md|zip|7z|zip|html)$/
@@ -135,6 +103,10 @@ export default class ReplyMessageBubble extends ComponentProps {
 
   get imageSelected () {
     return store.state.imageSelected
+  }
+
+  get assets (): any {
+    return assets
   }
 
   checkAttachmentType (attachmentUrl: String): string {

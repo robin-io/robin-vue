@@ -245,6 +245,7 @@ export default class RMessageInputBar extends ComponentProps {
       {
         msg: this.text,
         sender_token: this.$user_token,
+        sender_name: this.$senderName,
         receiver_token: this.conversation.receiver_token === this.$user_token ? this.conversation.sender_token : this.conversation.receiver_token,
         timestamp: new Date()
       },
@@ -259,7 +260,7 @@ export default class RMessageInputBar extends ComponentProps {
   async sendFileMessage (): Promise<any> {
     return await Promise.all(
       this.files.map(async (file) => {
-        await this.$robin.sendMessageAttachment(this.$user_token, this.conversation._id, file.file)
+        await this.$robin.sendMessageAttachment(this.$user_token, this.conversation._id, file.file, this.$senderName)
       })
     )
   }
@@ -270,6 +271,7 @@ export default class RMessageInputBar extends ComponentProps {
       {
         msg: this.text,
         sender_token: this.$user_token,
+        sender_name: this.$senderName,
         receiver_token: this.conversation.receiver_token === this.$user_token ? this.conversation.sender_token : this.conversation.receiver_token,
         timestamp: new Date()
       },
@@ -286,7 +288,7 @@ export default class RMessageInputBar extends ComponentProps {
     const robin = this.$robin as any
     return await Promise.all(
       this.files.map(async (file) => {
-        await robin.replyMessageWithAttachment(this.$user_token, this.conversation._id, this.messageReply._id, file.file)
+        await robin.replyMessageWithAttachment(this.$user_token, this.conversation._id, this.messageReply._id, file.file, this.$senderName)
       })
     )
   }

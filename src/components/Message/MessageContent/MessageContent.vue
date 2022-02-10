@@ -186,10 +186,10 @@
         <!-- place reply here -->
 
         <div class="robin-uploaded-document">
-          <!-- <img v-if="images[getFileDetails(message.content.attachment).extension]" :src="`${images[getFileDetails(message.content.attachment).extension]}`" /> -->
-          <inline-svg v-if="images[getFileDetails(message.content.attachment).extension]" :src="images[getFileDetails(message.content.attachment).extension]" />
+          <!-- <img v-if="assets[getFileDetails(message.content.attachment).extension]" :src="`${assets[getFileDetails(message.content.attachment).extension]}`" /> -->
+          <img v-if="assets[getFileDetails(message.content.attachment).extension]" :src="assets[getFileDetails(message.content.attachment).extension]" alt="document">
 
-          <img v-else src="@/assets/default.png" />
+          <img v-else :src="assets['default']" />
 
           <div class="details robin-flex robin-h-100 robin-flex-align-center">
             <RText as="span" :fontSize="14"> {{ getFileDetails(message.content.attachment).name.length > 9 ? getFileDetails(message.content.attachment).name.substring(0, 9) + '...' + '.' + getFileDetails(message.content.attachment).extension : getFileDetails(message.content.attachment).name + '.' + getFileDetails(message.content.attachment).extension }} </RText>
@@ -248,7 +248,6 @@
 <script lang="ts">
 import Vue, { PropType } from 'vue'
 import VLazyImage from 'v-lazy-image/v2'
-import InlineSvg from 'vue-inline-svg'
 // import LinkPrevue from 'link-prevue'
 import { mixin as clickaway } from 'vue-clickaway'
 import store from '../../../store/index'
@@ -264,21 +263,7 @@ import RCheckBox from '@/components/ChatList/RCheckBox/RCheckBox.vue'
 import SvgIcon from '../../SvgIcon/SvgIcon.vue'
 import moment from 'moment'
 import mime from 'mime'
-
-// file-extension-images
-import pdf from '@/assets/pdf.svg'
-import doc from '@/assets/doc.svg'
-import ppt from '@/assets/ppt.svg'
-import xls from '@/assets/xls.svg'
-import txt from '@/assets/txt.svg'
-import zip from '@/assets/zip.svg'
-import avi from '@/assets/avi.svg'
-import psd from '@/assets/psd.svg'
-import gif from '@/assets/gif.svg'
-import svg from '@/assets/svg.svg'
-import ai from '@/assets/ai.svg'
-import mp3 from '@/assets/mp3.svg'
-import mkv from '@/assets/mkv.svg'
+import assets from '@/utils/assets.json'
 
 interface ReplyMessage {
   [index: string]: any
@@ -331,7 +316,6 @@ const ComponentProps = Vue.extend({
   components: {
     RText,
     VLazyImage,
-    InlineSvg,
     // LinkPrevue,
     MessageGrid,
     RMessagePopOver,
@@ -358,30 +342,19 @@ export default class MessageContent extends ComponentProps {
   props = {} as any
   caretOpen = false
   screenWidth = 0 as number
-  images = {
-    pdf: pdf,
-    doc: doc,
-    ppt: ppt,
-    xls: xls,
-    txt: txt,
-    zip: zip,
-    avi: avi,
-    psd: psd,
-    svg: svg,
-    ai: ai,
-    mp3: mp3,
-    mkv: mkv,
-    gif: gif
-  } as any
-
   imageRegex = /^image/ as any
   videoRegex = /^video/ as any
   documentRegex = /(xls|doc|ppt|txt|pdf|ppt|zip|html|avi|psd|svg|ai|gif|mp3|ai|mkv)$/
   emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   websiteRegex = /[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/
+  files = []
 
   get selectMessagesOpen () {
     return store.state.selectMessagesOpen
+  }
+
+  get assets (): any {
+    return assets
   }
 
   created () {
@@ -963,7 +936,7 @@ video.video-reply {
   margin-right: 2.2rem;
 }
 
-.robin-message-bubble-document .robin-uploaded-document svg {
+.robin-message-bubble-document .robin-uploaded-document img {
   margin-right: 0.5rem;
   /* max-width: 100%;
   height: auto; */
@@ -1226,6 +1199,7 @@ a {
 }
 
 .robin-forwarded {
+  margin-right: auto;
   margin-bottom: 0.125rem;
 }
 

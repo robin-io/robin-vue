@@ -26,7 +26,7 @@
       <!-- <RText color="#1F222D" :fontSize="14" as="p" class="robin-mb-13">Files</RText>
       <div class="robin-files">
         <div class="robin-upload robin-flex robin-flex-align-center">
-          <img src="@/assets/default.png" />
+          <img :src="assets['default']" />
 
           <div class="details robin-flex robin-flex-column robin-h-100 robin-flex-align-center">
             <RText as="span" :fontSize="14"> default.pdf </RText>
@@ -79,9 +79,9 @@
 
       <div class="robin-document-grids" v-show="nav === 'Docs'">
         <div class="robin-uploaded-documents" v-for="(document, documentIndex) in documents" :key="documentIndex">
-          <inline-svg v-if="images[getFileDetails(document.content.attachment).extension]" :src="images[getFileDetails(document.content.attachment).extension]" />
+          <img v-if="assets[getFileDetails(document.content.attachment).extension]" :src="assets[getFileDetails(document.content.attachment).extension]" alt="document" />
 
-          <img v-else src="@/assets/default.png" />
+          <img v-else :src="assets['default']" />
 
           <div class="detail robin-flex robin-h-100 robin-flex-align-center">
             <RText as="span" :fontSize="14"> {{ getFileDetails(document.content.attachment).name.length > 9 ? getFileDetails(document.content.attachment).name.substring(0, 9) + '...' + '.' + getFileDetails(document.content.attachment).extension : getFileDetails(document.content.attachment).name + '.' + getFileDetails(document.content.attachment).extension }} </RText>
@@ -120,20 +120,6 @@
               </div>
             </div>
           </div>
-          <div class="robin-card robin-flex robin-flex-align-center">
-            <div class="robin-card-info robin-mr-12">
-              <RAvatar />
-            </div>
-
-            <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4 robin-flex-1">
-              <div class="robin-flex">
-                <RText :font-size="14" :line-height="18">New Name</RText>
-              </div>
-              <div class="robin-ml-auto">
-                <IconButton name="remove2" :to-emit="true" :to-click-away="false" />
-              </div>
-            </div>
-          </div>
         </div>
 
         <div class="robin-see-all">
@@ -142,19 +128,19 @@
       </div>
 
       <div class="robin-actions robin-mt-14">
-        <RButton color="#000" v-show="!currentConversation.is_group"> Share Contact </RButton>
+        <!-- <RButton color="#000" v-show="!currentConversation.is_group"> Share Contact </RButton> -->
 
-        <RButton color="#000" v-show="currentConversation.is_group"> Mute Notifcation </RButton>
+        <!-- <RButton color="#000" v-show="currentConversation.is_group"> Mute Notifcation </RButton> -->
 
-        <RButton color="#000"> Export Chat </RButton>
+        <!-- <RButton color="#000"> Export Chat </RButton> -->
 
         <RButton color="#D53120" emit="click" @click="handleClearMessages()"> Clear Chat </RButton>
 
-        <RButton color="#D53120" v-show="!currentConversation.is_group"> Block Contact </RButton>
+        <!-- <RButton color="#D53120" v-show="!currentConversation.is_group"> Block Contact </RButton> -->
 
         <RButton color="#D53120" v-show="currentConversation.is_group" emit="click" @click="handleLeaveGroup()"> Exit Group </RButton>
 
-        <RButton color="#D53120"> Report {{ !currentConversation.is_group ? 'Contact' : 'Group' }} </RButton>
+        <!-- <RButton color="#D53120"> Report {{ !currentConversation.is_group ? 'Contact' : 'Group' }} </RButton> -->
       </div>
     </div>
   </div>
@@ -164,7 +150,6 @@
 import Vue from 'vue'
 import moment from 'moment'
 import VLazyImage from 'v-lazy-image/v2'
-import InlineSvg from 'vue-inline-svg'
 import Component from 'vue-class-component'
 import RText from '@/components/ChatList/RText/RText.vue'
 import RAvatar from '@/components/ChatList/RAvatar/RAvatar.vue'
@@ -172,23 +157,9 @@ import RGroupAvatar from '@/components/ChatList/RGroupAvatar/RGroupAvatar.vue'
 import IconButton from '../../IconButton/IconButton.vue'
 import RButton from '@/components/ChatList/RButton/RButton.vue'
 import mime from 'mime'
+import assets from '@/utils/assets.json'
 import store from '../../../store/index'
 import EventBus from '@/event-bus'
-
-// file-extension-images
-import pdf from '@/assets/pdf.svg'
-import doc from '@/assets/doc.svg'
-import ppt from '@/assets/ppt.svg'
-import xls from '@/assets/xls.svg'
-import txt from '@/assets/txt.svg'
-import zip from '@/assets/zip.svg'
-import avi from '@/assets/avi.svg'
-import psd from '@/assets/psd.svg'
-import gif from '@/assets/gif.svg'
-import svg from '@/assets/svg.svg'
-import ai from '@/assets/ai.svg'
-import mp3 from '@/assets/mp3.svg'
-import mkv from '@/assets/mkv.svg'
 
 // eslint-disable-next-line
 @Component<ViewMessageProfile>({
@@ -199,7 +170,6 @@ import mkv from '@/assets/mkv.svg'
     RText,
     RAvatar,
     RGroupAvatar,
-    InlineSvg,
     VLazyImage
   },
   watch: {
@@ -219,24 +189,10 @@ export default class ViewMessageProfile extends Vue {
   media = [] as Array<any>
   links = [] as Array<any>
   documents = [] as Array<any>
+  participants = [] as Array<any>
   mediaStop = 7
   linkStop = 7
   documentStop = 7
-  images = {
-    pdf: pdf,
-    doc: doc,
-    ppt: ppt,
-    xls: xls,
-    txt: txt,
-    zip: zip,
-    avi: avi,
-    psd: psd,
-    svg: svg,
-    ai: ai,
-    mp3: mp3,
-    mkv: mkv,
-    gif: gif
-  } as any
 
   imageRegex = /^image/ as any
   videoRegex = /^video/ as any
@@ -246,6 +202,10 @@ export default class ViewMessageProfile extends Vue {
 
   get currentConversation () {
     return store.state.currentConversation
+  }
+
+  get assets (): any {
+    return assets
   }
 
   created () {
@@ -261,6 +221,17 @@ export default class ViewMessageProfile extends Vue {
 
   onResize () {
     this.screenWidth = window.innerWidth
+  }
+
+  getGroupParticipants () {
+    const users = this.currentConversation.participants.map((user: any) => {
+      return user.user_token
+    })
+
+    this.participants = this.$robin_users.filter((user: any) => {
+      console.log(users.includes(user.userToken), user.userToken)
+      return users.includes(user.userToken)
+    })
   }
 
   formatRecentMessageTime (time: string): string {
@@ -293,8 +264,8 @@ export default class ViewMessageProfile extends Vue {
 
   handleConversationMessages () {
     EventBus.$on('messages.get', (messages: any) => {
-      console.log('->', messages)
       this.messages = [...messages]
+      this.getGroupParticipants()
     })
   }
 

@@ -2,7 +2,7 @@
   <!-- eslint-disable vue/no-parsing-error -->
   <div class="robin-side-container">
     <header class="robin-header">
-      <img src="@/assets/logo.svg" alt="logo" />
+      <img :src="assets['logo']" alt="logo" />
 
       <IconButton name="edit" @edit="openEdit()" emit="edit" :to-emit="true" :to-click-away="false" :color="'#fff'" />
     </header>
@@ -94,6 +94,7 @@ import RMention from './RMention/RMention.vue'
 import RChatListPopOver from './RChatListPopOver/RChatListPopOver.vue'
 import RGroupAvatar from './RGroupAvatar/RGroupAvatar.vue'
 import RUnreadMessageCount from './RUnreadMessageCount/RUnreadMessageCount.vue'
+import assets from '@/utils/assets.json'
 
 const ComponentProps = Vue.extend({
   props: {
@@ -174,6 +175,10 @@ export default class PrimaryChatList extends ComponentProps {
 
   get isPageLoading () {
     return store.state.isPageLoading
+  }
+
+  get assets (): any {
+    return assets
   }
 
   onGroupIconUpdate (): void {

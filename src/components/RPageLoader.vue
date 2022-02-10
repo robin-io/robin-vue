@@ -3,7 +3,7 @@
     <div class="robin-inner-shim">
       <div class="robin-loader-ctn">
         <div class="robin-loader"></div>
-        <img class="robin-pulse-1" src="@/assets/robin_icon.png" alt="logo" />
+        <img class="robin-pulse-1" :src="assets['robin_icon']" alt="logo" />
       </div>
       <div class="robin-come-up robin-mt-18">
         <RText as="h2" color="#fff" font-weight="'bold'" :font-size="24"> Getting messages... </RText>
@@ -15,6 +15,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import Component from 'vue-class-component'
+import assets from '@/utils/assets.json'
 import RText from './ChatList/RText/RText.vue'
 
 @Component({
@@ -24,6 +25,9 @@ import RText from './ChatList/RText/RText.vue'
   }
 })
 export default class RPageLoader extends Vue {
+  get assets (): any {
+    return assets
+  }
 }
 </script>
 

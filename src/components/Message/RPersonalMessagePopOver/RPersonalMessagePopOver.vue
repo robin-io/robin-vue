@@ -1,10 +1,10 @@
 <template>
   <div class="robin-popup robin-zoomIn" ref="popup-body">
-    <!-- <div class="robin-wrapper robin-w-100" @click="$emit('view-profile')">
+    <div class="robin-wrapper robin-w-100" @click="$emit('view-profile')">
       <RText :font-size="14" color="#51545C">Contact Info</RText>
 
       <SvgIcon name="user-circle" />
-    </div> -->
+    </div>
     <div class="robin-wrapper robin-w-100" @click="handleSelectMessages()">
       <RText :font-size="14" color="#51545C">Select Messages</RText>
 

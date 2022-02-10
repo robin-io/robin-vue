@@ -10,7 +10,7 @@
     <RPageLoader v-show="isPageLoading && pageLoader" />
     <MessageImagePreviewer ref="popup-1" :conversation="currentConversation" v-show="imagePreviewOpen" @close="closeImagePreview()" :images-to-preview="imagesToPreview" />
     <ViewMessageProfile ref="popup-2" v-show="viewMessageProfileOpen" @close="closeMessageProfile()" />
-    <audio src="@/assets/notification.wav" ref="notification">Your browser does not support the</audio>
+    <audio :src="assets['notification']" ref="notification">Your browser does not support the</audio>
   </div>
 </template>
 
@@ -26,6 +26,7 @@ import Component from 'vue-class-component'
 import store from './store/index'
 import { Robin } from 'robin.io-js'
 import EventBus from './event-bus'
+import assets from '@/utils/assets.json'
 
 const ComponentProps = Vue.extend({
   props: {
@@ -235,6 +236,10 @@ export default class App extends ComponentProps {
 
   get isPageLoading () {
     return store.state.isPageLoading
+  }
+
+  get assets (): any {
+    return assets
   }
 
   get currentConversation () {
