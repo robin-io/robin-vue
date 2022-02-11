@@ -480,7 +480,7 @@ export default class RGroupMessageContainer extends Vue {
     this.forwardMessage = false
     store.setState('selectMessagesOpen', false)
     this.uncheck = true
-    this.refresh()
+    // this.refresh()
   }
 
   replyMessage (message: any): void {

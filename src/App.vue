@@ -451,6 +451,7 @@ export default class App extends ComponentProps {
   bottom: 0;
   z-index: 2000;
   overflow: hidden;
+  transition: 100ms;
 }
 
 .robin-container *,

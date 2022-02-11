@@ -316,7 +316,6 @@ const ComponentProps = Vue.extend({
   components: {
     RText,
     VLazyImage,
-    // LinkPrevue,
     MessageGrid,
     RMessagePopOver,
     RReactionPopOver,
@@ -1010,7 +1009,7 @@ video.video-reply {
 
 .robin-popup-container.message.top {
   /* top: -230px !important; */
-  top: -170px;
+  top: -240px;
 }
 
 .robin-message-sender .robin-popup-container.message >>> .robin-zoomIn,

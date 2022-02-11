@@ -213,6 +213,7 @@ export default class RForwardMessage extends ComponentProps {
     const conversationIds = []
 
     for (const message of this.selectedMessages) {
+      message.is_read = false
       messageIds.push(message._id)
     }
 

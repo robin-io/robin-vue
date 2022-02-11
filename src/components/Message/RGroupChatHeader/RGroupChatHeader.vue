@@ -140,9 +140,10 @@ export default class RGroupChatHeader extends ComponentProps {
     popup.$refs['popup-body'].classList.add('robin-zoomOut')
 
     window.setTimeout(() => {
-      const popup = this.$refs[refKey] as any
-      popup.$refs['popup-body'].classList.add('robin-zoomIn')
-      popup.$refs['popup-body'].classList.remove('robin-zoomOut')
+      if (popup.$refs['popup-body']) {
+        popup.$refs['popup-body'].classList.add('robin-zoomIn')
+        popup.$refs['popup-body'].classList.remove('robin-zoomOut')
+      }
 
       this.popUpState.opened = false
     }, 300)
