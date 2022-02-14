@@ -3,10 +3,10 @@
     <header class="robin-header">
       <IconButton name="remove" @close="openPreviousModal()" emit="close" :to-emit="true" :to-click-away="false" />
 
-      <RText font-weight="400" :font-size="16" class="robin-ml-12">New Group Chat</RText>
+      <RText font-weight="400" :font-size="16" class="robin-ml-12">{{ !updatingParticipants ? 'New Group Chat' : 'Add Group Participants' }}</RText>
 
       <div class="robin-ml-auto">
-        <RButton emit="done" @done="createGroupConversation()" v-show="users.length > 0 && !isUploading" class="robin-pulse-2">Done</RButton>
+        <RButton emit="done" @done="!updatingParticipants ? createGroupConversation() : addGroupParticipants()" v-show="users.length > 0 && !isUploading" class="robin-pulse-2">Done</RButton>
         <div class="robin-spinner" v-show="isUploading"></div>
       </div>
     </header>
@@ -16,9 +16,7 @@
     </div>
 
     <div class="robin-select robin-flex robin-flex-align-center robin-flex-justify-end robin-w-100 robin-pl-16 robin-pr-16 robin-pt-24 robin-pb-23">
-      <RText color="#9999BC">
-        Select All
-      </RText>
+      <RText color="#9999BC"> Select All </RText>
       <RCheckBox class="robin-ml-8" @clicked="toggleSelectAllCheckAction($event)" />
     </div>
 
@@ -59,6 +57,7 @@ import RButton from './RButton/RButton.vue'
 import RAvatar from './RAvatar/RAvatar.vue'
 import RCheckBox from './RCheckBox/RCheckBox.vue'
 import RAlphabetBlock from './RAlphabetBlock/RAlphabetBlock.vue'
+import EventBus from '@/event-bus'
 
 const ComponentProps = Vue.extend({
   props: {
@@ -102,10 +101,13 @@ export default class NewGroupChatList extends ComponentProps {
   isLoading = false as boolean
   isUploading = false as boolean
   searchData = [] as Array<any>
+  updatingParticipants = false
+  conversationId = ''
   key = 0 as number
 
   created () {
     this.getContacts('')
+    this.handleAddGroupParticipants()
   }
 
   closeModal (): void {
@@ -163,7 +165,7 @@ export default class NewGroupChatList extends ComponentProps {
   }
 
   async createGroupConversation (): Promise<void> {
-    const users = this.users.map(user => {
+    const users = this.users.map((user) => {
       return {
         user_token: user.userToken,
         profile_image: user.profileImage,
@@ -189,6 +191,43 @@ export default class NewGroupChatList extends ComponentProps {
       })
       this.isUploading = false
     }
+  }
+
+  async addGroupParticipants () {
+    const users = this.users.map((user) => {
+      return {
+        user_token: user.userToken,
+        profile_image: user.profileImage,
+        user_name: user.userName
+      }
+    })
+
+    this.isUploading = true
+    const res = await this.$robin.addGroupParticipants(this.conversationId, users)
+
+    if (res && !res.error) {
+      this.$emit('changesidebartype', 'primary')
+      this.$emit('closemodal')
+      EventBus.$emit('update.group.conversation', res.data)
+      this.conversationId = ''
+      // this.$emit('reset-groupname')
+      this.isUploading = false
+    } else {
+      this.$toast.open({
+        message: 'Check your connection.',
+        type: 'error',
+        position: 'bottom-left'
+      })
+      this.isUploading = false
+    }
+  }
+
+  handleAddGroupParticipants () {
+    EventBus.$on('edit.participants.group', (details: any) => {
+      this.conversationId = details.conversation_id
+
+      this.updatingParticipants = true
+    })
   }
 
   async uploadGroupIcon (conversation: any): Promise<void> {
@@ -267,7 +306,13 @@ export default class NewGroupChatList extends ComponentProps {
   }
 
   openPreviousModal (): void {
-    this.$emit('closemodal', 'newgroup')
+    if (!this.updatingParticipants) {
+      this.$emit('closemodal', 'newgroup')
+    } else {
+      this.$emit('changesidebartype', 'primary')
+      this.$emit('closemodal')
+    }
+    this.updatingParticipants = false
     setTimeout(() => {
       this.refresh()
     }, 300)
@@ -305,7 +350,7 @@ header {
 }
 
 .robin-select {
-  border-bottom: 1px solid #EFEFEF;
+  border-bottom: 1px solid #efefef;
 }
 
 .robin-card-container {

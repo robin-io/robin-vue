@@ -6,7 +6,7 @@
     <transition name="robin-fadeIn">
       <RGroupMessageContainer v-show="(!isPageLoading && conversationOpened && screenWidth > 1200 && !viewMessageProfileOpen) || (!isPageLoading && conversationOpened && screenWidth <= 1200 && !viewMessageProfileOpen) || (!isPageLoading && conversationOpened && screenWidth > 1200 && viewMessageProfileOpen)" :key="key" />
     </transition>
-    <RNoMessageSelected v-show="!isPageLoading && !conversationOpened " />
+    <RNoMessageSelected v-show="!isPageLoading && !conversationOpened" />
     <RPageLoader v-show="isPageLoading && pageLoader" />
     <MessageImagePreviewer ref="popup-1" :conversation="currentConversation" v-show="imagePreviewOpen" @close="closeImagePreview()" :images-to-preview="imagesToPreview" />
     <ViewMessageProfile ref="popup-2" v-show="viewMessageProfileOpen" @close="closeMessageProfile()" />
@@ -54,114 +54,9 @@ const ComponentProps = Vue.extend({
       type: Array as PropType<Array<any>>,
       default: (): Array<any> => [
         {
-          userToken: 'BLAaUGurGvTewxIGKKrVANhn',
+          userToken: 'jnEyRcqxrILegQPDsEflVTcZ',
           profileImage: '',
           userName: 'Enoch Chejieh'
-        },
-        {
-          userToken: 'yfqjnGHHdAvWKuhCPlOnNkVb',
-          profileImage: '',
-          userName: 'bashir raji'
-        },
-        {
-          userToken: 'dphuBiRIetIJdYAoLWRiboKG',
-          profileImage: '',
-          userName: 'Michael Scoffield'
-        },
-        {
-          userToken: 'aHsvPTEBBZBKFIjojMTlEAUL',
-          profileImage: '',
-          userName: 'Temitope Akinlabi'
-        },
-        {
-          userToken: 'xfnAYadpvypqBlvrOoHVKAfK',
-          profileImage: '',
-          userName: 'Ayo O'
-        },
-        {
-          userToken: 'vSeEXsbjrxxBkzFdJxwtojoI',
-          profileImage: '',
-          userName: 'Precious Ogar'
-        },
-        {
-          userToken: 'UOjTEiQIKLZyhYVjzUtVVOfO',
-          profileImage: '',
-          userName: 'Precious Ogar'
-        },
-        {
-          userToken: 'lxDWlFTOQejJDxtITnhRIEKb',
-          profileImage: '',
-          userName: 'UBONG JIMMY'
-        },
-        {
-          userToken: 'urPBzlbXneOmjKEGgozhAVNg',
-          profileImage: '',
-          userName: 'chidinma'
-        },
-        {
-          userToken: 'BRLEgGMRtuluSwhKQkMUSixn',
-          profileImage: '',
-          userName: 'Dungke'
-        },
-        {
-          userToken: 'yiOLmoqOPkRkhLihuQRofblp',
-          profileImage: '',
-          userName: 'Raji Al-Ameen'
-        },
-        {
-          userToken: 'ATiDrRJFfXiEDHpSoHVXMAbJ',
-          profileImage: '',
-          userName: 'chidinma'
-        },
-        {
-          userToken: 'RbtLYpmHGTYQtEUQSnJkDveD',
-          profileImage: '',
-          userName: 'Okeke Chidinma'
-        },
-        {
-          userToken: 'ebDJHwYJeSCrMOOqowNxqyCC',
-          profileImage: '',
-          userName: 'd'
-        },
-        {
-          userToken: 'sxVLqqTHfxQsOrVaIFOjbyFN',
-          profileImage: '',
-          userName: 'Jimmy'
-        },
-        {
-          userToken: 'LqWCScOTHweNqOHZLlQUkhYg',
-          profileImage: '',
-          userName: 'Lekan Raji'
-        },
-        {
-          userToken: 'owaJCBPCCQwYchlRrIozVBuA',
-          profileImage: '',
-          userName: 'Gee'
-        },
-        {
-          userToken: 'dLtIoYbnvpJAggUYjqRUNXDs',
-          profileImage: '',
-          userName: 'Jimmy'
-        },
-        {
-          userToken: 'LjrFtzkvBGhtMfYfuPndkksF',
-          profileImage: '',
-          userName: 'jhvgcyvg'
-        },
-        {
-          userToken: 'KMjlQobcLHQdwBJlsdoDYoWM',
-          profileImage: '',
-          userName: 'jhvgcyvg'
-        },
-        {
-          userToken: 'YtEcPNBoXTfaRBQiSGBXrJyh',
-          profileImage: '',
-          userName: 'Victor'
-        },
-        {
-          userToken: 'OpcCyXVcSQxNFnjlGyvfjcYr',
-          profileImage: '',
-          userName: ''
         }
       ]
     },
@@ -264,6 +159,22 @@ export default class App extends ComponentProps {
     this.setPrototypes()
   }
 
+  // async createUserToken () {
+  //   const userToken = {
+  //     user_token: '',
+  //     meta_data: {
+  //       userToken: 'BLAaUGurGvTewxIGKKrVANhn',
+  //       userName: 'Enoch Chejieh',
+  //       profileImage: ''
+  //     },
+  //     support_name: '',
+  //     support_id: ''
+  //   }
+  //   const response = await this.$robin.createUserToken(userToken)
+
+  //   console.log(response)
+  // }
+
   filterUsers (): void {
     const filteredUsers: Array<any> = []
     this.users.forEach((user) => {
@@ -339,7 +250,7 @@ export default class App extends ComponentProps {
   }
 
   handleEvents (message: any): void {
-    // console.log('event->', message)
+    console.log('event->', message)
     switch (message.name) {
       case 'user.connect':
         // set user status to online

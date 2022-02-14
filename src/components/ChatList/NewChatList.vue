@@ -10,7 +10,7 @@
       <RSearchBar @user-typing="searchContacts($event)" :loading="isLoading" :key="key" placeholder="Search or start new chat" />
     </div>
 
-    <div class="robin-w-100 robin-create-group robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pl-16 robin-pr-16 robin-flex-1 robin-mt-42 robin-pb-16">
+    <div class="robin-w-100 robin-create-group robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pl-16 robin-pr-16 robin-flex-1 robin-mt-31 robin-pb-16">
       <RButton color="#15AE73" :font-size="14" :line-height="18" emit="newgroupchat" @newgroupchat="openGroupChat()" class="robin-flex robin-flex-align-center">
         <SvgIcon name="3users" />
 
@@ -230,6 +230,7 @@ header {
 
 .robin-create-group {
   border-bottom: 1px solid #EFEFEF;
+  max-height: 30px;
 }
 
 /* .robin-wrapper {

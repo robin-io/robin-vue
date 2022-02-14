@@ -59,7 +59,7 @@
             <div class="robin-mini-info-container robin-flex robin-flex-align-center">
               <!-- <RMention @click.native="openConversation(conversation)" /> -->
               <!-- use when mention icon is present robin-ml-8 -->
-              <div class="mini-info robin-ml-10" v-show="conversation.unread_messages" @click="openConversation(conversation)">
+              <div class="mini-info robin-ml-10" v-if="conversation.unread_messages > 0" @click="openConversation(conversation)">
                 <RUnreadMessageCount :unread="conversation.unread_messages" background-color="#EA8D51" />
               </div>
               <div class="robin-hidden robin-ml-10" @click="handleOpenPopUp($event, conversation._id, `popup-container-${index}`, `popup-${index}`, index.toString())">

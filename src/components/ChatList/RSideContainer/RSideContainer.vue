@@ -63,6 +63,9 @@ export default class RSideContainer extends ComponentProps {
     this.handleRemoveArchivedConversation()
     this.handleMarkAsRead()
     this.handleMarkAsUnread()
+    this.showNewGroupModal()
+    this.onAddGroupParticipants()
+    this.handleRemoveGroupParticipant()
   }
 
   get isPageLoading () {
@@ -83,6 +86,12 @@ export default class RSideContainer extends ComponentProps {
 
   resetGroupIcon () {
     this.groupIcon = {}
+  }
+
+  showNewGroupModal () {
+    EventBus.$on('show.new.group', () => {
+      this.openModal('slide-3', 'newgroupchat')
+    })
   }
 
   openModal (refKey: string, type: string): void {
@@ -130,6 +139,15 @@ export default class RSideContainer extends ComponentProps {
     })
   }
 
+  onAddGroupParticipants () {
+    EventBus.$on('update.group.conversation', (conversation: any) => {
+      const index = this.$regularConversations.findIndex((item) => item._id === conversation._id)
+
+      this.$regularConversations[index] = conversation
+      this.regularConversations[index] = conversation
+    })
+  }
+
   onNewConversationCreated () {
     EventBus.$on('new.conversation', (conversation: any) => {
       if (conversation.sender_token === this.$user_token || conversation.receiver_token === this.$user_token) {
@@ -159,6 +177,16 @@ export default class RSideContainer extends ComponentProps {
 
       this.archivedConversations.splice(index, 1)
       this.$archivedConversations.splice(index, 1)
+    })
+  }
+
+  handleRemoveGroupParticipant () {
+    EventBus.$on('participant.left.group', (user: any) => {
+      const index = this.$regularConversations.findIndex((item) => item._id === user.conversation_id)
+      const participantIndex = this.$regularConversations[index].participants.findIndex((participant: any) => participant.user_token === user.user_token)
+
+      this.$regularConversations[index].participants.splice(participantIndex, 1)
+      this.regularConversations[index].participants.splice(participantIndex, 1)
     })
   }
 
