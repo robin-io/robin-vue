@@ -7,10 +7,10 @@
 
     <div class="robin-wrapper robin-slideIn">
       <div class="robin-profile">
-        <RAvatar v-if="!currentConversation.is_group" class="robin-mb-8" />
-        <RGroupAvatar v-else class="robin-mb-8" />
+        <RAvatar v-if="!currentConversation.is_group" :sender-token="currentConversation.sender_token" class="robin-mb-8" />
+        <RGroupAvatar v-else class="robin-mb-8"  :img-url="currentConversation.group_icon" />
 
-        <RText fontWeight="500" as="h3" class="robin-mb-8">{{ !currentConversation.is_group ? currentConversation.sender_name : currentConversation.name }}</RText>
+        <RText fontWeight="500" as="h3" class="robin-mb-8">{{ !currentConversation.is_group ? currentConversation.receiver_name : currentConversation.name }}</RText>
 
         <RText color="#51545C" :fontSize="12" :text-align="'center'" as="p" class="robin-mb-8" v-show="currentConversation.is_group">{{ participants.length > 1 ? `${participants.length} Members` : `${participants.length} Member`}}</RText>
 
@@ -19,7 +19,7 @@
           >, By <RText :fontSize="12">{{ getGroupCreator() }}</RText></RText
         >
 
-        <RText color="#51545C" :fontSize="12" :text-align="'center'" as="p" v-show="!currentConversation.is_group">{{ currentConversation.owner_email }}</RText>
+        <!-- <RText color="#51545C" :fontSize="12" :text-align="'center'" as="p" v-show="!currentConversation.is_group">{{ currentConversation.owner_email }}</RText> -->
       </div>
 
       <!-- personal -->
@@ -99,24 +99,34 @@
       <RText :font-size="12" color="#15AE73" class="robin-mt-8 robin-mb-11 robin-m-auto" v-show="nav === 'Links' && links.length == 0">No Links</RText>
       <RText :font-size="12" color="#15AE73" class="robin-mt-8 robin-mb-11 robin-m-auto" v-show="nav === 'Docs' && documents.length == 0">No Docs</RText>
 
+      <div class="robin-wrapper robin-mb-12">
+         <RButton color="#51545C" class="robin-tab" :emit="'clicked'" @clicked="showEncriptionDetails()">
+          <SvgIcon name="encryption" class="robin-mr-8" />
+          Encryption Details
+        </RButton>
+      </div>
+
       <div class="robin-group-container" v-show="currentConversation.is_group">
-        <RButton color="#000" class="robin-add" :emit="'clicked'" @clicked="addGroupParticipant()">
-          <IconButton name="addParticipant" class="robin-mr-8" />
+        <RButton color="#000" class="robin-tab" :emit="'clicked'" @clicked="addGroupParticipant()">
+          <SvgIcon name="addParticipant" class="robin-mr-8" />
           Add Group Participant
         </RButton>
 
         <div class="robin-card-container">
-          <div class="robin-card robin-flex robin-flex-align-center" v-for="(participant, participantIndex) in participants.slice(0, participantsToShow)" :key="participantIndex">
-            <div class="robin-card-info robin-mr-12">
+          <div class="robin-card robin-flex robin-flex-align-center" v-for="(participant, participantIndex) in participants.slice(0, participantsToShow)" :key="participantIndex" @click.self="openGroupPrompt(participant.userToken)" :class="{'robin-clickable': currentConversation.is_group}">
+            <div class="robin-card-info robin-mr-12" @click="openGroupPrompt(participant.userToken)">
               <RAvatar />
             </div>
 
-            <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4 robin-flex-1">
-              <div class="robin-flex">
+            <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4 robin-flex-1" @click.self="openGroupPrompt(participant.userToken)">
+              <div class="robin-flex" @click="openGroupPrompt(participant.userToken)">
                 <RText :font-size="14" :line-height="18">{{ participant.userName }}</RText>
               </div>
-              <div class="robin-ml-auto" v-show="isUserModerator" @click="handleRemoveParticipant(participant.userToken)">
+              <div class="robin-ml-auto" v-show="!currentConversation.participants[participantIndex].is_moderator && isUserSignedIn" @click="handleRemoveParticipant(participant.userToken)">
                 <IconButton name="remove2" :to-emit="false" :to-click-away="false" />
+              </div>
+              <div v-show="currentConversation.participants[participantIndex].is_moderator" class="robin-moderator-text">
+                Moderator
               </div>
             </div>
           </div>
@@ -155,6 +165,7 @@ import RText from '@/components/ChatList/RText/RText.vue'
 import RAvatar from '@/components/ChatList/RAvatar/RAvatar.vue'
 import RGroupAvatar from '@/components/ChatList/RGroupAvatar/RGroupAvatar.vue'
 import IconButton from '../../IconButton/IconButton.vue'
+import SvgIcon from '../../SvgIcon/SvgIcon.vue'
 import RButton from '@/components/ChatList/RButton/RButton.vue'
 import mime from 'mime'
 import assets from '@/utils/assets.json'
@@ -162,10 +173,11 @@ import store from '../../../store/index'
 import EventBus from '@/event-bus'
 
 // eslint-disable-next-line
-@Component<ViewMessageProfile>({
-  name: 'ViewMessageProfile',
+@Component<Profile>({
+  name: 'Profile',
   components: {
     IconButton,
+    SvgIcon,
     RButton,
     RText,
     RAvatar,
@@ -182,7 +194,7 @@ import EventBus from '@/event-bus'
     }
   }
 })
-export default class ViewMessageProfile extends Vue {
+export default class Profile extends Vue {
   screenWidth = 0 as number
   nav = 'Media'
   messages = [] as Array<any>
@@ -190,7 +202,6 @@ export default class ViewMessageProfile extends Vue {
   links = [] as Array<any>
   documents = [] as Array<any>
   participants = [] as Array<any>
-  isUserModerator = false
   participantsToShow = 4
   mediaStop = 7
   linkStop = 7
@@ -213,6 +224,7 @@ export default class ViewMessageProfile extends Vue {
   created () {
     this.handleConversationMessages()
     this.handleRemoveGroupParticipant()
+    this.handleAssignedGroupModerator()
     this.onAddGroupParticipants()
   }
 
@@ -231,8 +243,6 @@ export default class ViewMessageProfile extends Vue {
     const users = this.currentConversation.participants.map((user: any) => {
       return user.user_token
     })
-
-    this.isUserModerator = this.currentConversation.participants.some((user: any) => user.user_token === this.$user_token)
 
     this.participants = this.$robin_users.filter((user: any) => {
       return users.includes(user.userToken)
@@ -437,7 +447,15 @@ export default class ViewMessageProfile extends Vue {
         type: 'success',
         position: 'bottom-left'
       })
+
       this.$forceUpdate()
+    })
+  }
+
+  handleAssignedGroupModerator () {
+    EventBus.$on('participant.assigned.moderator', (conversation: any) => {
+      store.setState('currentConversation', conversation)
+      this.getGroupParticipants()
     })
   }
 
@@ -458,6 +476,21 @@ export default class ViewMessageProfile extends Vue {
       store.setState('currentConversation', conversation)
       this.getGroupParticipants()
     })
+  }
+
+  openGroupPrompt (token: String) {
+    if (this.currentConversation.is_group) {
+      store.setState('groupPromptOpen', true)
+      store.setState('currentParticipantToken', token)
+    }
+  }
+
+  showEncriptionDetails () {
+    store.setState('encryptionDetailsOpen', true)
+  }
+
+  isUserSignedIn () {
+    return this.currentConversation.participants.some((user: any) => user.user_token !== this.$user_token)
   }
 }
 </script>
@@ -596,7 +629,7 @@ export default class ViewMessageProfile extends Vue {
   border-bottom: 1px solid #f5f7fc;
 }
 
-.robin-group-container >>> .robin-add.robin-button {
+.robin-tab.robin-button {
   height: 50px;
   display: flex;
   align-items: center;
@@ -702,6 +735,13 @@ export default class ViewMessageProfile extends Vue {
 
 .robin-uploaded-documents svg {
   margin-right: 0.5rem;
+}
+
+.robin-moderator-text {
+  background-color: #EEEEEE;
+  padding: 0.2rem 0.2rem;
+  margin-left: auto;
+  font-size: 0.625rem;
 }
 
 @media (min-width: 768px) {

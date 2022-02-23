@@ -205,10 +205,12 @@ export default class RMessageInputBar extends ComponentProps {
       await this.sendFileMessage()
     } else if (this.text.trim().length > 0 && this.files.length < 1) {
       await this.sendTextMessage()
-    } else if (this.text.trim().length > 0 && this.files.length > 0) {
+    } else if (this.text.trim().length > 0 && this.files.length > 1) {
       await Promise.all([this.sendTextMessage(), this.sendFileMessage()])
+    } else if (this.text.trim().length > 0 && this.files.length === 1) {
+      await this.sendMessageWithAttachment()
     } else {
-      // Do nothing
+      // do nothing
     }
 
     const input = this.$refs.input as HTMLInputElement
@@ -225,10 +227,12 @@ export default class RMessageInputBar extends ComponentProps {
       await this.replyFileMessage()
     } else if (this.text.trim().length > 0 && this.files.length < 1) {
       await this.replyTextMessage()
-    } else if (this.text.trim().length > 0 && this.files.length > 0) {
+    } else if (this.text.trim().length > 0 && this.files.length > 1) {
       await Promise.all([this.replyTextMessage(), this.replyFileMessage()])
+    } else if (this.text.trim().length > 0 && this.files.length === 1) {
+      await this.replyMessageWithAttachment()
     } else {
-      // Do nothing
+      // do nothing
     }
 
     const input = this.$refs.input as HTMLInputElement
@@ -245,14 +249,14 @@ export default class RMessageInputBar extends ComponentProps {
       {
         msg: this.text,
         sender_token: this.$user_token,
-        sender_name: this.$senderName,
         receiver_token: this.conversation.receiver_token === this.$user_token ? this.conversation.sender_token : this.conversation.receiver_token,
         timestamp: new Date()
       },
       this.$conn,
       this.$channel,
       this.conversation._id,
-      this.$user_token
+      this.$user_token,
+      this.$senderName
     )
     return await new Promise((resolve) => setTimeout(resolve, 250))
   }
@@ -265,13 +269,20 @@ export default class RMessageInputBar extends ComponentProps {
     )
   }
 
+  async sendMessageWithAttachment (): Promise<any> {
+    return await Promise.all(
+      this.files.map(async (file) => {
+        await this.$robin.sendMessageAttachment(this.$user_token, this.conversation._id, file.file, this.$senderName, this.text)
+      })
+    )
+  }
+
   async replyTextMessage (): Promise<void> {
     const robin = this.$robin as any
     robin.replyToMessage(
       {
         msg: this.text,
         sender_token: this.$user_token,
-        sender_name: this.$senderName,
         receiver_token: this.conversation.receiver_token === this.$user_token ? this.conversation.sender_token : this.conversation.receiver_token,
         timestamp: new Date()
       },
@@ -279,7 +290,8 @@ export default class RMessageInputBar extends ComponentProps {
       this.$channel,
       this.conversation._id,
       this.messageReply._id,
-      this.$user_token
+      this.$user_token,
+      this.$senderName
     )
     return await new Promise((resolve) => setTimeout(resolve, 250))
   }
@@ -289,6 +301,15 @@ export default class RMessageInputBar extends ComponentProps {
     return await Promise.all(
       this.files.map(async (file) => {
         await robin.replyMessageWithAttachment(this.$user_token, this.conversation._id, this.messageReply._id, file.file, this.$senderName)
+      })
+    )
+  }
+
+  async replyMessageWithAttachment (): Promise<any> {
+    const robin = this.$robin as any
+    return await Promise.all(
+      this.files.map(async (file) => {
+        await robin.replyMessageWithAttachment(this.$user_token, this.conversation._id, this.messageReply._id, file.file, this.$senderName, this.text)
       })
     )
   }
@@ -583,7 +604,7 @@ export default class RMessageInputBar extends ComponentProps {
   background-color: transparent;
   border: none;
   font-size: 1rem;
-  line-height: 1rem;
+  line-height: 0.75rem;
   /* padding: 0.9rem 0 0 0.625rem; */
   white-space: pre-wrap;
   word-wrap: break-word;

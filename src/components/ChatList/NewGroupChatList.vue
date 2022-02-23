@@ -29,7 +29,7 @@
         <div class="robin-card-container robin-flex robin-flex-column">
           <div class="robin-card robin-flex robin-flex-align-center" v-for="(user, userIndex) in contact" :key="user.userToken">
             <div class="robin-card-info robin-mr-12">
-              <RAvatar :img-url="user.profileImage" />
+              <RAvatar :img-url="user.profileImage" :sender-token="user.userToken" />
             </div>
 
             <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4˝ robin-flex-1">
@@ -127,13 +127,13 @@ export default class NewGroupChatList extends ComponentProps {
 
     if (searchText.trim() === '') {
       this.$robin_users.forEach((user) => {
-        this.contacts[this.getContactKey(user.userName)] = this.$robin_users.filter((item) => this.validateContact(item.userName, user.userName))
+        this.contacts[this.getContactKey(user.userName)] = this.$robin_users.filter((item) => item.userToken !== this.$user_token && this.validateContact(item.userName, user.userName))
       })
 
       this.sortContacts()
     } else {
       this.searchData.forEach((user) => {
-        this.contacts[this.getContactKey(user.userName)] = this.searchData.filter((item) => this.validateContact(item.userName, user.userName))
+        this.contacts[this.getContactKey(user.userName)] = this.searchData.filter((item) => item.userToken !== this.$user_token && this.validateContact(item.userName, user.userName))
       })
     }
   }
@@ -208,9 +208,12 @@ export default class NewGroupChatList extends ComponentProps {
     if (res && !res.error) {
       this.$emit('changesidebartype', 'primary')
       this.$emit('closemodal')
+      this.$emit('reset-groupname')
       EventBus.$emit('update.group.conversation', res.data)
+
+      this.toggleSelectAllCheckAction(false)
+
       this.conversationId = ''
-      // this.$emit('reset-groupname')
       this.isUploading = false
     } else {
       this.$toast.open({
@@ -311,6 +314,8 @@ export default class NewGroupChatList extends ComponentProps {
     } else {
       this.$emit('changesidebartype', 'primary')
       this.$emit('closemodal')
+
+      this.toggleSelectAllCheckAction(true)
     }
     this.updatingParticipants = false
     setTimeout(() => {

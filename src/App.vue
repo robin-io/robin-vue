@@ -4,12 +4,14 @@
       <RSideContainer v-show="(!isPageLoading && !conversationOpened && screenWidth <= 1200) || (conversationOpened && screenWidth > 1200) || (!conversationOpened && screenWidth > 1200)" :user_token="userToken" :key="key" />
     </transition>
     <transition name="robin-fadeIn">
-      <RGroupMessageContainer v-show="(!isPageLoading && conversationOpened && screenWidth > 1200 && !viewMessageProfileOpen) || (!isPageLoading && conversationOpened && screenWidth <= 1200 && !viewMessageProfileOpen) || (!isPageLoading && conversationOpened && screenWidth > 1200 && viewMessageProfileOpen)" :key="key" />
+      <RGroupMessageContainer v-show="(!isPageLoading && conversationOpened && screenWidth > 1200 && !messageProfileOpen) || (!isPageLoading && conversationOpened && screenWidth <= 1200 && !messageProfileOpen) || (!isPageLoading && conversationOpened && screenWidth > 1200 && messageProfileOpen)" :key="key" />
     </transition>
     <RNoMessageSelected v-show="!isPageLoading && !conversationOpened" />
     <RPageLoader v-show="isPageLoading && pageLoader" />
     <MessageImagePreviewer ref="popup-1" :conversation="currentConversation" v-show="imagePreviewOpen" @close="closeImagePreview()" :images-to-preview="imagesToPreview" />
-    <ViewMessageProfile ref="popup-2" v-show="viewMessageProfileOpen" @close="closeMessageProfile()" />
+    <Profile ref="popup-2" v-show="messageProfileOpen" @close="closeMessageProfile()" :key="profileKey" />
+    <GroupPrompt v-show="groupPromptOpen" @close="closeGroupPrompt()" />
+    <EncryptionDetails v-show="encryptionDetailsOpen" @close="closeEncryptionDetails()" />
     <audio :src="assets['notification']" ref="notification">Your browser does not support the</audio>
   </div>
 </template>
@@ -21,7 +23,9 @@ import RGroupMessageContainer from './components/Message/RGroupMessageContainer/
 import RNoMessageSelected from './components/Message/RNoMessageSelected.vue'
 import RPageLoader from './components/RPageLoader.vue'
 import MessageImagePreviewer from './components/Message/MessageImagePreviewer/MessageImagePreviewer.vue'
-import ViewMessageProfile from './components/Message/ViewMessageProfile/ViewMessageProfile.vue'
+import Profile from './components/Message/ViewMessageProfile/Profile.vue'
+import GroupPrompt from './components/Message/ViewMessageProfile/GroupPrompt.vue'
+import EncryptionDetails from './components/Message/ViewMessageProfile/EncryptionDetails.vue'
 import Component from 'vue-class-component'
 import store from './store/index'
 import { Robin } from 'robin.io-js'
@@ -54,6 +58,11 @@ const ComponentProps = Vue.extend({
       type: Array as PropType<Array<any>>,
       default: (): Array<any> => [
         {
+          userToken: 'lYcofFsZtJOZWgHtpgjvhHhR',
+          profileImage: '',
+          userName: 'Elvis Chuks'
+        },
+        {
           userToken: 'jnEyRcqxrILegQPDsEflVTcZ',
           profileImage: '',
           userName: 'Enoch Chejieh'
@@ -82,7 +91,9 @@ const ComponentProps = Vue.extend({
     RPageLoader,
     RNoMessageSelected,
     MessageImagePreviewer,
-    ViewMessageProfile
+    Profile,
+    GroupPrompt,
+    EncryptionDetails
   },
   watch: {
     users: {
@@ -90,6 +101,11 @@ const ComponentProps = Vue.extend({
         this.filterUsers()
       },
       immediate: true
+    },
+    currentConversation: {
+      handler (val) {
+        this.profileKey += 1
+      }
     }
   }
 })
@@ -98,6 +114,7 @@ export default class App extends ComponentProps {
   conn = null as any
   conversationOpened = false as boolean
   key = 0 as number
+  profileKey = 0 as number
   screenWidth = 0 as number
 
   created (): void {
@@ -141,6 +158,10 @@ export default class App extends ComponentProps {
     return store.state.currentConversation
   }
 
+  get encryptionDetailsOpen () {
+    return store.state.encryptionDetailsOpen
+  }
+
   get imagesToPreview () {
     return store.state.imagesToPreview
   }
@@ -149,8 +170,12 @@ export default class App extends ComponentProps {
     return store.state.imagePreviewOpen
   }
 
-  get viewMessageProfileOpen () {
-    return store.state.viewMessageProfileOpen
+  get messageProfileOpen () {
+    return store.state.messageProfileOpen
+  }
+
+  get groupPromptOpen () {
+    return store.state.groupPromptOpen
   }
 
   initiateRobin () {
@@ -342,8 +367,16 @@ export default class App extends ComponentProps {
       popup.$refs['popup-body'].classList.remove('robin-slideOutRight')
       popup.$refs['popup-body'].classList.add('robin-slideInRight')
 
-      store.setState('viewMessageProfileOpen', false)
+      store.setState('messageProfileOpen', false)
     }, 100)
+  }
+
+  closeGroupPrompt (): void {
+    store.setState('groupPromptOpen', false)
+  }
+
+  closeEncryptionDetails (): void {
+    store.setState('encryptionDetailsOpen', false)
   }
 }
 </script>
@@ -380,6 +413,6 @@ export default class App extends ComponentProps {
   font-feature-settings: 'kern', 'liga', 'clig', 'calt';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  scroll-behavior: smooth;
+  scroll-behavior: smooth !important;
 }
 </style>

@@ -10,7 +10,7 @@
       <div class="robin-link-container" v-html="injectHtml()" v-if="(validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) || validateLinkInMessage().containsEmail || validateLinkInMessage().containsWebsite"></div>
     </div>
 
-    <link-prevue class="robin-link-preview" v-if="websiteRegex.test(getTextsInMessage().texts[getTextsInMessage().length - 1]) && !emailRegex.test(getTextsInMessage().texts[getTextsInMessage().length - 1])" :url="getTextsInMessage().texts[getTextsInMessage().length - 1].includes('http') || getTextsInMessage().texts[getTextsInMessage().length - 1].includes('https') ? getTextsInMessage().texts[getTextsInMessage().length - 1] : `https://${getTextsInMessage().texts[getTextsInMessage().length - 1]}`">
+    <!-- <link-prevue class="robin-link-preview" v-if="websiteRegex.test(getTextsInMessage().texts[getTextsInMessage().length - 1]) && !emailRegex.test(getTextsInMessage().texts[getTextsInMessage().length - 1])" :url="getTextsInMessage().texts[getTextsInMessage().length - 1].includes('http') || getTextsInMessage().texts[getTextsInMessage().length - 1].includes('https') ? getTextsInMessage().texts[getTextsInMessage().length - 1] : `https://${getTextsInMessage().texts[getTextsInMessage().length - 1]}`">
       <template slot-scope="props">
         <a :href="props.url" class="robin-card" v-show="props.img">
           <img class="robin-card-img-top" :src="props.img" :alt="props.title" />
@@ -20,13 +20,19 @@
       <template slot="loading">
         <div></div>
       </template>
-    </link-prevue>
+    </link-prevue> -->
   </div>
 
   <div :class="sender ? 'robin-reply-sender' : 'robin-reply-receiver'" class="robin-reply-message-bubble" v-else-if="getReplyMessage(message.reply_to) && imageRegex.test(checkAttachmentType(getReplyMessage(message.reply_to).content.attachment))" @click="scrollToRepliedMessage(message.reply_to)">
     <RText :font-size="14" color="#51545C" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getReplyMessage(message.reply_to).sender_token === $user_token ? 'You' : getContactName(getReplyMessage(message.reply_to).content.sender_token) }} </RText>
 
     <v-lazy-image class="robin-uploaded-image" :src="getReplyMessage(message.reply_to).content.attachment" />
+
+    <RText :max-width="getReplyMessage(message.reply_to).content.msg.length < 120 ? '217' : '270'" textWrap="pre-line" wordBreak="break-word" as="span" v-if="!validateLinkInMessage().containsEmail && !validateLinkInMessage().containsWebsite && getReplyMessage(message.reply_to).content.msg && getReplyMessage(message.reply_to).content.msg != 'undefined'">
+      {{ getReplyMessage(message.reply_to).content.msg }}
+    </RText>
+
+    <div class="robin-link-container" v-html="injectHtml()" v-if="(validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) || validateLinkInMessage().containsEmail || (validateLinkInMessage().containsWebsite && getReplyMessage(message.reply_to).content.msg && getReplyMessage(message.reply_to).content.msg != 'undefined')"></div>
   </div>
 
   <div :class="sender ? 'robin-reply-sender' : 'robin-reply-receiver'" class="robin-reply-message-bubble" v-else-if="getReplyMessage(message.reply_to) && videoRegex.test(checkAttachmentType(getReplyMessage(message.reply_to).content.attachment))" @click="scrollToRepliedMessage(message.reply_to)">
@@ -36,6 +42,12 @@
       <source :src="getReplyMessage(message.reply_to).content.attachment" />
       Your browser does not support the video tag.
     </video>
+
+    <RText :max-width="getReplyMessage(message.reply_to).content.msg.length < 120 ? '217' : '270'" textWrap="pre-line" wordBreak="break-word" as="span" v-if="!validateLinkInMessage().containsEmail && !validateLinkInMessage().containsWebsite && getReplyMessage(message.reply_to).content.msg && getReplyMessage(message.reply_to).content.msg != 'undefined'">
+      {{ getReplyMessage(message.reply_to).content.msg }}
+    </RText>
+
+    <div class="robin-link-container" v-html="injectHtml()" v-if="(validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) || validateLinkInMessage().containsEmail || (validateLinkInMessage().containsWebsite && getReplyMessage(message.reply_to).content.msg && getReplyMessage(message.reply_to).content.msg != 'undefined')"></div>
   </div>
 
   <div :class="sender ? 'robin-reply-sender' : 'robin-reply-receiver'" class="robin-reply-message-bubble" v-else-if="getReplyMessage(message.reply_to) && documentRegex.test(checkAttachmentType(getReplyMessage(message.reply_to).content.attachment))" @click="scrollToRepliedMessage(message.reply_to)">
@@ -50,13 +62,19 @@
         <RText as="span" :fontSize="14"> {{ getFileDetails(getReplyMessage(message.reply_to).content.attachment).name.length > 9 ? getFileDetails(getReplyMessage(message.reply_to).content.attachment).name.substring(0, 9) + '...' + '.' + getFileDetails(getReplyMessage(message.reply_to).content.attachment).extension : getFileDetails(getReplyMessage(message.reply_to).content.attachment).name + '.' + getFileDetails(getReplyMessage(message.reply_to).content.attachment).extension }} </RText>
       </div>
     </div>
+
+    <RText :max-width="getReplyMessage(message.reply_to).content.msg.length < 120 ? '217' : '270'" textWrap="pre-line" wordBreak="break-word" as="span" v-if="!validateLinkInMessage().containsEmail && !validateLinkInMessage().containsWebsite && getReplyMessage(message.reply_to).content.msg && getReplyMessage(message.reply_to).content.msg != 'undefined'">
+      {{ getReplyMessage(message.reply_to).content.msg }}
+    </RText>
+
+    <div class="robin-link-container" v-html="injectHtml()" v-if="(validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) || validateLinkInMessage().containsEmail || (validateLinkInMessage().containsWebsite && getReplyMessage(message.reply_to).content.msg && getReplyMessage(message.reply_to).content.msg != 'undefined')"></div>
   </div>
 </template>
 
 <script lang="ts">
 import Vue, { PropType } from 'vue'
 import VLazyImage from 'v-lazy-image/v2'
-import LinkPrevue from 'link-prevue'
+// import LinkPrevue from 'link-prevue'
 import store from '../../../store/index'
 import Component from 'vue-class-component'
 import RText from '@/components/ChatList/RText/RText.vue'
@@ -89,8 +107,8 @@ const ComponentProps = Vue.extend({
   name: 'ReplyMessageBubble',
   components: {
     RText,
-    VLazyImage,
-    LinkPrevue
+    VLazyImage
+    // LinkPrevue
   }
 })
 export default class ReplyMessageBubble extends ComponentProps {

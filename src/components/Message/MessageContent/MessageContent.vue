@@ -24,7 +24,7 @@
         <!-- place reply here -->
         <ReplyMessageBubble :messages="messages" :message="message" v-if="message.is_reply" :sender="validateMessages(message).includes('message-sender')" @scroll-replied-message="scrollToRepliedMessage" />
         <!-- place reply here -->
-        <RText :max-width="message.content.msg.length < 120 ? '217' : '270'" textWrap="pre-line" wordBreak="break-word" as="span" v-if="!validateLinkInMessage().containsEmail && !validateLinkInMessage().containsWebsite" @click.native="openModal()">
+        <RText :max-width="message.content.msg.length < 120 ? '217' : '270'" textWrap="pre-line" wordBreak="break-word" as="span" v-if="!validateLinkInMessage().containsEmail && !validateLinkInMessage().containsWebsite">
           {{ message.content.msg }}
         </RText>
 
@@ -80,7 +80,7 @@
         <!-- place reply here -->
 
         <div class="message-inner" :class="{ 'robin-flex-column': (validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) || validateLinkInMessage().containsEmail || validateLinkInMessage().containsWebsite }">
-          <RText :max-width="message.content.msg.length < 120 ? '217' : '270'" textWrap="pre-line" wordBreak="break-word" as="span" v-if="!validateLinkInMessage().containsEmail && !validateLinkInMessage().containsWebsite" @click.native="openModal()">
+          <RText :max-width="message.content.msg.length < 120 ? '217' : '270'" textWrap="pre-line" wordBreak="break-word" as="span" v-if="!validateLinkInMessage().containsEmail && !validateLinkInMessage().containsWebsite">
             {{ message.content.msg }}
           </RText>
 
@@ -133,6 +133,13 @@
         <ReplyMessageBubble :messages="messages" :message="message" v-if="message.is_reply" :sender="validateMessages(message).includes('message-sender')" @scroll-replied-message="scrollToRepliedMessage" />
         <!-- place reply here -->
         <v-lazy-image class="robin-uploaded-image" :src="message.content.attachment" @click.native="$emit('open-preview', [message])" />
+
+        <RText :max-width="message.content.msg.length < 120 ? '217' : '270'" textWrap="pre-line" wordBreak="break-word" as="span" v-if="!validateLinkInMessage().containsEmail && !validateLinkInMessage().containsWebsite && message.content.msg && message.content.msg != 'undefined'">
+          {{ message.content.msg }}
+        </RText>
+
+        <div class="robin-link-container" v-html="injectHtml()" v-if="(validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) || validateLinkInMessage().containsEmail || validateLinkInMessage().containsWebsite && message.content.msg && message.content.msg != 'undefined'"></div>
+
         <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
           <RText :font-weight="'300'" :font-size="10" color="#7a7a7a" as="p" @click.native="openModal()" class="robin-flex">
             {{ formatTimeStamp(message.content.timestamp) }}
@@ -143,6 +150,7 @@
           </RText>
         </span>
       </div>
+
       <div class="robin-message-bubble-video" :class="{'robin-non-clickable': selectMessagesOpen}"  v-if="message.content.is_attachment && videoRegex.test(checkAttachmentType(message.content.attachment))">
         <!-- Modal Open Caret -->
         <div class="robin-caret-container" v-show="caretOpen || (messagePopup.opened && validateMessages(message))" @click="openModal()">
@@ -160,6 +168,12 @@
           <source :src="message.content.attachment" />
           Your browser does not support the video tag.
         </video>
+
+        <RText :max-width="message.content.msg.length < 120 ? '217' : '270'" textWrap="pre-line" wordBreak="break-word" as="span" v-if="!validateLinkInMessage().containsEmail && !validateLinkInMessage().containsWebsite && message.content.msg && message.content.msg != 'undefined'">
+          {{ message.content.msg }}
+        </RText>
+
+        <div class="robin-link-container" v-html="injectHtml()" v-if="(validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) || validateLinkInMessage().containsEmail || validateLinkInMessage().containsWebsite && message.content.msg && message.content.msg != 'undefined'"></div>
 
         <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
           <RText :font-weight="'300'" :font-size="10" color="#7a7a7a" as="p" @click.native="openModal()" class="robin-flex">
@@ -197,6 +211,12 @@
 
           <IconButton name="download" color="#15AE73" @clicked="downloadFile(message.content.attachment)" :to-emit="true" :to-click-away="false" />
         </div>
+
+        <RText :max-width="message.content.msg.length < 120 ? '217' : '270'" textWrap="pre-line" wordBreak="break-word" as="span" v-if="!validateLinkInMessage().containsEmail && !validateLinkInMessage().containsWebsite && message.content.msg && message.content.msg != 'undefined'">
+          {{ message.content.msg }}
+        </RText>
+
+        <div class="robin-link-container" v-html="injectHtml()" v-if="(validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) || validateLinkInMessage().containsEmail || validateLinkInMessage().containsWebsite && message.content.msg && message.content.msg != 'undefined'"></div>
 
         <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
           <RText :font-weight="'300'" :font-size="10" color="#7a7a7a" as="p" @click.native="openModal()" class="robin-flex">

@@ -3,11 +3,11 @@
     <div class="robin-card-container robin-flex robin-flex-align-center" v-show="!selectMessagesOpen">
       <IconButton name="back" :to-emit="true" :to-click-away="false" emit="clicked" v-show="screenWidth <= 1200" @clicked="back()" />
 
-      <div class="robin-flex robin-flex-align-center">
+      <div class="robin-flex robin-flex-align-center robin-clickable" @click="openMessageProfile()">
         <div class="robin-card-info robin-mr-8">
           <RGroupAvatar v-if="conversation.is_group"  :img-url="conversation.group_icon" />
 
-          <RAvatar v-else :status="conversation.status" />
+          <RAvatar v-else :status="conversation.status" :sender-token="conversation.sender_token" />
         </div>
 
         <div class="robin-card-info robin-h-100 robin-flex robin-flex-column robin-flex-space-between robin-flex-1">
@@ -94,7 +94,7 @@ const ComponentProps = Vue.extend({
 })
 export default class RGroupChatHeader extends ComponentProps {
   screenWidth = 0 as number
-  viewMessageProfileCloseCount = 0
+  // messageProfileCloseCount = 0
 
   popUpState: PopUpState = {
     opened: false
@@ -112,8 +112,8 @@ export default class RGroupChatHeader extends ComponentProps {
     window.addEventListener('resize', this.onResize)
   }
 
-  get viewMessageProfileOpen () {
-    return store.state.viewMessageProfileOpen
+  get messageProfileOpen () {
+    return store.state.messageProfileOpen
   }
 
   get selectMessagesOpen () {
@@ -125,7 +125,7 @@ export default class RGroupChatHeader extends ComponentProps {
     const popup = this.$refs[refKey] as any
     popup.$refs['popup-body'].classList.remove('robin-zoomOut')
 
-    if (!this.viewMessageProfileOpen) {
+    if (!this.messageProfileOpen) {
       popupContainer.style.right = Math.floor(event.clientX / 26) + 'px'
     } else {
       popupContainer.style.right = Math.floor(event.clientX / 2.47) + 'px'
@@ -166,7 +166,7 @@ export default class RGroupChatHeader extends ComponentProps {
   }
 
   openMessageProfile () {
-    store.setState('viewMessageProfileOpen', true)
+    store.setState('messageProfileOpen', true)
   }
 
   cancelSelect (): void {

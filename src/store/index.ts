@@ -9,12 +9,15 @@ interface State {
   imagesToPreview: any[],
   imageSelected: number,
   isImageReplying: boolean,
-  isPageLoading: boolean
-  isAuthenticated: boolean
-  selectMessagesOpen: boolean
-  clearMessages: boolean
-  imagePreviewOpen: boolean
-  viewMessageProfileOpen: boolean
+  isPageLoading: boolean,
+  isAuthenticated: boolean,
+  selectMessagesOpen: boolean,
+  clearMessages: boolean,
+  imagePreviewOpen: boolean,
+  messageProfileOpen: boolean,
+  groupPromptOpen: boolean,
+  currentParticipantToken: string,
+  encryptionDetailsOpen: boolean
 }
 
 const state: State = {
@@ -27,7 +30,10 @@ const state: State = {
   selectMessagesOpen: false,
   clearMessages: false,
   imagePreviewOpen: false,
-  viewMessageProfileOpen: false
+  messageProfileOpen: false,
+  groupPromptOpen: false,
+  currentParticipantToken: '',
+  encryptionDetailsOpen: false
 }
 
 const store = {

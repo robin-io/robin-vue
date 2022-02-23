@@ -385,7 +385,7 @@ export default class MessageGrid extends ComponentProps {
   top: 50%;
   transform: translateY(-50%);
   z-index: 1;
-  left: -20%;
+  right: -20%;
   transition: transform 100ms ease-in;
 }
 

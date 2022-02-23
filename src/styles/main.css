@@ -36,10 +36,6 @@
   src: url('../assets/HankenSans-Bold.otf') format('opentype');
 }
 
-.material-icon {
-  font-family: 'Material Icons';
-}
-
 .robin-pt-10 {
   padding-top: 0.625rem;
 }
@@ -60,8 +56,16 @@
   margin-bottom: 0.688rem;
 }
 
+.robin-mb-12 {
+  margin-bottom: 0.75rem;
+}
+
 .robin-flex-space-between {
   justify-content: space-between;
+}
+
+.robin-mt-27 {
+  margin-top: 1.688rem;
 }
 
 .robin-mt-75 {
@@ -418,6 +422,7 @@
 
 .robin-material-icon {
   font-family: 'Material Icons';
+  font-style: normal;
 }
 
 .robin-overflow-y-auto {

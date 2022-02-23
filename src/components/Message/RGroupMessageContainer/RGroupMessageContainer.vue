@@ -29,6 +29,12 @@
     <RForwardMessage v-if="forwardMessage == true" @closemodal="onCloseForwardMessagePopup()" :selected-messages="selectedMessages" />
 
     <RPrompt @proceed="deleteSelectedMessages()" v-show="promptOpen" @closemodal="closePrompt()" />
+
+    <div class="robin-scroll-to-bottom robin-bounceIn" v-show="scrollUp" @click="scrollToBottom()">
+      <i class="robin-material-icon">
+        arrow_downward
+      </i>
+    </div>
   </div>
 </template>
 
@@ -113,6 +119,8 @@ export default class RGroupMessageContainer extends Vue {
   promise = null as any
   capturedImage = null as any
   scroll = false as boolean
+  scrollUp = false as boolean
+  lastScroll = 0
   popUpState = {
     cameraOpened: false,
     messagePopUp: [] as Array<any>
@@ -178,7 +186,7 @@ export default class RGroupMessageContainer extends Vue {
       this.scroll = false
       this.isMessagesLoading = true
       EventBus.$emit('mark-as-read', conversation)
-      store.setState('viewMessageProfileOpen', false)
+      store.setState('messageProfileOpen', false)
       this.getConversationMessages(conversation._id).then(() => {
         this.isMessagesLoading = false
       })
@@ -379,10 +387,10 @@ export default class RGroupMessageContainer extends Vue {
 
     for (let index = 0; index < messages.length; index += 1) {
       const fileMimeType = this.checkAttachmentType(messages[index].content.attachment || '') as any
-      const isImage = this.imageRegex.test(fileMimeType) as any
+      const isImage = this.imageRegex.test(fileMimeType && (!messages[index].content.msg || messages[index].content.msg === 'undefined') ? fileMimeType : '') as any
 
       const nextFileMimeType = this.checkAttachmentType(messages[index + 1] ? messages[index + 1].content.attachment || '' : '') as any
-      const isImageNext = this.imageRegex.test(nextFileMimeType) as any
+      const isImageNext = this.imageRegex.test(messages[index + 1] ? nextFileMimeType && (!messages[index + 1].content.msg || messages[index + 1].content.msg === 'undefined') ? nextFileMimeType : '' : '') as any
 
       if (isImage) {
         temp.push(messages[index])
@@ -445,6 +453,19 @@ export default class RGroupMessageContainer extends Vue {
   }
 
   onScroll (): void {
+    const message = this.$refs.message as HTMLElement
+    const endOfScroll = Math.floor(message.scrollTop) === Math.floor(message.scrollHeight - message.clientHeight)
+
+    if (message.scrollTop > this.lastScroll) {
+      if (endOfScroll) {
+        this.scrollUp = false
+      }
+    } else {
+      this.scrollUp = true
+    }
+
+    this.lastScroll = message.scrollTop <= 0 ? 0 : message.scrollTop
+
     this.scroll = true
   }
 
@@ -589,6 +610,28 @@ export default class RGroupMessageContainer extends Vue {
   justify-content: space-between;
   box-shadow: 0px 3px 20px 5px rgba(69, 104, 209, 0.1);
   background-color: #fff;
+}
+
+.robin-scroll-to-bottom {
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  position: absolute;
+  bottom: 100px;
+  right: 30px;
+  z-index: 1;
+  background-color: #fff;
+  box-shadow: 0 1px 6px 0 rgb(0 0 0 / 6%), 0 2px 32px 0 rgb(0 0 0 / 16%);
+  cursor: pointer;
+}
+
+.robin-scroll-to-bottom i {
+  color: rgba(21, 174, 115, 1);
+  font-size: 1.25rem;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 @media (min-width: 768px) {

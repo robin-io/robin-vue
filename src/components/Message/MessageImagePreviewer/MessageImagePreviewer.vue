@@ -8,7 +8,7 @@
 
         <div class="robin-card-info robin-mr-16">
           <RGroupAvatar v-if="conversation.is_group" />
-          <RAvatar v-else />
+          <RAvatar  :sender-token="conversation.sender_token" v-else />
         </div>
 
         <div class="robin-card-info robin-h-100 robin-flex robin-flex-column robin-flex-space-between robin-flex-1">
@@ -206,13 +206,13 @@ export default class MessageImagePreviewer extends ComponentProps {
   openForwardMessage () {
     this.forwardMessage = true
     this.selectedMessages = [this.imagesToPreview[0]]
-    store.setState('viewMessageProfileOpen', false)
+    store.setState('messageProfileOpen', false)
   }
 
   replyImageMessage () {
     store.setState('imageSelected', this.imageSelected)
     store.setState('isImageReplying', true)
-    store.setState('viewMessageProfileOpen', false)
+    store.setState('messageProfileOpen', false)
     this.closeImagePreview()
   }
 
