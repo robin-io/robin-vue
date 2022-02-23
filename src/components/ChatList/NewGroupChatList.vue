@@ -29,7 +29,7 @@
         <div class="robin-card-container robin-flex robin-flex-column">
           <div class="robin-card robin-flex robin-flex-align-center" v-for="(user, userIndex) in contact" :key="user.userToken">
             <div class="robin-card-info robin-mr-12">
-              <RAvatar :img-url="user.profileImage" :sender-token="user.userToken" />
+              <RAvatar :robin-users="$robin_users" :img-url="user.profileImage" :sender-token="user.userToken" />
             </div>
 
             <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4˝ robin-flex-1">
@@ -68,6 +68,10 @@ const ComponentProps = Vue.extend({
     groupIcon: {
       type: Object,
       default: () => {}
+    },
+    robinUsers: {
+      type: Array,
+      default: () => []
     }
   }
 })
@@ -85,11 +89,10 @@ const ComponentProps = Vue.extend({
     RAlphabetBlock
   },
   watch: {
-    $robin_users: {
+    robinUsers: {
       handler (val) {
         this.getContacts('')
-      },
-      immediate: true
+      }
     }
   }
 })
@@ -126,14 +129,14 @@ export default class NewGroupChatList extends ComponentProps {
     this.contacts = {}
 
     if (searchText.trim() === '') {
-      this.$robin_users.forEach((user) => {
-        this.contacts[this.getContactKey(user.userName)] = this.$robin_users.filter((item) => item.userToken !== this.$user_token && this.validateContact(item.userName, user.userName))
+      this.robinUsers.forEach((user: any) => {
+        this.contacts[this.getContactKey(user.userName)] = this.robinUsers.filter((item: any) => this.validateContact(item.userName, user.userName))
       })
 
       this.sortContacts()
     } else {
-      this.searchData.forEach((user) => {
-        this.contacts[this.getContactKey(user.userName)] = this.searchData.filter((item) => item.userToken !== this.$user_token && this.validateContact(item.userName, user.userName))
+      this.searchData.forEach((user: any) => {
+        this.contacts[this.getContactKey(user.userName)] = this.searchData.filter((item: any) => this.validateContact(item.userName, user.userName))
       })
     }
   }
@@ -150,7 +153,7 @@ export default class NewGroupChatList extends ComponentProps {
     const checkboxComponents = this.$refs['checkbox-comp'] as any
 
     if (!val) {
-      this.users = [...this.$robin_users]
+      this.users = [...this.robinUsers]
 
       for (let i = 0; i < checkboxComponents.length; i += 1) {
         checkboxComponents[i].checked = true
@@ -263,7 +266,7 @@ export default class NewGroupChatList extends ComponentProps {
   searchContacts (searchText: string): void {
     this.isLoading = true
     // eslint-disable-next-line array-callback-return
-    const data = this.$robin_users.filter((obj) => {
+    const data = this.robinUsers.filter((obj: any) => {
       let stopSearch = false
       Object.values(obj).forEach((val) => {
         const filter = String(val).toLowerCase().includes(searchText.toLowerCase())

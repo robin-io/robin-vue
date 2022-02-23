@@ -25,7 +25,7 @@
     <div v-show="!isPageLoading" class="robin-wrapper robin-card-container robin-pb-16 robin-flex robin-flex-column" @scroll="onScroll()" :class="{ 'robin-come-down': screenWidth > 1200 }">
       <div class="robin-card robin-flex robin-flex-align-center" :class="{ 'robin-card-active': isConversationActive(conversation) && screenWidth > 1200 }" v-for="(conversation, index) in conversations" :key="`conversation-${index}`" @click.self="openConversation(conversation)">
         <div class="robin-card-info robin-mr-12" @click="openConversation(conversation)">
-          <RAvatar v-if="!conversation.is_group" :img-url="getProfileImage(conversation)" :sender-token="conversation.sender_token" />
+          <RAvatar :robin-users="$robin_users" v-if="!conversation.is_group" :img-url="getProfileImage(conversation)" :sender-token="conversation.sender_token" />
 
           <RGroupAvatar v-else :img-url="conversation.group_icon" />
         </div>

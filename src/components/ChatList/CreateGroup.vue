@@ -30,7 +30,7 @@
         <div class="robin-wrapper robin-card-container robin-h-100 robin-flex robin-flex-1 robin-flex-column">
           <div v-for="user in users" :key="user.userToken" class="robin-card robin-flex robin-flex-align-center">
             <div class="robin-card-info robin-mr-12">
-              <RAvatar :sender-token="user.userToken" />
+              <RAvatar :robin-users="$robin_users" :sender-token="user.userToken" />
             </div>
             <div class="robin-card-info robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4˝ robin-flex-1">
               <div class="robin-flex">

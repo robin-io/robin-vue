@@ -25,7 +25,7 @@
         <div class="robin-wrapper robin-card-container robin-flex robin-flex-column robin-grey-200">
           <div class="robin-card robin-flex robin-flex-align-center robin-clickable" v-for="user in contact" :key="user.userToken" @click="createConversation(user)">
             <div class="robin-card-info robin-mr-12">
-              <RAvatar :img-url="user.profileImage" :sender-token="user.userToken" />
+              <RAvatar :robin-users="$robin_users" :img-url="user.profileImage" :sender-token="user.userToken" />
             </div>
 
             <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4˝ robin-flex-1">
@@ -52,6 +52,15 @@ import RAlphabetBlock from './RAlphabetBlock/RAlphabetBlock.vue'
 import EventBus from '@/event-bus'
 import IconButton from '../IconButton/IconButton.vue'
 
+const ComponentProps = Vue.extend({
+  props: {
+    robinUsers: {
+      type: Array,
+      default: () => []
+    }
+  }
+})
+
 // eslint-disable-next-line
 @Component<NewChatList>({
   name: 'NewChatList',
@@ -65,15 +74,14 @@ import IconButton from '../IconButton/IconButton.vue'
     RAlphabetBlock
   },
   watch: {
-    $robin_users: {
+    robinUsers: {
       handler (val) {
         this.getContacts('')
-      },
-      immediate: true
+      }
     }
   }
 })
-export default class NewChatList extends Vue {
+export default class NewChatList extends ComponentProps {
   contacts = {} as any
   isLoading = false as boolean
   searchData = [] as Array<any>
@@ -123,14 +131,14 @@ export default class NewChatList extends Vue {
     this.contacts = {}
 
     if (searchText.trim() === '') {
-      this.$robin_users.forEach((user) => {
-        this.contacts[this.getContactKey(user.userName)] = this.$robin_users.filter((item) => item.userToken !== this.$user_token && this.validateContact(item.userName, user.userName))
+      this.robinUsers.forEach((user: any) => {
+        this.contacts[this.getContactKey(user.userName)] = this.robinUsers.filter((item: any) => this.validateContact(item.userName, user.userName))
       })
 
       this.sortContacts()
     } else {
-      this.searchData.forEach((user) => {
-        this.contacts[this.getContactKey(user.userName)] = this.searchData.filter((item) => item.userToken !== this.$user_token && this.validateContact(item.userName, user.userName))
+      this.searchData.forEach((user: any) => {
+        this.contacts[this.getContactKey(user.userName)] = this.searchData.filter((item: any) => this.validateContact(item.userName, user.userName))
       })
     }
   }
@@ -138,7 +146,7 @@ export default class NewChatList extends Vue {
   searchContacts (searchText: string): void {
     this.isLoading = true
     // eslint-disable-next-line array-callback-return
-    const data = this.$robin_users.filter((obj) => {
+    const data = this.robinUsers.filter((obj: any) => {
       let stopSearch = false
       Object.values(obj).forEach((val) => {
         const filter = String(val).toLowerCase().includes(searchText.toLowerCase())

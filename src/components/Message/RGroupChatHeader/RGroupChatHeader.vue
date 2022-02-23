@@ -7,7 +7,7 @@
         <div class="robin-card-info robin-mr-8">
           <RGroupAvatar v-if="conversation.is_group"  :img-url="conversation.group_icon" />
 
-          <RAvatar v-else :status="conversation.status" :sender-token="conversation.sender_token" />
+          <RAvatar :robin-users="$robin_users" v-else :status="conversation.status" :sender-token="conversation.sender_token" />
         </div>
 
         <div class="robin-card-info robin-h-100 robin-flex robin-flex-column robin-flex-space-between robin-flex-1">

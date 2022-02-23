@@ -10,7 +10,7 @@
     <div class="robin-wrapper robin-card-container robin-flex robin-flex-column robin-mt-42" @scroll="onScroll()">
       <div class="robin-card robin-flex robin-flex-align-center" :class="{ 'robin-card-active': isConversationActive(conversation)  && screenWidth > 1200 }" v-for="(conversation, index) in conversations" :key="`conversation-${index}`" @click.self="openConversation(conversation)" v-show="conversations.length > 0">
         <div class="robin-card-info robin-mr-12" @click="openConversation(conversation)">
-          <RAvatar v-if="!conversation.is_group" :img-url="getProfileImage(conversation)" :sender-token="conversation.sender_token" />
+          <RAvatar :robin-users="$robin_users" v-if="!conversation.is_group" :img-url="getProfileImage(conversation)" :sender-token="conversation.sender_token" />
 
           <RGroupAvatar v-else :img-url="conversation.group_icon" />
         </div>

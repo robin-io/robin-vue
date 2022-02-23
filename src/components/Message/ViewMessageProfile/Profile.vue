@@ -1,13 +1,13 @@
 <template>
   <div class="robin-modal-container robin-flex robin-flex-column robin-slideInRight" ref="popup-body">
     <header class="robin-header">
-      <IconButton name="remove" @close="$emit('close')" emit="close" :to-emit="true" :to-click-away="false" />
+      <IconButton name="remove" @close="closeModal()" emit="close" :to-emit="true" :to-click-away="false" />
       <RText font-weight="400" :font-size="16" class="robin-ml-12">{{ !currentConversation.is_group ? 'Chat' : 'Group' }} Info</RText>
     </header>
 
     <div class="robin-wrapper robin-slideIn">
       <div class="robin-profile">
-        <RAvatar v-if="!currentConversation.is_group" :sender-token="currentConversation.sender_token" class="robin-mb-8" />
+        <RAvatar :robin-users="$robin_users" v-if="!currentConversation.is_group" :sender-token="currentConversation.sender_token" class="robin-mb-8" />
         <RGroupAvatar v-else class="robin-mb-8"  :img-url="currentConversation.group_icon" />
 
         <RText fontWeight="500" as="h3" class="robin-mb-8">{{ !currentConversation.is_group ? currentConversation.receiver_name : currentConversation.name }}</RText>
@@ -115,7 +115,7 @@
         <div class="robin-card-container">
           <div class="robin-card robin-flex robin-flex-align-center" v-for="(participant, participantIndex) in participants.slice(0, participantsToShow)" :key="participantIndex" @click.self="openGroupPrompt(participant.userToken)" :class="{'robin-clickable': currentConversation.is_group}">
             <div class="robin-card-info robin-mr-12" @click="openGroupPrompt(participant.userToken)">
-              <RAvatar />
+              <RAvatar :robin-users="$robin_users" />
             </div>
 
             <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4 robin-flex-1" @click.self="openGroupPrompt(participant.userToken)">
@@ -132,7 +132,7 @@
           </div>
         </div>
 
-        <div class="robin-see-all" @click="participantsToShow = participants.length" v-show="participants.length > 4">
+        <div class="robin-see-all" @click="participantsToShow = participants.length" v-show="participantsToShow !== participants.length && participants.length > 4">
           <RButton :fontSize="14"> See All Participants </RButton>
         </div>
       </div>
@@ -247,6 +247,11 @@ export default class Profile extends Vue {
     this.participants = this.$robin_users.filter((user: any) => {
       return users.includes(user.userToken)
     })
+  }
+
+  closeModal () {
+    this.participantsToShow = 4
+    this.$emit('close')
   }
 
   formatRecentMessageTime (time: string): string {
@@ -413,7 +418,7 @@ export default class Profile extends Vue {
 
       EventBus.$emit('left.group')
       EventBus.$emit('regular-conversation.delete', this.currentConversation)
-      this.$emit('close')
+      this.closeModal()
     } else {
       this.$toast.open({
         message: 'Check your connection.',
@@ -506,7 +511,7 @@ export default class Profile extends Vue {
 
 .robin-header {
   width: 100%;
-  height: 79px;
+  min-height: 79px;
   display: flex;
   align-items: center;
   padding: 0 clamp(2%, 4vw, 1.25rem);

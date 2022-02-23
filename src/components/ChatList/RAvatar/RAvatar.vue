@@ -7,7 +7,7 @@
 
     <div class="robin-default-profile" v-if="imgUrl == '' && getContactName != ''">
       <RText as="span" :font-size="16">
-        {{ getContactName.length > 1 ? getContactName[0][0] + '' + getContactName[1][0] : getContactName[0][0] }}
+        {{ getContactName.length > 1 ? getContactName[0][0] + '' + (getContactName[1].trim() !== '' ? getContactName[1][0] : '') : getContactName[0][0] }}
       </RText>
     </div>
 
@@ -35,6 +35,10 @@ const ComponentProps = Vue.extend({
     status: {
       type: String as PropType<string>,
       default: ''
+    },
+    robinUsers: {
+      type: Array,
+      default: () => []
     }
   }
 })
@@ -47,8 +51,8 @@ const ComponentProps = Vue.extend({
 })
 export default class RAvatar extends ComponentProps {
   get getContactName (): string {
-    const index = this.$robin_users.findIndex((user) => user.userToken === this.senderToken) as number
-    const user = this.$robin_users[index] as any
+    const index = this.robinUsers.findIndex((user: any) => user.userToken === this.senderToken) as number
+    const user = this.robinUsers[index] as any
 
     if (user) {
       return user.userName ? user.userName.split(' ') : ''
@@ -99,5 +103,6 @@ img {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  text-transform: uppercase;
 }
 </style>

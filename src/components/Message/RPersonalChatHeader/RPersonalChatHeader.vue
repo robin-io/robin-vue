@@ -2,7 +2,7 @@
   <header>
     <div class="robin-card robin-flex robin-flex-align-center">
       <div class="robin-card-info robin-mr-16">
-        <RAvatar />
+        <RAvatar :robin-users="$robin_users" />
       </div>
       <div class="robin-card-info robin-h-100 robin-flex robin-flex-column robin-flex-space-between robin-flex-1">
         <div class="robin-mt-6">
