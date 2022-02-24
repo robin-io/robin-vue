@@ -132,13 +132,13 @@ export default class NewChatList extends ComponentProps {
 
     if (searchText.trim() === '') {
       this.robinUsers.forEach((user: any) => {
-        this.contacts[this.getContactKey(user.userName)] = this.robinUsers.filter((item: any) => this.validateContact(item.userName, user.userName))
+        this.contacts[this.getContactKey(user.userName)] = this.robinUsers.filter((item: any) => item.userToken !== this.$user_token && this.validateContact(item.userName, user.userName))
       })
 
       this.sortContacts()
     } else {
       this.searchData.forEach((user: any) => {
-        this.contacts[this.getContactKey(user.userName)] = this.searchData.filter((item: any) => this.validateContact(item.userName, user.userName))
+        this.contacts[this.getContactKey(user.userName)] = this.searchData.filter((item: any) => item.userToken !== this.$user_token && this.validateContact(item.userName, user.userName))
       })
     }
   }

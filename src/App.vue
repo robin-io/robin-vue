@@ -58,6 +58,11 @@ const ComponentProps = Vue.extend({
       type: Array as PropType<Array<any>>,
       default: (): Array<any> => [
         {
+          userToken: 'lYcofFsZtJOZWgHtpgjvhHhR',
+          profileImage: '',
+          userName: 'Elvis Chuks'
+        },
+        {
           userToken: 'jnEyRcqxrILegQPDsEflVTcZ',
           profileImage: '',
           userName: 'Enoch Chejieh'
@@ -173,10 +178,6 @@ export default class App extends ComponentProps {
     return store.state.groupPromptOpen
   }
 
-  get robinUsers () {
-    return this.$robin_users
-  }
-
   initiateRobin () {
     this.robin = new Robin(this.apiKey, true)
     this.connect()
@@ -202,17 +203,13 @@ export default class App extends ComponentProps {
   filterUsers (): void {
     const filteredUsers: Array<any> = []
     this.users.forEach((user) => {
-      if (user.user_token !== this.userToken) {
-        const newUser = {
-          userToken: user[this.keys?.userToken],
-          profileImage: user[this.keys?.profileImage],
-          userName: user[this.keys?.userName]
-        }
-        filteredUsers.push(newUser)
+      const newUser = {
+        userToken: user[this.keys?.userToken],
+        profileImage: user[this.keys?.profileImage],
+        userName: user[this.keys?.userName]
       }
+      filteredUsers.push(newUser)
     })
-
-    console.log('users->', filteredUsers)
 
     Vue.prototype.$robin_users = [...filteredUsers]
   }
