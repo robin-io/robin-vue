@@ -1,5 +1,5 @@
 <template>
-  <div class="robin-message-container" v-on-clickaway="onChatClickAway">
+  <div class="robin-message-container" :style="{'height': windowHeight + 'px'}" v-on-clickaway="onChatClickAway">
     <RGroupChatHeader :conversation="conversation" :key="key" :selected-messages="selectedMessages" @delete-selected-messages="openPrompt()" />
 
     <div class="robin-wrapper robin-flex robin-flex-column robin-flex-space-between">
@@ -15,13 +15,9 @@
     <RMessageInputBar :conversation="conversation" :message-reply="messageReply" @open-camera="openCamera()" :captured-image="capturedImage" @on-close-reply="onCloseReply()" v-show="!selectMessagesOpen" />
 
     <div class="robin-forward-tab" v-show="selectMessagesOpen">
-      <RText color="#51545C">
-        {{ selectedMessages.length }} Messages Selected
-      </RText>
+      <RText color="#51545C"> {{ selectedMessages.length }} Messages Selected </RText>
 
-      <RButton emit="forward-message" v-show="selectedMessages.length > 0" @forward-message="forwardMessage = true">
-        Forward Messages
-      </RButton>
+      <RButton emit="forward-message" v-show="selectedMessages.length > 0" @forward-message="forwardMessage = true"> Forward Messages </RButton>
     </div>
 
     <RCamera ref="popup-1" :camera-opened="popUpState.cameraOpened" @close="closeCamera()" @captured-image="handleCapturedImage" v-show="popUpState.cameraOpened" />
@@ -31,9 +27,7 @@
     <RPrompt @proceed="deleteSelectedMessages()" v-show="promptOpen" @closemodal="closePrompt()" />
 
     <div class="robin-scroll-to-bottom robin-bounceIn" v-show="scrollUp" @click="scrollToBottom()">
-      <i class="robin-material-icon">
-        arrow_downward
-      </i>
+      <i class="robin-material-icon"> arrow_downward </i>
     </div>
   </div>
 </template>
@@ -111,6 +105,7 @@ import RPrompt from '../RPrompt/RPrompt.vue'
 export default class RGroupMessageContainer extends Vue {
   promptOpen = false
   uncheck = false
+  windowHeight = 0 as number
   readReceipts = [] as Array<string>
   selectedMessages = [] as Array<any>
   forwardMessage = false as boolean
@@ -149,6 +144,15 @@ export default class RGroupMessageContainer extends Vue {
     this.getReadReceipts()
   }
 
+  mounted () {
+    this.$nextTick(function () {
+      this.onResize()
+    })
+    window.addEventListener('resize', this.onResize)
+
+    this.windowHeight = window.innerHeight
+  }
+
   get currentConversation () {
     return store.state.currentConversation
   }
@@ -179,9 +183,10 @@ export default class RGroupMessageContainer extends Vue {
 
   handleConversationOpen (): void {
     EventBus.$on('conversation-opened', (conversation: any) => {
+      this.scrollUp = false
       this.messageReply = {}
       this.messages = []
-      this.conversation = conversation || []
+      this.conversation = conversation || {}
       store.setState('currentConversation', conversation)
       this.scroll = false
       this.isMessagesLoading = true
@@ -390,7 +395,7 @@ export default class RGroupMessageContainer extends Vue {
       const isImage = this.imageRegex.test(fileMimeType && (!messages[index].content.msg || messages[index].content.msg === 'undefined') ? fileMimeType : '') as any
 
       const nextFileMimeType = this.checkAttachmentType(messages[index + 1] ? messages[index + 1].content.attachment || '' : '') as any
-      const isImageNext = this.imageRegex.test(messages[index + 1] ? nextFileMimeType && (!messages[index + 1].content.msg || messages[index + 1].content.msg === 'undefined') ? nextFileMimeType : '' : '') as any
+      const isImageNext = this.imageRegex.test(messages[index + 1] ? (nextFileMimeType && (!messages[index + 1].content.msg || messages[index + 1].content.msg === 'undefined') ? nextFileMimeType : '') : '') as any
 
       if (isImage) {
         temp.push(messages[index])
@@ -454,7 +459,9 @@ export default class RGroupMessageContainer extends Vue {
 
   onScroll (): void {
     const message = this.$refs.message as HTMLElement
-    const endOfScroll = Math.floor(message.scrollTop) === Math.floor(message.scrollHeight - message.clientHeight)
+    const endOfScroll = Math.floor(message.scrollTop) > Math.floor(message.scrollHeight - message.clientHeight - 20)
+
+    // console.log(message.scrollTop === message.scrollHeight, `scroll-height: ${Math.floor(message.scrollHeight - message.clientHeight)}`, `scroll-top: ${Math.floor(message.scrollTop)}`)
 
     if (message.scrollTop > this.lastScroll) {
       if (endOfScroll) {
@@ -513,10 +520,13 @@ export default class RGroupMessageContainer extends Vue {
   }
 
   async deleteSelectedMessages () {
-    const res = await this.$robin.deleteMessages(this.selectedMessages.map(message => message._id), this.$user_token)
+    const res = await this.$robin.deleteMessages(
+      this.selectedMessages.map((message) => message._id),
+      this.$user_token
+    )
 
     if (res && !res.error) {
-      this.selectedMessages.forEach(message => EventBus.$emit('message-deleted', message))
+      this.selectedMessages.forEach((message) => EventBus.$emit('message-deleted', message))
 
       this.selectedMessages = []
       store.setState('selectMessagesOpen', false)
@@ -564,13 +574,17 @@ export default class RGroupMessageContainer extends Vue {
     const messageRef: any = this.$refs[`message-${messageIndex}`]
     messageRef[0].$el.scrollIntoView({ behavior: 'smooth', block: 'end' })
   }
+
+  onResize () {
+    this.scrollUp = false
+  }
 }
 </script>
 
 <style scoped>
 .robin-message-container {
   width: 100%;
-  height: 100%;
+  /* height: 100%; */
   display: flex;
   flex: 1;
   flex-direction: column;

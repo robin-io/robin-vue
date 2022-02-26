@@ -2,18 +2,21 @@
   <div class="robin-side-container">
     <header class="robin-header">
       <RText font-weight="400" color="rgba(83, 95, 137, 1)" :font-size="17"> Settings </RText>
-      <IconButton name="edit" @edit="$emit('openmodal', 'newchat')" emit="edit" :to-emit="true" :to-click-away="false" />
-      <!-- <REditButton @edit="$emit('openmodal', 'newchat')" /> -->
+      <IconButton name="edit" @edit="openEdit()" emit="edit" :to-emit="true" :to-click-away="false" :color="'#fff'" />
     </header>
+
     <div class="robin-wrapper robin-w-100">
-      <RSearchBar />
+      <RSearchBar :key="key" />
     </div>
+
     <div class="robin-wrapper robin-flex robin-flex-column robin-flex-align-center robin-h-100 robin-w-100 robin-flex-1 robin-pt-100">
       <SvgIcon name="nochat" />
+
       <div class="robin-mb-13 robin-mt-33">
         <RText fontWeight="normal" color="#535F89">No Messages Yet</RText>
       </div>
-      <RButton emit="newchat" @newchat="$emit('openmodal', 'newchat')">Start a chat</RButton>
+
+      <RButton emit="newchat" @newchat="openEdit()">Start a chat</RButton>
     </div>
   </div>
 </template>
@@ -41,6 +44,18 @@ import SvgIcon from '../SvgIcon/SvgIcon.vue'
 })
 
 export default class NoChatList extends Vue {
+  key = 0 as number
+
+  openEdit (): void {
+    this.$emit('opennewchatmodal', 'newchat')
+    setTimeout(() => {
+      this.refresh()
+    }, 300)
+  }
+
+  refresh (): void {
+    this.key += 1
+  }
 }
 </script>
 

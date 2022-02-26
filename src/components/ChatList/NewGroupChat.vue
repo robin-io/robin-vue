@@ -12,7 +12,7 @@
 
     <RText as="label" for-ref="group-icon-upload" class="robin-clickable">
       <div class="robin-group-image robin-mb-7" v-show="!groupIcon.name">
-        <input type="file" :accept="acceptedVisualFiles" @change="handleFileChange($event.target.files)" @click="resetFileTarget($event)" id="group-icon-upload" />
+        <input type="file" :style="{ display: 'none' }" :accept="acceptedVisualFiles" @change="handleFileChange($event.target.files)" @click="resetFileTarget($event)" id="group-icon-upload" />
         <RText color="#fff" :fontSize="24">RG</RText>
       </div>
 
@@ -60,6 +60,8 @@ export default class NewGroupChatList extends Vue {
 
   openPreviousModal (): void {
     this.$emit('closemodal', 'newchat')
+    this.groupIcon = {}
+    this.groupName = ''
   }
 
   openGroupChatList (): void {
@@ -172,30 +174,6 @@ img.robin-group-image {
   padding: 0 1.5rem;
   height: 28px;
   background-color: #f3f3f3;
-}
-
-input[type='file'] {
-  display: none;
-  width: 0;
-  height: 0;
-}
-
-input[type='file']::file-upload-button {
-  display: none;
-  width: 0;
-  height: 0;
-}
-
-input[type='file']::-webkit-file-upload-button {
-  display: none;
-  width: 0;
-  height: 0;
-}
-
-input[type='file']::-moz-file-upload-button {
-  display: none;
-  width: 0;
-  height: 0;
 }
 
 @media (min-width: 768px) {

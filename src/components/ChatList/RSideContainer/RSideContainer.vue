@@ -1,11 +1,16 @@
 <template>
   <div class="robin-chat-list-container">
     <PrimaryChatList v-show="$conversations.length > 0 || isPageLoading" :key="key" @search="searchedData($event)" :regular-conversations="regularConversations" :archived-conversations="archivedConversations" @opennewchatmodal="openModal('slide-1', $event)" @openarchivedchatmodal="openModal('slide-3', $event)" @closemodal="closeModal('slide-1', $event)" @refresh="refresh" />
-    <NewChatList ref="slide-1" v-show="sideBarType == 'newchat'" :robin-users="$robin_users" @openmodal="openModal('slide-2', $event)" @closemodal="closeModal('slide-1', $event)" />
+
+    <NewChatList :key="key + 1" ref="slide-1" v-show="sideBarType == 'newchat'" :robin-users="$robin_users" @openmodal="openModal('slide-2', $event)" @closemodal="closeModal('slide-1', $event)" />
+
     <NoChatList v-show="$conversations.length < 1 && !isPageLoading" @openmodal="openModal('slide-1', $event)" />
+
     <NewGroupChat ref="slide-2" v-show="sideBarType == 'newgroup'" @openmodal="openModal('slide-3', $event)" @set-groupname="setGroupName($event)" @set-groupicon="setGroupIcon($event)" @closemodal="closeModal('slide-2', $event)" />
-    <NewGroupChatList ref="slide-3" v-show="sideBarType == 'newgroupchat'" :robin-users="$robin_users" :group-name="groupName" :group-icon="groupIcon" @openmodal="openModal('slide-0', $event)" @closemodal="closeModal('slide-3', $event)" @reset-groupname="resetGroupName()" @reset-groupicon="resetGroupIcon()" />
-    <ArchivedChatList ref="slide-4" v-show="sideBarType == 'archivedchat'" @closemodal="closeModal('slide-4', $event)" :archived-conversations="archivedConversations" :key="key + 1" @refresh="refresh" />
+
+    <NewGroupChatList :key="key + 2" ref="slide-3" v-show="sideBarType == 'newgroupchat'" :robin-users="$robin_users" :group-name="groupName" :group-icon="groupIcon" @openmodal="openModal('slide-0', $event)" @closemodal="closeModal('slide-3', $event)" @reset-groupname="resetGroupName()" @reset-groupicon="resetGroupIcon()" />
+
+    <ArchivedChatList ref="slide-4" v-show="sideBarType == 'archivedchat'" @closemodal="closeModal('slide-4', $event)" :archived-conversations="archivedConversations" :key="key + 3" @refresh="refresh" />
   </div>
 </template>
 
@@ -30,7 +35,8 @@ const ComponentProps = Vue.extend({
   }
 })
 
-@Component({
+// eslint-disable-next-line
+@Component<RSideContainer>({
   name: 'RSideContainer',
   components: {
     PrimaryChatList,
@@ -39,6 +45,13 @@ const ComponentProps = Vue.extend({
     NewGroupChat,
     NewGroupChatList,
     ArchivedChatList
+  },
+  watch: {
+    $robin_users: {
+      handler (val) {
+        this.refresh()
+      }
+    }
   }
 })
 export default class RSideContainer extends ComponentProps {
@@ -272,8 +285,11 @@ export default class RSideContainer extends ComponentProps {
     EventBus.$on('mark-as-read', (conversation: any) => {
       if (!conversation.archived_for || conversation.archived_for.length === 0) {
         const index = this.$regularConversations.findIndex((item) => item._id === conversation._id)
-        this.regularConversations[index].unread_messages = 0
-        this.$regularConversations[index].unread_messages = 0
+
+        if (this.regularConversations[index]) {
+          this.regularConversations[index].unread_messages = 0
+          this.$regularConversations[index].unread_messages = 0
+        }
       }
     })
   }
@@ -282,15 +298,21 @@ export default class RSideContainer extends ComponentProps {
     EventBus.$on('mark-as-unread', (conversation: any) => {
       if (!conversation.archived_for || conversation.archived_for.length === 0) {
         const index = this.$regularConversations.findIndex((item) => item._id === conversation._id)
-        this.$regularConversations[index].unread_messages += 1
+
+        if (this.regularConversations[index]) {
+          this.$regularConversations[index].unread_messages += 1
+        }
       }
     })
 
     EventBus.$on('mark-as-unread.modified', (conversation: any) => {
       if (!conversation.archived_for || conversation.archived_for.length === 0) {
         const index = this.$regularConversations.findIndex((item) => item._id === conversation._id)
-        this.regularConversations[index].unread_messages = 'marked'
-        this.$regularConversations[index].unread_messages = 'marked'
+
+        if (this.regularConversations[index]) {
+          this.regularConversations[index].unread_messages = 'marked'
+          this.$regularConversations[index].unread_messages = 'marked'
+        }
       }
     })
   }

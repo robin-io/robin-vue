@@ -24,7 +24,7 @@
         <!-- place reply here -->
         <ReplyMessageBubble :messages="messages" :message="message" v-if="message.is_reply" :sender="validateMessages(message).includes('message-sender')" @scroll-replied-message="scrollToRepliedMessage" />
         <!-- place reply here -->
-        <RText :max-width="message.content.msg.length < 120 ? '217' : '270'" textWrap="pre-line" wordBreak="break-word" as="span" v-if="!validateLinkInMessage().containsEmail && !validateLinkInMessage().containsWebsite">
+        <RText :max-width="message.content.msg.length < 120 ? '217' : '270'" :font-size="17" textWrap="pre-line" wordBreak="break-word" as="span" v-if="!validateLinkInMessage().containsEmail && !validateLinkInMessage().containsWebsite">
           {{ message.content.msg }}
         </RText>
 
@@ -894,7 +894,7 @@ video {
 
 .robin-message-bubble-video >>> .robin-reply-message-bubble {
   width: 96%;
-  margin: 0.5rem auto;
+  margin: 0.5rem auto 0.625rem;
 }
 
 video.video-reply {
@@ -953,6 +953,10 @@ video.video-reply {
 
 .robin-message-bubble-document .robin-uploaded-document .details {
   margin-right: 2.2rem;
+}
+
+.robin-message-bubble-document .robin-uploaded-document .details + * {
+  margin-left: auto;
 }
 
 .robin-message-bubble-document .robin-uploaded-document img {
@@ -1125,7 +1129,7 @@ video.video-reply {
   content: '';
   position: absolute;
   bottom: -4.5px;
-  right: 50%;
+  right: 35%;
   width: 10px;
   height: 5px;
   background-color: #e6e6e6;
@@ -1218,6 +1222,8 @@ a {
 }
 
 .robin-forwarded {
+  display: block;
+  clear: both;
   margin-right: auto;
   margin-bottom: 0.125rem;
 }

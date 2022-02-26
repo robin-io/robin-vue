@@ -102,6 +102,7 @@ export default class NewChatList extends ComponentProps {
     })
 
     if (res && !res.error) {
+      console.log('successfully created ->', res.data)
       if (!this.checkConversations(res.data)) {
         this.$conversations.push(res.data)
       }
@@ -189,8 +190,11 @@ export default class NewChatList extends ComponentProps {
     }, 300)
   }
 
-  getContactKey (username: any): string {
-    return username.trim() !== '' && isNaN(parseInt(username[0])) ? username[0].toUpperCase() : '*'
+  getContactKey (username: string): string {
+    if (username && username.trim() !== '' && isNaN(parseInt(username[0]))) {
+      return username[0].toUpperCase()
+    }
+    return '*'
   }
 
   validateContact (usernameVal: any, username: any): boolean {

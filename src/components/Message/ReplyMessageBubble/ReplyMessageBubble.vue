@@ -3,7 +3,7 @@
     <div>
       <RText :font-size="14" color="#51545C" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getReplyMessage(message.reply_to).sender_token === $user_token ? 'You' : getContactName(getReplyMessage(message.reply_to).content.sender_token) }} </RText>
 
-      <RText :font-size="10" color="#8D9091" textWrap="pre-line" wordBreak="break-word" as="span" v-if="!validateLinkInMessage().containsEmail && !validateLinkInMessage().containsWebsite">
+      <RText :font-size="14" color="#8D9091" textWrap="pre-line" wordBreak="break-word" as="span" v-if="!validateLinkInMessage().containsEmail && !validateLinkInMessage().containsWebsite">
         {{ getReplyMessage(message.reply_to).content.msg }}
       </RText>
 
@@ -229,6 +229,7 @@ export default class ReplyMessageBubble extends ComponentProps {
   padding: 0.4rem 0.625rem;
   border-left: 3px solid #9999bc;
   position: relative;
+  margin-bottom: 0.625rem;
 }
 
 .robin-reply-receiver.robin-reply-message-bubble {
@@ -237,6 +238,7 @@ export default class ReplyMessageBubble extends ComponentProps {
   position: relative;
   padding: 0.4rem 0.625rem;
   border-left: 3px solid #9999bc;
+  margin-bottom: 0.625rem;
 }
 
 .robin-uploaded-image {
@@ -254,7 +256,7 @@ video {
 }
 
 .robin-link-container {
-  font-size: 0.625rem;
+  font-size: 0.825rem;
   max-width: 120px;
 }
 

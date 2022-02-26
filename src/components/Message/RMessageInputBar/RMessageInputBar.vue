@@ -1,7 +1,7 @@
 <template>
   <div class="robin-message-box" v-on-clickaway="handleEmojiClosePopUp">
     <div class="robin-emoji-container robin-emoji-out robin-squeezeOut" v-show="popUpState.emojiOpened" ref="popup-1" @keydown.enter.exact.prevent="!replying ? sendMessage() : replyMessage()" tabindex="1">
-      <VEmojiPicker @select="selectEmoji" :emojisByRow="15" label-search="Search" lang="pt-BR" class="robin-emoji" />
+      <VEmojiPicker @select="selectEmoji" :emojisByRow="screenWidth > 768 ? 15 : 7" label-search="Search" lang="pt-BR" class="robin-emoji" />
     </div>
 
     <!-- reply message -->
@@ -116,6 +116,7 @@ import Vue from 'vue'
 import { VEmojiPicker } from 'v-emoji-picker'
 import { mixin as clickaway } from 'vue-clickaway'
 import mime from 'mime'
+import EventBus from '@/event-bus'
 import Component from 'vue-class-component'
 import store from '../../../store/index'
 import IconButton from '../../IconButton/IconButton.vue'
@@ -184,6 +185,7 @@ export default class RMessageInputBar extends ComponentProps {
   acceptedDocFiles = '.xls, .doc, .ppt, .txt, .pdf, .html, .zip, .psd' as string
   isUploading = false as boolean
   replying = false as boolean
+  screenWidth = 0 as number
 
   imageRegex = /^image/ as any
   emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
@@ -195,12 +197,21 @@ export default class RMessageInputBar extends ComponentProps {
     emojiOpened: false
   }
 
+  mounted () {
+    this.handleConversationOpen()
+
+    this.$nextTick(function () {
+      this.onResize()
+    })
+    window.addEventListener('resize', this.onResize)
+  }
+
   get checkFileFormat () {
     return this.files.some((file) => file.type.includes('image'))
   }
 
   async sendMessage (): Promise<void> {
-    this.isUploading = true
+    // this.isUploading = true
     if (this.files.length > 0 && this.text.trim().length === 0) {
       await this.sendFileMessage()
     } else if (this.text.trim().length > 0 && this.files.length < 1) {
@@ -217,12 +228,12 @@ export default class RMessageInputBar extends ComponentProps {
     input.value = ''
     this.text = ''
     this.files = []
-    this.isUploading = false
+    // this.isUploading = false
     this.popUpState.emojiOpened = false
   }
 
   async replyMessage () {
-    this.isUploading = true
+    // this.isUploading = true
     if (this.files.length > 0 && this.text.trim().length === 0) {
       await this.replyFileMessage()
     } else if (this.text.trim().length > 0 && this.files.length < 1) {
@@ -239,7 +250,7 @@ export default class RMessageInputBar extends ComponentProps {
     input.value = ''
     this.text = ''
     this.files = []
-    this.isUploading = false
+    // this.isUploading = false
     this.replying = false
     this.popUpState.emojiOpened = false
   }
@@ -325,7 +336,7 @@ export default class RMessageInputBar extends ComponentProps {
   }
 
   selectEmoji (emoji: any): void {
-    this.text += emoji.data
+    this.text += ` ${emoji.data}`
     const input = this.$refs.input as HTMLInputElement
     input.focus()
   }
@@ -466,6 +477,19 @@ export default class RMessageInputBar extends ComponentProps {
 
     return returnedMessage
   }
+
+  handleConversationOpen (): void {
+    EventBus.$on('conversation-opened', (_: any) => {
+      const input = this.$refs.input as any
+      setTimeout(() => {
+        input.focus()
+      }, 50)
+    })
+  }
+
+  onResize () {
+    this.screenWidth = window.innerWidth
+  }
 }
 </script>
 
@@ -604,7 +628,7 @@ export default class RMessageInputBar extends ComponentProps {
   background-color: transparent;
   border: none;
   font-size: 1rem;
-  line-height: 0.75rem;
+  line-height: 0.825rem;
   /* padding: 0.9rem 0 0 0.625rem; */
   white-space: pre-wrap;
   word-wrap: break-word;

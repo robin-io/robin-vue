@@ -7,7 +7,7 @@
 
     <div class="robin-wrapper robin-slideIn">
       <div class="robin-profile">
-        <RAvatar :robin-users="$robin_users" v-if="!currentConversation.is_group" :sender-token="currentConversation.sender_token" class="robin-mb-8" />
+        <RAvatar :robin-users="$robin_users" v-if="!currentConversation.is_group" :sender-token="currentConversation.sender_token === $user_token ? currentConversation.receiver_token : currentConversation.sender_token" class="robin-mb-8" />
         <RGroupAvatar v-else class="robin-mb-8"  :img-url="currentConversation.group_icon" />
 
         <RText fontWeight="500" as="h3" class="robin-mb-8">{{ !currentConversation.is_group ? currentConversation.receiver_name : currentConversation.name }}</RText>

@@ -72,7 +72,7 @@ input[type='checkbox'] + .robin-checkbox-control::before {
   background-color: var(--checkbox-color);
   transform: scale(0);
   transform-origin: center;
-  transition: transform 0.2s;
+  transition: transform 100ms;
 }
 
 input[type='checkbox'] + .robin-checkbox-control::after {

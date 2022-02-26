@@ -17,15 +17,15 @@
         <RText class="robin-ml-6" font-weight="400" color="#15AE73"> Archived Chats </RText>
       </RButton>
 
-      <RText font-weight="400" color="#15AE73" v-show="archivedConversations.length > 0"> {{archivedConversations.length}} </RText>
+      <RText font-weight="400" color="#15AE73" v-show="archivedConversations.length > 0"> {{ archivedConversations.length }} </RText>
     </div>
 
     <div v-show="isPageLoading" class="robin-spinner"></div>
 
     <div v-show="!isPageLoading" class="robin-wrapper robin-card-container robin-pb-16 robin-flex robin-flex-column" @scroll="onScroll()" :class="{ 'robin-come-down': screenWidth > 1200 }">
-      <div class="robin-card robin-flex robin-flex-align-center" :class="{ 'robin-card-active': isConversationActive(conversation) && screenWidth > 1200 }" v-for="(conversation, index) in conversations" :key="`conversation-${index}`" @click.self="openConversation(conversation)">
+      <div class="robin-card robin-flex robin-flex-align-center" v-for="(conversation, index) in conversations" :key="`conversation-${index}`" :class="{ 'robin-card-active': currentConversation._id == conversation._id && screenWidth > 1200 }" @click.self="openConversation(conversation)">
         <div class="robin-card-info robin-mr-12" @click="openConversation(conversation)">
-          <RAvatar :robin-users="$robin_users" v-if="!conversation.is_group" :img-url="getProfileImage(conversation)" :sender-token="conversation.sender_token" />
+          <RAvatar :robin-users="$robin_users" v-if="!conversation.is_group" :key="avatarKey" :img-url="getProfileImage(conversation)" :sender-token="conversation.sender_token === $user_token ? conversation.receiver_token : conversation.sender_token" />
 
           <RGroupAvatar v-else :img-url="conversation.group_icon" />
         </div>
@@ -150,12 +150,18 @@ const ComponentProps = Vue.extend({
         })
       },
       immediate: true
+    },
+    $robin_users: {
+      handler (val) {
+        this.avatarKey += 1
+      }
     }
   }
 })
 export default class PrimaryChatList extends ComponentProps {
   popUpStates: Array<any> = []
   activeConversation = {}
+  avatarKey: number = 0
   scroll = false as boolean
   isLoading = false as boolean
   conversations = [] as Array<any>
@@ -177,6 +183,10 @@ export default class PrimaryChatList extends ComponentProps {
     return store.state.isPageLoading
   }
 
+  get currentConversation () {
+    return store.state.currentConversation
+  }
+
   get assets (): any {
     return assets
   }
@@ -189,9 +199,9 @@ export default class PrimaryChatList extends ComponentProps {
     })
   }
 
-  openConversation (conversation: object): void {
-    if (!this.isConversationActive(conversation) && this.screenWidth > 1200) {
-      this.activeConversation = conversation
+  openConversation (conversation: any): void {
+    if (this.screenWidth > 1200) {
+      // this.activeConversation = conversation
       // this.setImagePreviewOpen(false)
       store.setState('imagePreviewOpen', false)
       EventBus.$emit('conversation-opened', conversation)
@@ -199,7 +209,7 @@ export default class PrimaryChatList extends ComponentProps {
     }
 
     if (this.screenWidth <= 1200) {
-      this.activeConversation = conversation
+      // this.activeConversation = conversation
       // this.setImagePreviewOpen(false)
       store.setState('imagePreviewOpen', false)
       EventBus.$emit('conversation-opened', conversation)
@@ -275,9 +285,9 @@ export default class PrimaryChatList extends ComponentProps {
     }, 300)
   }
 
-  isConversationActive (object: Object) {
-    return Object.is(this.activeConversation, object)
-  }
+  // get isConversationActive (object: Object) {
+  //   return Object.is(this.activeConversation, object)
+  // }
 
   async handleArchiveChat (conversation: any): Promise<void> {
     const res = await this.$robin.archiveConversation(conversation._id, this.$user_token)
@@ -405,7 +415,7 @@ header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: clamp(10%, 4vh, 3.563rem) clamp(2%, 4vw, 1.563rem) 1.763rem;
+  padding: clamp(6%, 2vh, 3.563rem) clamp(2%, 4vw, 1.563rem) 1.763rem;
 }
 
 /* .robin-wrapper {
@@ -431,16 +441,11 @@ header {
   cursor: default;
 }
 
-.robin-card-active:hover {
-  cursor: default;
-  border-radius: 4px;
-}
-
 .robin-card-container .robin-card:nth-last-child(1) {
   border-bottom: none;
 }
 
-.robin-card:hover {
+.robin-card:not(.robin-card-active):hover {
   background-color: #f5f7fc;
   border-radius: 4px;
 }

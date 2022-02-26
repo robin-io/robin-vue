@@ -1,17 +1,23 @@
 <template>
-  <button class="robin-button" type="button" @click="$emit('clicked')">
-    <span class="material-icon material-icons-outlined"> photo_camera </span>
+  <button class="robin-button" type="button" @click="$emit('clicked')" @keyup.enter="$emit('clicked')">
+    <SvgIcon name="camera" />
   </button>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
 import Component from 'vue-class-component'
+import SvgIcon from '@/components/SvgIcon/SvgIcon.vue'
 
 @Component({
-  name: 'RCameraButton'
+  name: 'RCameraButton',
+  components: {
+    SvgIcon
+  }
 })
-export default class RCameraButton extends Vue {}
+export default class RCameraButton extends Vue {
+
+}
 </script>
 
 <style scoped>

@@ -102,28 +102,4 @@ export default class RAttachFilePopOver extends Vue {
 .robin-zoomOut {
   transform-origin: bottom left;
 }
-
-input[type='file'] {
-  display: none;
-  width: 0;
-  height: 0;
-}
-
-input[type='file']::file-upload-button {
-  display: none;
-  width: 0;
-  height: 0;
-}
-
-input[type='file']::-webkit-file-upload-button {
-  display: none;
-  width: 0;
-  height: 0;
-}
-
-input[type='file']::-moz-file-upload-button {
-  display: none;
-  width: 0;
-  height: 0;
-}
 </style>

@@ -5,9 +5,9 @@
 
       <div class="robin-flex robin-flex-align-center robin-clickable" @click="openMessageProfile()">
         <div class="robin-card-info robin-mr-8">
-          <RGroupAvatar v-if="conversation.is_group"  :img-url="conversation.group_icon" />
+          <RGroupAvatar v-if="conversation.is_group" :img-url="conversation.group_icon" />
 
-          <RAvatar :robin-users="$robin_users" v-else :status="conversation.status" :sender-token="conversation.sender_token" />
+          <RAvatar :key="avatarKey" :robin-users="$robin_users" v-else :status="conversation.status" :sender-token="conversation.sender_token === $user_token ? conversation.receiver_token : conversation.sender_token" />
         </div>
 
         <div class="robin-card-info robin-h-100 robin-flex robin-flex-column robin-flex-space-between robin-flex-1">
@@ -79,7 +79,8 @@ const ComponentProps = Vue.extend({
   }
 })
 
-@Component({
+// eslint-disable-next-line
+@Component<RGroupChatHeader>({
   name: 'RGroupChatHeader',
   components: {
     IconButton,
@@ -90,10 +91,18 @@ const ComponentProps = Vue.extend({
     RAvatar,
     RGroupMessagePopOver,
     RPersonalMessagePopOver
+  },
+  watch: {
+    $robin_users: {
+      handler (val) {
+        this.avatarKey += 1
+      }
+    }
   }
 })
 export default class RGroupChatHeader extends ComponentProps {
   screenWidth = 0 as number
+  avatarKey = 0 as number
   // messageProfileCloseCount = 0
 
   popUpState: PopUpState = {
