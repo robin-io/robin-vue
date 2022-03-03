@@ -24,7 +24,6 @@
 <script lang="ts">
 import Vue from 'vue'
 import Component from 'vue-class-component'
-import EventBus from '@/event-bus'
 import SvgIcon from '../../SvgIcon/SvgIcon.vue'
 import store from '../../../store/index'
 import RText from '@/components/ChatList/RText/RText.vue'
@@ -51,24 +50,7 @@ export default class RGroupMessagePopOver extends ComponentProps {
   }
 
   async handleLeaveGroup () {
-    const res = await this.$robin.removeGroupParticipant(this.conversation._id, this.$user_token)
-
-    if (res && !res.error) {
-      this.$toast.open({
-        message: 'You left group',
-        type: 'success',
-        position: 'bottom-left'
-      })
-
-      EventBus.$emit('left.group')
-      EventBus.$emit('regular-conversation.delete', this.conversation)
-    } else {
-      this.$toast.open({
-        message: 'Check your connection.',
-        type: 'error',
-        position: 'bottom-left'
-      })
-    }
+    store.setState('exitGroup', true)
   }
 }
 </script>

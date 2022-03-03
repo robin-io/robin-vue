@@ -4,7 +4,7 @@
 
     <NewChatList :key="key + 1" ref="slide-1" v-show="sideBarType == 'newchat'" :robin-users="$robin_users" @openmodal="openModal('slide-2', $event)" @closemodal="closeModal('slide-1', $event)" />
 
-    <NoChatList v-show="$conversations.length < 1 && !isPageLoading" @openmodal="openModal('slide-1', $event)" />
+    <NoChatList v-show="$conversations.length < 1 && !isPageLoading" @opennewchatmodal="openModal('slide-1', $event)" />
 
     <NewGroupChat ref="slide-2" v-show="sideBarType == 'newgroup'" @openmodal="openModal('slide-3', $event)" @set-groupname="setGroupName($event)" @set-groupicon="setGroupIcon($event)" @closemodal="closeModal('slide-2', $event)" />
 
@@ -78,7 +78,8 @@ export default class RSideContainer extends ComponentProps {
     this.handleMarkAsUnread()
     this.showNewGroupModal()
     this.onAddGroupParticipants()
-    this.handleRemoveGroupParticipant()
+    // this.handleRemoveGroupParticipant()
+    this.handleMessageForward()
   }
 
   get isPageLoading () {
@@ -193,15 +194,15 @@ export default class RSideContainer extends ComponentProps {
     })
   }
 
-  handleRemoveGroupParticipant () {
-    EventBus.$on('participant.left.group', (user: any) => {
-      const index = this.$regularConversations.findIndex((item) => item._id === user.conversation_id)
-      const participantIndex = this.$regularConversations[index].participants.findIndex((participant: any) => participant.user_token === user.user_token)
+  // handleRemoveGroupParticipant () {
+  //   EventBus.$on('participant.left.group', (user: any) => {
+  //     const index = this.$regularConversations.findIndex((item) => item._id === user.conversation_id)
+  //     const participantIndex = this.$regularConversations[index].participants.findIndex((participant: any) => participant.user_token === user.user_token)
 
-      this.$regularConversations[index].participants.splice(participantIndex, 1)
-      this.regularConversations[index].participants.splice(participantIndex, 1)
-    })
-  }
+  //     this.$regularConversations[index].participants.splice(participantIndex, 1)
+  //     this.regularConversations[index].participants.splice(participantIndex, 1)
+  //   })
+  // }
 
   handleAddArchivedConversation () {
     EventBus.$on('archived-conversation.add', (conversation: any) => {
@@ -283,12 +284,14 @@ export default class RSideContainer extends ComponentProps {
 
   handleMarkAsRead () {
     EventBus.$on('mark-as-read', (conversation: any) => {
-      if (!conversation.archived_for || conversation.archived_for.length === 0) {
-        const index = this.$regularConversations.findIndex((item) => item._id === conversation._id)
+      if (conversation) {
+        if (!conversation.archived_for || conversation.archived_for.length === 0) {
+          const index = this.$regularConversations.findIndex((item) => item._id === conversation._id)
 
-        if (this.regularConversations[index]) {
-          this.regularConversations[index].unread_messages = 0
-          this.$regularConversations[index].unread_messages = 0
+          if (this.regularConversations[index]) {
+            this.regularConversations[index].unread_messages = 0
+            this.$regularConversations[index].unread_messages = 0
+          }
         }
       }
     })
@@ -296,24 +299,44 @@ export default class RSideContainer extends ComponentProps {
 
   handleMarkAsUnread () {
     EventBus.$on('mark-as-unread', (conversation: any) => {
-      if (!conversation.archived_for || conversation.archived_for.length === 0) {
-        const index = this.$regularConversations.findIndex((item) => item._id === conversation._id)
+      if (conversation) {
+        if (!conversation.archived_for || conversation.archived_for.length === 0) {
+          const index = this.$regularConversations.findIndex((item) => item._id === conversation._id)
 
-        if (this.regularConversations[index]) {
-          this.$regularConversations[index].unread_messages += 1
+          if (this.regularConversations[index]) {
+            this.$regularConversations[index].unread_messages += 1
+          }
         }
       }
     })
 
     EventBus.$on('mark-as-unread.modified', (conversation: any) => {
-      if (!conversation.archived_for || conversation.archived_for.length === 0) {
-        const index = this.$regularConversations.findIndex((item) => item._id === conversation._id)
+      if (conversation) {
+        if (!conversation.archived_for || conversation.archived_for.length === 0) {
+          const index = this.$regularConversations.findIndex((item) => item._id === conversation._id)
 
-        if (this.regularConversations[index]) {
-          this.regularConversations[index].unread_messages = 'marked'
-          this.$regularConversations[index].unread_messages = 'marked'
+          if (this.regularConversations[index]) {
+            this.regularConversations[index].unread_messages = 'marked'
+            this.$regularConversations[index].unread_messages = 'marked'
+          }
         }
       }
+    })
+  }
+
+  handleMessageForward (): void {
+    EventBus.$on('message.forward', (messages: any) => {
+      // console.log(messages)
+      messages.forEach((msg: any) => {
+        this.conversations.forEach((conversation: any, index: any) => {
+          if (conversation._id === msg.conversation_id) {
+            msg.content.timestamp = new Date()
+            this.conversations[index].last_message = msg.content
+            EventBus.$emit('regular-conversation.delete', this.conversations[index])
+            EventBus.$emit('regular-conversation.add', this.conversations[index])
+          }
+        })
+      })
     })
   }
 
@@ -341,6 +364,13 @@ export default class RSideContainer extends ComponentProps {
   max-width: 450px;
   height: 100%;
   border-right: 1px solid #efefef;
+  overflow-y: hidden;
+}
+
+@media (min-width: 1200px) {
+  .robin-chat-list-container {
+    overflow-y: auto;
+  }
 }
 
 @media (max-width: 1200px) {

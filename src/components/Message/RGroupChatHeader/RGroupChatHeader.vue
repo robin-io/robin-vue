@@ -203,8 +203,7 @@ header {
   background-color: #fff;
   display: flex;
   align-items: center;
-  padding: 0 clamp(3%, 5vw, 2.688rem) 0 clamp(3%, 5vw, 3.125rem);
-  height: 79px;
+  padding: 1rem clamp(3%, 5vw, 2.688rem) 1rem clamp(3%, 5vw, 3.125rem);
   position: relative;
   z-index: 3;
   border-bottom: 1px solid #f5f7fc;

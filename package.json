@@ -1,6 +1,6 @@
 {
   "name": "robin.io-vue2",
-  "version": "0.5.0",
+  "version": "0.5.3",
   "license": "MIT",
   "files": [
     "dist"
@@ -30,6 +30,7 @@
     "@vue/composition-api": "^1.1.5",
     "axios": "^0.21.1",
     "link-prevue": "^1.2.0",
+    "localforage": "^1.10.0",
     "mime": "^2.5.2",
     "moment": "^2.29.1",
     "robin.io-js": "^0.3.3",

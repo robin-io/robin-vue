@@ -12,7 +12,7 @@
     <Profile ref="popup-2" v-show="messageProfileOpen" @close="closeMessageProfile()" :key="profileKey" />
     <GroupPrompt v-show="groupPromptOpen" @close="closeGroupPrompt()" />
     <EncryptionDetails v-show="encryptionDetailsOpen" @close="closeEncryptionDetails()" />
-    <audio :src="assets['notification']" ref="notification">Your browser does not support the</audio>
+    <audio :src="assets['notification']" ref="notification" @click="playAudio($event)">Your browser does not support the</audio>
   </div>
 </template>
 
@@ -749,6 +749,7 @@ export default class App extends ComponentProps {
   key = 0 as number
   profileKey = 0 as number
   screenWidth = 0 as number
+  messageEvent = null as any
 
   created (): void {
     this.filterUsers()
@@ -817,22 +818,6 @@ export default class App extends ComponentProps {
     this.setPrototypes()
   }
 
-  // async createUserToken () {
-  //   const userToken = {
-  //     user_token: '',
-  //     meta_data: {
-  //       userToken: 'BLAaUGurGvTewxIGKKrVANhn',
-  //       userName: 'Enoch Chejieh',
-  //       profileImage: ''
-  //     },
-  //     support_name: '',
-  //     support_id: ''
-  //   }
-  //   const response = await this.$robin.createUserToken(userToken)
-
-  //   console.log(response)
-  // }
-
   filterUsers (): void {
     const filteredUsers: Array<any> = []
     this.users.forEach((user) => {
@@ -863,12 +848,15 @@ export default class App extends ComponentProps {
 
     this.conn.onmessage = (evt: any) => {
       const notification = this.$refs.notification as any
+      if (notification) {
+        notification.click()
+      }
 
       const message = JSON.parse(evt.data)
       // console.log(message)
       if (message.is_event !== true) {
         EventBus.$emit('new-message', message)
-        if (message.content.receiver_token === this.$user_token) notification.play()
+        this.messageEvent = message
       } else {
         // console.log(message)
         // move new conversation to the top
@@ -906,7 +894,7 @@ export default class App extends ComponentProps {
   }
 
   handleEvents (message: any): void {
-    console.log('event->', message)
+    // console.log('event->', message)
     switch (message.name) {
       case 'user.connect':
         // set user status to online
@@ -956,6 +944,12 @@ export default class App extends ComponentProps {
         // console.log('cannot handle event')
         break
     }
+  }
+
+  handleReconnect () {
+    EventBus.$on('websocket.reconnect', () => {
+      this.connect()
+    })
   }
 
   onExitGroup () {
@@ -1008,6 +1002,14 @@ export default class App extends ComponentProps {
 
   closeEncryptionDetails (): void {
     store.setState('encryptionDetailsOpen', false)
+  }
+
+  playAudio (event: any): void {
+    if (this.messageEvent) {
+      if (this.messageEvent.content.sender_token !== this.$user_token) {
+        event.target.play()
+      }
+    }
   }
 }
 </script>

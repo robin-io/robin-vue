@@ -5,9 +5,18 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue, { PropType } from 'vue'
 import Component from 'vue-class-component'
 import SvgIcon from '@/components/SvgIcon/SvgIcon.vue'
+
+const ComponentProps = Vue.extend({
+  props: {
+    cameraOpened: {
+      type: Boolean as PropType<boolean>,
+      default: false
+    }
+  }
+})
 
 @Component({
   name: 'RCameraButton',
@@ -15,8 +24,15 @@ import SvgIcon from '@/components/SvgIcon/SvgIcon.vue'
     SvgIcon
   }
 })
-export default class RCameraButton extends Vue {
-
+export default class RCameraButton extends ComponentProps {
+  created () {
+    document.addEventListener('keyup', (event: any) => {
+      console.log(event)
+      if (event.keyCode === 13 && this.cameraOpened) {
+        this.$emit('clicked')
+      }
+    })
+  }
 }
 </script>
 

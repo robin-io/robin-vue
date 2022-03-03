@@ -2,7 +2,7 @@
   <div class="robin-shim robin-fadeIn" ref="popup-2" @click.self="closeModal()">
     <div class="robin-card">
       <div class="robin-wrapper">
-        <RText :font-size="17" :font-weight="'500'" class="robin-mb-11"> Delete Message </RText>
+        <RText :font-size="17" :font-weight="'500'" class="robin-mb-11"> {{ getHeaderDialog() }} </RText>
 
         <RText color="#51545C" text-wrap="normal" text-align="center"> Are you sure you want to proceed? </RText>
       </div>
@@ -26,6 +26,15 @@ import Component from 'vue-class-component'
 import RText from '@/components/ChatList/RText/RText.vue'
 import IconButton from '../../IconButton/IconButton.vue'
 
+const ComponentProps = Vue.extend({
+  props: {
+    status: {
+      type: String,
+      default: ''
+    }
+  }
+})
+
 @Component({
   name: 'RPrompt',
   components: {
@@ -33,7 +42,7 @@ import IconButton from '../../IconButton/IconButton.vue'
     IconButton
   }
 })
-export default class RPrompt extends Vue {
+export default class RPrompt extends ComponentProps {
   closeModal () {
     const popup = this.$refs['popup-2'] as any
     popup.classList.remove('robin-fadeIn')
@@ -46,6 +55,18 @@ export default class RPrompt extends Vue {
 
       this.$emit('closemodal')
     }, 100)
+  }
+
+  getHeaderDialog () {
+    if (this.status === 'delete message') {
+      return 'Delete Message'
+    } else if (this.status === 'exit group') {
+      return 'Exit Group'
+    } else if (this.status === 'clear messages') {
+      return 'Clear Messages'
+    } else {
+      return 'Remove Participant'
+    }
   }
 }
 </script>

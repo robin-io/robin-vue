@@ -92,8 +92,6 @@ export default class NewChatList extends ComponentProps {
   }
 
   async createConversation (user: any) {
-    // console.log(this.$user_token, user.userToken)
-
     const res = await this.$robin.createConversation({
       sender_name: this.$senderName,
       sender_token: this.$user_token,
@@ -106,9 +104,10 @@ export default class NewChatList extends ComponentProps {
       if (!this.checkConversations(res.data)) {
         this.$conversations.push(res.data)
       }
-      // console.log(res)
+
       EventBus.$emit('conversation-opened', res.data)
       EventBus.$emit('open-conversation')
+      this.openPreviousModal()
     } else {
       this.$toast.open({
         message: 'Check your connection.',

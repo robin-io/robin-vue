@@ -59,7 +59,7 @@
             <div class="robin-mini-info-container robin-flex robin-flex-align-center">
               <!-- <RMention @click.native="openConversation(conversation)" /> -->
               <!-- use when mention icon is present robin-ml-8 -->
-              <div class="mini-info robin-ml-10" v-if="conversation.unread_messages > 0" @click="openConversation(conversation)">
+              <div class="mini-info robin-ml-10" v-if="conversation.unread_messages > 0 || conversation.unread_messages == 'marked'" @click="openConversation(conversation)">
                 <RUnreadMessageCount :unread="conversation.unread_messages" background-color="#EA8D51" />
               </div>
               <div class="robin-hidden robin-ml-10" @click="handleOpenPopUp($event, conversation._id, `popup-container-${index}`, `popup-${index}`, index.toString())">
@@ -142,7 +142,7 @@ const ComponentProps = Vue.extend({
           return 0
         })
         this.popUpStates = []
-        ;[...val].forEach((val) => {
+        this.conversations.forEach((val) => {
           this.popUpStates.push({
             opened: false,
             _id: val._id
@@ -261,6 +261,7 @@ export default class PrimaryChatList extends ComponentProps {
     }
 
     const index = this.popUpStates.findIndex((val) => val._id === _id)
+    console.log(index)
     this.popUpStates[index].opened = true
 
     this.popUpStates.forEach((val, i) => {
@@ -302,23 +303,6 @@ export default class PrimaryChatList extends ComponentProps {
       })
       this.$emit('refresh')
     }
-  }
-
-  handleMessageForward (): void {
-    EventBus.$on('message.forward', (messages: any) => {
-      // console.log(messages)
-      messages.forEach((msg: any) => {
-        this.conversations.forEach((conversation: any, index: any) => {
-          if (conversation._id === msg.conversation_id) {
-            msg.content.timestamp = new Date()
-            this.conversations[index].last_message = msg.content
-            EventBus.$emit('regular-conversation.delete', this.conversations[index])
-            EventBus.$emit('regular-conversation.add', this.conversations[index])
-            this.$emit('refresh')
-          }
-        })
-      })
-    })
   }
 
   searchConversation (searchText: string) {

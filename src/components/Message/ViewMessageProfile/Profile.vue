@@ -8,15 +8,15 @@
     <div class="robin-wrapper robin-slideIn">
       <div class="robin-profile">
         <RAvatar :robin-users="$robin_users" v-if="!currentConversation.is_group" :sender-token="currentConversation.sender_token === $user_token ? currentConversation.receiver_token : currentConversation.sender_token" class="robin-mb-8" />
-        <RGroupAvatar v-else class="robin-mb-8"  :img-url="currentConversation.group_icon" />
+        <RGroupAvatar v-else class="robin-mb-8" :img-url="currentConversation.group_icon" />
 
         <RText fontWeight="500" as="h3" class="robin-mb-8">{{ !currentConversation.is_group ? currentConversation.receiver_name : currentConversation.name }}</RText>
 
-        <RText color="#51545C" :fontSize="12" :text-align="'center'" as="p" class="robin-mb-8" v-show="currentConversation.is_group">{{ participants.length > 1 ? `${participants.length} Members` : `${participants.length} Member`}}</RText>
+        <RText color="#51545C" :fontSize="12" :text-align="'center'" as="p" class="robin-mb-8" v-show="currentConversation.is_group">{{ groupParticipants.length > 1 ? `${groupParticipants.length} Members` : `${groupParticipants.length} Member` }}</RText>
 
         <RText color="#51545C" :fontSize="12" :text-align="'center'" as="p" class="robin-flex" v-if="currentConversation.is_group"
           >Created <RText :fontSize="12">{{ formatRecentMessageTime(currentConversation.created_at) }}</RText
-          >, By <RText :fontSize="12">{{ getGroupCreator() }}</RText></RText
+          >, By <RText :fontSize="12">{{ currentConversation.moderator.meta_data.display_name }}</RText></RText
         >
 
         <!-- <RText color="#51545C" :fontSize="12" :text-align="'center'" as="p" v-show="!currentConversation.is_group">{{ currentConversation.owner_email }}</RText> -->
@@ -100,7 +100,7 @@
       <RText :font-size="12" color="#15AE73" class="robin-mt-8 robin-mb-11 robin-m-auto" v-show="nav === 'Docs' && documents.length == 0">No Docs</RText>
 
       <div class="robin-wrapper robin-mb-12">
-         <RButton color="#51545C" class="robin-tab" :emit="'clicked'" @clicked="showEncriptionDetails()">
+        <RButton color="#51545C" class="robin-tab" :emit="'clicked'" @clicked="showEncriptionDetails()">
           <SvgIcon name="encryption" class="robin-mr-8" />
           Encryption Details
         </RButton>
@@ -112,27 +112,43 @@
           Add Group Participant
         </RButton>
 
-        <div class="robin-card-container">
-          <div class="robin-card robin-flex robin-flex-align-center" v-for="(participant, participantIndex) in participants.slice(0, participantsToShow)" :key="participantIndex" @click.self="openGroupPrompt(participant.userToken)" :class="{'robin-clickable': currentConversation.is_group}">
-            <div class="robin-card-info robin-mr-12" @click="openGroupPrompt(participant.userToken)">
-              <RAvatar :robin-users="$robin_users" />
+        <div class="robin-card-container" v-if="!isSignedInUserModerator">
+          <div class="robin-card robin-flex robin-flex-align-center" v-for="(participant, participantIndex) in groupParticipants.slice(0, participantsToShow)" :key="participantIndex">
+            <div class="robin-card-info robin-mr-12">
+              <RAvatar :robin-users="$robin_users" :sender-token="participant.user_token" />
             </div>
 
-            <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4 robin-flex-1" @click.self="openGroupPrompt(participant.userToken)">
-              <div class="robin-flex" @click="openGroupPrompt(participant.userToken)">
-                <RText :font-size="14" :line-height="18">{{ participant.userName }}</RText>
+            <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4 robin-flex-1">
+              <div class="robin-flex">
+                <RText :font-size="14" :line-height="18">{{ participant.user_token === $user_token ? 'You' : participant.meta_data.display_name }}</RText>
               </div>
-              <div class="robin-ml-auto" v-show="!currentConversation.participants[participantIndex].is_moderator && isUserSignedIn" @click="handleRemoveParticipant(participant.userToken)">
-                <IconButton name="remove2" :to-emit="false" :to-click-away="false" />
-              </div>
-              <div v-show="currentConversation.participants[participantIndex].is_moderator" class="robin-moderator-text">
-                Moderator
-              </div>
+
+              <div v-show="participant.is_moderator" class="robin-moderator-text">Moderator</div>
             </div>
           </div>
         </div>
 
-        <div class="robin-see-all" @click="participantsToShow = participants.length" v-show="participantsToShow !== participants.length && participants.length > 4">
+        <div class="robin-card-container" v-else>
+          <div class="robin-card robin-flex robin-flex-align-center" v-for="(participant, participantIndex) in groupParticipants.slice(0, participantsToShow)" :key="participantIndex" @click.self="openGroupPrompt(participant.user_token, participant.is_moderator)" :class="{ 'robin-clickable': currentConversation.is_group }">
+            <div class="robin-card-info robin-mr-12" @click="openGroupPrompt(participant.user_token, participant.is_moderator)">
+              <RAvatar :robin-users="$robin_users" :sender-token=" participant.user_token == $user_token ? '' : participant.user_token" />
+            </div>
+
+            <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4 robin-flex-1" @click.self="openGroupPrompt(participant.user_token, participant.is_moderator)">
+              <div class="robin-flex" @click="openGroupPrompt(participant.user_token, participant.is_moderator)">
+                <RText :font-size="14" :line-height="18">{{ participant.user_token === $user_token ? 'You' : participant.meta_data.display_name }}</RText>
+              </div>
+
+              <div class="robin-ml-auto" v-show="!participant.is_moderator" @click="handleRemoveParticipant(participant.user_token)">
+                <IconButton name="remove2" :to-emit="false" :to-click-away="false" />
+              </div>
+
+              <div v-show="participant.is_moderator" class="robin-moderator-text">Moderator</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="robin-see-all" @click="participantsToShow = groupParticipants.length" v-show="participantsToShow !== groupParticipants.length && groupParticipants.length > 4">
           <RButton :fontSize="14"> See All Participants </RButton>
         </div>
       </div>
@@ -201,7 +217,6 @@ export default class Profile extends Vue {
   media = [] as Array<any>
   links = [] as Array<any>
   documents = [] as Array<any>
-  participants = [] as Array<any>
   participantsToShow = 4
   mediaStop = 7
   linkStop = 7
@@ -215,6 +230,22 @@ export default class Profile extends Vue {
 
   get currentConversation () {
     return store.state.currentConversation
+  }
+
+  get groupParticipants () {
+    if (Object.keys(this.currentConversation).length > 0 && this.currentConversation.is_group) {
+      return this.currentConversation.participants
+    }
+
+    return []
+  }
+
+  get isSignedInUserModerator () {
+    if (Object.keys(this.currentConversation).length > 0 && this.currentConversation.is_group) {
+      return this.currentConversation.participants.some((user: any) => user.user_token === this.$user_token && user.is_moderator)
+    }
+
+    return false
   }
 
   get assets (): any {
@@ -239,16 +270,6 @@ export default class Profile extends Vue {
     this.screenWidth = window.innerWidth
   }
 
-  getGroupParticipants () {
-    const users = this.currentConversation.participants.map((user: any) => {
-      return user.user_token
-    })
-
-    this.participants = this.$robin_users.filter((user: any) => {
-      return users.includes(user.userToken)
-    })
-  }
-
   closeModal () {
     this.participantsToShow = 4
     this.$emit('close')
@@ -267,26 +288,27 @@ export default class Profile extends Vue {
   openImagePreview (media: any): void {
     store.setState('imagePreviewOpen', true)
     store.setState('imagesToPreview', media)
+    this.closePrompt()
   }
 
-  getGroupCreator () {
-    const groupchatCreator = this.currentConversation.participants.find((participant: { is_moderator: any }) => participant.is_moderator) as any
-    if (groupchatCreator) {
-      const user = this.$robin_users.find((user) => user.user_token === groupchatCreator.user_token)
+  // getGroupCreator () {
+  //   const groupchatCreator = this.currentConversation.participants.find((participant: { is_moderator: any }) => participant.is_moderator) as any
+  //   if (groupchatCreator) {
+  //     const user = this.$robin_users.find((user) => user.user_token === groupchatCreator.user_token)
 
-      if (user && user.userToken !== this.$user_token) {
-        return user.userName
-      } else {
-        return this.$senderName
-      }
-    }
-  }
+  //     if (user && user.userToken !== this.$user_token) {
+  //       return user.userName
+  //     } else {
+  //       return this.$senderName
+  //     }
+  //   }
+  // }
 
   handleConversationMessages () {
     EventBus.$on('messages.get', (messages: any) => {
       this.messages = [...messages]
       if (this.currentConversation.is_group) {
-        this.getGroupParticipants()
+        // this.getGroupParticipants()
       }
     })
   }
@@ -407,60 +429,41 @@ export default class Profile extends Vue {
   }
 
   async handleLeaveGroup () {
-    const res = await this.$robin.removeGroupParticipant(this.currentConversation._id, this.$user_token)
-
-    if (res && !res.error) {
-      this.$toast.open({
-        message: 'You left group',
-        type: 'success',
-        position: 'bottom-left'
-      })
-
-      EventBus.$emit('left.group')
-      EventBus.$emit('regular-conversation.delete', this.currentConversation)
-      this.closeModal()
-    } else {
-      this.$toast.open({
-        message: 'Check your connection.',
-        type: 'error',
-        position: 'bottom-left'
-      })
-    }
+    store.setState('exitGroup', true)
   }
 
   async handleRemoveParticipant (userToken: string) {
-    const res = await this.$robin.removeGroupParticipant(this.currentConversation._id, userToken)
+    store.setState('participantToken', userToken)
+    store.setState('removeParticipant', true)
+  }
 
-    if (res && !res.error) {
-      EventBus.$emit('participant.left.group', { conversation_id: this.currentConversation._id, user_token: userToken })
-    } else {
-      this.$toast.open({
-        message: 'Check your connection.',
-        type: 'error',
-        position: 'bottom-left'
-      })
-    }
+  getUser (userToken: string) {
+    const index = this.$robin_users.findIndex((user: any) => user.userToken === userToken)
+    return this.$robin_users[index]
   }
 
   handleRemoveGroupParticipant () {
     EventBus.$on('participant.left.group', (user: any) => {
-      const index = this.participants.findIndex((participant: any) => participant.user_token === user.user_token)
+      const index = this.currentConversation.participants.findIndex((participant: any) => participant.user_token === user.user_token)
 
-      this.participants.splice(index, 1)
+      this.currentConversation.participants.splice(index, 1)
       this.$toast.open({
-        message: 'removed group member',
+        message: 'You removed' + ' ' + this.getUser(user.user_token).userName,
         type: 'success',
         position: 'bottom-left'
       })
 
       this.$forceUpdate()
+      this.closePrompt()
+
+      this.participantsToShow = 4
     })
   }
 
   handleAssignedGroupModerator () {
     EventBus.$on('participant.assigned.moderator', (conversation: any) => {
       store.setState('currentConversation', conversation)
-      this.getGroupParticipants()
+      // this.getGroupParticipants()
     })
   }
 
@@ -479,23 +482,28 @@ export default class Profile extends Vue {
   onAddGroupParticipants () {
     EventBus.$on('update.group.conversation', (conversation: any) => {
       store.setState('currentConversation', conversation)
-      this.getGroupParticipants()
+      // this.getGroupParticipants()
     })
   }
 
-  openGroupPrompt (token: String) {
+  openGroupPrompt (token: string, isModerator: boolean) {
     if (this.currentConversation.is_group) {
       store.setState('groupPromptOpen', true)
       store.setState('currentParticipantToken', token)
+      store.setState('isParticipantModerator', isModerator)
     }
   }
 
   showEncriptionDetails () {
     store.setState('encryptionDetailsOpen', true)
+    this.closePrompt()
   }
 
-  isUserSignedIn () {
-    return this.currentConversation.participants.some((user: any) => user.user_token !== this.$user_token)
+  closePrompt () {
+    store.setState('selectMessagesOpen', false)
+    store.setState('clearMessages', false)
+    store.setState('exitGroup', false)
+    store.setState('removeParticipant', false)
   }
 }
 </script>
@@ -507,6 +515,8 @@ export default class Profile extends Vue {
   background-color: #fff;
   border: 1px solid #efefef;
   overflow-y: auto;
+  position: relative;
+  z-index: -1;
 }
 
 .robin-header {
@@ -673,14 +683,14 @@ export default class Profile extends Vue {
   width: 90%;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(80px, 80px));
+  grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
   gap: 0.5rem;
 }
 
 .robin-media-grid img {
   width: 100%;
+  aspect-ratio: 1 / 1.25;
   object-fit: cover;
-  height: 63px;
   cursor: pointer;
 }
 
@@ -714,7 +724,8 @@ export default class Profile extends Vue {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100px;
+  min-width: 86px;
+  max-width: 86px;
 }
 
 .robin-document-grids {
@@ -728,7 +739,7 @@ export default class Profile extends Vue {
 .robin-uploaded-documents {
   display: flex;
   align-items: center;
-  background-color: #F5F7FC;
+  background-color: #f5f7fc;
   border: 1px solid #ecebeb;
   border-radius: 4px;
   padding: 0.5rem 0.938rem 0.5rem 0.5rem;
@@ -743,7 +754,7 @@ export default class Profile extends Vue {
 }
 
 .robin-moderator-text {
-  background-color: #EEEEEE;
+  background-color: #eeeeee;
   padding: 0.2rem 0.2rem;
   margin-left: auto;
   font-size: 0.625rem;

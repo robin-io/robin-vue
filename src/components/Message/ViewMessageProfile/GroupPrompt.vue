@@ -1,8 +1,8 @@
 <template>
   <div class="robin-shim robin-fadeIn" @click.self="closeModal()">
     <div class="robin-card">
-      <div class="robin-wrapper robin-clickable" @click="assignModerator()">
-        <RText :font-size="18" color="#15AE73">Assign moderator</RText>
+      <div class="robin-wrapper robin-clickable" @click="assignModerator()" v-if="!isParticipantModerator">
+        <RText :font-size="18" color="#15AE73">{{ !isParticipantModerator ? 'Assign moderator' : 'Dismiss as moderator' }}</RText>
       </div>
       <div class="robin-wrapper robin-clickable" @click="removeGroupParticipant()">
         <RText :font-size="18" color="#D53120">Remove participant</RText>
@@ -31,6 +31,10 @@ export default class GroupPrompt extends Vue {
 
   get currentParticipantToken () {
     return store.state.currentParticipantToken
+  }
+
+  get isParticipantModerator () {
+    return store.state.isParticipantModerator
   }
 
   closeModal () {

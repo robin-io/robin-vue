@@ -9,7 +9,7 @@
     </header>
     <div class="robin-body">
       <video v-show="!isPhotoTaken" ref="camera" width="100%" :height="screenWidth > 480 ? '500px' : '250px'" autoplay="true" muted="true"></video>
-      <RCameraButton @clicked="takePhoto()" />
+      <RCameraButton :camera-opened="cameraOpened" v-if="cameraOpened" @clicked="takePhoto()" />
     </div>
   </div>
 </template>

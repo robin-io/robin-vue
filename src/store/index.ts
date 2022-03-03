@@ -18,6 +18,10 @@ interface State {
   groupPromptOpen: boolean,
   currentParticipantToken: string,
   encryptionDetailsOpen: boolean
+  exitGroup: boolean,
+  participantToken: string,
+  removeParticipant: boolean,
+  isParticipantModerator: boolean
 }
 
 const state: State = {
@@ -33,7 +37,11 @@ const state: State = {
   messageProfileOpen: false,
   groupPromptOpen: false,
   currentParticipantToken: '',
-  encryptionDetailsOpen: false
+  encryptionDetailsOpen: false,
+  exitGroup: false,
+  participantToken: '',
+  removeParticipant: false,
+  isParticipantModerator: false
 }
 
 const store = {

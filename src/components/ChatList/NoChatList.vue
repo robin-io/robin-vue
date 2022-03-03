@@ -1,7 +1,7 @@
 <template>
   <div class="robin-side-container">
     <header class="robin-header">
-      <RText font-weight="400" color="rgba(83, 95, 137, 1)" :font-size="17"> Settings </RText>
+      <img :src="assets['logo']" alt="logo" />
       <IconButton name="edit" @edit="openEdit()" emit="edit" :to-emit="true" :to-click-away="false" :color="'#fff'" />
     </header>
 
@@ -30,6 +30,7 @@ import IconButton from '../IconButton/IconButton.vue'
 import RSearchBar from './RSearchBar/RSearchBar.vue'
 import RButton from './RButton/RButton.vue'
 import SvgIcon from '../SvgIcon/SvgIcon.vue'
+import assets from '@/utils/assets.json'
 
 @Component({
   name: 'NoChatList',
@@ -45,6 +46,10 @@ import SvgIcon from '../SvgIcon/SvgIcon.vue'
 
 export default class NoChatList extends Vue {
   key = 0 as number
+
+  get assets (): any {
+    return assets
+  }
 
   openEdit (): void {
     this.$emit('opennewchatmodal', 'newchat')
@@ -73,7 +78,7 @@ header {
   width: 100%;
   display: flex;
   justify-content: space-between;
-  padding: 3.563rem 1.5rem 1.5rem;
+  padding: clamp(6%, 2vh, 3.563rem) clamp(2%, 4vw, 1.563rem) 1.763rem;
 }
 
 .robin-wrapper {

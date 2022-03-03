@@ -29,7 +29,7 @@
                 <div class="robin-card-info robin-mr-12">
                   <RGroupAvatar v-if="item.is_group" />
 
-                  <RAvatar :robin-users="$robin_users" :sender-token="item.sender_token" v-else />
+                  <RAvatar :robin-users="$robin_users" :sender-token="item.sender_token === $user_token ? item.receiver_token : item.sender_token" v-else />
                 </div>
 
                 <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4 robin-flex-1">

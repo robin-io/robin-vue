@@ -81,7 +81,7 @@
     <div class="robin-message-box-inner" @keydown.enter.exact.prevent="!replying ? sendMessage() : replyMessage()" tabindex="1">
       <!-- v-show="text.trim() == '' && files.length < 1 && !isUploading" -->
       <div class="robin-mr-8" @click="handleOpenPopUp()">
-        <IconButton name="attachFileClose" v-if="!popUpState.opened"  :to-click-away="false" :to-emit="false" />
+        <IconButton name="attachFileClose" v-if="!popUpState.opened" :to-click-away="false" :to-emit="false" />
         <IconButton name="attachFileOpen" v-else @clicked="handleClosePopUp()" @clickoutside="handleClosePopUp()" :to-click-away="true" :to-emit="true" />
         <!-- <IconButton name="attachFile" @clickoutside="handleClosePopUp()" :to-click-away="true" :style-stroke="true" :to-emit="false" primary-color="rgba(21, 174, 115, 1)" :hasFocus="true" /> -->
       </div>
@@ -100,8 +100,8 @@
         <div class="robin-spinner2"></div>
       </div>
       <!-- <div v-show="text.trim() == '' && files.length < 1 && !isUploading" @click="handleOpenPopUp()"> -->
-        <!-- <IconButton name="voice" :to-click-away="false" :to-emit="false" /> -->
-        <!-- <IconButton name="attachFile" @clickoutside="handleClosePopUp()" :to-click-away="true" :style-stroke="true" :to-emit="false" primary-color="rgba(21, 174, 115, 1)" :hasFocus="true" /> -->
+      <!-- <IconButton name="voice" :to-click-away="false" :to-emit="false" /> -->
+      <!-- <IconButton name="attachFile" @clickoutside="handleClosePopUp()" :to-click-away="true" :style-stroke="true" :to-emit="false" primary-color="rgba(21, 174, 115, 1)" :hasFocus="true" /> -->
       <!-- </div> -->
 
       <div class="robin-popup-container" v-show="popUpState.opened">
@@ -327,6 +327,7 @@ export default class RMessageInputBar extends ComponentProps {
 
   enterText (event: any): void {
     this.text = event.target.value
+    this.calculateTextareaHeight()
   }
 
   escapeText (): void {
@@ -336,9 +337,11 @@ export default class RMessageInputBar extends ComponentProps {
   }
 
   selectEmoji (emoji: any): void {
-    this.text += ` ${emoji.data}`
+    this.text += ` ${emoji.data} `
     const input = this.$refs.input as HTMLInputElement
-    input.focus()
+    if (input) {
+      input.focus()
+    }
   }
 
   handleEmojiOpenPopUp (): void {
@@ -482,13 +485,26 @@ export default class RMessageInputBar extends ComponentProps {
     EventBus.$on('conversation-opened', (_: any) => {
       const input = this.$refs.input as any
       setTimeout(() => {
-        input.focus()
+        if (input) {
+          input.focus()
+        }
       }, 50)
     })
   }
 
   onResize () {
     this.screenWidth = window.innerWidth
+  }
+
+  calculateTextareaHeight (): void {
+    const input = this.$refs.input as any
+
+    if (!input) return
+
+    const padding = window.getComputedStyle(input, null).getPropertyValue('padding-top').replace('px', '') as any
+    console.log(padding, input.scrollHeight - padding * 2)
+    input.style.height = 0
+    input.style.height = input.scrollHeight - padding * 2 + 'px'
   }
 }
 </script>
@@ -587,10 +603,10 @@ export default class RMessageInputBar extends ComponentProps {
   background-color: #fff;
   box-shadow: 0px 0px 20px rgba(0, 104, 255, 0.07);
   width: 100%;
-  height: 44px;
+  /* height: 44px; */
   display: flex;
-  align-items: center;
-  padding: clamp(2.3rem, 4vh, 2.875rem) 2.688rem clamp(2.3rem, 4vh, 2.875rem) 1rem;
+  align-items: flex-end;
+  padding: clamp(1rem, 4vh, 1.1175rem) 2.688rem clamp(1rem, 4vh, 1.175rem) 1rem;
   position: relative;
   z-index: 2;
 }
@@ -602,8 +618,8 @@ export default class RMessageInputBar extends ComponentProps {
 /* Input styles */
 .robin-message-input {
   flex: 1;
-  background-color: #FBFBFB;
-  border: 1px solid #9999BC;
+  background-color: #fbfbfb;
+  border: 1px solid #9999bc;
   border-radius: 24px;
   display: flex;
   align-items: center;
@@ -623,20 +639,22 @@ export default class RMessageInputBar extends ComponentProps {
 .robin-input {
   width: 100%;
   min-width: 100%;
-  min-height: 42px;
-  max-height: 42px;
+  min-height: 20px;
+  height: 20px;
+  max-height: 500px;
   background-color: transparent;
   border: none;
   font-size: 1rem;
-  line-height: 0.825rem;
-  /* padding: 0.9rem 0 0 0.625rem; */
-  white-space: pre-wrap;
-  word-wrap: break-word;
+  line-height: 1.125rem;
+  /* white-space: pre-wrap; */
+  /* word-wrap: break-word; */
   text-align: left;
+  overflow: hidden;
+  box-sizing: content-box;
 
   /* textarea */
   resize: none;
-  padding: 1rem 0 0 0.625rem;
+  padding: 1rem 0 0.5rem 0.625rem;
 }
 
 .robin-input::placeholder {
@@ -729,22 +747,22 @@ a {
 /* Input placeholder */
 ::placeholder {
   font-size: 1rem;
-  color: #CCCCCC;
+  color: #cccccc;
 }
 
 ::-moz-placeholder {
   font-size: 1rem;
-  color: #CCCCCC;
+  color: #cccccc;
 }
 
 :-ms-input-placeholder {
   font-size: 1rem;
-  color: #CCCCCC;
+  color: #cccccc;
 }
 
 ::-ms-input-placeholder {
   font-size: 1rem;
-  color: #CCCCCC;
+  color: #cccccc;
 }
 
 @media (min-width: 768px) {

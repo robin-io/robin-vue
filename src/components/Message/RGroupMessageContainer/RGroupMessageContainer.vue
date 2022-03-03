@@ -1,14 +1,22 @@
 <template>
-  <div class="robin-message-container" :style="{'height': windowHeight + 'px'}" v-on-clickaway="onChatClickAway">
-    <RGroupChatHeader :conversation="conversation" :key="key" :selected-messages="selectedMessages" @delete-selected-messages="openPrompt()" />
+  <div class="robin-message-container" :style="{ height: windowHeight + 'px' }" v-on-clickaway="onChatClickAway">
+    <RGroupChatHeader :conversation="conversation" :key="key" :selected-messages="selectedMessages" @delete-selected-messages="openPrompt('delete message')" />
 
-    <div class="robin-wrapper robin-flex robin-flex-column robin-flex-space-between">
-      <div class="robin-inner-wrapper robin-flex robin-flex-align-center" v-if="isMessagesLoading">
+    <div class="robin-wrapper robin-flex robin-flex-column robin-flex-space-between" ref="message" @scroll="onScroll()">
+      <div class="robin-inner-wrapper-loader robin-flex robin-flex-align-center" v-if="isMessagesLoading">
         <div class="robin-spinner"></div>
       </div>
 
-      <div class="robin-inner-wrapper" ref="message" @scroll="onScroll()" v-else>
+      <div class="robin-inner-wrapper-offline" v-if="isMessagesLoading && offlineMessages.messages[conversation._id]">
+        <MessageContent v-for="(message, index) in offlineMessages.messages[conversation._id]" :ref="`message-${String(index)}`" :uncheck="uncheck" @open-preview="openImagePreview($event)" :key="`message-${String(index + key)}`" v-show="!message.is_deleted" :message="message" :conversation="conversation" :message-popup="getMessagePopup(index)" :messages="offlineMessages.messages[conversation._id]" :index="index" :scroll="scroll" :last-id="!Array.isArray(message) && messages.length - 3 < parseInt(String(index)) ? message._id : ''" :read-receipts="readReceipts" @toggle-check-action="toggleCheckAction($event, message)" @reply-message="replyMessage($event)" @forward-message="forwardMessage = true" @scroll-replied-message="scrollToRepliedMessage" />
+      </div>
+
+      <div class="robin-inner-wrapper" v-if="!isMessagesLoading">
         <MessageContent v-for="(message, index) in messages" :ref="`message-${String(index)}`" :uncheck="uncheck" @open-preview="openImagePreview($event)" :key="`message-${String(index + key)}`" v-show="!message.is_deleted" :message="message" :conversation="conversation" :message-popup="getMessagePopup(index)" :messages="messages" :index="index" :scroll="scroll" :last-id="!Array.isArray(message) && messages.length - 3 < parseInt(String(index)) ? message._id : ''" :read-receipts="readReceipts" @toggle-check-action="toggleCheckAction($event, message)" @reply-message="replyMessage($event)" @forward-message="forwardMessage = true" @scroll-replied-message="scrollToRepliedMessage" />
+      </div>
+
+      <div class="robin-scroll-to-bottom robin-bounceIn" v-show="scrollUp" @click="scrollToBottom()">
+        <i class="robin-material-icon"> arrow_downward </i>
       </div>
     </div>
 
@@ -24,11 +32,7 @@
 
     <RForwardMessage v-if="forwardMessage == true" @closemodal="onCloseForwardMessagePopup()" :selected-messages="selectedMessages" />
 
-    <RPrompt @proceed="deleteSelectedMessages()" v-show="promptOpen" @closemodal="closePrompt()" />
-
-    <div class="robin-scroll-to-bottom robin-bounceIn" v-show="scrollUp" @click="scrollToBottom()">
-      <i class="robin-material-icon"> arrow_downward </i>
-    </div>
+    <RPrompt :status="promptStatus" @proceed="proceed()" v-show="promptOpen" @closemodal="closePrompt()" />
   </div>
 </template>
 
@@ -43,10 +47,12 @@ import RText from '@/components/ChatList/RText/RText.vue'
 import RButton from '@/components/ChatList/RButton/RButton.vue'
 import RCamera from '../RCamera/RCamera.vue'
 import mime from 'mime'
+import localForage from 'localforage'
 import store from '../../../store/index'
 import MessageContent from '../MessageContent/MessageContent.vue'
 import RForwardMessage from '../RForwardMessage/RForwardMessage.vue'
 import RPrompt from '../RPrompt/RPrompt.vue'
+
 // eslint-disable-next-line
 @Component<RGroupMessageContainer>({
   name: 'RGroupMessageContainer',
@@ -76,11 +82,30 @@ import RPrompt from '../RPrompt/RPrompt.vue'
       },
       immediate: true
     },
+    offlineMessages: {
+      handler (val: any): void {
+        this.popUpState.messagePopUp = []
+        const messages = this.offlineMessages.messages[this.conversation._id]
+
+        if (messages) {
+          messages.forEach((val: any) => {
+            this.popUpState.messagePopUp.push({
+              opened: false,
+              _id: val._id
+            })
+          })
+
+          EventBus.$emit('messages.get', [...messages])
+        }
+      },
+      immediate: true
+    },
     selectMessagesOpen: {
       handler (val): void {
         if (!val) {
           this.selectedMessages = []
           this.uncheck = true
+          this.closePrompt()
         }
 
         if (val) {
@@ -90,8 +115,28 @@ import RPrompt from '../RPrompt/RPrompt.vue'
     },
     clearMessages: {
       handler (val): void {
-        if (val) {
-          this.clearAllMessages()
+        if (this.clearMessages) {
+          this.openPrompt('clear messages')
+        } else {
+          this.closePrompt()
+        }
+      }
+    },
+    exitGroup: {
+      handler (val): void {
+        if (this.exitGroup) {
+          this.openPrompt('exit group')
+        } else {
+          this.closePrompt()
+        }
+      }
+    },
+    removeParticipant: {
+      handler (val): void {
+        if (this.removeParticipant) {
+          this.openPrompt('remove participant')
+        } else {
+          this.closePrompt()
         }
       }
     },
@@ -104,6 +149,7 @@ import RPrompt from '../RPrompt/RPrompt.vue'
 })
 export default class RGroupMessageContainer extends Vue {
   promptOpen = false
+  promptStatus = '' as any
   uncheck = false
   windowHeight = 0 as number
   readReceipts = [] as Array<string>
@@ -121,7 +167,10 @@ export default class RGroupMessageContainer extends Vue {
     messagePopUp: [] as Array<any>
   }
 
+  offlineMessages = { messages: {} } as any
+
   messageReply = {} as any
+  messageError = false as boolean
 
   isMessagesLoading = true as boolean
 
@@ -149,8 +198,6 @@ export default class RGroupMessageContainer extends Vue {
       this.onResize()
     })
     window.addEventListener('resize', this.onResize)
-
-    this.windowHeight = window.innerHeight
   }
 
   get currentConversation () {
@@ -163,6 +210,10 @@ export default class RGroupMessageContainer extends Vue {
 
   get clearMessages () {
     return store.state.clearMessages
+  }
+
+  get exitGroup () {
+    return store.state.exitGroup
   }
 
   get imagePreviewOpen () {
@@ -181,19 +232,34 @@ export default class RGroupMessageContainer extends Vue {
     return store.state.isImageReplying
   }
 
+  get participantToken () {
+    return store.state.participantToken
+  }
+
+  get removeParticipant () {
+    return store.state.removeParticipant
+  }
+
   handleConversationOpen (): void {
     EventBus.$on('conversation-opened', (conversation: any) => {
+      this.getOfflineMessages(this.conversation._id)
+
       this.scrollUp = false
       this.messageReply = {}
       this.messages = []
       this.conversation = conversation || {}
+
       store.setState('currentConversation', conversation)
+
       this.scroll = false
       this.isMessagesLoading = true
+
       EventBus.$emit('mark-as-read', conversation)
       store.setState('messageProfileOpen', false)
       this.getConversationMessages(conversation._id).then(() => {
-        this.isMessagesLoading = false
+        if (!this.messageError) {
+          this.isMessagesLoading = false
+        }
       })
     })
   }
@@ -244,6 +310,10 @@ export default class RGroupMessageContainer extends Vue {
         this.messages.push(message)
         this.scrollToBottom()
 
+        if (this.offlineMessages.messages[message.conversation_id]) {
+          this.offlineMessages.messages[message.conversation_id] = message
+        }
+
         if (message.sender_token !== this.$user_token) {
           const messageIds = [this.messages[this.messages.length - 1]._id]
           this.initializeReadReceipts(messageIds)
@@ -251,6 +321,7 @@ export default class RGroupMessageContainer extends Vue {
       }
       if (message.conversation_id !== this.currentConversation._id) {
         const index = this.$regularConversations.findIndex((item) => item._id === message.conversation_id)
+        console.log(message, index)
 
         EventBus.$emit('mark-as-unread', this.$regularConversations[index])
       }
@@ -318,9 +389,13 @@ export default class RGroupMessageContainer extends Vue {
     const res = await this.$robin.getConversationMessages(id, this.$user_token)
 
     if (res && !res.error) {
+      this.messageError = false
       this.testMessages(res.data ? res.data : [])
+      // this.removeOfflineMessages(this.conversation._id)
+      this.setOfflineMessages(this.conversation._id, this.messages.slice(this.messages.length - 3, this.messages.length))
       this.handleReadReceipts(res.data)
     } else {
+      this.messageError = true
       this.$toast.open({
         message: 'Check your connection.',
         type: 'error',
@@ -442,6 +517,7 @@ export default class RGroupMessageContainer extends Vue {
         type: 'success',
         position: 'bottom-left'
       })
+      this.promptOpen = false
       this.promise = this.getConversationMessages(this.conversation._id)
       this.promise.then(() => {
         this.scrollToBottom()
@@ -459,15 +535,16 @@ export default class RGroupMessageContainer extends Vue {
 
   onScroll (): void {
     const message = this.$refs.message as HTMLElement
-    const endOfScroll = Math.floor(message.scrollTop) > Math.floor(message.scrollHeight - message.clientHeight - 20)
+    const endOfScroll = Math.floor(message.scrollTop) > Math.floor(message.scrollHeight - message.clientHeight - 10)
 
-    // console.log(message.scrollTop === message.scrollHeight, `scroll-height: ${Math.floor(message.scrollHeight - message.clientHeight)}`, `scroll-top: ${Math.floor(message.scrollTop)}`)
+    console.log(message.scrollTop === message.scrollHeight, `scroll-height: ${Math.floor(message.scrollHeight - message.clientHeight)}`, `scroll-top: ${Math.floor(message.scrollTop)}`)
 
     if (message.scrollTop > this.lastScroll) {
       if (endOfScroll) {
         this.scrollUp = false
       }
     } else {
+      console.log(this.scrollUp)
       this.scrollUp = true
     }
 
@@ -548,12 +625,32 @@ export default class RGroupMessageContainer extends Vue {
     }
   }
 
-  openPrompt () {
+  async handleRemoveParticipant () {
+    const res = await this.$robin.removeGroupParticipant(this.currentConversation._id, this.participantToken)
+
+    if (res && !res.error) {
+      EventBus.$emit('participant.left.group', { conversation_id: this.currentConversation._id, user_token: this.participantToken })
+    } else {
+      this.$toast.open({
+        message: 'Check your connection.',
+        type: 'error',
+        position: 'bottom-left'
+      })
+    }
+  }
+
+  openPrompt (status: String) {
     this.promptOpen = true
+
+    this.promptStatus = status
   }
 
   closePrompt () {
     this.promptOpen = false
+    store.setState('selectMessagesOpen', false)
+    store.setState('clearMessages', false)
+    store.setState('exitGroup', false)
+    store.setState('removeParticipant', false)
   }
 
   // Method to scroll to the position of a replied message
@@ -577,6 +674,75 @@ export default class RGroupMessageContainer extends Vue {
 
   onResize () {
     this.scrollUp = false
+    this.windowHeight = window.innerHeight
+  }
+
+  async handleLeaveGroup () {
+    const res = await this.$robin.removeGroupParticipant(this.conversation._id, this.$user_token)
+
+    if (res && !res.error) {
+      this.$toast.open({
+        message: 'You left group',
+        type: 'success',
+        position: 'bottom-left'
+      })
+
+      EventBus.$emit('left.group')
+      EventBus.$emit('regular-conversation.delete', this.conversation)
+
+      store.setState('exitGroup', false)
+    } else {
+      this.$toast.open({
+        message: 'Check your connection.',
+        type: 'error',
+        position: 'bottom-left'
+      })
+    }
+  }
+
+  proceed () {
+    if (this.promptStatus === 'delete select' && this.selectMessagesOpen) {
+      this.deleteSelectedMessages()
+    }
+    if (this.promptStatus === 'clear messages' && this.clearMessages) {
+      this.clearAllMessages()
+    }
+    if (this.promptStatus === 'exit group' && this.exitGroup) {
+      this.handleLeaveGroup()
+    }
+    if (this.promptStatus === 'remove participant' && this.removeParticipant) {
+      this.handleRemoveParticipant()
+    }
+  }
+
+  async getOfflineMessages (conversation_id: string): Promise<any> {
+    try {
+      const value = await localForage.getItem('messages') as Array<any>
+      console.log(value)
+      this.offlineMessages = value ? { ...value } : { messages: {} }
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  setOfflineMessages (conversation_id: string, messages: Array<any>): void {
+    try {
+      const data = { messages: { [conversation_id]: messages } } as any
+      console.log('old->', data)
+
+      for (const item in this.offlineMessages.messages) {
+        if (!data.messages[item]) {
+          data.messages[item] = this.offlineMessages.messages[item]
+        }
+      }
+
+      console.log('new ->', data)
+
+      localForage.clear()
+      localForage.setItem('messages', data)
+    } catch (error) {
+      console.error(error)
+    }
   }
 }
 </script>
@@ -584,19 +750,20 @@ export default class RGroupMessageContainer extends Vue {
 <style scoped>
 .robin-message-container {
   width: 100%;
-  /* height: 100%; */
+  height: 100vh;
   display: flex;
   flex: 1;
   flex-direction: column;
   justify-content: space-between;
   position: relative;
   z-index: 0;
+  overflow-y: hidden;
 }
 
 .robin-wrapper {
   flex: 1;
   height: 100%;
-  overflow-y: hidden;
+  overflow-y: auto;
   background-color: #fff;
 }
 
@@ -605,9 +772,26 @@ export default class RGroupMessageContainer extends Vue {
   flex-direction: column;
   flex: 1;
   width: 100%;
+  /* height: 100%; */
+  padding: 2.688rem clamp(3%, 5vw, 2.688rem) 1.25rem clamp(3%, 5vw, 3.125rem);
+}
+
+.robin-inner-wrapper-loader {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: 100%;
+  /* height: 10%; */
+  padding: 2.688rem clamp(3%, 5vw, 2.688rem) 1.25rem clamp(3%, 5vw, 3.125rem);
+}
+
+.robin-inner-wrapper-offline {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: 100%;
   height: 100%;
   padding: 2.688rem clamp(3%, 5vw, 2.688rem) 1.25rem clamp(3%, 5vw, 3.125rem);
-  overflow-y: auto;
 }
 
 .network-error {
@@ -631,7 +815,7 @@ export default class RGroupMessageContainer extends Vue {
   width: 40px;
   height: 40px;
   position: absolute;
-  bottom: 100px;
+  bottom: 120px;
   right: 30px;
   z-index: 1;
   background-color: #fff;
@@ -666,6 +850,12 @@ export default class RGroupMessageContainer extends Vue {
     -moz-border-radius: 24px;
     -ms-border-radius: 24px;
     -o-border-radius: 24px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .robin-message-container {
+    overflow-y: auto;
   }
 }
 </style>

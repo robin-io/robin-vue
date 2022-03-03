@@ -12,7 +12,9 @@
       </div>
 
       <!-- Personal -->
-      <div class="robin-message-bubble-inner" :class="{'robin-non-clickable': selectMessagesOpen, 'robin-flex-column': (validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) || validateLinkInMessage().containsEmail || validateLinkInMessage().containsWebsite }" v-if="!message.has_attachment && !conversation.is_group">
+      <div class="robin-message-bubble-inner" :class="{ 'robin-non-clickable': selectMessagesOpen }" v-if="!message.has_attachment">
+        <RText v-if="validateMessages(message).includes('message-sender') && conversation.is_group" :font-size="12" color="#15AE73" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getContactName(message.content.sender_token) }} </RText>
+
         <!-- Modal Open Caret -->
         <div class="robin-caret-container" v-show="caretOpen || (messagePopup.opened && validateMessages(message))" @click="openModal()">
           <IconButton name="messagePopupCaret" :to-emit="false" :to-click-away="false" />
@@ -24,6 +26,8 @@
         <!-- place reply here -->
         <ReplyMessageBubble :messages="messages" :message="message" v-if="message.is_reply" :sender="validateMessages(message).includes('message-sender')" @scroll-replied-message="scrollToRepliedMessage" />
         <!-- place reply here -->
+
+        <div class="message-inner" :class="{ 'robin-flex-column': (validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) || validateLinkInMessage().containsEmail || validateLinkInMessage().containsWebsite }">
         <RText :max-width="message.content.msg.length < 120 ? '217' : '270'" :font-size="17" textWrap="pre-line" wordBreak="break-word" as="span" v-if="!validateLinkInMessage().containsEmail && !validateLinkInMessage().containsWebsite">
           {{ message.content.msg }}
         </RText>
@@ -61,66 +65,10 @@
             <SvgIcon name="not-read" v-if="!validateMessages(message).includes('message-sender') && !message.is_read" />
           </RText>
         </span>
-      </div>
-
-      <!-- Group -->
-      <div class="robin-message-bubble-inner robin-group" :class="{ 'robin-non-clickable': selectMessagesOpen }" v-if="!message.has_attachment && conversation.is_group">
-        <RText v-if="validateMessages(message).includes('message-sender')" :font-size="12" color="#15AE73" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getContactName(message.content.sender_token) }} </RText>
-
-        <!-- Modal Open Caret -->
-        <div class="robin-caret-container" v-show="caretOpen || (messagePopup.opened && validateMessages(message))" @click="openModal()">
-          <IconButton name="messagePopupCaret" :to-emit="false" :to-click-away="false" />
-        </div>
-        <!-- Modal Open Caret -->
-
-        <SvgIcon class="robin-forwarded" name="forwarded" v-show="message.is_forwarded" />
-
-        <!-- place reply here -->
-        <ReplyMessageBubble :messages="messages" :message="message" v-if="message.is_reply" :sender="validateMessages(message).includes('message-sender')" @scroll-replied-message="scrollToRepliedMessage" />
-        <!-- place reply here -->
-
-        <div class="message-inner" :class="{ 'robin-flex-column': (validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) || validateLinkInMessage().containsEmail || validateLinkInMessage().containsWebsite }">
-          <RText :max-width="message.content.msg.length < 120 ? '217' : '270'" textWrap="pre-line" wordBreak="break-word" as="span" v-if="!validateLinkInMessage().containsEmail && !validateLinkInMessage().containsWebsite">
-            {{ message.content.msg }}
-          </RText>
-
-          <div class="robin-link-container" v-html="injectHtml()" v-if="(validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) || validateLinkInMessage().containsEmail || validateLinkInMessage().containsWebsite"></div>
-
-          <!-- <link-prevue class="robin-link-preview" v-if="websiteRegex.test(getTextsInMessage().texts[getTextsInMessage().length - 1]) && !emailRegex.test(getTextsInMessage().texts[getTextsInMessage().length - 1])" :url="getTextsInMessage().texts[getTextsInMessage().length - 1].includes('http') || getTextsInMessage().texts[getTextsInMessage().length - 1].includes('https') ? getTextsInMessage().texts[getTextsInMessage().length - 1] : `https://${getTextsInMessage().texts[getTextsInMessage().length - 1]}`">
-            <template slot-scope="props">
-              <a :href="props.url" class="card" v-show="props.img">
-                <img class="robin-card-img-top" :src="props.img" :alt="props.title" />
-
-                <div class="robin-card-block" v-show="props.title">
-                  <RText :font-size="14" :line-height="24" textWrap="pre-line" wordBreak="break-word" color="#51545C" as="span">
-                    {{ props.title }}
-                  </RText>
-
-                  <RText :font-size="12" :line-height="14" textWrap="pre-line" class="robin-card-text" wordBreak="break-word" color="#8D9091" as="p">
-                    {{ props.description }}
-                  </RText>
-                </div>
-              </a>
-            </template>
-
-            <template slot="loading">
-              <div></div>
-            </template>
-          </link-prevue> -->
-
-          <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
-            <RText :font-weight="'300'" :font-size="10" color="#7a7a7a" as="p" @click.native="openModal()" class="robin-flex">
-              {{ formatTimeStamp(message.content.timestamp) }}
-
-              <SvgIcon name="read" v-if="!validateMessages(message).includes('message-sender') && message.is_read" />
-
-              <SvgIcon name="not-read" v-if="!validateMessages(message).includes('message-sender') && !message.is_read" />
-            </RText>
-          </span>
         </div>
       </div>
 
-      <div class="robin-message-bubble-image" :class="{'robin-non-clickable': selectMessagesOpen}" v-if="message.content.is_attachment && imageRegex.test(checkAttachmentType(message.content.attachment))">
+      <div class="robin-message-bubble-image" :class="{ 'robin-non-clickable': selectMessagesOpen }" v-if="message.content.is_attachment && imageRegex.test(checkAttachmentType(message.content.attachment))">
         <!-- Modal Open Caret -->
         <div class="robin-caret-container" v-show="caretOpen || (messagePopup.opened && validateMessages(message))" @click="openModal()">
           <IconButton name="messagePopupCaret" :to-emit="false" :to-click-away="false" />
@@ -138,7 +86,7 @@
           {{ message.content.msg }}
         </RText>
 
-        <div class="robin-link-container" v-html="injectHtml()" v-if="(validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) || validateLinkInMessage().containsEmail || validateLinkInMessage().containsWebsite && message.content.msg && message.content.msg != 'undefined'"></div>
+        <div class="robin-link-container" v-html="injectHtml()" v-if="(validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) || validateLinkInMessage().containsEmail || (validateLinkInMessage().containsWebsite && message.content.msg && message.content.msg != 'undefined')"></div>
 
         <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
           <RText :font-weight="'300'" :font-size="10" color="#7a7a7a" as="p" @click.native="openModal()" class="robin-flex">
@@ -151,7 +99,7 @@
         </span>
       </div>
 
-      <div class="robin-message-bubble-video" :class="{'robin-non-clickable': selectMessagesOpen}"  v-if="message.content.is_attachment && videoRegex.test(checkAttachmentType(message.content.attachment))">
+      <div class="robin-message-bubble-video" :class="{ 'robin-non-clickable': selectMessagesOpen }" v-if="message.content.is_attachment && videoRegex.test(checkAttachmentType(message.content.attachment))">
         <!-- Modal Open Caret -->
         <div class="robin-caret-container" v-show="caretOpen || (messagePopup.opened && validateMessages(message))" @click="openModal()">
           <IconButton name="messagePopupCaret" :to-emit="false" :to-click-away="false" />
@@ -173,7 +121,7 @@
           {{ message.content.msg }}
         </RText>
 
-        <div class="robin-link-container" v-html="injectHtml()" v-if="(validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) || validateLinkInMessage().containsEmail || validateLinkInMessage().containsWebsite && message.content.msg && message.content.msg != 'undefined'"></div>
+        <div class="robin-link-container" v-html="injectHtml()" v-if="(validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) || validateLinkInMessage().containsEmail || (validateLinkInMessage().containsWebsite && message.content.msg && message.content.msg != 'undefined')"></div>
 
         <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
           <RText :font-weight="'300'" :font-size="10" color="#7a7a7a" as="p" @click.native="openModal()" class="robin-flex">
@@ -186,7 +134,7 @@
         </span>
       </div>
 
-      <div class="robin-message-bubble-document"  :class="{'robin-non-clickable': selectMessagesOpen}" v-if="message.content.is_attachment && documentRegex.test(checkAttachmentType(message.content.attachment))">
+      <div class="robin-message-bubble-document" :class="{ 'robin-non-clickable': selectMessagesOpen }" v-if="message.content.is_attachment && documentRegex.test(checkAttachmentType(message.content.attachment))">
         <!-- Modal Open Caret -->
         <div class="robin-caret-container" v-show="caretOpen || (messagePopup.opened && validateMessages(message))" @click="openModal()">
           <IconButton name="messagePopupCaret" :to-emit="false" :to-click-away="false" />
@@ -201,7 +149,7 @@
 
         <div class="robin-uploaded-document">
           <!-- <img v-if="assets[getFileDetails(message.content.attachment).extension]" :src="`${assets[getFileDetails(message.content.attachment).extension]}`" /> -->
-          <img v-if="assets[getFileDetails(message.content.attachment).extension]" :src="assets[getFileDetails(message.content.attachment).extension]" alt="document">
+          <img v-if="assets[getFileDetails(message.content.attachment).extension]" :src="assets[getFileDetails(message.content.attachment).extension]" alt="document" />
 
           <img v-else :src="assets['default']" />
 
@@ -216,7 +164,7 @@
           {{ message.content.msg }}
         </RText>
 
-        <div class="robin-link-container" v-html="injectHtml()" v-if="(validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) || validateLinkInMessage().containsEmail || validateLinkInMessage().containsWebsite && message.content.msg && message.content.msg != 'undefined'"></div>
+        <div class="robin-link-container" v-html="injectHtml()" v-if="(validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) || validateLinkInMessage().containsEmail || (validateLinkInMessage().containsWebsite && message.content.msg && message.content.msg != 'undefined')"></div>
 
         <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
           <RText :font-weight="'300'" :font-size="10" color="#7a7a7a" as="p" @click.native="openModal()" class="robin-flex">
@@ -309,7 +257,10 @@ const ComponentProps = Vue.extend({
     },
     messagePopup: {
       type: Object,
-      default: () => {}
+      default: () => ({
+        opened: false,
+        _id: ''
+      })
     },
     lastId: {
       type: String as PropType<string>,
@@ -430,7 +381,7 @@ export default class MessageContent extends ComponentProps {
   closeModal (): void {
     const popup = this.$refs as any
     for (const ref in popup) {
-      if (ref !== 'checkbox') {
+      if (ref !== 'checkbox' && popup[ref]) {
         popup[ref].$refs['popup-body'].classList.remove('robin-zoomIn')
         popup[ref].$refs['popup-body'].classList.add('robin-zoomOut')
       }
@@ -438,7 +389,7 @@ export default class MessageContent extends ComponentProps {
 
     window.setTimeout(() => {
       for (const ref in popup) {
-        if (ref !== 'checkbox') {
+        if (ref !== 'checkbox' && popup[ref]) {
           popup[ref].$refs['popup-body'].classList.add('robin-zoomIn')
           popup[ref].$refs['popup-body'].classList.remove('robin-zoomOut')
         }
@@ -777,17 +728,14 @@ export default class MessageContent extends ComponentProps {
   text-align: left;
 }
 
-.robin-group.robin-message-bubble-inner {
+/* .robin-group.robin-message-bubble-inner {
   display: flex;
   flex-wrap: nowrap;
   gap: 0;
   flex-direction: column;
-  /* min-width: 60px;
-  width: max-content;
-  max-width: 277px; */
   padding: 0.813rem 0.625rem 0.813rem 0.75rem;
   border-radius: inherit;
-}
+} */
 
 .message-inner {
   display: flex;
@@ -796,11 +744,15 @@ export default class MessageContent extends ComponentProps {
 }
 
 .robin-message-bubble-inner {
-  display: flex;
+  /* display: flex;
   flex-wrap: wrap;
   gap: 0.375rem 0.5rem;
-  /* min-width: 60px;
-  max-width: 277px; */
+  padding: 0.813rem 0.625rem 0.813rem 0.75rem;
+  border-radius: inherit; */
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0;
+  flex-direction: column;
   padding: 0.813rem 0.625rem 0.813rem 0.75rem;
   border-radius: inherit;
 }
@@ -938,7 +890,7 @@ video.video-reply {
 .robin-message-bubble-document .robin-uploaded-document {
   display: flex;
   align-items: center;
-  background-color: #F5F7FC;
+  background-color: #f5f7fc;
   border: 1px solid #ecebeb;
   border-radius: 4px;
 }
@@ -1077,7 +1029,7 @@ video.video-reply {
   gap: 0.25rem 0.5rem;
   padding: 0.25rem 0.375rem;
   background-color: #e6e6e6;
-  border: 2px solid #E5E5E5;
+  border: 2px solid #e5e5e5;
   border-radius: 100px;
   position: absolute;
   top: -25px;
@@ -1093,7 +1045,7 @@ video.video-reply {
   gap: 0.25rem 0.25rem;
   padding: 0.25rem 0.375rem;
   background-color: #e6e6e6;
-  border: 2px solid #E5E5E5;
+  border: 2px solid #e5e5e5;
   border-radius: 100px;
   position: absolute;
   top: -25px;
@@ -1117,7 +1069,7 @@ video.video-reply {
   width: 10px;
   height: 5px;
   background-color: #e6e6e6;
-  border: 2px solid #E5E5E5;
+  border: 2px solid #e5e5e5;
   border-bottom-left-radius: 110px;
   border-bottom-right-radius: 110px;
   border-top: none;
@@ -1133,7 +1085,7 @@ video.video-reply {
   width: 10px;
   height: 5px;
   background-color: #e6e6e6;
-  border: 2px solid #E5E5E5;
+  border: 2px solid #e5e5e5;
   border-bottom-left-radius: 110px;
   border-bottom-right-radius: 110px;
   border-top: none;
@@ -1223,8 +1175,6 @@ a {
 
 .robin-forwarded {
   display: block;
-  clear: both;
-  margin-right: auto;
   margin-bottom: 0.125rem;
 }
 
@@ -1270,7 +1220,7 @@ a {
   }
 
   .robin-message-sender .robin-non-clickable:hover {
-    background-color: #F5F7FC;
+    background-color: #f5f7fc;
   }
 
   /* Receiver */
@@ -1292,7 +1242,7 @@ a {
   }
 
   .robin-message-receiver .robin-non-clickable:hover {
-    background-color: #DBE4FF;
+    background-color: #dbe4ff;
   }
 }
 </style>
