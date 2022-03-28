@@ -14,7 +14,7 @@ interface State {
   selectMessagesOpen: boolean,
   clearMessages: boolean,
   imagePreviewOpen: boolean,
-  messageProfileOpen: boolean,
+  ProfileOpen: boolean,
   groupPromptOpen: boolean,
   currentParticipantToken: string,
   encryptionDetailsOpen: boolean
@@ -34,7 +34,7 @@ const state: State = {
   selectMessagesOpen: false,
   clearMessages: false,
   imagePreviewOpen: false,
-  messageProfileOpen: false,
+  ProfileOpen: false,
   groupPromptOpen: false,
   currentParticipantToken: '',
   encryptionDetailsOpen: false,

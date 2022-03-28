@@ -1,15 +1,15 @@
 <template>
   <div class="robin-container">
     <transition name="robin-fadeIn">
-      <RSideContainer v-show="(!isPageLoading && !conversationOpened && screenWidth <= 1200) || (conversationOpened && screenWidth > 1200) || (!conversationOpened && screenWidth > 1200)" :user_token="userToken" :key="key" />
+      <SideContainer v-show="(!isPageLoading && !conversationOpened && screenWidth <= 1200) || (conversationOpened && screenWidth > 1200) || (!conversationOpened && screenWidth > 1200)" :key="key" />
     </transition>
     <transition name="robin-fadeIn">
-      <RGroupMessageContainer v-show="(!isPageLoading && conversationOpened && screenWidth > 1200 && !messageProfileOpen) || (!isPageLoading && conversationOpened && screenWidth <= 1200 && !messageProfileOpen) || (!isPageLoading && conversationOpened && screenWidth > 1200 && messageProfileOpen)" :key="key" />
+      <MessageContainer v-show="(!isPageLoading && conversationOpened && screenWidth > 1200 && !ProfileOpen) || (!isPageLoading && conversationOpened && screenWidth <= 1200 && !ProfileOpen) || (!isPageLoading && conversationOpened && screenWidth > 1200 && ProfileOpen)" :key="key" />
     </transition>
-    <RNoMessageSelected v-show="!isPageLoading && !conversationOpened" />
-    <RPageLoader v-show="isPageLoading && pageLoader" />
+    <NoMessageSelected v-show="!isPageLoading && !conversationOpened" />
+    <PageLoader v-show="isPageLoading && pageLoader" />
     <MessageImagePreviewer ref="popup-1" :conversation="currentConversation" v-show="imagePreviewOpen" @close="closeImagePreview()" :images-to-preview="imagesToPreview" />
-    <Profile ref="popup-2" v-show="messageProfileOpen" @close="closeMessageProfile()" :key="profileKey" />
+    <ViewProfile ref="popup-2" v-show="ProfileOpen" @close="closeMessageViewProfile()" />
     <GroupPrompt v-show="groupPromptOpen" @close="closeGroupPrompt()" />
     <EncryptionDetails v-show="encryptionDetailsOpen" @close="closeEncryptionDetails()" />
     <audio :src="assets['notification']" ref="notification" @click="playAudio($event)">Your browser does not support the</audio>
@@ -18,14 +18,14 @@
 
 <script lang="ts">
 import Vue, { PropType } from 'vue'
-import RSideContainer from './components/ChatList/RSideContainer/RSideContainer.vue'
-import RGroupMessageContainer from './components/Message/RGroupMessageContainer/RGroupMessageContainer.vue'
-import RNoMessageSelected from './components/Message/RNoMessageSelected.vue'
-import RPageLoader from './components/RPageLoader.vue'
-import MessageImagePreviewer from './components/Message/MessageImagePreviewer/MessageImagePreviewer.vue'
-import Profile from './components/Message/ViewMessageProfile/Profile.vue'
-import GroupPrompt from './components/Message/ViewMessageProfile/GroupPrompt.vue'
-import EncryptionDetails from './components/Message/ViewMessageProfile/EncryptionDetails.vue'
+import SideContainer from './components/SideContainer/SideContainer.vue'
+import MessageContainer from './components/MessageContainer/MessageContainer.vue'
+import NoMessageSelected from './components/NoMessageSelected/NoMessageSelected.vue'
+import PageLoader from './components/PageLoader/PageLoader.vue'
+import MessageImagePreviewer from './components/MessageImagePreviewer/MessageImagePreviewer.vue'
+import ViewProfile from './components/ViewProfile/ViewProfile.vue'
+import GroupPrompt from './components/GroupPrompt/GroupPrompt.vue'
+import EncryptionDetails from './components/EncrytionDetails/EncryptionDetails.vue'
 import Component from 'vue-class-component'
 import store from './store/index'
 import { Robin } from 'robin.io-js'
@@ -52,7 +52,7 @@ const ComponentProps = Vue.extend({
     },
     userName: {
       type: String as PropType<string>,
-      default: 'Elvis Chuks'
+      default: 'Enoch Chejieh'
     },
     users: {
       type: Array as PropType<Array<any>>,
@@ -303,7 +303,7 @@ const ComponentProps = Vue.extend({
           updated_at: '2022-02-08T16:02:10.17Z',
           fullname: 'Gloria Nwandu ',
           user_token: 'WhSzdyfBjcABVIbVPMjZPVSk',
-          password: '$2a$14$HVbewRXK9lN9fDTvw787geQaD4HhlLc/mc4/zkSlT9Ld5Ca9OcdXS',
+          password: '$2a$14$HVbewRXK9lN9fEDTvw787geQaD4HhlLc/mc4/zkSlT9Ld5Ca9OcdXS',
           profile_image: '',
           email: 'nwandugloria23@gmail.com'
         },
@@ -719,12 +719,12 @@ const ComponentProps = Vue.extend({
 @Component<App>({
   name: 'RobinChatContainer',
   components: {
-    RSideContainer,
-    RGroupMessageContainer,
-    RPageLoader,
-    RNoMessageSelected,
+    SideContainer,
+    MessageContainer,
+    PageLoader,
+    NoMessageSelected,
     MessageImagePreviewer,
-    Profile,
+    ViewProfile,
     GroupPrompt,
     EncryptionDetails
   },
@@ -735,9 +735,17 @@ const ComponentProps = Vue.extend({
       },
       immediate: true
     },
-    currentConversation: {
+    // currentConversation: {
+    //   handler (val) {
+    //     this.profileKey += 1
+    //   }
+    // },
+    time: {
       handler (val) {
-        this.profileKey += 1
+        if (this.time === 9) {
+          this.connect()
+          this.resetStopWatch()
+        }
       }
     }
   }
@@ -747,9 +755,11 @@ export default class App extends ComponentProps {
   conn = null as any
   conversationOpened = false as boolean
   key = 0 as number
-  profileKey = 0 as number
+  // profileKey = 0 as number
   screenWidth = 0 as number
   messageEvent = null as any
+  start = null as any
+  time = 0 as number
 
   created (): void {
     this.filterUsers()
@@ -759,10 +769,11 @@ export default class App extends ComponentProps {
     this.onGroupConversationCreated()
     this.onExitGroup()
     this.onExitMessage()
+    this.onConversationDelete()
 
     if (this.conn) {
       this.conn.onopen = () => {
-        console.log('opened')
+        // console.log('opened')
         this.robin.subscribe(this.channel, this.conn)
       }
 
@@ -778,6 +789,10 @@ export default class App extends ComponentProps {
       this.onResize()
     })
     window.addEventListener('resize', this.onResize)
+
+    setInterval(() => {
+      this.time += 1
+    }, 60000)
   }
 
   get isPageLoading () {
@@ -804,8 +819,8 @@ export default class App extends ComponentProps {
     return store.state.imagePreviewOpen
   }
 
-  get messageProfileOpen () {
-    return store.state.messageProfileOpen
+  get ProfileOpen () {
+    return store.state.ProfileOpen
   }
 
   get groupPromptOpen () {
@@ -848,17 +863,18 @@ export default class App extends ComponentProps {
 
     this.conn.onmessage = (evt: any) => {
       const notification = this.$refs.notification as any
-      if (notification) {
-        notification.click()
-      }
 
       const message = JSON.parse(evt.data)
       // console.log(message)
       if (message.is_event !== true) {
         EventBus.$emit('new-message', message)
         this.messageEvent = message
+
+        if (notification) {
+          notification.click()
+        }
       } else {
-        // console.log(message)
+        console.log(message)
         // move new conversation to the top
         // console.log('new conversation')
         // EventBus.$emit('new-conversation', message)
@@ -870,6 +886,8 @@ export default class App extends ComponentProps {
         // }
         this.handleEvents(message)
       }
+
+      this.resetStopWatch()
     }
 
     const WebSocket: WebSocket = this.conn
@@ -934,6 +952,9 @@ export default class App extends ComponentProps {
       case 'message.remove.reaction':
         EventBus.$emit('message.remove.reaction', message.value)
         break
+      case 'remove.group.participant':
+        EventBus.$emit('remove.group.participant', message.value)
+        break
       case 'read.reciept':
         EventBus.$emit('read.reciept', message.value)
         break
@@ -941,27 +962,29 @@ export default class App extends ComponentProps {
         EventBus.$emit('group.icon.update', message.value)
         break
       default:
-        // console.log('cannot handle event')
         break
     }
-  }
-
-  handleReconnect () {
-    EventBus.$on('websocket.reconnect', () => {
-      this.connect()
-    })
   }
 
   onExitGroup () {
     EventBus.$on('left.group', () => {
       this.key += 1
       this.conversationOpened = false
+      store.setState('ProfileOpen', false)
+    })
+  }
+
+  onConversationDelete () {
+    EventBus.$on('close-conversation', () => {
+      this.conversationOpened = false
+      store.setState('ProfileOpen', false)
     })
   }
 
   onExitMessage () {
     EventBus.$on('left.message', () => {
       this.conversationOpened = false
+      store.setState('ProfileOpen', false)
     })
   }
 
@@ -983,7 +1006,7 @@ export default class App extends ComponentProps {
     }, 100)
   }
 
-  closeMessageProfile (): void {
+  closeMessageViewProfile (): void {
     const popup = this.$refs['popup-2'] as any
     popup.$refs['popup-body'].classList.remove('robin-slideInRight')
     popup.$refs['popup-body'].classList.add('robin-slideOutRight')
@@ -992,7 +1015,7 @@ export default class App extends ComponentProps {
       popup.$refs['popup-body'].classList.remove('robin-slideOutRight')
       popup.$refs['popup-body'].classList.add('robin-slideInRight')
 
-      store.setState('messageProfileOpen', false)
+      store.setState('ProfileOpen', false)
     }, 100)
   }
 
@@ -1006,10 +1029,14 @@ export default class App extends ComponentProps {
 
   playAudio (event: any): void {
     if (this.messageEvent) {
-      if (this.messageEvent.content.sender_token !== this.$user_token) {
+      if (this.messageEvent.content.receiver_token === this.$user_token) {
         event.target.play()
       }
     }
+  }
+
+  resetStopWatch (): void {
+    this.time = 0
   }
 }
 </script>
@@ -1019,7 +1046,7 @@ export default class App extends ComponentProps {
   margin: 0;
   padding: 0;
   width: 100vw;
-  height: 100vh;
+  /* height: 100vh; */
   display: flex;
   position: absolute;
   top: 0;

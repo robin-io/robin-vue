@@ -18,5 +18,5 @@
     "skipLibCheck": true,
     "lib": ["dom", "esnext"]
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "types/*.d.ts"]
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "types/*.d.ts", "src/utils/mp3-encoder.js", "src/utils/recorder.ts"]
 }

@@ -2,50 +2,25 @@
   <div class="robin-modal-container robin-flex robin-flex-column robin-slideInRight" ref="popup-body">
     <header class="robin-header">
       <IconButton name="remove" @close="closeModal()" emit="close" :to-emit="true" :to-click-away="false" />
-      <RText font-weight="400" :font-size="16" class="robin-ml-12">{{ !currentConversation.is_group ? 'Chat' : 'Group' }} Info</RText>
+      <Text font-weight="400" :font-size="16" class="robin-ml-12">{{ !currentConversation.is_group ? 'Chat' : 'Group' }} Info</Text>
     </header>
 
-    <div class="robin-wrapper robin-slideIn">
+    <div class="robin-wrapper robin-fadeIn" v-if="!isProfileLoading">
       <div class="robin-profile">
-        <RAvatar :robin-users="$robin_users" v-if="!currentConversation.is_group" :sender-token="currentConversation.sender_token === $user_token ? currentConversation.receiver_token : currentConversation.sender_token" class="robin-mb-8" />
-        <RGroupAvatar v-else class="robin-mb-8" :img-url="currentConversation.group_icon" />
+        <Avatar :robin-users="$robin_users" v-if="!currentConversation.is_group" :sender-token="currentConversation.sender_token === $user_token ? currentConversation.receiver_token : currentConversation.sender_token" class="robin-mb-8" />
+        <GroupAvatar v-else class="robin-mb-8" :img-url="currentConversation.group_icon" />
 
-        <RText fontWeight="500" as="h3" class="robin-mb-8">{{ !currentConversation.is_group ? currentConversation.receiver_name : currentConversation.name }}</RText>
+        <Text fontWeight="500" as="h3" class="robin-mb-8">{{ !currentConversation.is_group ? currentConversation.sender_token != $user_token ? currentConversation.sender_name : currentConversation.receiver_name : currentConversation.name }}</Text>
 
-        <RText color="#51545C" :fontSize="12" :text-align="'center'" as="p" class="robin-mb-8" v-show="currentConversation.is_group">{{ groupParticipants.length > 1 ? `${groupParticipants.length} Members` : `${groupParticipants.length} Member` }}</RText>
+        <Text color="#51545C" :fontSize="12" :text-align="'center'" as="p" class="robin-mb-8" v-show="currentConversation.is_group">{{ groupParticipants.length > 1 ? `${groupParticipants.length} Members` : `${groupParticipants.length} Member` }}</Text>
 
-        <RText color="#51545C" :fontSize="12" :text-align="'center'" as="p" class="robin-flex" v-if="currentConversation.is_group"
-          >Created <RText :fontSize="12">{{ formatRecentMessageTime(currentConversation.created_at) }}</RText
-          >, By <RText :fontSize="12">{{ currentConversation.moderator.meta_data.display_name }}</RText></RText
+        <Text color="#51545C" :fontSize="12" :text-align="'center'" as="p" class="robin-flex" v-if="currentConversation.is_group"
+          >Created <Text :fontSize="12">{{ formatRecentMessageTime(currentConversation.created_at) }}</Text
+          >, By <Text :fontSize="12">{{ currentConversation.moderator.meta_data.display_name }}</Text></Text
         >
-
-        <!-- <RText color="#51545C" :fontSize="12" :text-align="'center'" as="p" v-show="!currentConversation.is_group">{{ currentConversation.owner_email }}</RText> -->
       </div>
 
-      <!-- personal -->
-      <!-- <RText color="#1F222D" :fontSize="14" as="p" class="robin-mb-13">Files</RText>
-      <div class="robin-files">
-        <div class="robin-upload robin-flex robin-flex-align-center">
-          <img :src="assets['default']" />
-
-          <div class="details robin-flex robin-flex-column robin-h-100 robin-flex-align-center">
-            <RText as="span" :fontSize="14"> default.pdf </RText>
-
-            <RText as="span" color="#7A7A7A" :fontSize="14"> 123kb </RText>
-          </div>
-
-          <IconButton name="download" class="robin-ml-auto" color="#15AE73" :to-emit="false" :to-click-away="false" />
-        </div>
-      </div>
-
-      <RText color="#1F222D" :fontSize="14" as="p" class="robin-mb-13">Media</RText>
-
-      <div class="robin-media"></div> -->
-
-      <!-- group -->
-      <!-- <RButton :fontSize="14" color="#ea8d51">Load More</RButton> -->
-
-      <div class="robin-nav-container robin-slideIn">
+      <div class="robin-nav-container">
         <div :class="{ active: nav == 'Media' }" @click="nav = 'Media'">Media</div>
 
         <div :class="{ active: nav == 'Links' }" @click="nav = 'Links'">Links</div>
@@ -77,50 +52,50 @@
 
       <!-- Documents -->
 
-      <div class="robin-document-grids" v-show="nav === 'Docs'">
+      <div v-show="nav === 'Docs'" class="robin-document-grids">
         <div class="robin-uploaded-documents" v-for="(document, documentIndex) in documents" :key="documentIndex">
           <img v-if="assets[getFileDetails(document.content.attachment).extension]" :src="assets[getFileDetails(document.content.attachment).extension]" alt="document" />
 
           <img v-else :src="assets['default']" />
 
           <div class="detail robin-flex robin-h-100 robin-flex-align-center">
-            <RText as="span" :fontSize="14"> {{ getFileDetails(document.content.attachment).name.length > 9 ? getFileDetails(document.content.attachment).name.substring(0, 9) + '...' + '.' + getFileDetails(document.content.attachment).extension : getFileDetails(document.content.attachment).name + '.' + getFileDetails(document.content.attachment).extension }} </RText>
+            <Text as="span" :fontSize="14"> {{ getFileDetails(document.content.attachment).name && getFileDetails(document.content.attachment).name.length > 9 ? getFileDetails(document.content.attachment).name.substring(0, 9) + '...' + '.' + getFileDetails(document.content.attachment).extension : getFileDetails(document.content.attachment).name + '.' + getFileDetails(document.content.attachment).extension }} </Text>
           </div>
 
-          <IconButton name="download" color="#15AE73" @clicked="downloadFile(document.content.attachment)" :to-emit="true" :to-click-away="false" />
+          <IconButton name="download" class="robin-ml-auto" color="#15AE73" @clicked="downloadFile(document.content.attachment)" :to-emit="true" :to-click-away="false" />
         </div>
       </div>
 
-      <RButton :font-size="12" emit="click" class="robin-mt-8 robin-mb-11 robin-m-auto" v-show="nav == 'Media' && media.length > 7" @click="mediaStop = media.length - 1">See All Media</RButton>
-      <RButton :font-size="12" emit="click" class="robin-mt-8 robin-mb-11 robin-m-auto" v-show="nav === 'Links' && links.length > 7" @click="linkStop = links.length - 1">See All Links</RButton>
-      <RButton :font-size="12" emit="click" class="robin-mt-8 robin-mb-11 robin-m-auto" v-show="nav === 'Docs' && documents.length > 7" @click="documentStop = documents.length - 1">See All Docs</RButton>
+      <Button :font-size="12" emit="click" class="robin-mt-8 robin-mb-11 robin-ml-auto robin-mr-auto" v-show="nav == 'Media' && media.length > 6 && mediaStop != media.length - 1" @click="mediaStop = media.length - 1">See All Media</Button>
+      <Button :font-size="12" emit="click" class="robin-mt-8 robin-mb-11 robin-ml-auto robin-mr-auto" v-show="nav === 'Links' && links.length > 6 && linkStop != links.length - 1" @click="linkStop = links.length - 1">See All Links</Button>
+      <Button :font-size="12" emit="click" class="robin-mt-8 robin-mb-11 robin-ml-auto robin-mr-auto" v-show="nav === 'Docs' && documents.length > 6 && documentStop != documents.length - 1" @click="documentStop = documents.length - 1">See All Docs</Button>
 
-      <RText :font-size="12" color="#15AE73" class="robin-mt-8 robin-mb-11 robin-m-auto" v-show="nav == 'Media' && media.length == 0">No Media</RText>
-      <RText :font-size="12" color="#15AE73" class="robin-mt-8 robin-mb-11 robin-m-auto" v-show="nav === 'Links' && links.length == 0">No Links</RText>
-      <RText :font-size="12" color="#15AE73" class="robin-mt-8 robin-mb-11 robin-m-auto" v-show="nav === 'Docs' && documents.length == 0">No Docs</RText>
+      <Text :font-size="12" color="#15AE73" class="robin-mt-8 robin-mb-11 robin-ml-auto robin-mr-auto" v-show="nav == 'Media' && media.length == 0">No Media</Text>
+      <Text :font-size="12" color="#15AE73" class="robin-mt-8 robin-mb-11 robin-ml-auto robin-mr-auto" v-show="nav === 'Links' && links.length == 0">No Links</Text>
+      <Text :font-size="12" color="#15AE73" class="robin-mt-8 robin-mb-11 robin-ml-auto robin-mr-auto" v-show="nav === 'Docs' && documents.length == 0">No Docs</Text>
 
       <div class="robin-wrapper robin-mb-12">
-        <RButton color="#51545C" class="robin-tab" :emit="'clicked'" @clicked="showEncriptionDetails()">
+        <Button color="#51545C" class="robin-tab" :emit="'clicked'" @clicked="showEncriptionDetails()">
           <SvgIcon name="encryption" class="robin-mr-8" />
           Encryption Details
-        </RButton>
+        </Button>
       </div>
 
       <div class="robin-group-container" v-show="currentConversation.is_group">
-        <RButton color="#000" class="robin-tab" :emit="'clicked'" @clicked="addGroupParticipant()">
+        <Button color="#000" class="robin-tab" :emit="'clicked'" @clicked="addGroupParticipant()">
           <SvgIcon name="addParticipant" class="robin-mr-8" />
           Add Group Participant
-        </RButton>
+        </Button>
 
         <div class="robin-card-container" v-if="!isSignedInUserModerator">
           <div class="robin-card robin-flex robin-flex-align-center" v-for="(participant, participantIndex) in groupParticipants.slice(0, participantsToShow)" :key="participantIndex">
             <div class="robin-card-info robin-mr-12">
-              <RAvatar :robin-users="$robin_users" :sender-token="participant.user_token" />
+              <Avatar :robin-users="$robin_users" :sender-token="participant.user_token" />
             </div>
 
             <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4 robin-flex-1">
               <div class="robin-flex">
-                <RText :font-size="14" :line-height="18">{{ participant.user_token === $user_token ? 'You' : participant.meta_data.display_name }}</RText>
+                <Text :font-size="14" :line-height="18">{{ participant.user_token === $user_token ? 'You' : participant.meta_data.display_name }}</Text>
               </div>
 
               <div v-show="participant.is_moderator" class="robin-moderator-text">Moderator</div>
@@ -129,14 +104,14 @@
         </div>
 
         <div class="robin-card-container" v-else>
-          <div class="robin-card robin-flex robin-flex-align-center" v-for="(participant, participantIndex) in groupParticipants.slice(0, participantsToShow)" :key="participantIndex" @click.self="openGroupPrompt(participant.user_token, participant.is_moderator)" :class="{ 'robin-clickable': currentConversation.is_group }">
+          <div class="robin-card robin-flex robin-flex-align-center" v-for="(participant, participantIndex) in groupParticipants.slice(0, participantsToShow)" :key="participantIndex" @click.self="openGroupPrompt(participant.user_token, participant.is_moderator)" :class="{ 'robin-clickable': currentConversation.is_group && participant.user_token !== $user_token }">
             <div class="robin-card-info robin-mr-12" @click="openGroupPrompt(participant.user_token, participant.is_moderator)">
-              <RAvatar :robin-users="$robin_users" :sender-token=" participant.user_token == $user_token ? '' : participant.user_token" />
+              <Avatar :robin-users="$robin_users" :sender-token=" participant.user_token == $user_token ? '' : participant.user_token" />
             </div>
 
             <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4 robin-flex-1" @click.self="openGroupPrompt(participant.user_token, participant.is_moderator)">
               <div class="robin-flex" @click="openGroupPrompt(participant.user_token, participant.is_moderator)">
-                <RText :font-size="14" :line-height="18">{{ participant.user_token === $user_token ? 'You' : participant.meta_data.display_name }}</RText>
+                <Text :font-size="14" :line-height="18">{{ participant.user_token === $user_token ? 'You' : participant.meta_data.display_name }}</Text>
               </div>
 
               <div class="robin-ml-auto" v-show="!participant.is_moderator" @click="handleRemoveParticipant(participant.user_token)">
@@ -148,26 +123,30 @@
           </div>
         </div>
 
-        <div class="robin-see-all" @click="participantsToShow = groupParticipants.length" v-show="participantsToShow !== groupParticipants.length && groupParticipants.length > 4">
-          <RButton :fontSize="14"> See All Participants </RButton>
+        <div class="robin-see-all" @click="participantsToShow = groupParticipants.length - 1" v-show="participantsToShow !== groupParticipants.length - 1 && groupParticipants.length > 4">
+          <Button :fontSize="14"> See All Participants </Button>
         </div>
       </div>
 
       <div class="robin-actions robin-mt-14">
-        <!-- <RButton color="#000" v-show="!currentConversation.is_group"> Share Contact </RButton> -->
+        <!-- <Button color="#000" v-show="!currentConversation.is_group"> Share Contact </Button> -->
 
-        <!-- <RButton color="#000" v-show="currentConversation.is_group"> Mute Notifcation </RButton> -->
+        <!-- <Button color="#000" v-show="currentConversation.is_group"> Mute Notifcation </Button> -->
 
-        <!-- <RButton color="#000"> Export Chat </RButton> -->
+        <!-- <Button color="#000"> Export Chat </Button> -->
 
-        <RButton color="#D53120" emit="click" @click="handleClearMessages()"> Clear Chat </RButton>
+        <Button color="#D53120" emit="click" @click="handleClearMessages()"> Clear Chat </Button>
 
-        <!-- <RButton color="#D53120" v-show="!currentConversation.is_group"> Block Contact </RButton> -->
+        <!-- <Button color="#D53120" v-show="!currentConversation.is_group"> Block Contact </Button> -->
 
-        <RButton color="#D53120" v-show="currentConversation.is_group" emit="click" @click="handleLeaveGroup()"> Exit Group </RButton>
+        <Button color="#D53120" v-show="currentConversation.is_group" emit="click" @click="handleLeaveGroup()"> Exit Group </Button>
 
-        <!-- <RButton color="#D53120"> Report {{ !currentConversation.is_group ? 'Contact' : 'Group' }} </RButton> -->
+        <!-- <Button color="#D53120"> Report {{ !currentConversation.is_group ? 'Contact' : 'Group' }} </Button> -->
       </div>
+    </div>
+
+    <div class="robin-wrapper" v-else>
+      <div class="robin-spinner"></div>
     </div>
   </div>
 </template>
@@ -177,15 +156,15 @@ import Vue from 'vue'
 import moment from 'moment'
 import VLazyImage from 'v-lazy-image/v2'
 import Component from 'vue-class-component'
-import RText from '@/components/ChatList/RText/RText.vue'
-import RAvatar from '@/components/ChatList/RAvatar/RAvatar.vue'
-import RGroupAvatar from '@/components/ChatList/RGroupAvatar/RGroupAvatar.vue'
-import IconButton from '../../IconButton/IconButton.vue'
-import SvgIcon from '../../SvgIcon/SvgIcon.vue'
-import RButton from '@/components/ChatList/RButton/RButton.vue'
+import Text from '@/components/Text/Text.vue'
+import Avatar from '@/components/Avatar/Avatar.vue'
+import GroupAvatar from '@/components/GroupAvatar/GroupAvatar.vue'
+import IconButton from '@/components/IconButton/IconButton.vue'
+import SvgIcon from '@/components/SvgIcon/SvgIcon.vue'
+import Button from '@/components/Button/Button.vue'
 import mime from 'mime'
 import assets from '@/utils/assets.json'
-import store from '../../../store/index'
+import store from '@/store/index'
 import EventBus from '@/event-bus'
 
 // eslint-disable-next-line
@@ -194,37 +173,38 @@ import EventBus from '@/event-bus'
   components: {
     IconButton,
     SvgIcon,
-    RButton,
-    RText,
-    RAvatar,
-    RGroupAvatar,
+    Button,
+    Text,
+    Avatar,
+    GroupAvatar,
     VLazyImage
   },
   watch: {
-    messages: {
-      handler (val) {
-        this.getAllMediaInConversation()
-        this.getAllLinksInConversation()
-        this.getAllDocumentsInConversation()
-      }
+    // messages () {
+    //   this.getAllMediaInConversation()
+    //   this.getAllLinksInConversation()
+    //   this.getAllDocumentsInConversation()
+    // },
+    ProfileOpen () {
+      this.getProfile()
     }
   }
 })
 export default class Profile extends Vue {
-  screenWidth = 0 as number
   nav = 'Media'
+  isProfileLoading = true
   messages = [] as Array<any>
   media = [] as Array<any>
   links = [] as Array<any>
   documents = [] as Array<any>
   participantsToShow = 4
-  mediaStop = 7
-  linkStop = 7
-  documentStop = 7
+  mediaStop = 6
+  linkStop = 6
+  documentStop = 6
 
   imageRegex = /^image/ as any
   videoRegex = /^video/ as any
-  documentRegex = /(xls|doc|ppt|txt|pdf|ppt|zip|html|avi|psd|svg|ai|gif|mp3|ai|mkv)$/
+  documentRegex = /(xls|doc|ppt|txt|pdf|ppt|zip|html|avi|psd|svg|ai|gif|ai|mkv)$/
   emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   websiteRegex = /[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/
 
@@ -252,6 +232,10 @@ export default class Profile extends Vue {
     return assets
   }
 
+  get ProfileOpen () {
+    return store.state.ProfileOpen
+  }
+
   created () {
     this.handleConversationMessages()
     this.handleRemoveGroupParticipant()
@@ -259,19 +243,11 @@ export default class Profile extends Vue {
     this.onAddGroupParticipants()
   }
 
-  mounted () {
-    this.$nextTick(function () {
-      this.onResize()
-    })
-    window.addEventListener('resize', this.onResize)
-  }
-
-  onResize () {
-    this.screenWidth = window.innerWidth
-  }
-
   closeModal () {
     this.participantsToShow = 4
+    this.mediaStop = 6
+    this.linkStop = 6
+    this.documentStop = 6
     this.$emit('close')
   }
 
@@ -289,6 +265,20 @@ export default class Profile extends Vue {
     store.setState('imagePreviewOpen', true)
     store.setState('imagesToPreview', media)
     this.closePrompt()
+  }
+
+  async getProfile () {
+    this.isProfileLoading = true
+
+    const res = await this.$robin.getConversationDetails(this.currentConversation._id)
+    console.log(res)
+
+    if (res && !res.error) {
+      this.isProfileLoading = false
+      this.media = res.data.photos ? [...res.data.photos] : []
+      this.links = res.data.links ? [...res.data.links] : []
+      this.documents = res.data.documents ? [...res.data.documents.filter((doc: any) => this.documentRegex.test(this.checkAttachmentType(doc.content.attachment)))] : []
+    }
   }
 
   // getGroupCreator () {
@@ -342,71 +332,71 @@ export default class Profile extends Vue {
     return `${mime.getType(strArr[strArr.length - 1])}`
   }
 
-  getAllMediaInConversation () {
-    const media = this.messages.filter((message: any) => {
-      if (Array.isArray(message)) {
-        return true
-      }
+  // getAllMediaInConversation () {
+  //   const media = this.messages.filter((message: any) => {
+  //     if (Array.isArray(message)) {
+  //       return true
+  //     }
 
-      if (!Array.isArray(message) && message.content.is_attachment) {
-        const isVideo = this.videoRegex.test(this.checkAttachmentType(message.content.attachment))
-        const isImage = this.imageRegex.test(this.checkAttachmentType(message.content.attachment))
+  //     if (!Array.isArray(message) && message.content.is_attachment) {
+  //       const isVideo = this.videoRegex.test(this.checkAttachmentType(message.content.attachment))
+  //       const isImage = this.imageRegex.test(this.checkAttachmentType(message.content.attachment))
 
-        if (isVideo || isImage) {
-          return true
-        }
-      }
+  //       if (isVideo || isImage) {
+  //         return true
+  //       }
+  //     }
 
-      return false
-    })
+  //     return false
+  //   })
 
-    this.media = []
+  //   this.media = []
 
-    media.forEach((message: any) => {
-      if (Array.isArray(message)) {
-        message.forEach((item) => {
-          if (!item.is_deleted) {
-            this.media.push(item)
-          }
-        })
-      } else {
-        this.media.push(message)
-      }
-    })
-  }
+  //   media.forEach((message: any) => {
+  //     if (Array.isArray(message)) {
+  //       message.forEach((item) => {
+  //         if (!item.is_deleted) {
+  //           this.media.push(item)
+  //         }
+  //       })
+  //     } else {
+  //       this.media.push(message)
+  //     }
+  //   })
+  // }
 
-  getAllLinksInConversation () {
-    this.links = this.messages.filter((message: any) => {
-      if (!Array.isArray(message) && !message.content.is_attachment) {
-        if ((this.validateLinkInMessage(message).containsEmail && this.validateLinkInMessage(message).containsWebsite) || this.validateLinkInMessage(message).containsEmail || this.validateLinkInMessage(message).containsWebsite) {
-          const isWebsite = this.websiteRegex.test(this.getTextsInMessage(message).texts[this.getTextsInMessage(message).length - 1])
-          const isEmail = this.emailRegex.test(this.getTextsInMessage(message).texts[this.getTextsInMessage(message).length - 1])
+  // getAllLinksInConversation () {
+  //   this.links = this.messages.filter((message: any) => {
+  //     if (!Array.isArray(message) && !message.content.is_attachment) {
+  //       if ((this.validateLinkInMessage(message).containsEmail && this.validateLinkInMessage(message).containsWebsite) || this.validateLinkInMessage(message).containsEmail || this.validateLinkInMessage(message).containsWebsite) {
+  //         const isWebsite = this.websiteRegex.test(this.getTextsInMessage(message).texts[this.getTextsInMessage(message).length - 1])
+  //         const isEmail = this.emailRegex.test(this.getTextsInMessage(message).texts[this.getTextsInMessage(message).length - 1])
 
-          if (isWebsite || !isEmail) {
-            return true
-          }
-        } else {
-          return false
-        }
-      }
+  //         if (isWebsite || !isEmail) {
+  //           return true
+  //         }
+  //       } else {
+  //         return false
+  //       }
+  //     }
 
-      return false
-    })
-  }
+  //     return false
+  //   })
+  // }
 
-  getAllDocumentsInConversation () {
-    this.documents = this.messages.filter((message: any) => {
-      if (!Array.isArray(message) && message.content.is_attachment) {
-        const isDocument = this.documentRegex.test(this.checkAttachmentType(message.content.attachment))
+  // getAllDocumentsInConversation () {
+  //   this.documents = this.messages.filter((message: any) => {
+  //     if (!Array.isArray(message) && message.content.is_attachment) {
+  //       const isDocument = this.documentRegex.test(this.checkAttachmentType(message.content.attachment))
 
-        if (isDocument) {
-          return true
-        }
-      }
+  //       if (isDocument) {
+  //         return true
+  //       }
+  //     }
 
-      return false
-    })
-  }
+  //     return false
+  //   })
+  // }
 
   validateLinkInMessage (message: any) {
     const texts = message.content.msg.split(' ')
@@ -443,26 +433,42 @@ export default class Profile extends Vue {
   }
 
   handleRemoveGroupParticipant () {
-    EventBus.$on('participant.left.group', (user: any) => {
-      const index = this.currentConversation.participants.findIndex((participant: any) => participant.user_token === user.user_token)
+    // EventBus.$on('participant.left.group', (user: any) => {
+    //   const index = this.currentConversation.participants.findIndex((participant: any) => participant.user_token === user.user_token)
 
-      this.currentConversation.participants.splice(index, 1)
-      this.$toast.open({
-        message: 'You removed' + ' ' + this.getUser(user.user_token).userName,
-        type: 'success',
-        position: 'bottom-left'
-      })
+    //   this.currentConversation.participants.splice(index, 1)
+    //   this.$toast.open({
+    //     message: 'You removed' + ' ' + this.getUser(user.user_token).userName,
+    //     type: 'success',
+    //     position: 'bottom-left'
+    //   })
 
-      this.$forceUpdate()
-      this.closePrompt()
+    //   this.$forceUpdate()
+    //   this.closePrompt()
 
-      this.participantsToShow = 4
+    //   this.participantsToShow = 4
+    // })
+
+    EventBus.$on('remove.group.participant', (value: any) => {
+      if (value.participant.user_token !== this.$user_token) {
+        const index = this.currentConversation.participants.findIndex((participant: any) => participant.user_token === value.participant.user_token)
+        console.log('index->', index)
+
+        if (index > -1) {
+          this.currentConversation.participants.splice(index, 1)
+
+          this.closePrompt()
+
+          this.participantsToShow = 4
+        }
+      }
     })
   }
 
   handleAssignedGroupModerator () {
     EventBus.$on('participant.assigned.moderator', (conversation: any) => {
       store.setState('currentConversation', conversation)
+      this.$forceUpdate()
       // this.getGroupParticipants()
     })
   }
@@ -482,12 +488,11 @@ export default class Profile extends Vue {
   onAddGroupParticipants () {
     EventBus.$on('update.group.conversation', (conversation: any) => {
       store.setState('currentConversation', conversation)
-      // this.getGroupParticipants()
     })
   }
 
   openGroupPrompt (token: string, isModerator: boolean) {
-    if (this.currentConversation.is_group) {
+    if (this.currentConversation.is_group && token !== this.$user_token) {
       store.setState('groupPromptOpen', true)
       store.setState('currentParticipantToken', token)
       store.setState('isParticipantModerator', isModerator)
@@ -681,9 +686,9 @@ export default class Profile extends Vue {
 
 .robin-media-grids {
   width: 90%;
-  margin: 0 auto;
+  margin: 0 auto 0.75rem;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
   gap: 0.5rem;
 }
 
@@ -701,7 +706,7 @@ export default class Profile extends Vue {
 
 .robin-link-container {
   width: 90%;
-  margin: 0 auto;
+  margin: 0 auto 0.75rem;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 0.5rem;
@@ -730,9 +735,9 @@ export default class Profile extends Vue {
 
 .robin-document-grids {
   width: 90%;
-  margin: 0 auto;
+  margin: 0 auto 0.75rem;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(173px, 200px));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 0.5rem;
 }
 
@@ -749,15 +754,19 @@ export default class Profile extends Vue {
   margin-right: 2.2rem;
 }
 
-.robin-uploaded-documents svg {
-  margin-right: 0.5rem;
-}
+/* .robin-uploaded-documents svg {
+  margin-left: 0.5rem;
+} */
 
 .robin-moderator-text {
   background-color: #eeeeee;
   padding: 0.2rem 0.2rem;
   margin-left: auto;
   font-size: 0.625rem;
+}
+
+.robin-spinner {
+  margin: 1rem auto 0;
 }
 
 @media (min-width: 768px) {
