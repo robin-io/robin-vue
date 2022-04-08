@@ -204,7 +204,7 @@ export default class Profile extends Vue {
 
   imageRegex = /^image/ as any
   videoRegex = /^video/ as any
-  documentRegex = /(xls|doc|ppt|txt|pdf|ppt|zip|html|avi|psd|svg|ai|gif|ai|mkv)$/
+  documentRegex = /(xls|doc|ppt|txt|pdf|csv|ppt|zip|html|avi|psd|svg|ai|gif|ai|mkv)$/
   emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   websiteRegex = /[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/
 

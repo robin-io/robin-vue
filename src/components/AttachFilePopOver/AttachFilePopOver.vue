@@ -38,22 +38,22 @@ import IconButton from '@/components/IconButton/IconButton.vue'
   }
 })
 export default class AttachFilePopOver extends Vue {
-  acceptedDocFiles = '.xls, .doc, .ppt, .txt, .pdf, .html, .zip, .psd, .ai, .mp3' as string
+  acceptedDocFiles = '.xls, .doc, .ppt, .txt, .pdf, .csv, .html, .zip, .psd, .ai, .mp3' as string
   acceptedVisualFiles = 'image/*, video/*, video/mp4' as string
   screenWidth = 0 as number
 
-  mounted() {
+  mounted () {
     this.$nextTick(function () {
       this.onResize()
     })
     window.addEventListener('resize', this.onResize)
   }
 
-  resetFileTarget(event: any): void {
+  resetFileTarget (event: any): void {
     event.target.value = ''
   }
 
-  handleFileChange(files: any): void {
+  handleFileChange (files: any): void {
     ;[...files].forEach(async (file: any) => {
       const fileURL = URL.createObjectURL(file)
       const typeIndex = file.name.lastIndexOf('.')
@@ -77,12 +77,12 @@ export default class AttachFilePopOver extends Vue {
     })
   }
 
-  openFileDialog(id: string) {
+  openFileDialog (id: string) {
     const label = this.$refs[id] as any
     label.$el.click()
   }
 
-  onResize() {
+  onResize () {
     this.screenWidth = window.innerWidth
   }
 }

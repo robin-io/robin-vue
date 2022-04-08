@@ -1,6 +1,7 @@
 {
   "pdf": "https://s3.us-east-2.amazonaws.com/robin.io-vue-assets/pdf.svg",
   "doc": "https://s3.us-east-2.amazonaws.com/robin.io-vue-assets/doc.svg",
+  "csv": "https://s3.us-east-2.amazonaws.com/robin.io-vue-assets/csv.svg",
   "ppt": "https://s3.us-east-2.amazonaws.com/robin.io-vue-assets/ppt.svg",
   "xls": "https://s3.us-east-2.amazonaws.com/robin.io-vue-assets/xls.svg",
   "txt": "https://s3.us-east-2.amazonaws.com/robin.io-vue-assets/txt.svg",

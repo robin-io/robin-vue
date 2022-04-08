@@ -196,7 +196,7 @@ const ComponentProps = Vue.extend({
 export default class MessageInputBar extends ComponentProps {
   text = '' as string
   files = [] as Array<any>
-  acceptedDocFiles = '.xls, .doc, .ppt, .txt, .pdf, .html, .zip, .psd, .mp3' as string
+  acceptedDocFiles = '.xls, .doc, .ppt, .txt, .pdf, .csv, .html, .zip, .psd, .mp3' as string
   isUploading = false as boolean
   replying = false as boolean
   screenWidth = 0 as number
@@ -660,7 +660,7 @@ export default class MessageInputBar extends ComponentProps {
     input.style.height = input.scrollHeight - padding * 2 + 'px'
     input.style.lineHeight = 1.5
 
-    if (input.style.height === '16px') {
+    if (input.style.height === '12px' || input.style.height === '16px') {
       input.style.lineHeight = 1
     } else {
       input.style.lineHeight = 1.5
