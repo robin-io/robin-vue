@@ -7,11 +7,11 @@
 
     <div class="robin-default-profile" v-if="imgUrl == '' && getContactName != ''">
       <Content as="span" :font-size="16">
-        {{ getContactName.length > 1 ? getContactName[0][0] + '' + (getContactName[1].trim() !== '' ? getContactName[1][0] : '') : getContactName[0][0] }}
+        {{ renderContactName() }}
       </Content>
     </div>
 
-    <img v-show="imgUrl != ''" :src="imgUrl" alt="profile" class="robin-image" />
+    <img v-if="imgUrl != ''" :src="imgUrl" alt="profile" class="robin-image" />
 
     <div class="robin-ellipse" v-show="status == 'online'"></div>
   </div>
@@ -55,10 +55,24 @@ export default class Avatar extends ComponentProps {
     const user = this.robinUsers[index] as any
 
     if (user) {
-      return user.userName ? user.userName.split(' ') : ''
+      return user.userName && user.userName !== '' ? user.userName.split(' ') : ''
     }
 
     return ''
+  }
+
+  renderContactName () {
+    let name = '' as string
+
+    if (this.getContactName.length > 1) {
+      name = this.getContactName[0][0] + (this.getContactName[1].trim() !== '' ? this.getContactName[1][0] : '')
+    }
+
+    if (this.getContactName.length < 2) {
+      name = this.getContactName[0][0]
+    }
+
+    return name
   }
 }
 </script>
