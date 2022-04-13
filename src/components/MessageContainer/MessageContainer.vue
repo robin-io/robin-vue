@@ -8,7 +8,7 @@
       </div>
 
       <div class="robin-inner-wrapper-offline" v-if="offlineMessages.messages[conversation._id]">
-        <MessageContent v-for="(message, index) in offlineMessages.messages[conversation._id]" :ref="`message-${String(index)}`" :uncheck="uncheck" @open-preview="openImagePreview($event)" :key="`message-${String(index + key)}`" v-show="!message.is_deleted" :message="message" :conversation="conversation" :message-popup="getMessagePopup(index)" :messages="offlineMessages.messages[conversation._id]" :stored-messages="messages" :index="index" :scroll="scroll" :last-id="!Array.isArray(message) && messages.length - 3 < parseInt(String(index)) ? message._id : ''" :read-receipts="readReceipts" @toggle-check-action="toggleCheckAction($event, message)" @reply-message="replyMessage($event)" @forward-message="forwardMessage = true" @scroll-replied-message="scrollToRepliedMessage" />
+        <MessageContent v-for="(message, index) in offlineMessages.messages[conversation._id]" :ref="`message-${String(index)}`" :groupname-colors="groupnameColors" :uncheck="uncheck" @open-preview="openImagePreview($event)" :key="`message-${String(index + key)}`" v-show="!message.is_deleted" :message="message" :conversation="conversation" :message-popup="getMessagePopup(index)" :messages="offlineMessages.messages[conversation._id]" :stored-messages="messages" :index="index" :scroll="scroll" :last-id="!Array.isArray(message) && messages.length - 3 < parseInt(String(index)) ? message._id : ''" :read-receipts="readReceipts" @toggle-check-action="toggleCheckAction($event, message)" @reply-message="replyMessage($event)" @forward-message="forwardMessage = true" @scroll-replied-message="scrollToRepliedMessage" />
       </div>
 
       <!-- <div class="robin-inner-wrapper" v-if="!isMessagesLoading">
@@ -198,6 +198,17 @@ export default class MessageContainer extends Vue {
       this.onResize()
     })
     window.addEventListener('resize', this.onResize)
+  }
+
+  get groupnameColors () {
+    const colors: string[] = ['#F8863D', '#18C583', '#FF0000', '#0F0FFE', '#9B2226', '#AE2012', '#BB3E03', '#CA6702', '#7F5539', '#606C38', '#283618', '#03045E', '#370617', '#6A040F', '#EE9B00', '#0A9396', '#005F73', '#0AFF99', '#9D4EDD', '#7400B8', '#6B705C', '#CB997E', '#A4133C', '#38B000', '#14213D', '#007200', '#7209B7', '#3D405B', '#8338EC', '#3A86FF', '#5A189A', '#3C096C', '#BBC4DF']
+    const userColors = {} as any
+
+    for (const user of this.$robin_users) {
+      userColors[user.userToken] = colors[Math.floor(Math.random() * colors.length)]
+    }
+
+    return userColors
   }
 
   get currentConversation () {
@@ -839,7 +850,7 @@ export default class MessageContainer extends Vue {
   flex: 1;
   width: 100%;
   /* height: 100%; */
-  padding: 2rem clamp(3%, 5vw, 2.688rem) 1.25rem clamp(3%, 5vw, 3.125rem);
+  padding: 1rem clamp(3%, 5vw, 2.688rem) 1.25rem clamp(3%, 5vw, 3.125rem);
 }
 
 .robin-inner-wrapper-loader {
@@ -857,7 +868,7 @@ export default class MessageContainer extends Vue {
   flex: 1;
   width: 100%;
   /* height: 100%; */
-  padding: 2rem clamp(3%, 5vw, 2.688rem) 1.25rem clamp(3%, 5vw, 3.125rem);
+  padding: 1rem clamp(3%, 5vw, 2.688rem) 1.25rem clamp(3%, 5vw, 3.125rem);
 }
 
 .network-error {

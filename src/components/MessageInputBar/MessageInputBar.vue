@@ -216,10 +216,6 @@ export default class MessageInputBar extends ComponentProps {
     emojiOpened: false
   }
 
-  // created () {
-  //   this.initRecorder()
-  // }
-
   mounted () {
     this.handleConversationOpen()
 
@@ -328,12 +324,15 @@ export default class MessageInputBar extends ComponentProps {
     this.isUploading = true
 
     try {
+      const message = {
+        msg: this.text,
+        sender_token: this.$user_token,
+        receiver_token: this.conversation.receiver_token === this.$user_token ? this.conversation.sender_token : this.conversation.receiver_token,
+        timestamp: new Date()
+      }
       await this.$robin.sendMessageToConversation(
         {
-          msg: this.text,
-          sender_token: this.$user_token,
-          receiver_token: this.conversation.receiver_token === this.$user_token ? this.conversation.sender_token : this.conversation.receiver_token,
-          timestamp: new Date()
+          ...message
         },
         this.$conn,
         this.$channel,
@@ -403,12 +402,15 @@ export default class MessageInputBar extends ComponentProps {
 
     try {
       const robin = this.$robin as any
+      const message = {
+        msg: this.text,
+        sender_token: this.$user_token,
+        receiver_token: this.conversation.receiver_token === this.$user_token ? this.conversation.sender_token : this.conversation.receiver_token,
+        timestamp: new Date()
+      }
       await robin.replyToMessage(
         {
-          msg: this.text,
-          sender_token: this.$user_token,
-          receiver_token: this.conversation.receiver_token === this.$user_token ? this.conversation.sender_token : this.conversation.receiver_token,
-          timestamp: new Date()
+          ...message
         },
         this.$conn,
         this.$channel,

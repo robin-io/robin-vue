@@ -4,6 +4,8 @@
       <ReactionPopOver v-show="messagePopup.opened" @close-modal="closeModal()" :id="message[0]._id" :message="message[0]" @reaction="$emit('add-reaction', $event)" />
     </div>
 
+    <Content v-if="!validateMessageClass() && conversation.is_group" :font-size="12" as="span" :color="groupnameColors[message[0].content.sender_token]" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getContactName(message[0].content.sender_token) }} </Content>
+
     <div class="robin-bubble-inner robin-grid-container" :class="getSizeOfGridClass" @click="openPreview(message)">
       <div class="robin-message-bubble-image" v-for="(image, index) in images" :key="image._id" :class="validateImageClass(index)">
         <v-lazy-image class="robin-uploaded-image" :src="image.content.attachment" />
@@ -42,6 +44,10 @@ interface Message {
 
 const ComponentProps = Vue.extend({
   props: {
+    groupnameColors: {
+      type: Object,
+      default: () => {}
+    },
     message: {
       type: Array as PropType<Array<any>>,
       default: (): Array<any> => []
@@ -145,6 +151,12 @@ export default class MessageGrid extends ComponentProps {
 
       intervalLevel += 1
     }, 1000)
+  }
+
+  getContactName (sender_token: string): string {
+    const index = this.$robin_users.findIndex((user) => user.userToken === sender_token) as number
+    const user = this.$robin_users[index] as any
+    return user ? user.userName : ''
   }
 }
 </script>
