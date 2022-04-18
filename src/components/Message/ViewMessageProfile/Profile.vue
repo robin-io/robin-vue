@@ -185,7 +185,7 @@ import EventBus from '@/event-bus'
     //   this.getAllLinksInConversation()
     //   this.getAllDocumentsInConversation()
     // },
-    ProfileOpen () {
+    profileOpen () {
       this.getProfile()
     }
   }
@@ -232,8 +232,8 @@ export default class Profile extends Vue {
     return assets
   }
 
-  get ProfileOpen () {
-    return store.state.ProfileOpen
+  get profileOpen () {
+    return store.state.profileOpen
   }
 
   created () {
@@ -271,7 +271,6 @@ export default class Profile extends Vue {
     this.isProfileLoading = true
 
     const res = await this.$robin.getConversationDetails(this.currentConversation._id)
-    console.log(res)
 
     if (res && !res.error) {
       this.isProfileLoading = false
@@ -452,7 +451,6 @@ export default class Profile extends Vue {
     EventBus.$on('remove.group.participant', (value: any) => {
       if (value.participant.user_token !== this.$user_token) {
         const index = this.currentConversation.participants.findIndex((participant: any) => participant.user_token === value.participant.user_token)
-        console.log('index->', index)
 
         if (index > -1) {
           this.currentConversation.participants.splice(index, 1)

@@ -368,7 +368,7 @@ export default class MessageGrid extends ComponentProps {
   left: 100px;
 }
 
-.robin-grid-sender .robin-popup-container.reactions >>> .robin-popup::after {
+.robin-grid-receiver .robin-popup-container.reactions >>> .robin-popup::after {
   bottom: -8px;
   left: 109px;
 }

@@ -20,7 +20,7 @@
       </div>
     </div>
 
-    <MessageInputBar :conversation="conversation" :message-reply="messageReply" @open-camera="openCamera()" :captured-image="capturedImage" @on-close-reply="onCloseReply()" v-show="!selectMessagesOpen" />
+    <MessageInputBar :conversation="conversation" :key="'input-' + newConversationOpenCount" :message-reply="messageReply" @open-camera="openCamera()" :captured-image="capturedImage" @on-close-reply="onCloseReply()" v-show="!selectMessagesOpen" />
 
     <div class="robin-forward-tab" v-show="selectMessagesOpen">
       <Content color="#51545C"> {{ selectedMessages.length }} Messages Selected </Content>
@@ -173,6 +173,7 @@ export default class MessageContainer extends Vue {
 
   messagePopUpIndex = 0 as number
   key = 0 as number
+  newConversationOpenCount = 0 as number
   observer = null as any
   currentPage = 0 as number
   totalPages = 0 as number
@@ -259,6 +260,7 @@ export default class MessageContainer extends Vue {
       this.messages = []
       this.currentPage = 0
       this.totalPages = 0
+      this.newConversationOpenCount += 1
       this.conversation = conversation || {}
 
       store.setState('currentConversation', conversation)
@@ -281,10 +283,10 @@ export default class MessageContainer extends Vue {
 
   async initializeReadReceipts (messageIds: Array<string>): Promise<void> {
     const res = await this.$robin.sendReadReceipts(messageIds, this.conversation._id)
-    // console.log(res, messageIds)
+    // (res, messageIds)
 
     if (!res.error) {
-      // console.log(res.error, res)
+      // (res.error, res)
     }
 
     if (res.error) {
@@ -320,7 +322,7 @@ export default class MessageContainer extends Vue {
 
   onNewMessage () {
     EventBus.$on('new-message', (message: any) => {
-      // console.log('new-message', message)
+      // ('new-message', message)
       if (message.conversation_id === this.conversation._id) {
         this.messages.push(message)
 
@@ -337,13 +339,13 @@ export default class MessageContainer extends Vue {
       }
       if (message.conversation_id !== this.currentConversation._id) {
         const index = this.$regularConversations.findIndex((item) => item._id === message.conversation_id)
-        // console.log(message, index)
+        // (message, index)
 
         EventBus.$emit('mark-as-unread', this.$regularConversations[index])
       }
       this.$conversations.forEach((conversation, index) => {
         if (conversation._id === message.conversation_id) {
-          // console.log('Conversation: ', conversation, this.conversation)
+          // ('Conversation: ', conversation, this.conversation)
           this.$conversations[index].updated_at = message.content.timestamp
           this.$conversations[index].last_message = message.content
           const newConv = this.$conversations[index]
@@ -373,7 +375,7 @@ export default class MessageContainer extends Vue {
 
   onImageDelete () {
     EventBus.$on('image-deleted', (message: any) => {
-      // console.log(message)
+      // (message)
       const messageIndex = this.messages.findIndex((item: any) => {
         if (Array.isArray(item)) return item.some((image) => image._id === message._id)
         return false
@@ -748,7 +750,7 @@ export default class MessageContainer extends Vue {
   }
 
   onResize () {
-    console.log('resized')
+    ('resized')
     this.scrollUp = false
     this.windowHeight = window.innerHeight
   }
@@ -794,9 +796,9 @@ export default class MessageContainer extends Vue {
   async getOfflineMessages (): Promise<any> {
     try {
       const value = (await localForage.getItem('messages')) as Array<any>
-      console.log('value->', value)
-      this.offlineMessages = value ? { ...value } : { messages: {} }
-      console.log('offline->', this.offlineMessages)
+      this.offlineMessages = value
+        ? { ...value }
+        : { messages: {} }
     } catch (error) {
       console.error(error)
     }
@@ -812,7 +814,7 @@ export default class MessageContainer extends Vue {
         }
       }
 
-      // console.log('new ->', data)
+      // ('new ->', data)
 
       // localForage.clear()
       await localForage.setItem('messages', data)

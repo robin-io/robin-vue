@@ -13,7 +13,7 @@
 
     <img v-if="imgUrl != ''" :src="imgUrl" alt="profile" class="robin-image" />
 
-    <div class="robin-ellipse" v-show="status == 'online'"></div>
+    <!-- <div class="robin-ellipse" v-show="status == 'online'"></div> -->
   </div>
 </template>
 
@@ -32,10 +32,10 @@ const ComponentProps = Vue.extend({
       type: String as PropType<string>,
       default: ''
     },
-    status: {
-      type: String as PropType<string>,
-      default: ''
-    },
+    // status: {
+    //   type: String as PropType<string>,
+    //   default: ''
+    // },
     robinUsers: {
       type: Array,
       default: () => []

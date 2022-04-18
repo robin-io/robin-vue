@@ -121,8 +121,8 @@ export default class RGroupChatHeader extends ComponentProps {
     window.addEventListener('resize', this.onResize)
   }
 
-  get ProfileOpen () {
-    return store.state.ProfileOpen
+  get profileOpen () {
+    return store.state.profileOpen
   }
 
   get selectMessagesOpen () {
@@ -134,7 +134,7 @@ export default class RGroupChatHeader extends ComponentProps {
     const popup = this.$refs[refKey] as any
     popup.$refs['popup-body'].classList.remove('robin-zoomOut')
 
-    if (!this.ProfileOpen) {
+    if (!this.profileOpen) {
       popupContainer.style.right = Math.floor(event.clientX / 26) + 'px'
     } else {
       popupContainer.style.right = Math.floor(event.clientX / 2.47) + 'px'
@@ -175,7 +175,7 @@ export default class RGroupChatHeader extends ComponentProps {
   }
 
   openMessageProfile () {
-    store.setState('ProfileOpen', true)
+    store.setState('profileOpen', true)
   }
 
   cancelSelect (): void {

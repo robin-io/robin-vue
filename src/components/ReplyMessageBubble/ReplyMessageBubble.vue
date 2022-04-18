@@ -188,7 +188,7 @@ export default class ReplyMessageBubble extends ComponentProps {
       return message.find((element: any) => element._id === id)
     }
 
-    console.log(message)
+    (message)
 
     return message
   }

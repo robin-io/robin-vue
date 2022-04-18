@@ -100,7 +100,6 @@ export default class NewChatList extends ComponentProps {
     })
 
     if (res && !res.error) {
-      console.log('successfully created ->', res.data)
       if (!this.checkConversations(res.data)) {
         this.$conversations.push(res.data)
       }

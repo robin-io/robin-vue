@@ -45,7 +45,7 @@ const ComponentProps = Vue.extend({
   watch: {
     text (val) {
       if (val === '') {
-        console.log('reset')
+        ('reset')
         this.resetTyping()
       }
     },

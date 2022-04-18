@@ -200,21 +200,25 @@ export default class PrimaryChatList extends ComponentProps {
   }
 
   openConversation (conversation: any): void {
-    if (this.screenWidth > 1200) {
-      // this.activeConversation = conversation
-      // this.setImagePreviewOpen(false)
-      store.setState('imagePreviewOpen', false)
-      EventBus.$emit('conversation-opened', conversation)
-      EventBus.$emit('open-conversation')
-    }
+    // if (this.screenWidth > 1200) {
+    //   // this.activeConversation = conversation
+    //   // this.setImagePreviewOpen(false)
+    //   store.setState('imagePreviewOpen', false)
+    //   EventBus.$emit('conversation-opened', conversation)
+    //   EventBus.$emit('open-conversation')
+    // }
 
-    if (this.screenWidth <= 1200) {
-      // this.activeConversation = conversation
-      // this.setImagePreviewOpen(false)
-      store.setState('imagePreviewOpen', false)
-      EventBus.$emit('conversation-opened', conversation)
-      EventBus.$emit('open-conversation')
-    }
+    // if (this.screenWidth <= 1200) {
+    //   // this.activeConversation = conversation
+    //   // this.setImagePreviewOpen(false)
+    //   store.setState('imagePreviewOpen', false)
+    //   EventBus.$emit('conversation-opened', conversation)
+    //   EventBus.$emit('open-conversation')
+    // }
+
+    store.setState('imagePreviewOpen', false)
+    EventBus.$emit('conversation-opened', conversation)
+    EventBus.$emit('open-conversation')
   }
 
   formatRecentMessageTime (time: string): string {

@@ -114,7 +114,6 @@ export default class ForwardMessage extends ComponentProps {
     this.conversations = {}
 
     if (searchText.trim() === '') {
-      console.log(this.$conversations)
       for (const conversation of this.getRegularConversations(this.$conversations)) {
         this.conversations[conversation.name[0] ? this.getContactKey(conversation.name) : this.getContactKey(conversation.sender_token !== this.$user_token ? conversation.sender_name : conversation.receiver_name)] = this.getRegularConversations(this.$conversations).filter((item) => {
           const conversationName = conversation.is_group ? conversation.name : conversation.sender_token !== this.$user_token ? conversation.sender_name : conversation.receiver_name
@@ -280,7 +279,6 @@ export default class ForwardMessage extends ComponentProps {
 
   validateContact (usernameVal: any, username: any): boolean {
     if (!usernameVal[0] && !username[0]) {
-      console.log('empty', usernameVal.trim() === username.trim())
       return usernameVal.trim() === username.trim()
     }
 

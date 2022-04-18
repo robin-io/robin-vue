@@ -15,7 +15,7 @@
         </div>
 
         <div class="robin-reactions" v-if="message && message.reactions && message.reactions.length > 0">
-          <div class="robin-reaction" v-for="(item, index) in message.reactions.slice(0, 4)" :key="index" @click="removeReaction(item)">{{ item.reaction }}</div>
+          <div class="robin-reaction" v-for="(value, key, index) in reactions" :key="index" @click="removeReaction(value[value.length - 1])" v-show="value.length > 0">{{ key + ' ' + value.length }}</div>
         </div>
 
         <!-- Personal -->
@@ -39,7 +39,7 @@
               {{ message.content.msg }}
             </Content>
 
-            <div class="robin-link-container" v-html="injectHtml()" v-if="(validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) || validateLinkInMessage().containsEmail || validateLinkInMessage().containsWebsite"></div>
+            <div class="robin-link-container" ref="message" v-if="(validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) || validateLinkInMessage().containsEmail || validateLinkInMessage().containsWebsite"></div>
 
             <!-- <link-prevue class="robin-link-preview" v-if="websiteRegex.test(getTextsInMessage().texts[getTextsInMessage().length - 1]) && !emailRegex.test(getTextsInMessage().texts[getTextsInMessage().length - 1])" :url="getTextsInMessage().texts[getTextsInMessage().length - 1].includes('http') || getTextsInMessage().texts[getTextsInMessage().length - 1].includes('https') ? getTextsInMessage().texts[getTextsInMessage().length - 1] : `https://${getTextsInMessage().texts[getTextsInMessage().length - 1]}`">
           <template slot-scope="props">
@@ -95,7 +95,7 @@
             {{ message.content.msg }}
           </Content>
 
-          <div class="robin-link-container" v-html="injectHtml()" v-if="(validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) || validateLinkInMessage().containsEmail || (validateLinkInMessage().containsWebsite && message.content.msg && message.content.msg != 'undefined')"></div>
+          <div class="robin-link-container" ref="message" v-if="(validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) || validateLinkInMessage().containsEmail || (validateLinkInMessage().containsWebsite && message.content.msg && message.content.msg != 'undefined')"></div>
 
           <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
             <Content :font-weight="'300'" :font-size="10" color="#7a7a7a" as="p" @click.native="openModal()" class="robin-flex">
@@ -132,7 +132,7 @@
             {{ message.content.msg }}
           </Content>
 
-          <div class="robin-link-container" v-html="injectHtml()" v-if="(validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) || validateLinkInMessage().containsEmail || (validateLinkInMessage().containsWebsite && message.content.msg && message.content.msg != 'undefined')"></div>
+          <div class="robin-link-container" ref="message" v-if="(validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) || validateLinkInMessage().containsEmail || (validateLinkInMessage().containsWebsite && message.content.msg && message.content.msg != 'undefined')"></div>
 
           <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
             <Content :font-weight="'300'" :font-size="10" color="#7a7a7a" as="p" @click.native="openModal()" class="robin-flex">
@@ -179,7 +179,7 @@
             {{ message.content.msg }}
           </Content>
 
-          <div class="robin-link-container" v-html="injectHtml()" v-if="(validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) || validateLinkInMessage().containsEmail || (validateLinkInMessage().containsWebsite && message.content.msg && message.content.msg != 'undefined')"></div>
+          <div class="robin-link-container" ref="message" v-if="(validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) || validateLinkInMessage().containsEmail || (validateLinkInMessage().containsWebsite && message.content.msg && message.content.msg != 'undefined')"></div>
 
           <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
             <Content :font-weight="'300'" :font-size="10" color="#7a7a7a" as="p" @click.native="openModal()" class="robin-flex">
@@ -194,8 +194,8 @@
       </div>
 
       <div class="robin-bubble" :class="validateMessages(message).includes('message-sender') ? 'robin-ml-5' : 'robin-mr-5'" v-if="Array.isArray(message) && message.filter((image) => !image.is_deleted).length === 1">
-        <div class="robin-reactions" v-if="message && message[0].reactions">
-          <div class="robin-reaction" v-for="(item, index) in message[0].reactions.slice(0, 4)" :key="index" @click="removeReaction(item)">{{ item.reaction }}</div>
+        <div class="robin-reactions" v-if="message[0].reactions && message[0].reactions.length > 0">
+          <div class="robin-reaction" v-for="(value, key, index) in reactions" :key="index" @click="removeReaction(value[value.length - 1])" v-show="value.length > 0">{{ key + ' ' + value.length }}</div>
         </div>
 
         <div class="robin-message-bubble-image" v-if="message[0].content.is_attachment && imageRegex.test(checkAttachmentType(message[0].content.attachment))">
@@ -218,8 +218,8 @@
         </div>
       </div>
 
-      <div class="robin-reactions" v-if="Array.isArray(message) && message[0] && message[0].reactions">
-        <div class="robin-reaction" v-for="(item, index) in message[0].reactions.slice(0, 4)" :key="index" @click="removeReaction(item)">{{ item.reaction }}</div>
+      <div class="robin-reactions" v-if="Array.isArray(message) && message[0].reactions && message[0].reactions.length > 0">
+        <div class="robin-reaction" v-for="(value, key, index) in reactions" :key="index" @click="removeReaction(value[value.length - 1])" v-show="value.length > 0">{{ key + ' ' + value.length }}</div>
       </div>
 
       <MessageGrid ref="popup-2" :class="!validateMessages(message) ? 'robin-ml-5' : 'robin-mr-5'" v-if="Array.isArray(message) && message.filter((image) => !image.is_deleted).length > 1" :message="message.filter((image) => !image.is_deleted)" :read-receipts="readReceipts" :conversation="conversation" :message-popup="messagePopup" @open-preview="openPreview($event)" @open-modal="openModal()" @close-modal="closeModal()" @add-reaction="addReaction" v-on-clickaway="closeModal" :groupname-colors="groupnameColors" />
@@ -340,6 +340,8 @@ const ComponentProps = Vue.extend({
     messages: {
       handler (val) {
         this.leaveGroupActivity = []
+        this.reactions = { '❤️': [], '👍': [], '👎': [], '😂': [], '⁉️': [] }
+        this.getMessageReactions()
       }
     }
   }
@@ -355,6 +357,7 @@ export default class MessageContent extends ComponentProps {
   websiteRegex = /[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/
   files = [] as any
   leaveGroupActivity = [] as any
+  reactions = { '❤️': [], '👍': [], '👎': [], '😂': [], '⁉️': [] } as any
 
   get selectMessagesOpen () {
     return store.state.selectMessagesOpen
@@ -375,6 +378,7 @@ export default class MessageContent extends ComponentProps {
       this.onResize()
     })
     window.addEventListener('resize', this.onResize)
+    this.injectHtml(this.message.content ? this.message.content.msg : null)
   }
 
   getMessageIndex () {
@@ -467,7 +471,7 @@ export default class MessageContent extends ComponentProps {
   closeModal (): void {
     const popup = this.$refs as any
     for (const ref in popup) {
-      if (ref !== 'checkbox' && popup[ref]) {
+      if (ref !== 'checkbox' && popup[ref] && popup[ref].$refs) {
         popup[ref].$refs['popup-body'].classList.remove('robin-zoomIn')
         popup[ref].$refs['popup-body'].classList.add('robin-zoomOut')
       }
@@ -475,7 +479,7 @@ export default class MessageContent extends ComponentProps {
 
     window.setTimeout(() => {
       for (const ref in popup) {
-        if (ref !== 'checkbox' && popup[ref]) {
+        if (ref !== 'checkbox' && popup[ref] && popup[ref].$refs) {
           popup[ref].$refs['popup-body'].classList.add('robin-zoomIn')
           popup[ref].$refs['popup-body'].classList.remove('robin-zoomOut')
         }
@@ -556,15 +560,15 @@ export default class MessageContent extends ComponentProps {
     const robin = this.$robin as any
     const message = Array.isArray(this.message) ? this.message[0] : (this.message as any)
 
-    const filteredMessage = message.reactions?.filter((reaction: { reaction: any }) => reaction.reaction === emoji)
-    console.log(filteredMessage, emoji)
+    // const filteredMessage = message.reactions?.filter((reaction: { reaction: any }) => reaction.reaction === emoji)
+    // (filteredMessage, emoji)
 
-    if (!filteredMessage || filteredMessage.length === 0) {
-      await robin.reactToMessage(emoji, this.conversation._id, message._id, this.$user_token)
-      this.closeModal()
-    } else {
-      this.removeReaction(filteredMessage[0])
-    }
+    // if (!filteredMessage || filteredMessage.length === 0) {
+    await robin.reactToMessage(emoji, this.conversation._id, message._id, this.$user_token)
+    this.closeModal()
+    // } else {
+    //   this.removeReaction(filteredMessage[0])
+    // }
   }
 
   async removeReaction (reaction: any): Promise<void> {
@@ -576,29 +580,49 @@ export default class MessageContent extends ComponentProps {
 
   onNewReaction () {
     EventBus.$on('message.reaction', (message: any) => {
-      console.log('emoji', message)
       if (!Array.isArray(this.message)) {
         if (!this.message.reactions) this.message.reactions = []
 
-        const reactionExist = this.message.reactions.some((item: any) => item.reaction === message.reaction)
-
-        if (!reactionExist && this.message._id === message.message_id) {
+        // const reactionExist = this.message.reactions.some((item: any) => item.reaction === message.reaction)
+        // !reactionExist &&
+        if (this.message._id === message.message_id) {
           this.message.reactions.push(message)
+          this.increaseMessageReaction(message.reaction, message)
         }
       } else {
         const messageArray = this.message as any
 
         if (!messageArray[0].reactions) messageArray[0].reactions = []
 
-        const reactionExist = messageArray[0].reactions.some((item: any) => item.reaction === messageArray[0].reaction)
+        // const reactionExist = messageArray[0].reactions.some((item: any) => item.reaction === messageArray[0].reaction)
 
-        if (!reactionExist && this.message[0]._id === message.message_id) {
+        if (this.message[0]._id === message.message_id) {
           this.message[0].reactions.push(message)
+          this.increaseMessageReaction(message.reaction, message)
         }
       }
 
       this.$forceUpdate()
     })
+  }
+
+  getMessageReactions () {
+    const reactions = Array.isArray(this.message) ? this.message[0].reactions : this.message.reactions
+    if (reactions) {
+      reactions.forEach((message: any) => {
+        this.increaseMessageReaction(message.reaction, message)
+      })
+    }
+  }
+
+  increaseMessageReaction (reaction: any, message: any) {
+    const reactionExists = this.reactions[reaction].some((item: any) => item._id === message._id)
+
+    if (!reactionExists) this.reactions[reaction].push(message)
+  }
+
+  reduceMessageReaction (reaction: any) {
+    this.reactions[reaction].pop()
   }
 
   onReactionDelete () {
@@ -607,8 +631,9 @@ export default class MessageContent extends ComponentProps {
         const reactions = this.message.reactions as any
 
         const reactionIndex = reactions.findIndex((item: any) => item._id === message._id)
-        console.log(reactions, reactionIndex)
+
         if (reactionIndex > -1) {
+          this.reduceMessageReaction(reactions[reactionIndex].reaction)
           reactions.splice(reactionIndex, 1)
           this.$forceUpdate()
         }
@@ -619,6 +644,7 @@ export default class MessageContent extends ComponentProps {
 
         const reactionIndex = reactions.findIndex((item: any) => item._id === message._id)
         if (reactionIndex > -1) {
+          this.reduceMessageReaction(reactions[reactionIndex].reaction)
           reactions.splice(reactionIndex, 1)
           this.$forceUpdate()
         }
@@ -642,24 +668,29 @@ export default class MessageContent extends ComponentProps {
     }
   }
 
-  injectHtml (): String {
+  injectHtml (message: string): void {
     let returnedMessage = ''
 
-    for (const word of this.message.content.msg.split(' ')) {
-      if (this.emailRegex.test(word)) {
-        returnedMessage += String.raw` <a target="_blank" href="mailto:${word}" > ${word} <a/>`
-      } else if (this.websiteRegex.test(word)) {
-        if (word.includes('http://') || word.includes('https://')) {
-          returnedMessage += String.raw` <a target="_blank" href="${word}" > ${word} <a/>`
+    if (message) {
+      for (const word of message.split(' ')) {
+        if (this.emailRegex.test(word)) {
+          returnedMessage += String.raw` <a target="_blank" href="mailto:${word}">${word}<a/>`
+        } else if (this.websiteRegex.test(word)) {
+          if (word.includes('http://') || word.includes('https://')) {
+            returnedMessage += String.raw` <a target="_blank" href="${word}">${word}<a/>`
+          } else {
+            returnedMessage += String.raw` <a target="_blank" href="http://${word}">${word}<a/>`
+          }
         } else {
-          returnedMessage += String.raw` <a target="_blank" href="http://${word}"> ${word} <a/>`
+          returnedMessage += ` ${word}`
         }
-      } else {
-        returnedMessage += ` ${word}`
       }
     }
 
-    return returnedMessage
+    const newMessage = this.$refs.message as any
+    if (newMessage) {
+      newMessage.innerHTML = returnedMessage
+    }
   }
 
   onResize () {
@@ -743,7 +774,7 @@ export default class MessageContent extends ComponentProps {
 
 .robin-activity {
   margin: 0.5rem auto;
-  background-color: #BBC4DF;
+  background-color: #bbc4df;
   color: #000000;
   font-size: 0.875rem;
   border-radius: 5px;
@@ -845,7 +876,9 @@ export default class MessageContent extends ComponentProps {
 }
 
 .robin-message-sender .robin-message-bubble-inner >>> .robin-Content,
-.robin-message-receiver .robin-message-bubble-inner >>> .robin-text {
+.robin-message-receiver .robin-message-bubble-inner >>> .robin-text,
+.robin-message-sender .robin-link-container,
+.robin-message-receiver .robin-link-container {
   text-align: left;
 }
 
@@ -1232,7 +1265,7 @@ video.video-reply {
 
 .robin-reaction {
   font-size: 0.625rem;
-  width: 10px;
+  width: max-content;
   height: 14px;
   cursor: pointer;
   display: flex;
@@ -1245,23 +1278,23 @@ video.video-reply {
 }
 
 /* Website & Email */
-
+/*
 a {
   display: block;
   color: #4568d1;
+  font-size: 1.063rem;
   text-decoration: none;
-  /* max-width: 220px; */
-}
+} */
 
 .robin-link-container {
-  font-size: 1rem;
+  font-size: 1.063rem;
   max-width: 209px;
   word-break: break-word;
 }
 
-.robin-link-container >>> a {
-  font-size: 0.75rem;
+.robin-link-container >>> a:nth-child(odd) {
   color: #4568d1;
+  text-decoration: none;
 }
 
 .robin-link-preview {

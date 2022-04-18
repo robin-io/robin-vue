@@ -321,7 +321,7 @@ export default class SideContainer extends Vue {
 
   handleMessageForward (): void {
     EventBus.$on('message.forward', (messages: any) => {
-      // console.log(messages)
+      // (messages)
       messages.forEach((msg: any) => {
         this.conversations.forEach((conversation: any, index: any) => {
           if (conversation._id === msg.conversation_id) {

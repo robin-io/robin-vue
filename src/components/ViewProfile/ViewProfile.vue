@@ -15,8 +15,7 @@
         <Content color="#51545C" :fontSize="12" :text-align="'center'" as="p" class="robin-mb-8" v-show="currentConversation.is_group">{{ groupParticipants.length > 1 ? `${groupParticipants.length} Members` : `${groupParticipants.length} Member` }}</Content>
 
         <Content color="#51545C" :fontSize="12" :text-align="'center'" as="p" class="robin-flex" v-if="currentConversation.is_group"
-          >Created <Content :fontSize="12">{{ formatRecentMessageTime(currentConversation.created_at) }}</Content
-          >, By <Content :fontSize="12">{{ currentConversation.moderator.meta_data.display_name }}</Content></Content
+          >Created at {{ formatRecentMessageTime(currentConversation.created_at) }}, By <Content :fontSize="12">{{ currentConversation.moderator.meta_data.display_name }}</Content></Content
         >
       </div>
 
@@ -185,7 +184,7 @@ import EventBus from '@/event-bus'
     //   this.getAllLinksInConversation()
     //   this.getAllDocumentsInConversation()
     // },
-    ProfileOpen () {
+    profileOpen () {
       this.getProfile()
     }
   }
@@ -232,8 +231,8 @@ export default class ViewProfile extends Vue {
     return assets
   }
 
-  get ProfileOpen () {
-    return store.state.ProfileOpen
+  get profileOpen () {
+    return store.state.profileOpen
   }
 
   created () {
@@ -271,7 +270,6 @@ export default class ViewProfile extends Vue {
     this.isProfileLoading = true
 
     const res = await this.$robin.getConversationDetails(this.currentConversation._id)
-    console.log(res)
 
     if (res && !res.error) {
       this.isProfileLoading = false
@@ -332,72 +330,6 @@ export default class ViewProfile extends Vue {
     return `${mime.getType(strArr[strArr.length - 1])}`
   }
 
-  // getAllMediaInConversation () {
-  //   const media = this.messages.filter((message: any) => {
-  //     if (Array.isArray(message)) {
-  //       return true
-  //     }
-
-  //     if (!Array.isArray(message) && message.content.is_attachment) {
-  //       const isVideo = this.videoRegex.test(this.checkAttachmentType(message.content.attachment))
-  //       const isImage = this.imageRegex.test(this.checkAttachmentType(message.content.attachment))
-
-  //       if (isVideo || isImage) {
-  //         return true
-  //       }
-  //     }
-
-  //     return false
-  //   })
-
-  //   this.media = []
-
-  //   media.forEach((message: any) => {
-  //     if (Array.isArray(message)) {
-  //       message.forEach((item) => {
-  //         if (!item.is_deleted) {
-  //           this.media.push(item)
-  //         }
-  //       })
-  //     } else {
-  //       this.media.push(message)
-  //     }
-  //   })
-  // }
-
-  // getAllLinksInConversation () {
-  //   this.links = this.messages.filter((message: any) => {
-  //     if (!Array.isArray(message) && !message.content.is_attachment) {
-  //       if ((this.validateLinkInMessage(message).containsEmail && this.validateLinkInMessage(message).containsWebsite) || this.validateLinkInMessage(message).containsEmail || this.validateLinkInMessage(message).containsWebsite) {
-  //         const isWebsite = this.websiteRegex.test(this.getTextsInMessage(message).texts[this.getTextsInMessage(message).length - 1])
-  //         const isEmail = this.emailRegex.test(this.getTextsInMessage(message).texts[this.getTextsInMessage(message).length - 1])
-
-  //         if (isWebsite || !isEmail) {
-  //           return true
-  //         }
-  //       } else {
-  //         return false
-  //       }
-  //     }
-
-  //     return false
-  //   })
-  // }
-
-  // getAllDocumentsInConversation () {
-  //   this.documents = this.messages.filter((message: any) => {
-  //     if (!Array.isArray(message) && message.content.is_attachment) {
-  //       const isDocument = this.documentRegex.test(this.checkAttachmentType(message.content.attachment))
-
-  //       if (isDocument) {
-  //         return true
-  //       }
-  //     }
-
-  //     return false
-  //   })
-  // }
-
   validateLinkInMessage (message: any) {
     const texts = message.content.msg.split(' ')
 
@@ -452,7 +384,6 @@ export default class ViewProfile extends Vue {
     EventBus.$on('remove.group.participant', (value: any) => {
       if (value.participant.user_token !== this.$user_token) {
         const index = this.currentConversation.participants.findIndex((participant: any) => participant.user_token === value.participant.user_token)
-        console.log('index->', index)
 
         if (index > -1) {
           this.currentConversation.participants.splice(index, 1)

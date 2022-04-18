@@ -4,12 +4,12 @@
       <SideContainer v-show="(!isPageLoading && !conversationOpened && screenWidth <= 1200) || (conversationOpened && screenWidth > 1200) || (!conversationOpened && screenWidth > 1200)" :key="key" />
     </transition>
     <transition name="robin-fadeIn">
-      <MessageContainer v-show="(!isPageLoading && conversationOpened && screenWidth > 1200 && !ProfileOpen) || (!isPageLoading && conversationOpened && screenWidth <= 1200 && !ProfileOpen) || (!isPageLoading && conversationOpened && screenWidth > 1200 && ProfileOpen)" :key="key" />
+      <MessageContainer v-show="(!isPageLoading && conversationOpened && screenWidth > 1200 && !profileOpen) || (!isPageLoading && conversationOpened && screenWidth <= 1200 && !profileOpen) || (!isPageLoading && conversationOpened && screenWidth > 1200 && profileOpen)" :key="key + 1" />
     </transition>
     <NoMessageSelected v-show="!isPageLoading && !conversationOpened" />
     <PageLoader v-show="isPageLoading && pageLoader" />
     <MessageImagePreviewer ref="popup-1" :conversation="currentConversation" v-show="imagePreviewOpen" @close="closeImagePreview()" :images-to-preview="imagesToPreview" />
-    <ViewProfile ref="popup-2" v-show="ProfileOpen" @close="closeMessageViewProfile()" />
+    <ViewProfile ref="popup-2" v-show="profileOpen" @close="closeMessageViewProfile()" />
     <GroupPrompt v-show="groupPromptOpen" @close="closeGroupPrompt()" />
     <EncryptionDetails v-show="encryptionDetailsOpen" @close="closeEncryptionDetails()" />
     <audio :src="assets['notification']" ref="notification" @click="playAudio($event)">Your browser does not support the</audio>
@@ -753,7 +753,6 @@ const ComponentProps = Vue.extend({
 export default class App extends ComponentProps {
   robin = null as any
   conn = null as any
-  conversationOpened = false as boolean
   key = 0 as number
   // profileKey = 0 as number
   screenWidth = 0 as number
@@ -773,12 +772,11 @@ export default class App extends ComponentProps {
 
     if (this.conn) {
       this.conn.onopen = () => {
-        // console.log('opened')
         this.robin.subscribe(this.channel, this.conn)
       }
 
       this.conn.onclosed = () => {
-        console.log('closed')
+        ('closed')
         this.connect()
       }
     }
@@ -793,6 +791,10 @@ export default class App extends ComponentProps {
     setInterval(() => {
       this.time += 1
     }, 60000)
+  }
+
+  get conversationOpened () {
+    return store.state.conversationOpened
   }
 
   get isPageLoading () {
@@ -819,8 +821,8 @@ export default class App extends ComponentProps {
     return store.state.imagePreviewOpen
   }
 
-  get ProfileOpen () {
-    return store.state.ProfileOpen
+  get profileOpen () {
+    return store.state.profileOpen
   }
 
   get groupPromptOpen () {
@@ -865,7 +867,7 @@ export default class App extends ComponentProps {
       const notification = this.$refs.notification as any
 
       const message = JSON.parse(evt.data)
-      // console.log(message)
+      // (message)
       if (message.is_event !== true) {
         EventBus.$emit('new-message', message)
         this.messageEvent = message
@@ -874,9 +876,8 @@ export default class App extends ComponentProps {
           notification.click()
         }
       } else {
-        console.log(message)
         // move new conversation to the top
-        // console.log('new conversation')
+        // ('new conversation')
         // EventBus.$emit('new-conversation', message)
 
         // check event type
@@ -901,7 +902,7 @@ export default class App extends ComponentProps {
 
   openConversation (): void {
     EventBus.$on('open-conversation', () => {
-      this.conversationOpened = true
+      store.setState('conversationOpened', true)
     })
   }
 
@@ -912,7 +913,7 @@ export default class App extends ComponentProps {
   }
 
   handleEvents (message: any): void {
-    // console.log('event->', message)
+    // ('event->', message)
     switch (message.name) {
       case 'user.connect':
         // set user status to online
@@ -944,7 +945,7 @@ export default class App extends ComponentProps {
         // if it is, push message to message array
         // else update last_message and unshift
         EventBus.$emit('message.forward', message.value)
-        // console.log('forwarded message', message.value)
+        // ('forwarded message', message.value)
         break
       case 'message.reaction':
         EventBus.$emit('message.reaction', message.value)
@@ -969,22 +970,22 @@ export default class App extends ComponentProps {
   onExitGroup () {
     EventBus.$on('left.group', () => {
       this.key += 1
-      this.conversationOpened = false
-      store.setState('ProfileOpen', false)
+      store.setState('conversationOpened', false)
+      store.setState('profileOpen', false)
     })
   }
 
   onConversationDelete () {
     EventBus.$on('close-conversation', () => {
-      this.conversationOpened = false
-      store.setState('ProfileOpen', false)
+      store.setState('conversationOpened', false)
+      store.setState('profileOpen', false)
     })
   }
 
   onExitMessage () {
     EventBus.$on('left.message', () => {
-      this.conversationOpened = false
-      store.setState('ProfileOpen', false)
+      store.setState('conversationOpened', false)
+      store.setState('profileOpen', false)
     })
   }
 
@@ -1015,7 +1016,7 @@ export default class App extends ComponentProps {
       popup.$refs['popup-body'].classList.remove('robin-slideOutRight')
       popup.$refs['popup-body'].classList.add('robin-slideInRight')
 
-      store.setState('ProfileOpen', false)
+      store.setState('profileOpen', false)
     }, 100)
   }
 

@@ -43,7 +43,7 @@ const ComponentProps = Vue.extend({
   watch: {
     cameraOpened: {
       handler (val) {
-        // console.log(val)
+        // (val)
         if (val) {
           this.setupMedia()
         }

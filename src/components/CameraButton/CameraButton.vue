@@ -27,7 +27,7 @@ const ComponentProps = Vue.extend({
 export default class CameraButton extends ComponentProps {
   created () {
     document.addEventListener('keyup', (event: any) => {
-      console.log(event)
+      (event)
       if (event.keyCode === 13 && this.cameraOpened) {
         this.$emit('clicked')
       }

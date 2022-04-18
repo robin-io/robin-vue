@@ -184,12 +184,6 @@ const ComponentProps = Vue.extend({
         }
       },
       deep: true
-    },
-    currentConversation: {
-      handler (val) {
-        this.resetState()
-      },
-      deep: true
     }
   }
 })
@@ -223,6 +217,7 @@ export default class MessageInputBar extends ComponentProps {
       this.onResize()
     })
     window.addEventListener('resize', this.onResize)
+    this.resetState()
   }
 
   get checkFileFormat () {
@@ -490,7 +485,6 @@ export default class MessageInputBar extends ComponentProps {
   }
 
   selectEmoji (emoji: any): void {
-    console.log(emoji)
     this.text += ` ${emoji.data} `
     const input = this.$refs.input as HTMLInputElement
     if (input) {
@@ -526,7 +520,6 @@ export default class MessageInputBar extends ComponentProps {
     const popup = this.$refs['popup-4'] as any
     popup.$refs['popup-body'].classList.remove('robin-zoomIn')
     popup.$refs['popup-body'].classList.add('robin-zoomOut')
-    console.log(popup.$refs['popup-body'].classList)
 
     window.setTimeout(() => {
       popup.$refs['popup-body'].classList.add('robin-zoomIn')
@@ -711,8 +704,6 @@ export default class MessageInputBar extends ComponentProps {
           file
         })
 
-        console.log(this.files)
-
         if (!this.replying && this.sendRecording) this.sendMessage()
 
         if (this.replying && this.sendRecording) this.replyMessage()
@@ -872,8 +863,7 @@ export default class MessageInputBar extends ComponentProps {
 }
 
 .robin-input {
-  width: 100%;
-  min-width: 100%;
+  width: 97%;
   min-height: 20px;
   height: 20px;
   max-height: 500px;

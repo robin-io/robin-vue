@@ -189,7 +189,6 @@ export default class MessageImagePreviewer extends ComponentProps {
       if (this.images.length < 2) this.closeImagePreview()
 
       EventBus.$emit('image-deleted', this.images[this.imageSelected])
-      console.log(this.images[this.imageSelected])
 
       window.setTimeout(() => {
         this.images.splice(this.imageSelected, 1)
