@@ -55,7 +55,7 @@ export default class Avatar extends ComponentProps {
     const user = this.robinUsers[index] as any
 
     if (user) {
-      return user.userName && user.userName !== '' ? user.userName.split(' ') : ''
+      return user.userName && user.userName !== '' ? user.userName.trim().split(' ') : ''
     }
 
     return ''

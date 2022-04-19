@@ -200,34 +200,25 @@ export default class PrimaryChatList extends ComponentProps {
   }
 
   openConversation (conversation: any): void {
-    // if (this.screenWidth > 1200) {
-    //   // this.activeConversation = conversation
-    //   // this.setImagePreviewOpen(false)
-    //   store.setState('imagePreviewOpen', false)
-    //   EventBus.$emit('conversation-opened', conversation)
-    //   EventBus.$emit('open-conversation')
-    // }
-
-    // if (this.screenWidth <= 1200) {
-    //   // this.activeConversation = conversation
-    //   // this.setImagePreviewOpen(false)
-    //   store.setState('imagePreviewOpen', false)
-    //   EventBus.$emit('conversation-opened', conversation)
-    //   EventBus.$emit('open-conversation')
-    // }
-
     store.setState('imagePreviewOpen', false)
     EventBus.$emit('conversation-opened', conversation)
     EventBus.$emit('open-conversation')
   }
 
   formatRecentMessageTime (time: string): string {
-    // const datetime = new Date(time)
+    const fromNow = moment(time).fromNow()
     const datetime = moment(time)
+
     return datetime.calendar(null, {
-      sameDay: 'hh:mm a',
-      lastDay: '[Yesterday]',
-      lastWeek: 'DD/MM/YYYY',
+      sameDay: function () {
+        return '[' + fromNow + ']'
+      },
+      lastDay: function () {
+        return '[' + fromNow + ']'
+      },
+      lastWeek: function () {
+        return '[' + fromNow + ']'
+      },
       sameElse: 'DD/MM/YYYY'
     })
   }
