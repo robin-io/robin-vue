@@ -1,16 +1,9 @@
 <template>
   <div class="robin-popup robin-zoomIn" ref="popup-body">
-    <div class="robin-wrapper robin-w-100" @click="$emit('unarchive-chat')">
+    <div data-testid="unarchive-chat" class="robin-wrapper robin-w-100" @click="$emit('unarchive-chat')">
       <Content :font-size="14" color="#101010">Unarchive Chat</Content>
       <SvgIcon name="mailbox" color="#51545C" />
     </div>
-    <!-- <div class="robin-wrapper robin-w-100" @click="$emit('mute-chat')">
-      <Content :font-size="14" color="#101010">Mute Notifications</Content>
-    </div> -->
-    <!-- <div class="robin-wrapper robin-w-100" @click="$emit('delete-chat')">
-      <Content :font-size="14" color="#D53120">Delete Chat</Content>
-      <Trash />
-    </div> -->
   </div>
 </template>
 
@@ -25,7 +18,6 @@ import Content from '../Content/Content.vue'
   components: {
     Content,
     SvgIcon
-    // Trash
   }
 })
 export default class RArchivedChatListPopOver extends Vue {}

@@ -144,15 +144,6 @@ export default class SideContainer extends Vue {
     })
   }
 
-  // onAddGroupParticipants () {
-  //   EventBus.$on('update.group.conversation', (conversation: any) => {
-  //     const index = this.$regularConversations.findIndex((item) => item._id === conversation._id)
-
-  //     this.$regularConversations[index] = conversation
-  //     this.regularConversations[index] = conversation
-  //   })
-  // }
-
   onNewConversationCreated () {
     EventBus.$on('new.conversation', (conversation: any) => {
       if (conversation.sender_token === this.$user_token || conversation.receiver_token === this.$user_token) {

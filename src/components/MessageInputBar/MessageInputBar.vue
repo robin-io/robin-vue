@@ -9,7 +9,7 @@
     <div class="robin-reply-container robin-squeezeOut" ref="popup-3" v-show="replying">
       <div class="robin-wrapper robin-flex robin-flex-1 robin-pt-8 robin-pb-8 robin-pl-24 robin-pr-24 robin-overflow-y-auto">
         <div class="robin-reply robin-w-100" v-if="!messageReply.has_attachment">
-          <Content :font-size="10" textWrap="pre-line" wordBreak="break-word" as="span" v-if="!validateLinkInMessage().containsEmail && !validateLinkInMessage().containsWebsite">
+          <Content :font-size="14" textWrap="pre-line" wordBreak="break-word" as="span" v-if="!validateLinkInMessage().containsEmail && !validateLinkInMessage().containsWebsite">
             {{ messageReply.content ? messageReply.content.msg : '' }}
           </Content>
 
@@ -218,6 +218,7 @@ export default class MessageInputBar extends ComponentProps {
     })
     window.addEventListener('resize', this.onResize)
     this.resetState()
+    this.focusInput()
   }
 
   get checkFileFormat () {
@@ -485,7 +486,13 @@ export default class MessageInputBar extends ComponentProps {
   }
 
   selectEmoji (emoji: any): void {
-    this.text += ` ${emoji.data} `
+    if (this.text.length > 0) this.text += ` ${emoji.data}`
+    else this.text += `${emoji.data}`
+
+    this.focusInput()
+  }
+
+  focusInput () {
     const input = this.$refs.input as HTMLInputElement
     if (input) {
       input.focus()

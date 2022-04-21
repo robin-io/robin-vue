@@ -20,7 +20,7 @@ const ComponentProps = Vue.extend({
 @Component({
   name: 'AlphabetBlock'
 })
-export default class AlphabetBlock extends ComponentProps {}
+export default class AlphabetBlock extends ComponentProps { }
 </script>
 
 <style scoped>

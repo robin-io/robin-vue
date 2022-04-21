@@ -2,17 +2,17 @@
   <!-- eslint-disable vue/no-parsing-error -->
   <div class="robin-side-container" ref="popup-body">
     <header class="robin-header">
-      <IconButton name="remove" color="#000" @close="$emit('closemodal', 'primary')" emit="close" :to-emit="true" :to-click-away="false" />
+      <IconButton data-testid="closemodal" name="remove" color="#000" @close="$emit('closemodal', 'primary')" emit="close" :to-emit="true" :to-click-away="false" />
 
       <Content fontWeight="400" :fontSize="16" class="robin-ml-12"> Archived Messages </Content>
     </header>
 
     <div class="robin-wrapper robin-card-container robin-flex robin-flex-column robin-mt-42" @scroll="onScroll()">
-      <div class="robin-card robin-flex robin-flex-align-center" :class="{ 'robin-card-active': isConversationActive(conversation)  && screenWidth > 1200 }" v-for="(conversation, index) in conversations" :key="`conversation-${index}`" @click.self="openConversation(conversation)" v-show="conversations.length > 0">
+      <div data-testid="card" class="robin-card robin-flex robin-flex-align-center" :class="{ 'robin-card-active': isConversationActive(conversation)  && screenWidth > 1200 }" v-for="(conversation, index) in conversations" :key="`conversation-${index}`" @click.self="openConversation(conversation)" v-show="conversations.length > 0">
         <div class="robin-card-info robin-mr-12" @click="openConversation(conversation)">
-          <Avatar :robin-users="$robin_users" v-if="!conversation.is_group" :key="avatarKey" :img-url="getProfileImage(conversation)" :sender-token="conversation.sender_token === $user_token ? conversation.receiver_token : conversation.sender_token" />
+          <Avatar data-testid="regular-avatar" :robin-users="$robin_users" v-if="!conversation.is_group" :key="avatarKey" :img-url="getProfileImage(conversation)" :sender-token="conversation.sender_token === $user_token ? conversation.receiver_token : conversation.sender_token" />
 
-          <GroupAvatar v-else :img-url="conversation.group_icon" />
+          <GroupAvatar data-testid="group-avatar" v-else :img-url="conversation.group_icon" />
         </div>
 
         <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-column robin-flex-space-between robin-pt-4 robin-pb-4˝ robin-flex-1">
@@ -29,14 +29,14 @@
             <Content as="p" fontWeight="normal" color="#8D9091" :fontSize="14" :lineHeight="18" @click.native="openConversation(conversation)"> {{ conversation.last_message && conversation.last_message.msg.length < 20 ? conversation.last_message.msg : conversation.last_message ? conversation.last_message.msg.substring(0, 20) + ' ...' : '' }} </Content>
 
             <div class="robin-mini-info-container robin-flex robin-flex-align-center">
-              <div class="robin-hidden robin-ml-10" @click="handleOpenPopUp($event, conversation._id, `popup-container-${index}`, `popup-${index}`, index.toString())">
+              <div class="robin-hidden robin-ml-10" data-testid="archive-handler" @click="handleOpenPopUp($event, conversation._id, `popup-container-${index}`, `popup-${index}`, index.toString())">
                 <IconButton name="openModalDot" @clickoutside="handleClosePopUp(conversation._id, `popup-${index}`)" :to-emit="false" :to-click-away="true" />
               </div>
             </div>
           </div>
         </div>
 
-        <div class="robin-popup-container" :ref="`popup-container-${index}`" v-show="popUpStates[index].opened">
+        <div class="robin-popup-container" data-testid="archive-popover" :ref="`popup-container-${index}`" v-show="popUpStates[index].opened">
           <ArchiveChatListPopOver :ref="`popup-${index}`" @unarchive-chat="unArchiveChat(conversation._id)" />
         </div>
       </div>
@@ -51,16 +51,13 @@
 <script lang="ts">
 import Vue from 'vue'
 import moment from 'moment'
-// import { Mutation } from 'vuex-class'
 import store from '@/store/index'
 import Component from 'vue-class-component'
 import EventBus from '@/event-bus'
 import Content from '../Content/Content.vue'
 import IconButton from '../IconButton/IconButton.vue'
-// import RCloseButton from './RCloseButton/RCloseButton.vue'
 import Avatar from '../Avatar/Avatar.vue'
 import GroupAvatar from '../GroupAvatar/GroupAvatar.vue'
-// import ROpenModalCaretButton from './ROpenModalCaretButton/ROpenModalCaretButton.vue'
 import ArchiveChatListPopOver from '../ArchiveChatListPopOver/ArchiveChatListPopOver.vue'
 
 const ComponentProps = Vue.extend({
@@ -209,10 +206,17 @@ export default class ArchivedChatList extends ComponentProps {
 
   formatRecentMessageTime (time: string): string {
     const datetime = moment(time)
+
     return datetime.calendar(null, {
-      sameDay: 'hh:ss a',
-      lastDay: '[Yesterday]',
-      lastWeek: 'DD/MM/YYYY',
+      sameDay: function () {
+        return '[' + datetime.fromNow() + ']'
+      },
+      lastDay: function () {
+        return '[' + datetime.fromNow() + ']'
+      },
+      lastWeek: function () {
+        return '[' + datetime.fromNow() + ']'
+      },
       sameElse: 'DD/MM/YYYY'
     })
   }

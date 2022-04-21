@@ -6,7 +6,7 @@
     "strict": true,
     "jsx": "preserve",
     "sourceMap": true,
-    "types": ["vite/client", "@types/jest"],
+    "types": ["vite/client", "vitest/globals"],
     "baseUrl": "./src",
     "paths": {
       "@/*": ["./*"]
@@ -18,5 +18,5 @@
     "skipLibCheck": true,
     "lib": ["dom", "esnext"]
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "types/*.d.ts", "src/utils/mp3-encoder.js", "src/utils/recorder.ts"]
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "types/*.d.ts"]
 }

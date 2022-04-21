@@ -1,9 +1,13 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vitest/config'
 import { createVuePlugin } from 'vite-plugin-vue2'
 import { resolve } from 'path'
 
 // https://vitejs.dev/config /
 export default defineConfig({
+  test: {
+    globals: true,
+    setupFiles: 'src/setupTests.ts'
+  },
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src')
@@ -20,7 +24,7 @@ export default defineConfig({
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled
       // into your library
-      external: ['vue', 'moment', 'mime', 'axios', 'vuex', 'vuex-class', 'v-lazy-image', 'v-emoji-picker', 'robin.io-js', 'vue-toast-notification', 'link-prevue', 'vue-clickaway'],
+      external: ['vue', 'moment', 'mime', 'axios', 'v-lazy-image', 'v-emoji-picker', 'robin.io-js', 'vue-toast-notification', 'link-prevue', 'vue-clickaway'],
       output: {
         // Provide global variables to use in the UMD build
         // for externalized deps
@@ -29,8 +33,6 @@ export default defineConfig({
           moment: 'moment',
           mime: 'mime',
           axios: 'axios',
-          vuex: 'vuex',
-          'vuex-class': 'vuex-class',
           'v-lazy-image': 'v-lazy-image',
           'v-emoji-picker': 'v-emoji-picker',
           'robin.io-js': 'robin.io-js',

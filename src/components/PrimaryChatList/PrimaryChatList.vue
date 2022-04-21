@@ -206,18 +206,17 @@ export default class PrimaryChatList extends ComponentProps {
   }
 
   formatRecentMessageTime (time: string): string {
-    const fromNow = moment(time).fromNow()
     const datetime = moment(time)
 
     return datetime.calendar(null, {
       sameDay: function () {
-        return '[' + fromNow + ']'
+        return '[' + datetime.fromNow() + ']'
       },
       lastDay: function () {
-        return '[' + fromNow + ']'
+        return '[' + datetime.fromNow() + ']'
       },
       lastWeek: function () {
-        return '[' + fromNow + ']'
+        return '[' + datetime.fromNow() + ']'
       },
       sameElse: 'DD/MM/YYYY'
     })
