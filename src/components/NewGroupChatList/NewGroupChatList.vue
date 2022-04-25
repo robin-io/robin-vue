@@ -255,7 +255,6 @@ export default class NewGroupChatList extends ComponentProps {
   }
 
   async uploadGroupIcon (conversation: any): Promise<void> {
-    (this.groupIcon.file)
     const robin = this.$robin as any
     const res = await robin.uploadGroupIcon(conversation._id, this.groupIcon.file)
 

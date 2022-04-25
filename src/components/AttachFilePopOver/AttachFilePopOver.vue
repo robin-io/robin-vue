@@ -13,13 +13,13 @@
     <Content class="robin-wrapper robin-w-100" max-width="100%" as="label" :font-size="14" color="#51545C" for-ref="photo-upload" ref="photo-upload">
       <input :style="{ display: 'none' }" type="file" multiple :accept="acceptedVisualFiles" @change="handleFileChange($event.target.files)" @click="resetFileTarget($event)" id="photo-upload" />
       Photos & Videos
-      <IconButton name="gallery" emit="clicked" :to-emit="false" :to-click-away="false" @clicked="openFileDialog('photo-upload')" class="robin-ml-auto" />
+      <IconButton name="gallery" emit="clicked" :to-emit="false" :to-click-away="false" class="robin-ml-auto" />
     </Content>
 
     <Content as="label" for-ref="document-upload" :font-size="14" max-width="100%" color="#51545C" class="robin-wrapper robin-w-100" ref="document-upload">
       <input type="file" :style="{ display: 'none' }" multiple :accept="acceptedDocFiles" @change="handleFileChange($event.target.files)" @click="resetFileTarget($event)" id="document-upload" />
       Document
-      <IconButton name="document" emit="clicked" :to-emit="false" :to-click-away="false" @clicked="openFileDialog('document-upload')" class="robin-ml-auto" />
+      <IconButton name="document" emit="clicked" :to-emit="false" :to-click-away="false" class="robin-ml-auto" />
     </Content>
   </div>
 </template>
@@ -75,11 +75,6 @@ export default class AttachFilePopOver extends Vue {
         })
       }
     })
-  }
-
-  openFileDialog (id: string) {
-    const label = this.$refs[id] as any
-    label.$el.click()
   }
 
   onResize () {

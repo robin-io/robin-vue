@@ -14,7 +14,7 @@
   <span v-else-if="as == 'span'" class="robin-text" :style="getStyles">
     <slot></slot>
   </span>
-  <label v-else-if="as == 'label'" :for="forRef" class="robin-text" :style="getStyles">
+  <label data-testid="label" v-else-if="as == 'label'" :for="forRef" class="robin-text" :style="getStyles">
     <slot></slot>
   </label>
 </template>
