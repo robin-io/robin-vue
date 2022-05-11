@@ -78,7 +78,7 @@
       </div>
     </div>
 
-    <div class="robin-message-box-inner" @keydown.enter.exact.prevent="send()" tabindex="1">
+    <div class="robin-message-box-inner" @keydown.enter.exact.prevent="send($event)" tabindex="1">
       <!-- v-show="text.trim() == '' && files.length < 1 && !isUploading" -->
       <div class="robin-mr-8" @click="handleOpenPopUp()" v-if="!isRecording">
         <IconButton name="attachFileClose" v-if="!popUpState.opened" :to-click-away="false" :to-emit="false" />
@@ -101,7 +101,7 @@
         <div class="robin-ar-time robin-mr-8" v-show="isRecording">
           {{ currentTime }}
         </div>
-        <IconButton name="send" @sendmessage="send()" emit="sendmessage" :to-emit="true" :to-click-away="false" />
+        <IconButton name="send" @sendmessage="send(null)" emit="sendmessage" :to-emit="true" :to-click-away="false" />
       </div>
       <div class="robin-send-button-loader robin-ml-21" v-show="isUploading">
         <div class="robin-spinner2"></div>
@@ -277,18 +277,24 @@ export default class MessageInputBar extends ComponentProps {
     this.sendRecording = false
   }
 
-  send () {
-    if (!this.replying && !this.isUploading) {
-      this.sendMessage()
-    }
+  send (event: any) {
+    if (this.screenWidth <= 1024 && event && event.keyCode === 13) {
+      this.newLine()
+      this.calculateTextareaHeight()
+      this.calculateTextareaHeight()
+    } else {
+      if (!this.replying && !this.isUploading) {
+        this.sendMessage()
+      }
 
-    if (this.replying && !this.isUploading) {
-      this.replyMessage()
-    }
+      if (this.replying && !this.isUploading) {
+        this.replyMessage()
+      }
 
-    if (!this.replying && !this.isUploading && this.isRecording) {
-      this.sendRecording = true
-      this.stopRecorder()
+      if (!this.replying && !this.isUploading && this.isRecording) {
+        this.sendRecording = true
+        this.stopRecorder()
+      }
     }
   }
 
@@ -652,6 +658,11 @@ export default class MessageInputBar extends ComponentProps {
     this.screenWidth = window.innerWidth
   }
 
+  newLine () {
+    const input = this.$refs.input as any
+    input.value += '\n'
+  }
+
   calculateTextareaHeight (): void {
     const input = this.$refs.input as any
 
@@ -836,7 +847,7 @@ export default class MessageInputBar extends ComponentProps {
   background-color: #fff;
   box-shadow: 0px 0px 20px rgba(0, 104, 255, 0.07);
   width: 100%;
-/* height: 44px; */
+  /* height: 44px; */
   display: flex;
   align-items: center;
   padding: clamp(1rem, 4vh, 1.1175rem) min(5%, 2.688rem) clamp(1rem, 4vh, 1.175rem) 1rem;

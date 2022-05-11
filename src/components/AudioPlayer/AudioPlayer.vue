@@ -1,21 +1,21 @@
 <template>
   <div class="robin-ap robin-flex robin-flex-align-start">
-    <i class="robin-material-icon" v-if="!isPlaying" @click="playback()">play_arrow</i>
-    <i class="robin-material-icon" v-else @click="playback()">pause</i>
+    <i class="robin-material-icon" role="button" v-if="!isPlaying" @click="playback()">play_arrow</i>
+    <i class="robin-material-icon" role="button" v-else @click="playback()">pause</i>
     <div class="robin-ap-bar-wrapper robin-flex robin-flex-column robin-flex-space-between">
-      <div ref="progress" class="robin-ap-bar" @mousedown="onMouseDown" @mouseover="$emit('hover-audio-progress', true)" @mouseout="$emit('hover-audio-progress', false)">
+      <div ref="progress" class="robin-ap-bar" @mousedown="onMouseDown">
         <div class="robin-ap-progress">
           <div class="robin-ap-line-container">
             <div class="robin-ap-line-progress" :style="{ width: `${percentage}%` }" />
-            <div class="robin-ap-line-dot" :class="{ active: isMouseDown }" :style="{ left: `${percentage}%` }" />
+            <div role="progress-dot" class="robin-ap-line-dot" :class="{ active: isMouseDown }" :style="{ left: `${percentage}%` }" />
           </div>
         </div>
       </div>
-      <span class="robin-ap-time" v-show="showProgressTime">
-          {{ percentage > 1 ? playedTime : duration }}
+      <span class="robin-ap-time">
+          time{{ percentage > 1 ? playedTime : duration }}
       </span>
     </div>
-    <audio :id="`audio-${index}`" :src="message.content.attachment">Your browser does not support the</audio>
+    <audio :data-testid="`audio-${index}`" :id="`audio-${index}`" :src="message.content.attachment">Your browser does not support the</audio>
   </div>
 </template>
 
@@ -33,10 +33,6 @@ const ComponentProps = Vue.extend({
     index: {
       type: [Number, String],
       default: 0
-    },
-    showProgressTime: {
-      type: Boolean,
-      default: true
     }
   }
 })
@@ -78,8 +74,15 @@ export default class AudioPlayer extends ComponentProps {
   }
 
   playback () {
-    if (this.isPlaying) this.player.pause()
-    else setTimeout(() => this.player.play())
+    if (this.isPlaying) {
+      this.player.muted = true
+      this.player.pause()
+    } else {
+      setTimeout(() => {
+        this.player.muted = false
+        this.player.play()
+      })
+    }
     this.isPlaying = !this.isPlaying
   }
 

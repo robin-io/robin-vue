@@ -5,7 +5,7 @@ describe('ArchiveChatListPopOver component', () => {
   test('emits unarchive-chat event on-click', async () => {
     const { getByTestId, emitted } = render(ArchiveChatListPopOver)
     const el = getByTestId('unarchive-chat')
-    fireEvent.click(el)
+    await fireEvent.click(el)
     expect(emitted()['unarchive-chat']).toHaveProperty('length', 1)
   })
 })

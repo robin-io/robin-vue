@@ -10,15 +10,15 @@
       <SearchBar @user-typing="searchConversation($event)" :loading="isLoading" :key="key" />
     </div>
 
-    <div class="robin-wrapper robin-pl-16 robin-pr-16 robin-flex robin-flex-space-between robin-w-100 robin-pt-16 robin-pb-12">
-      <Button class="robin-flex robin-flex-align-center" @archived="openArchivedChat()" font-weight="400" v-show="archivedConversations.length > 0">
+    <Button class="robin-wrapper robin-pl-16 robin-pr-16 robin-flex robin-flex-space-between robin-w-100 robin-pt-16 robin-pb-12" @archived="openArchivedChat()">
+      <div class="robin-flex robin-flex-align-center" font-weight="400" v-show="archivedConversations.length > 0">
         <SvgIcon name="mailbox" color="#15AE73" />
 
         <Content class="robin-ml-6" font-weight="400" color="#15AE73"> Archived Chats </Content>
-      </Button>
+      </div>
 
       <Content font-weight="400" color="#15AE73" v-show="archivedConversations.length > 0"> {{ archivedConversations.length }} </Content>
-    </div>
+    </Button>
 
     <div v-show="isPageLoading" class="robin-spinner"></div>
 
@@ -400,6 +400,10 @@ header {
   padding-left: clamp(2%, 4vw, 1rem);
   padding-right: clamp(2%, 4vw, 1rem);
 } */
+
+.robin-button.robin-wrapper {
+  width: 100%;
+}
 
 .robin-card-container {
   width: 100%;

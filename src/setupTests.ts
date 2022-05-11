@@ -156,3 +156,61 @@ Vue.prototype.$archivedConversations = [
   }
 ]
 Vue.prototype.$senderName = 'Enoch Chejieh'
+
+// audio player mock
+const MEDIA_ELEMENT = global.window.HTMLMediaElement.prototype as any
+MEDIA_ELEMENT._mock = {
+  paused: true,
+  duration: NaN,
+  _loaded: false,
+  // Emulates the audio file loading
+  _load: function audioInit (audio: { dispatchEvent: (arg0: Event) => void }) {
+    // Note: we could actually load the file from this.src and get real duration
+    // and other metadata.
+    audio.dispatchEvent(new Event('loadedmetadata'))
+    audio.dispatchEvent(new Event('canplaythrough'))
+  },
+  // Reset audio object mock data to the initial state
+  _resetMock: function resetMock (audio: { _mock: any }) {
+    audio._mock = Object.assign(
+      {},
+      MEDIA_ELEMENT._mock
+    )
+  }
+}
+
+// Get "paused" value, it is automatically set to true / false when we play / pause the audio.
+Object.defineProperty(MEDIA_ELEMENT, 'paused', {
+  get () {
+    return this._mock.paused
+  }
+})
+
+// Get and set audio duration
+Object.defineProperty(MEDIA_ELEMENT, 'duration', {
+  get () {
+    return this._mock.duration
+  },
+  set (value) {
+    // Reset the mock state to initial (paused) when we set the duration.
+    this._mock._resetMock(this)
+    this._mock.duration = value
+  }
+})
+
+// Start the playback.
+MEDIA_ELEMENT.play = function playMock () {
+  if (!this._mock._loaded) {
+    // emulate the audio file load and metadata initialization
+    this._mock._load(this)
+  }
+  this._mock.paused = false
+  this.dispatchEvent(new Event('play'))
+  // Note: we could
+}
+
+// Pause the playback
+MEDIA_ELEMENT.pause = function pauseMock () {
+  this._mock.paused = true
+  this.dispatchEvent(new Event('pause'))
+}
