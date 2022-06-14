@@ -6,13 +6,13 @@
       <div ref="progress" class="robin-ap-bar" @mousedown="onMouseDown">
         <div class="robin-ap-progress">
           <div class="robin-ap-line-container">
-            <div class="robin-ap-line-progress" :style="{ width: `${percentage}%` }" />
-            <div role="progress-dot" class="robin-ap-line-dot" :class="{ active: isMouseDown }" :style="{ left: `${percentage}%` }" />
+            <div class="robin-ap-line-progress" :style="{ width: `${percentage > 10 ? percentage - 7 : percentage}%` }" />
+            <div role="progress-dot" class="robin-ap-line-dot" :class="{ active: isMouseDown }" :style="{ left: `${percentage > 10 ? percentage - 7 : percentage}%` }" />
           </div>
         </div>
       </div>
       <span class="robin-ap-time">
-          time{{ percentage > 1 ? playedTime : duration }}
+        {{ percentage > 1 ? playedTime : duration }}
       </span>
     </div>
     <audio :data-testid="`audio-${index}`" :id="`audio-${index}`" :src="message.content.attachment">Your browser does not support the</audio>
@@ -22,6 +22,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import Component from 'vue-class-component'
+import store from '@/store/index'
 import Content from '@/components/Content/Content.vue'
 
 const ComponentProps = Vue.extend({
@@ -37,10 +38,20 @@ const ComponentProps = Vue.extend({
   }
 })
 
-@Component({
+// eslint-disable-next-line
+@Component<AudioPlayer>({
   name: 'AudioPlayer',
   components: {
     Content
+  },
+  watch: {
+    currentAudioPlaying: {
+      handler (playingIndex) {
+        if (playingIndex !== this.index) {
+          this.isPlaying = false
+        }
+      }
+    }
   }
 })
 export default class AudioPlayer extends ComponentProps {
@@ -69,6 +80,10 @@ export default class AudioPlayer extends ComponentProps {
     this.player.addEventListener('timeupdate', this.onTimeUpdate)
   }
 
+  get currentAudioPlaying () {
+    return store.state.currentAudioPlaying
+  }
+
   convertTimeMMSS (seconds: number) {
     return new Date(seconds * 1000).toISOString().substr(14, 5)
   }
@@ -81,6 +96,9 @@ export default class AudioPlayer extends ComponentProps {
       setTimeout(() => {
         this.player.muted = false
         this.player.play()
+
+        this.pauseOtherAudio()
+        store.setState('currentAudioPlaying', this.index)
       })
     }
     this.isPlaying = !this.isPlaying
@@ -138,6 +156,17 @@ export default class AudioPlayer extends ComponentProps {
     pos = pos > 1 ? 1 : pos
     return pos
   }
+
+  pauseOtherAudio () {
+    const audioElements = document.querySelectorAll('audio')
+
+    audioElements.forEach((audio) => {
+      if (this.player !== audio) {
+        audio.muted = true
+        audio.pause()
+      }
+    })
+  }
 }
 </script>
 
@@ -194,7 +223,7 @@ i {
 }
 
 .robin-ap-line-dot:active {
-    cursor: grabbing;
+  cursor: grabbing;
 }
 
 .robin-ap-line-dot.active {
@@ -202,10 +231,11 @@ i {
 }
 
 .robin-ap-time {
-    font-size: 0.75rem;
-    color: #51545C;
-    position: absolute;
-    top: 28px;
+  user-select: none;
+  font-size: 0.75rem;
+  color: #51545c;
+  position: absolute;
+  top: 28px;
 }
 
 @media only screen and (max-width: 768px) {

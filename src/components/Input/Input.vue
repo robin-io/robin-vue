@@ -1,5 +1,5 @@
 <template>
-  <input type="text" :placeholder="placeholder" @input="userTyping($event.target.value)" autocomplete="off" class="robin-input" ref="input" :style="getStyles" />
+  <input type="text" :placeholder="placeholder" @input="userTyping($event.target.value)" autocomplete="off" class="robin-input" ref="input" :style="getStyles" data-testid="input" />
 </template>
 
 <script lang="ts">
@@ -45,7 +45,7 @@ const ComponentProps = Vue.extend({
   watch: {
     text (val) {
       if (val === '') {
-        ('reset')
+        // ('reset')
         this.resetTyping()
       }
     },

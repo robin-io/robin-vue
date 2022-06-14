@@ -112,7 +112,7 @@ export default class Content extends ComponentProps {
       'white-space': this.textWrap,
       'word-break': this.wordBreak,
       'text-align': this.textAlign,
-      'max-width': this.maxWidth === 'max-content' || this.maxWidth === '100%' ? this.maxWidth : this.maxWidth + 'px'
+      'max-width': this.maxWidth
     }
   }
 }

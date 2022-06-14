@@ -1,7 +1,7 @@
 <template>
   <div class="robin-camera-box robin-squeezeOut" ref="popup-body">
     <header class="robin-head">
-      <div class="robin-wrapper robin-mr-12" @click="closeCamera()">
+      <div class="robin-wrapper robin-mr-12" @click="closeCamera()" data-testid="close-camera">
         <IconButton name="remove" :to-emit="false" :to-click-away="false"/>
         <!-- <RRemoveButton /> -->
       </div>
@@ -9,7 +9,7 @@
     </header>
     <div class="robin-body">
       <video v-show="!isPhotoTaken" ref="camera" width="100%" :height="screenWidth > 480 ? '500px' : '250px'" autoplay="true" muted="true"></video>
-      <CameraButton :camera-opened="cameraOpened" v-if="cameraOpened" @clicked="takePhoto()" />
+      <CameraButton :camera-opened="cameraOpened" v-if="cameraOpened" @clicked="takePhoto()" data-testid="camera-button" />
     </div>
   </div>
 </template>
@@ -121,11 +121,15 @@ export default class Camera extends ComponentProps {
 
   takePhoto () {
     const capture = this.getCanvas().toDataURL('image/jpeg')
-    this.convertBase64ToFile(capture).then((res) => {
-      this.$emit('captured-image', {
-        file: res,
-        localUrl: capture
-      })
+    let res = {}
+
+    this.convertBase64ToFile(capture).then(data => {
+      res = data
+    })
+
+    this.$emit('captured-image', {
+      file: res,
+      localUrl: capture
     })
 
     this.closeCamera()

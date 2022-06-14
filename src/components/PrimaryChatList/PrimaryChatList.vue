@@ -1,4 +1,4 @@
-<template>
+ <template>
   <!-- eslint-disable vue/no-parsing-error -->
   <div class="robin-side-container">
     <header class="robin-header">
@@ -17,20 +17,20 @@
         <Content class="robin-ml-6" font-weight="400" color="#15AE73"> Archived Chats </Content>
       </div>
 
-      <Content font-weight="400" color="#15AE73" v-show="archivedConversations.length > 0"> {{ archivedConversations.length }} </Content>
+      <Content font-weight="400" color="#15AE73" v-show="archivedConversations.length > 0" data-testid="archived-conversation-count"> {{ archivedConversations.length }} </Content>
     </Button>
 
     <div v-show="isPageLoading" class="robin-spinner"></div>
 
     <div v-show="!isPageLoading" class="robin-wrapper robin-card-container robin-pb-16 robin-flex robin-flex-column" @scroll="onScroll()" :class="{ 'robin-come-down': screenWidth > 1200 }">
-      <div class="robin-card robin-flex robin-flex-align-center" v-for="(conversation, index) in conversations" :key="`conversation-${index}`" :class="{ 'robin-card-active': currentConversation._id == conversation._id && screenWidth > 1200 }" @click.self="openConversation(conversation)">
+      <div class="robin-card robin-flex robin-flex-align-center" v-for="(conversation, index) in conversations" :key="`conversation-${index}`" :class="{ 'robin-card-active': currentConversation._id == conversation._id && screenWidth > 1200 }" @click.self="openConversation(conversation)" :data-testid="`conversation-${index}`">
         <div class="robin-card-info robin-mr-12" @click="openConversation(conversation)">
-          <Avatar :robin-users="$robin_users" v-if="!conversation.is_group" :key="avatarKey" :img-url="getProfileImage(conversation)" :sender-token="conversation.sender_token === $user_token ? conversation.receiver_token : conversation.sender_token" />
+          <Avatar :robin-users="$robin_users" v-if="!conversation.is_group" :key="avatarKey" :img-url="getProfileImage(conversation)" :sender-token="conversation.sender_token === $user_token ? conversation.receiver_token : conversation.sender_token" data-testid="regular-avatar" />
 
-          <GroupAvatar v-else :img-url="conversation.group_icon" />
+          <GroupAvatar v-else :img-url="conversation.group_icon" data-testid="group-avatar" />
         </div>
 
-        <div class="robin-card-info robin-h-100 robin-flex robin-flex-column robin-flex-space-between robin-pt-4 robin-pb-4˝ robin-flex-1" @click.self="openConversation(conversation)">
+        <div class="robin-card-info robin-h-100 robin-flex robin-flex-column robin-flex-space-between robin-pt-4 robin-pb-41 robin-flex-1" @click.self="openConversation(conversation)">
           <div class="robin-flex robin-flex-space-between" @click="openConversation(conversation)">
             <Content font-weight="normal" color="#000000" :font-size="16" :line-height="20" v-if="!conversation.is_group">
               {{ conversation.sender_token != $user_token ? conversation.sender_name : conversation.receiver_name }}
@@ -57,14 +57,11 @@
             </div>
 
             <div class="robin-mini-info-container robin-flex robin-flex-align-center">
-              <!-- <Mention @click.native="openConversation(conversation)" /> -->
-              <!-- use when mention icon is present robin-ml-8 -->
               <div class="mini-info robin-ml-10" v-if="conversation.unread_messages > 0 || conversation.unread_messages == 'marked'" @click="openConversation(conversation)">
                 <UnreadMessageCount :unread="conversation.unread_messages" background-color="#EA8D51" />
               </div>
               <div class="robin-hidden robin-ml-10" @click="handleOpenPopUp($event, conversation._id, `popup-container-${index}`, `popup-${index}`, index.toString())">
                 <IconButton name="openModalDot" @clickoutside="handleClosePopUp(conversation._id, `popup-${index}`)" :to-click-away="true" :to-emit="false" />
-                <!-- <ROpenModalCaretButton @clickoutside="handleClosePopUp(conversation._id, `popup-${index}`)" /> -->
               </div>
             </div>
           </div>
@@ -111,7 +108,7 @@ const ComponentProps = Vue.extend({
 
 // eslint-disable-next-line
 @Component<PrimaryChatList>({
-  name: 'RPrimaryChatList',
+  name: 'PrimaryChatList',
   components: {
     Content,
     IconButton,

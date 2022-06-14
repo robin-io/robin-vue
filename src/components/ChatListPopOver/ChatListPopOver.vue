@@ -8,9 +8,6 @@
       <Content :font-size="14" color="#101010">Archive Chat</Content>
       <SvgIcon name="mailbox" color="#51545C" />
     </div>
-    <!-- <div class="robin-wrapper robin-w-100" @click="$emit('mute-chat')">
-      <Content :font-size="14" color="#101010">Mute Notifications</Content>
-    </div> -->
     <div class="robin-wrapper robin-w-100" @click="$emit('delete-conversation')">
       <Content :font-size="14" color="#D53120">Delete Chat</Content>
       <SvgIcon name="trash" />
@@ -46,8 +43,6 @@ export default class ChatListPopOver extends ComponentProps {}
 <style scoped>
 .robin-popup {
   width: 174px;
-  /* max-width: 174px; */
-  /* padding: 0.5rem 0.75rem; */
   border: 1px solid #F5F7FC;
   border-radius: 6px;
   background-color: #fff;
@@ -69,11 +64,6 @@ export default class ChatListPopOver extends ComponentProps {}
 .robin-wrapper:first-child {
   border: none;
 }
-
-/* .top.robin-zoomIn,
-.top.robin-zoomOut {
-  transform-origin: bottom right;
-} */
 
 .robin-zoomIn,
 .robin-zoomOut {

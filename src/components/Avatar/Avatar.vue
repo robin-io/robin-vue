@@ -11,7 +11,7 @@
       </Content>
     </div>
 
-    <img v-if="imgUrl != ''" :src="imgUrl" alt="profile" class="robin-image" />
+    <img v-if="imgUrl != ''" :src="imgUrl" alt="profile" class="robin-image" data-testid="profile-picture" />
 
     <!-- <div class="robin-ellipse" v-show="status == 'online'"></div> -->
   </div>

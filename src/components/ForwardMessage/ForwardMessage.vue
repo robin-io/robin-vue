@@ -25,7 +25,7 @@
             </div>
 
             <div class="robin-card-container robin-flex robin-flex-column">
-              <div class="robin-card robin-flex robin-flex-align-center" v-for="(item, conversationIndex) in conversation" :key="item._id">
+              <div class="robin-card robin-flex robin-flex-align-center" v-for="(item, conversationIndex) in conversation" :key="item._id" :data-testid="`conversation-${item._id}`">
                 <div class="robin-card-info robin-mr-12">
                   <GroupAvatar v-if="item.is_group" />
 

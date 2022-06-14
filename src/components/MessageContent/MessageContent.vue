@@ -9,9 +9,9 @@
     <div class="robin-message-bubble robin-flex robin-flex-align-center">
       <CheckBox ref="checkbox" v-show="selectMessagesOpen" @clicked="toggleCheckAction($event)" />
 
-      <div class="robin-bubble" @mouseover="onMouseOver()" @mouseleave="onMouseLeave()" :class="validateMessages(message).includes('message-sender') ? 'robin-ml-5' : 'robin-mr-5'" v-if="!Array.isArray(message)" v-on-clickaway="closeModal">
+      <div class="robin-bubble" @mouseover="onMouseOver()" @mouseleave="onMouseLeave()" :class="validateMessages(message).includes('message-sender') ? 'robin-ml-5' : 'robin-mr-5'" v-if="!Array.isArray(message)" v-on-clickaway="closeModal" data-testid="bubble">
         <div class="robin-popup-container reactions">
-          <ReactionPopOver v-show="messagePopup.opened && validateMessages(message)" @close-modal="closeModal()" ref="popup-1" :id="message._id" :message="message" @reaction="addReaction" />
+          <ReactionPopOver v-show="messagePopup.opened && validateMessages(message)" @close-modal="closeModal()" ref="popup-1" :id="message._id" :message="message" @reaction="addReaction" data-testid="reaction-popover" />
         </div>
 
         <div class="robin-reactions" v-if="message && message.reactions && message.reactions.length > 0">
@@ -23,7 +23,7 @@
           <Content v-if="validateMessages(message).includes('message-sender') && conversation.is_group" :font-size="12" :color="groupnameColors[message.content.sender_token]" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getContactName(message.content.sender_token) }} </Content>
 
           <!-- Modal Open Caret -->
-          <div class="robin-caret-container" v-show="caretOpen || (messagePopup.opened && validateMessages(message))" @click="openModal()">
+          <div class="robin-caret-container" v-show="caretOpen || (messagePopup.opened && validateMessages(message))" @click="openModal()" data-testid="popup-caret">
             <IconButton name="messagePopupCaret" :to-emit="false" :to-click-away="false" />
           </div>
           <!-- Modal Open Caret -->
@@ -40,28 +40,6 @@
             </Content>
 
             <div class="robin-link-container" ref="message" v-if="(validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) || validateLinkInMessage().containsEmail || validateLinkInMessage().containsWebsite"></div>
-
-            <!-- <link-prevue class="robin-link-preview" v-if="websiteRegex.test(getTextsInMessage().texts[getTextsInMessage().length - 1]) && !emailRegex.test(getTextsInMessage().texts[getTextsInMessage().length - 1])" :url="getTextsInMessage().texts[getTextsInMessage().length - 1].includes('http') || getTextsInMessage().texts[getTextsInMessage().length - 1].includes('https') ? getTextsInMessage().texts[getTextsInMessage().length - 1] : `https://${getTextsInMessage().texts[getTextsInMessage().length - 1]}`">
-          <template slot-scope="props">
-            <a :href="props.url" class="card" v-show="props.img">
-              <img class="robin-card-img-top" :src="props.img" :alt="props.title" />
-
-              <div class="robin-card-block" v-show="props.title">
-                <Content :font-size="14" :line-height="24" textWrap="pre-line" wordBreak="break-word" color="#51545C" as="span">
-                  {{ props.title }}
-                </Content>
-
-                <Content :font-size="12" :line-height="14" textWrap="pre-line" class="robin-card-text" wordBreak="break-word" color="#8D9091" as="p">
-                  {{ props.description }}
-                </Content>
-              </div>
-            </a>
-          </template>
-
-          <template slot="loading">
-            <div></div>
-          </template>
-        </link-prevue> -->
 
             <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
               <Content :font-weight="'300'" :font-size="10" color="#7a7a7a" as="p" @click.native="openModal()" class="robin-flex">
@@ -123,7 +101,7 @@
           <ReplyMessageBubble :messages="messages" :message="message" v-if="message.is_reply" :sender="validateMessages(message).includes('message-sender')" @scroll-replied-message="scrollToRepliedMessage" />
           <!-- place reply here -->
 
-          <video controls :class="message.is_reply ? 'video-reply' : ''">
+          <video controls :class="message.is_reply ? 'video-reply' : ''" :id="`video-${index}`">
             <source :src="message.content.attachment" />
             Your browser does not support the video tag.
           </video>
@@ -225,7 +203,7 @@
       <MessageGrid ref="popup-2" :class="!validateMessages(message) ? 'robin-ml-5' : 'robin-mr-5'" v-if="Array.isArray(message) && message.filter((image) => !image.is_deleted).length > 1" :message="message.filter((image) => !image.is_deleted)" :read-receipts="readReceipts" :conversation="conversation" :message-popup="messagePopup" @open-preview="openPreview($event)" @open-modal="openModal()" @close-modal="closeModal()" @add-reaction="addReaction" v-on-clickaway="closeModal" :groupname-colors="groupnameColors" />
 
       <div class="robin-popup-container message" :class="{ top: (lastId === message._id || messages.length - 3 === index) && scroll }">
-        <MessagePopOver v-show="messagePopup.opened && validateMessages(message) && !Array.isArray(message)" @close-modal="closeModal()" @select-message="selectMessage()" @forward-message="$emit('forward-message')" @reply-message="$emit('reply-message', message)" ref="popup-3" :id="message._id" :message="message" />
+        <MessagePopOver v-show="messagePopup.opened && validateMessages(message) && !Array.isArray(message)" @close-modal="closeModal()" @select-message="selectMessage()" @forward-message="$emit('forward-message')" @reply-message="$emit('reply-message', message)" ref="popup-3" :id="message._id" :message="message" data-testid="message-popover" />
       </div>
     </div>
 
@@ -238,7 +216,6 @@
 <script lang="ts">
 import Vue, { PropType } from 'vue'
 import VLazyImage from 'v-lazy-image/v2'
-// import LinkPrevue from 'link-prevue'
 import { mixin as clickaway } from 'vue-clickaway'
 import store from '@/store/index'
 import Component from 'vue-class-component'
@@ -358,6 +335,7 @@ export default class MessageContent extends ComponentProps {
   files = [] as any
   leaveGroupActivity = [] as any
   reactions = { '❤️': [], '👍': [], '👎': [], '😂': [], '⁉️': [] } as any
+  videoPlayer = null as any
 
   get selectMessagesOpen () {
     return store.state.selectMessagesOpen
@@ -379,6 +357,14 @@ export default class MessageContent extends ComponentProps {
     })
     window.addEventListener('resize', this.onResize)
     this.injectHtml(this.message.content ? this.message.content.msg : null)
+
+    this.videoPlayer = document.getElementById(`video-${this.index}`)
+
+    if (this.videoPlayer) {
+      this.videoPlayer.addEventListener('play', (event: any) => {
+        this.pauseOtherVideo()
+      })
+    }
   }
 
   getMessageIndex () {
@@ -746,6 +732,16 @@ export default class MessageContent extends ComponentProps {
       }
     })
   }
+
+  pauseOtherVideo () {
+    const videoElements = document.querySelectorAll('video')
+
+    videoElements.forEach((video) => {
+      if (this.videoPlayer !== video) {
+        video.pause()
+      }
+    })
+  }
 }
 </script>
 
@@ -1085,7 +1081,7 @@ video.video-reply {
 
 .robin-message-sender .robin-message-bubble-document {
   display: flex;
-  align-items: center;
+  /* align-items: center; */
   border-radius: inherit;
   background-color: #fafafa;
 }

@@ -1,9 +1,9 @@
 <template>
-  <div v-if="unread > 0 && unread <= 9" class="robin-unread-messages" :style="{ 'background-color': backgroundColor }">
+  <div v-if="unread > 0 && unread <= 9" class="robin-unread-messages" :style="{ 'background-color': backgroundColor }" data-testid="unread-count">
     {{ unread }}
   </div>
-  <div v-else-if="unread > 9" class="robin-unread-messages" :style="{ 'background-color': backgroundColor }">9+</div>
-  <div v-else class="robin-unread-messages" :style="{ 'background-color': backgroundColor }"></div>
+  <div v-else-if="unread > 9" class="robin-unread-messages" :style="{ 'background-color': backgroundColor }" data-testid="unread-count">9+</div>
+  <div v-else class="robin-unread-messages" :style="{ 'background-color': backgroundColor }" data-testid="unread-count"></div>
 </template>
 
 <script lang="ts">

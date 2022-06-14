@@ -28,11 +28,11 @@
         </div>
       </div>
 
-      <div class="robin-options robin-ml-auto" @click="handleOpenPopUp()">
+      <div class="robin-options robin-ml-auto" @click="handleOpenPopUp()" data-testid="options">
         <IconButton name="openModalDot" @clickoutside="handleClosePopUp()" :to-emit="false" :to-click-away="true" />
 
         <div class="robin-popup-container" v-show="popUpState.opened">
-          <MessagePreviewPopOver ref="popup-1" @delete="deleteImage()" @download="downloadImage()" @forward="openForwardMessage()" @reply="replyImageMessage()" />
+          <MessagePreviewPopOver ref="popup-1" @delete="deleteImage()" @download="downloadImage()" @forward="openForwardMessage()" @reply="replyImageMessage()" data-testid="message-preview-popover" />
         </div>
       </div>
     </header>

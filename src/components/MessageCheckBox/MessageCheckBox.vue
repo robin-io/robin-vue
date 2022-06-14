@@ -1,6 +1,6 @@
 <template>
   <label class="robin-checkbox-container">
-    <input type="checkbox" name="checkbox" class="robin-checkbox-button" />
+    <input type="checkbox" name="checkbox" class="robin-checkbox-button" data-testid="checkbox" />
     <span class="robin-checkbox-control"></span>
   </label>
 </template>

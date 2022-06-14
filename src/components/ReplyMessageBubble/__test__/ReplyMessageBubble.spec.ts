@@ -3,7 +3,7 @@ import { render } from '@testing-library/vue'
 import ReplyMessageBubble from '../ReplyMessageBubble.vue'
 
 describe('ReplyMessageBubble component', () => {
-  test('', () => {
+  test('should render properties from prop', () => {
 
   })
 })

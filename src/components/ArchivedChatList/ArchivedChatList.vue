@@ -2,7 +2,7 @@
   <!-- eslint-disable vue/no-parsing-error -->
   <div class="robin-side-container" ref="popup-body">
     <header class="robin-header">
-      <IconButton data-testid="closemodal" name="remove" color="#000" @close="$emit('closemodal', 'primary')" emit="close" :to-emit="true" :to-click-away="false" />
+      <IconButton name="remove" color="#000" @close="$emit('closemodal', 'primary')" emit="close" :to-emit="true" :to-click-away="false" data-testid="closemodal" />
 
       <Content fontWeight="400" :fontSize="16" class="robin-ml-12"> Archived Messages </Content>
     </header>
@@ -29,14 +29,14 @@
             <Content as="p" fontWeight="normal" color="#8D9091" :fontSize="14" :lineHeight="18" @click.native="openConversation(conversation)"> {{ conversation.last_message && conversation.last_message.msg.length < 20 ? conversation.last_message.msg : conversation.last_message ? conversation.last_message.msg.substring(0, 20) + ' ...' : '' }} </Content>
 
             <div class="robin-mini-info-container robin-flex robin-flex-align-center">
-              <div class="robin-hidden robin-ml-10" data-testid="archive-handler" @click="handleOpenPopUp($event, conversation._id, `popup-container-${index}`, `popup-${index}`, index.toString())">
+              <div class="robin-hidden robin-ml-10" data-testid="chat-handler" @click="handleOpenPopUp($event, conversation._id, `popup-container-${index}`, `popup-${index}`, index.toString())">
                 <IconButton name="openModalDot" @clickoutside="handleClosePopUp(conversation._id, `popup-${index}`)" :to-emit="false" :to-click-away="true" />
               </div>
             </div>
           </div>
         </div>
 
-        <div class="robin-popup-container" data-testid="archive-popover" :ref="`popup-container-${index}`" v-show="popUpStates[index].opened">
+        <div class="robin-popup-container" data-testid="chat-popover" :ref="`popup-container-${index}`" v-show="popUpStates[index].opened">
           <ArchiveChatListPopOver :ref="`popup-${index}`" @unarchive-chat="unArchiveChat(conversation._id)" />
         </div>
       </div>

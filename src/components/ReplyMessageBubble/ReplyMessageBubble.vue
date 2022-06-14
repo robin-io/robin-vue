@@ -9,18 +9,6 @@
 
       <div class="robin-link-container" v-html="injectHtml()" v-if="(validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) || validateLinkInMessage().containsEmail || validateLinkInMessage().containsWebsite"></div>
     </div>
-
-    <!-- <link-prevue class="robin-link-preview" v-if="websiteRegex.test(getTextsInMessage().texts[getTextsInMessage().length - 1]) && !emailRegex.test(getTextsInMessage().texts[getTextsInMessage().length - 1])" :url="getTextsInMessage().texts[getTextsInMessage().length - 1].includes('http') || getTextsInMessage().texts[getTextsInMessage().length - 1].includes('https') ? getTextsInMessage().texts[getTextsInMessage().length - 1] : `https://${getTextsInMessage().texts[getTextsInMessage().length - 1]}`">
-      <template slot-scope="props">
-        <a :href="props.url" class="robin-card" v-show="props.img">
-          <img class="robin-card-img-top" :src="props.img" :alt="props.title" />
-        </a>
-      </template>
-
-      <template slot="loading">
-        <div></div>
-      </template>
-    </link-prevue> -->
   </div>
 
   <div :class="sender ? 'robin-reply-sender' : 'robin-reply-receiver'" class="robin-reply-message-bubble" v-else-if="getReplyMessage(message.reply_to) && imageRegex.test(checkAttachmentType(getReplyMessage(message.reply_to).content.attachment))" @click="scrollToRepliedMessage(message.reply_to)">
@@ -76,7 +64,6 @@
 <script lang="ts">
 import Vue, { PropType } from 'vue'
 import VLazyImage from 'v-lazy-image/v2'
-// import LinkPrevue from 'link-prevue'
 import store from '@/store/index'
 import Component from 'vue-class-component'
 import Content from '@/components/Content/Content.vue'
@@ -116,7 +103,6 @@ const ComponentProps = Vue.extend({
     Content,
     VLazyImage,
     AudioPlayer
-    // LinkPrevue
   }
 })
 export default class ReplyMessageBubble extends ComponentProps {
@@ -188,7 +174,7 @@ export default class ReplyMessageBubble extends ComponentProps {
       return message.find((element: any) => element._id === id)
     }
 
-    (message)
+    // (message)
 
     return message
   }

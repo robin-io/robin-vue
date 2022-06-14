@@ -12,22 +12,9 @@
       <Content :font-size="14" color="#101010">Forward</Content>
       <IconButton name="forward" :to-emit="false" :to-click-away="false" />
     </div>
-    <!-- <div class="robin-wrapper robin-w-100">
-      <Content :font-size="14" color="#101010">Reply</Content>
-      <RReplyButton />
-    </div>
-    <div class="robin-wrapper robin-w-100">
-      <Content :font-size="14" color="#101010">Forward</Content>
-      <RForwardButton />
-    </div>
-    <div class="robin-wrapper robin-w-100">
-      <Content :font-size="14" color="#101010">Star</Content>
-      <RStaButton />
-    </div> -->
     <div class="robin-wrapper robin-w-100" @click="$emit('delete')">
       <Content :font-size="14" color="#101010">Delete Message</Content>
       <IconButton name="delete" :to-emit="false" :to-click-away="false" />
-      <!-- <RDeleteButton /> -->
     </div>
   </div>
 </template>
@@ -36,31 +23,16 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import Content from '@/components/Content/Content.vue'
-// import RDeleteButton from '../RDeleteButton/RDeleteButton.vue'
-// import RForwardButton from '../RForwardButton/RForwardButton.vue'
 import IconButton from '@/components/IconButton/IconButton.vue'
-// import RImageDownloadButton from '../RImageDownloadButton/RImageDownloadButton.vue'
-
-const ComponentProps = Vue.extend({
-  props: {
-    conversation: {
-      type: Object,
-      default: () => {}
-    }
-  }
-})
 
 @Component({
   name: 'MessagePreviewPopOver',
   components: {
     Content,
-    // RDeleteButton,
-    // RForwardButton,
     IconButton
-    // RImageDownloadButton
   }
 })
-export default class MessagePreviewPopOver extends ComponentProps {
+export default class MessagePreviewPopOver extends Vue {
 }
 </script>
 

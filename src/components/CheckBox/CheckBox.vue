@@ -1,6 +1,6 @@
 <template>
   <label class="robin-checkbox-container">
-    <input type="checkbox" name="checkbox" class="robin-checkbox-button" v-model="checked" @click="$emit('clicked', checked)" />
+    <input type="checkbox" name="checkbox" class="robin-checkbox-button" v-model="checked" @click="$emit('clicked', checked)" data-testid="checkbox" />
     <span class="robin-checkbox-control"></span>
   </label>
 </template>

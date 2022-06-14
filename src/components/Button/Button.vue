@@ -1,5 +1,5 @@
 <template>
-  <button type="button" @click="$emit(emit)" class="robin-button" :style="getStyles">
+  <button type="button" @click="$emit(emit)" class="robin-button" :style="getStyles" data-testid="button">
     <slot>Archived</slot>
   </button>
 </template>

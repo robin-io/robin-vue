@@ -12,7 +12,7 @@
     <ViewProfile ref="popup-2" v-show="profileOpen" @close="closeMessageViewProfile()" />
     <GroupPrompt v-show="groupPromptOpen" @close="closeGroupPrompt()" />
     <EncryptionDetails v-show="encryptionDetailsOpen" @close="closeEncryptionDetails()" />
-    <audio :src="assets['notification']" ref="notification" @click="playAudio($event)">Your browser does not support the</audio>
+    <audio :src="assets['notification']" ref="notification" @click="playAudio($event)">Your browser does not support the audio feature</audio>
   </div>
 </template>
 
@@ -735,11 +735,12 @@ const ComponentProps = Vue.extend({
       },
       immediate: true
     },
-    // currentConversation: {
-    //   handler (val) {
-    //     this.profileKey += 1
-    //   }
-    // },
+    currentConversation: {
+      handler () {
+        console.log('changed conversation')
+        this.closeMessageViewProfile()
+      }
+    },
     time: {
       handler (val) {
         if (this.time === 9) {

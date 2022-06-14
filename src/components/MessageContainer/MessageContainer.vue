@@ -2,7 +2,7 @@
   <div class="robin-message-container" v-on-clickaway="onChatClickAway">
     <ChatHeader :conversation="conversation" :key="key" :selected-messages="selectedMessages" @delete-selected-messages="openPrompt('delete select')" />
 
-    <div class="robin-wrapper robin-flex robin-flex-column robin-flex-space-between" id="message-container" ref="message" @scroll="onScroll()">
+    <div class="robin-wrapper robin-flex robin-flex-column robin-flex-space-between" id="message-container" ref="message" @scroll="onScroll()" data-testid="message">
       <div class="robin-inner-wrapper-loader robin-flex robin-flex-align-center" id="infinite-loader" v-if="(isMessagesLoading && currentPage > 0) || (!offlineMessages.messages[conversation._id] && isMessagesLoading)">
         <div class="robin-spinner"></div>
       </div>
@@ -15,7 +15,7 @@
         <MessageContent v-for="(message, index) in messages" :ref="`message-${String(index)}`" :uncheck="uncheck" @open-preview="openImagePreview($event)" :key="`message-${String(index + key)}`" v-show="!message.is_deleted" :message="message" :conversation="conversation" :message-popup="getMessagePopup(index)" :messages="messages" :index="index" :scroll="scroll" :last-id="!Array.isArray(message) && messages.length - 3 < parseInt(String(index)) ? message._id : ''" :read-receipts="readReceipts" @toggle-check-action="toggleCheckAction($event, message)" @reply-message="replyMessage($event)" @forward-message="forwardMessage = true" @scroll-replied-message="scrollToRepliedMessage" />
       </div> -->
 
-      <div class="robin-scroll-to-bottom robin-bounceIn" v-show="scrollUp && scroll" @click="scrollToBottom()">
+      <div class="robin-scroll-to-bottom robin-bounceIn" v-show="scrollUp && scroll" @click="scrollToBottom()" data-testid="scroll-bottom-button">
         <i class="robin-material-icon"> arrow_downward </i>
       </div>
     </div>
@@ -611,13 +611,13 @@ export default class MessageContainer extends Vue {
 
   handleScrollUp () {
     const message = this.$refs.message as HTMLElement
-    const endOfScroll = Math.floor(message.scrollTop) > Math.floor(message.scrollHeight - message.clientHeight - 20)
+    const endOfScroll = Math.floor(message.scrollTop) > Math.floor((message.scrollHeight - message.clientHeight) - 20)
 
-    if (message.scrollTop > this.lastScroll) {
-      if (endOfScroll) {
-        this.scrollUp = false
-      }
-    } else {
+    if (endOfScroll) {
+      this.scrollUp = false
+    }
+
+    if (message.scrollTop <= this.lastScroll) {
       if (!this.isMessagesLoading) {
         this.scrollUp = true
       }

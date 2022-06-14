@@ -1,5 +1,5 @@
 <template>
-  <div class="robin-svg" v-html="iconItem[name].innerHTML"></div>
+  <div class="robin-svg" v-if="iconItem[name]" v-html="iconItem[name].innerHTML" data-testid="icon"></div>
 </template>
 
 <script lang="ts">

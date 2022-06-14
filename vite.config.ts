@@ -38,7 +38,9 @@ export default defineConfig({
           'robin.io-js': 'robin.io-js',
           'vue-toast-notification': 'vue-toast-notification',
           'link-prevue': 'link-prevue',
-          'vue-clickaway': 'vue-clickaway'
+          'vue-clickaway': 'vue-clickaway',
+          cypress: 'cypress',
+          '@testing-library/user-event': '@testing-library/user-event'
         }
       }
     }

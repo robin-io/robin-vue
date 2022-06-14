@@ -1,8 +1,8 @@
 <template>
-  <button type="button" class="robin-button" :class="focusType" v-if="toEmit && toClickAway" @click="$emit(emit)" v-on-clickaway="emitClickAway" :style="iconItem[name].buttonStyle" v-html="iconItem[name].innerHTML" @focus="focused = true" @blur="focused = false" ref="button"></button>
-  <button type="button" class="robin-button" :class="focusType" v-else-if="toEmit && !toClickAway" @click="$emit(emit)" :style="iconItem[name].buttonStyle" v-html="iconItem[name].innerHTML" @focus="focused = true" @blur="focused = false" ref="button"></button>
-  <button type="button" class="robin-button" :class="focusType" v-else-if="!toEmit && !toClickAway" :style="iconItem[name].buttonStyle" v-html="iconItem[name].innerHTML" @focus="focused = true" @blur="focused = false" ref="button"></button>
-  <button type="button" class="robin-button" :class="focusType" v-else v-on-clickaway="emitClickAway" :style="iconItem[name].buttonStyle" v-html="iconItem[name].innerHTML" @focus="focused = true" @blur="focused = false" ref="button"></button>
+  <button type="button" class="robin-button" :class="focusType" v-if="toEmit && toClickAway" @click="$emit(emit)" v-on-clickaway="emitClickAway" :style="iconItem[name].buttonStyle" v-html="iconItem[name].innerHTML" @focus="focused = true" @blur="focused = false" ref="button" data-testid="button"></button>
+  <button type="button" class="robin-button" :class="focusType" v-else-if="toEmit && !toClickAway" @click="$emit(emit)" :style="iconItem[name].buttonStyle" v-html="iconItem[name].innerHTML" @focus="focused = true" @blur="focused = false" ref="button" data-testid="button"></button>
+  <button type="button" class="robin-button" :class="focusType" v-else-if="!toEmit && !toClickAway" :style="iconItem[name].buttonStyle" v-html="iconItem[name].innerHTML" @focus="focused = true" @blur="focused = false" ref="button" data-testid="button"></button>
+  <button type="button" class="robin-button" :class="focusType" v-else v-on-clickaway="emitClickAway" :style="iconItem[name].buttonStyle" v-html="iconItem[name].innerHTML" @focus="focused = true" @blur="focused = false" ref="button" data-testid="button"></button>
 </template>
 
 <script lang="ts">
@@ -18,7 +18,7 @@ const ComponentProps = Vue.extend({
   props: {
     name: {
       type: String as PropType<string>,
-      default: 'attachFile'
+      default: 'attachFileOpen'
     },
     emit: {
       type: String as PropType<string>,

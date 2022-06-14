@@ -22,7 +22,8 @@ interface State {
   exitGroup: boolean,
   participantToken: string,
   removeParticipant: boolean,
-  isParticipantModerator: boolean
+  isParticipantModerator: boolean,
+  currentAudioPlaying: number
 }
 
 const state: State = {
@@ -43,7 +44,8 @@ const state: State = {
   exitGroup: false,
   participantToken: '',
   removeParticipant: false,
-  isParticipantModerator: false
+  isParticipantModerator: false,
+  currentAudioPlaying: 0
 }
 
 const store = {

@@ -1,5 +1,5 @@
 <template>
-  <button class="robin-button" type="button" @click="$emit('clicked')" @keyup.enter="$emit('clicked')">
+  <button class="robin-button" type="button" @click="$emit('clicked')" @keyup.enter="$emit('clicked')" data-testid="camera-button">
     <SvgIcon name="camera" />
   </button>
 </template>
@@ -27,7 +27,7 @@ const ComponentProps = Vue.extend({
 export default class CameraButton extends ComponentProps {
   created () {
     document.addEventListener('keyup', (event: any) => {
-      (event)
+      // (event)
       if (event.keyCode === 13 && this.cameraOpened) {
         this.$emit('clicked')
       }

@@ -80,12 +80,12 @@
 
     <div class="robin-message-box-inner" @keydown.enter.exact.prevent="send($event)" tabindex="1">
       <!-- v-show="text.trim() == '' && files.length < 1 && !isUploading" -->
-      <div class="robin-mr-8" @click="handleOpenPopUp()" v-if="!isRecording">
+      <div class="robin-mr-8" @click="toggleAttachFilePopup()" v-if="!isRecording" data-testid="attach-file-button">
         <IconButton name="attachFileClose" v-if="!popUpState.opened" :to-click-away="false" :to-emit="false" />
-        <IconButton name="attachFileOpen" v-else @clicked="handleClosePopUp()" @clickoutside="handleClosePopUp()" :to-click-away="true" :to-emit="true" />
+        <IconButton name="attachFileOpen" v-else @clickoutside="handleClosePopUp()" :to-click-away="true" :to-emit="false" />
       </div>
       <div class="robin-ar-indicator robin-mr-8" v-else>
-        <IconButton name="remove3" :to-click-away="false" :to-emit="true" @clicked="toggleRecorder(false)" />
+        <IconButton name="remove3" :to-click-away="false" :to-emit="true" @clicked="toggleRecorder(false)" data-testid="record-stop-button" />
 
         <div class="robin-ar-dot"></div>
       </div>
@@ -94,24 +94,24 @@
           <IconButton name="emoji" @clicked="!popUpState.emojiOpened ? handleEmojiOpenPopUp() : handleEmojiClosePopUp()" :active="popUpState.emojiOpened" :to-emit="true" :to-click-away="false" />
         </div>
         <div class="robin-input-wrapper" tabindex="1" v-show="!isRecording">
-          <textarea class="robin-input" ref="input" @input="enterText($event)" :value="text" @keydown.esc="escapeText()" placeholder="Type your message..."></textarea>
+          <textarea class="robin-input" ref="input" @input="enterText($event)" :value="text" @keydown.esc="escapeText()" placeholder="Type your message..." data-testid="input"></textarea>
         </div>
       </div>
       <div class="robin-flex robin-flex-align-center robin-ml-auto robin-pl-21 robin-come-up" v-show="(text.trim().length > 0 || files.length > 0 || isRecording) && !isUploading">
-        <div class="robin-ar-time robin-mr-8" v-show="isRecording">
+        <div class="robin-ar-time robin-mr-8" v-show="isRecording" data-testid="current-time">
           {{ currentTime }}
         </div>
-        <IconButton name="send" @sendmessage="send(null)" emit="sendmessage" :to-emit="true" :to-click-away="false" />
+        <IconButton name="send" @sendmessage="send(null)" emit="sendmessage" :to-emit="true" :to-click-away="false" data-testid="send-button" />
       </div>
       <div class="robin-send-button-loader robin-ml-21" v-show="isUploading">
         <div class="robin-spinner2"></div>
       </div>
-      <div class="robin-ml-8" v-show="text.trim() == '' && files.length < 1 && !isUploading && !isRecording" @click="toggleRecorder(true)">
+      <div class="robin-ml-8" v-show="text.trim() == '' && files.length < 1 && !isUploading && !isRecording" @click="toggleRecorder(true)" data-testid="record-start-button">
         <IconButton name="voice" :to-click-away="false" :to-emit="false" />
       </div>
 
       <div class="robin-popup-container" v-show="popUpState.opened">
-        <AttachFilePopOver ref="popup-4" @file-upload="handleFileUpload" @open-camera="$emit('open-camera')" />
+        <AttachFilePopOver ref="popup-4" @file-upload="handleFileUpload" @open-camera="$emit('open-camera')" data-testid="attach-file-popover" />
       </div>
     </div>
   </div>
@@ -525,8 +525,8 @@ export default class MessageInputBar extends ComponentProps {
     }, 100)
   }
 
-  handleOpenPopUp (): void {
-    this.popUpState.opened = true
+  toggleAttachFilePopup (): void {
+    this.popUpState.opened = !this.popUpState.opened
   }
 
   handleClosePopUp (): void {

@@ -34,13 +34,13 @@
       <Button color="#000" class="robin-ml-5" emit="clicked" @clicked="cancelSelect()">Select Messages</Button>
     </div>
 
-    <IconButton v-show="selectMessagesOpen && selectedMessages.length > 0" name="trash" :to-emit="true" :to-click-away="false" emit="delete" @delete="deleteSelectedMessages()" class="robin-ml-auto" />
+    <IconButton v-show="selectMessagesOpen && selectedMessages.length > 0" name="trash" :to-emit="true" :to-click-away="false" emit="delete" @delete="deleteSelectedMessages()" class="robin-ml-auto" data-testid="delete-button" />
 
     <div class="robin-options robin-ml-auto" @click="handleOpenPopUp($event, conversation.is_group ? 'popup-1' : 'popup-2')" v-show="!selectMessagesOpen">
       <IconButton @clickoutside="handleClosePopUp(conversation.is_group ? 'popup-1' : 'popup-2')" :to-click-away="true" :to-emit="false" name="openModalDot" />
 
       <div class="robin-popup-container" ref="popup-container" v-show="popUpState.opened && !selectMessagesOpen">
-        <GroupMessagePopOver ref="popup-1" v-show="conversation.is_group" :conversation="conversation" @view-group-profile="openProfile()" />
+        <GroupMessagePopOver ref="popup-1" v-show="conversation.is_group" @view-group-profile="openProfile()" />
 
         <PersonalMessagePopOver ref="popup-2" v-show="!conversation.is_group" @view-profile="openProfile()" />
       </div>

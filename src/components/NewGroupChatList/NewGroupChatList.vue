@@ -17,7 +17,7 @@
 
     <div class="robin-select robin-flex robin-flex-align-center robin-flex-justify-end robin-w-100 robin-pl-16 robin-pr-16 robin-pt-24 robin-pb-23">
       <Content color="#9999BC"> Select All </Content>
-      <CheckBox class="robin-ml-8" @clicked="toggleSelectAllCheckAction($event)" />
+      <CheckBox class="robin-ml-8" @clicked="toggleSelectAllCheckAction($event)" data-testid="select-all-button" />
     </div>
 
     <div class="robin-contact-container robin-overflow-y-auto">
@@ -34,10 +34,10 @@
 
             <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4˝ robin-flex-1">
               <div class="robin-flex">
-                <Content :font-size="14" :line-height="18">{{ user.userName }}</Content>
+                <Content :font-size="14" :line-height="18" data-testid="content">{{ user.userName }}</Content>
               </div>
               <div class="robin-ml-auto">
-                <CheckBox :key="addIndexToCheckBoxState(userIndex, checkBoxKeyState)" @clicked="toggleCheckAction($event, user)" ref="checkbox-comp" />
+                <CheckBox :key="addIndexToCheckBoxState(userIndex, checkBoxKeyState)" @clicked="toggleCheckAction($event, user)" ref="checkbox-comp" data-testid="checkbox" />
               </div>
             </div>
           </div>

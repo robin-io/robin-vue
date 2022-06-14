@@ -1,6 +1,6 @@
 <template>
   <div class="robin-popup robin-zoomIn" ref="popup-body">
-    <div class="robin-wrapper robin-w-100" @click="$emit('view-group-profile')">
+    <div class="robin-wrapper robin-w-100" @click="$emit('view-group-profile')" data-testid="view-group-profile">
       <Content :font-size="14" as="span" color="#51545C">Group Info</Content>
 
       <SvgIcon name="user-circle" />
@@ -10,9 +10,6 @@
 
       <SvgIcon name="check-circle" />
     </div>
-    <!-- <div class="robin-wrapper robin-w-100">
-      <Content :font-size="14" as="span" color="#51545C">Mute Group</Content>
-    </div> -->
     <div class="robin-wrapper robin-w-100" @click="handleLeaveGroup()">
       <Content :font-size="14" as="span" color="#51545C">Leave Group</Content>
 
@@ -28,15 +25,6 @@ import SvgIcon from '@/components/SvgIcon/SvgIcon.vue'
 import store from '@/store/index'
 import Content from '@/components/Content/Content.vue'
 
-const ComponentProps = Vue.extend({
-  props: {
-    conversation: {
-      type: Object,
-      default: () => {}
-    }
-  }
-})
-
 @Component({
   name: 'GroupMessagePopOver',
   components: {
@@ -44,7 +32,7 @@ const ComponentProps = Vue.extend({
     SvgIcon
   }
 })
-export default class GroupMessagePopOver extends ComponentProps {
+export default class GroupMessagePopOver extends Vue {
   handleSelectMessages () {
     store.setState('selectMessagesOpen', true)
   }

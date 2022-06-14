@@ -279,25 +279,9 @@ export default class ViewProfile extends Vue {
     }
   }
 
-  // getGroupCreator () {
-  //   const groupchatCreator = this.currentConversation.participants.find((participant: { is_moderator: any }) => participant.is_moderator) as any
-  //   if (groupchatCreator) {
-  //     const user = this.$robin_users.find((user) => user.user_token === groupchatCreator.user_token)
-
-  //     if (user && user.userToken !== this.$user_token) {
-  //       return user.userName
-  //     } else {
-  //       return this.$senderName
-  //     }
-  //   }
-  // }
-
   handleConversationMessages () {
     EventBus.$on('messages.get', (messages: any) => {
       this.messages = [...messages]
-      if (this.currentConversation.is_group) {
-        // this.getGroupParticipants()
-      }
     })
   }
 
@@ -365,22 +349,6 @@ export default class ViewProfile extends Vue {
   }
 
   handleRemoveGroupParticipant () {
-    // EventBus.$on('participant.left.group', (user: any) => {
-    //   const index = this.currentConversation.participants.findIndex((participant: any) => participant.user_token === user.user_token)
-
-    //   this.currentConversation.participants.splice(index, 1)
-    //   this.$toast.open({
-    //     message: 'You removed' + ' ' + this.getUser(user.user_token).userName,
-    //     type: 'success',
-    //     position: 'bottom-left'
-    //   })
-
-    //   this.$forceUpdate()
-    //   this.closePrompt()
-
-    //   this.participantsToShow = 4
-    // })
-
     EventBus.$on('remove.group.participant', (value: any) => {
       if (value.participant.user_token !== this.$user_token) {
         const index = this.currentConversation.participants.findIndex((participant: any) => participant.user_token === value.participant.user_token)
@@ -400,18 +368,12 @@ export default class ViewProfile extends Vue {
     EventBus.$on('participant.assigned.moderator', (conversation: any) => {
       store.setState('currentConversation', conversation)
       this.$forceUpdate()
-      // this.getGroupParticipants()
     })
   }
 
   addGroupParticipant () {
     EventBus.$emit('show.new.group')
     EventBus.$emit('edit.participants.group', {
-      // group_name: this.currentConversation.name,
-      // group_icon: {
-      //   name: 'groupicon',
-      //   localUrl: this.currentConversation.group_icon
-      // },
       conversation_id: this.currentConversation._id
     })
   }
