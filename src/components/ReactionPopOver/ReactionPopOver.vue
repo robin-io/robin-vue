@@ -1,11 +1,11 @@
 <template>
   <div class="robin-popup robin-zoomIn" ref="popup-body">
     <div class="robin-reaction-container">
-      <Button :font-size="18" emit="click" @click="$emit('reaction', '❤️')">❤️</Button>
-      <Button :font-size="18" emit="click" @click="$emit('reaction', '👍')">👍</Button>
-      <Button :font-size="18" emit="click" @click="$emit('reaction', '👎')">👎</Button>
-      <Button :font-size="18" emit="click" @click="$emit('reaction', '😂')">😂</Button>
-      <Button :font-size="18" color="initial" emit="click" @click="$emit('reaction', '⁉️')">⁉️</Button>
+      <Button :font-size="18" emit="click" @click="$emit('reaction', '❤️')" data-testid="heart">❤️</Button>
+      <Button :font-size="18" emit="click" @click="$emit('reaction', '👍')" data-testid="thumbs-up">👍</Button>
+      <Button :font-size="18" emit="click" @click="$emit('reaction', '👎')" data-testid="thumbs-down">👎</Button>
+      <Button :font-size="18" emit="click" @click="$emit('reaction', '😂')" data-testid="laughter">😂</Button>
+      <Button :font-size="18" color="initial" emit="click" @click="$emit('reaction', '⁉️')" data-testid="question">⁉️</Button>
     </div>
   </div>
 </template>

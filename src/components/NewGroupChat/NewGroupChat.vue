@@ -12,11 +12,11 @@
 
     <Content as="label" for-ref="group-icon-upload" class="robin-clickable">
       <div class="robin-group-image robin-mb-7" v-show="!icon.name">
-        <input type="file" :style="{ display: 'none' }" :accept="acceptedVisualFiles" @change="handleFileChange($event.target.files)" @click="resetFileTarget($event)" id="group-icon-upload" />
+        <input type="file" :style="{ display: 'none' }" :accept="acceptedVisualFiles" @change="handleFileChange($event.target.files)" @click="resetFileTarget($event)" id="group-icon-upload" data-testid="group-icon-upload" />
         <Content color="#fff" :fontSize="24">RG</Content>
       </div>
 
-      <img class="robin-group-image robin-mb-7" :src="icon.localUrl" :alt="icon.name" v-show="icon.name">
+      <img class="robin-group-image robin-mb-7" :src="icon.localUrl" :alt="icon.name" v-show="icon.name" data-testid="image">
 
       <Content fontWeight="400" :fontSize="14" class="robin-mb-32">Tap To Add Group Image</Content>
     </Content>
@@ -84,8 +84,24 @@ export default class NewGroupChatList extends ComponentProps {
     event.target.value = ''
   }
 
-  handleFileChange (file: any): void {
-    const fileURL = URL.createObjectURL(file[0])
+  toBase64 (file: File): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+      const reader = new FileReader()
+      reader.readAsDataURL(file)
+      reader.onload = () => resolve(reader.result?.toString() || '')
+      reader.onerror = error => reject(error)
+    })
+  }
+
+  async handleFileChange (file: any): Promise<void> {
+    let fileURL
+
+    try {
+      fileURL = await this.toBase64(file[0])
+    } catch (e) {
+      console.warn(e)
+    }
+
     const typeIndex = file[0].name.lastIndexOf('.')
 
     if (file[0].size < 5000001) {

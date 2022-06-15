@@ -2,7 +2,7 @@
   <div class="robin-side-container">
     <header class="robin-header">
       <img :src="assets['logo']" alt="logo" />
-      <IconButton name="edit" @edit="openEdit()" emit="edit" :to-emit="true" :to-click-away="false" :color="'#fff'" />
+      <IconButton name="edit" @edit="openEdit()" emit="edit" :to-emit="true" :to-click-away="false" :color="'#fff'" data-testid="edit" />
     </header>
 
     <div class="robin-wrapper robin-w-100">

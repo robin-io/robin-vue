@@ -1,18 +1,18 @@
 <template>
   <div class="robin-popup robin-zoomIn" ref="popup-body">
-    <div class="robin-wrapper robin-w-100" @click="$emit('reply-message')">
+    <div class="robin-wrapper robin-w-100" @click="$emit('reply-message')" data-testid="reply-button">
       <Content :font-size="14" color="#51545C">Reply Message</Content>
       <IconButton name="reply" :to-emit="false" :to-click-away="false" />
     </div>
-    <div class="robin-wrapper robin-w-100" @click="forwardMessage()">
+    <div class="robin-wrapper robin-w-100" @click="forwardMessage()" data-testid="forward-button">
       <Content :font-size="14" color="#51545C">Forward</Content>
       <IconButton name="forward" :to-emit="false" :to-click-away="false" />
     </div>
-    <div class="robin-wrapper robin-w-100" @click="selectMessage()">
+    <div class="robin-wrapper robin-w-100" @click="selectMessage()" data-testid="select-button">
       <Content :font-size="14" color="#51545C">Select Message</Content>
       <IconButton name="select" :to-emit="false" :to-click-away="false" />
     </div>
-    <div class="robin-wrapper robin-w-100" @click="deleteMessage()">
+    <div class="robin-wrapper robin-w-100" @click="deleteMessage()" data-testid="delete-button">
       <Content :font-size="14" color="#51545C">Delete Message</Content>
       <IconButton name="delete" :to-emit="false" :to-click-away="false" />
     </div>

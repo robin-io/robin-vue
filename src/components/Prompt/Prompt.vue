@@ -8,11 +8,11 @@
       </div>
 
       <div class="robin-button-container">
-        <button class="robin-button cancel" @click="$emit('closemodal')">
+        <button class="robin-button cancel" @click="$emit('closemodal')" data-testid="cancel-button">
           <Content color="#D53120">Cancel</Content>
         </button>
 
-        <button class="robin-button proceed" @click="$emit('proceed')">
+        <button class="robin-button proceed" @click="$emit('proceed')" data-testid="proceed-button">
           <Content color="#15AE73">Proceed</Content>
         </button>
       </div>

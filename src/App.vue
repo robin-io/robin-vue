@@ -737,7 +737,6 @@ const ComponentProps = Vue.extend({
     },
     currentConversation: {
       handler () {
-        console.log('changed conversation')
         this.closeMessageViewProfile()
       }
     },

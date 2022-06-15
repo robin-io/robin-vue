@@ -20,11 +20,11 @@
       </div>
 
       <div class="robin-nav-container">
-        <div :class="{ active: nav == 'Media' }" @click="nav = 'Media'">Media</div>
+        <div :class="{ active: nav == 'Media' }" @click="nav = 'Media'" data-testid="media-nav-button">Media</div>
 
-        <div :class="{ active: nav == 'Links' }" @click="nav = 'Links'">Links</div>
+        <div :class="{ active: nav == 'Links' }" @click="nav = 'Links'" data-testid="link-nav-button">Links</div>
 
-        <div :class="{ active: nav == 'Docs' }" @click="nav = 'Docs'">Docs</div>
+        <div :class="{ active: nav == 'Docs' }" @click="nav = 'Docs'" data-testid="doc-nav-button">Docs</div>
       </div>
 
       <!-- Media -->
@@ -191,7 +191,7 @@ import EventBus from '@/event-bus'
 })
 export default class ViewProfile extends Vue {
   nav = 'Media'
-  isProfileLoading = true
+  isProfileLoading = false
   messages = [] as Array<any>
   media = [] as Array<any>
   links = [] as Array<any>
@@ -270,6 +270,8 @@ export default class ViewProfile extends Vue {
     this.isProfileLoading = true
 
     const res = await this.$robin.getConversationDetails(this.currentConversation._id)
+
+    console.log('dsd')
 
     if (res && !res.error) {
       this.isProfileLoading = false
