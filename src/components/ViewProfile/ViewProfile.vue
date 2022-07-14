@@ -275,6 +275,8 @@ export default class ViewProfile extends Vue {
 
     const res = await this.$robin.getConversationDetails(this.currentConversation._id, this.$user_token)
 
+    console.log('dsd')
+
     if (res && !res.error) {
       this.isProfileLoading = false
       this.media = res.data.photos ? [...res.data.photos] : []
