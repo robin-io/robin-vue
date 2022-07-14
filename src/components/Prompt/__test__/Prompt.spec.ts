@@ -1,4 +1,4 @@
-import { render } from '@testing-library/vue'
+import { render, fireEvent } from '@testing-library/vue'
 import Prompt from '../Prompt.vue'
 
 describe('Prompt component', () => {
@@ -10,5 +10,15 @@ describe('Prompt component', () => {
     })
 
     getByText('Delete Message')
+  })
+
+  test('should emit event', async () => {
+    const { getByTestId, emitted } = render(Prompt)
+
+    await fireEvent.click(getByTestId('cancel-button'))
+    await fireEvent.click(getByTestId('proceed-button'))
+
+    expect(emitted().closemodal).toHaveProperty('length', 1)
+    expect(emitted().proceed).toHaveProperty('length', 1)
   })
 })

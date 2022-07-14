@@ -5,12 +5,12 @@
 
       <SvgIcon name="user-circle" />
     </div>
-    <div class="robin-wrapper robin-w-100" @click="handleSelectMessages()">
+    <div class="robin-wrapper robin-w-100" @click="handleSelectMessages()" v-if="isForwardMessagesEnabled || isDeleteMessagesEnabled || (isForwardMessagesEnabled && isDeleteMessagesEnabled)">
       <Content :font-size="14" color="#51545C">Select Messages</Content>
 
       <SvgIcon name="check-circle" />
     </div>
-    <div class="robin-wrapper robin-w-100" @click="handleClearMessages()">
+    <div class="robin-wrapper robin-w-100" @click="handleClearMessages()" v-if="isDeleteMessagesEnabled">
       <Content :font-size="14" color="#51545C">Delete Chat</Content>
 
       <SvgIcon name="trash" />
@@ -24,8 +24,8 @@
 <script lang="ts">
 import Vue from 'vue'
 import Component from 'vue-class-component'
-import SvgIcon from '@/components/SvgIcon/SvgIcon.vue'
 import store from '@/store/index'
+import SvgIcon from '@/components/SvgIcon/SvgIcon.vue'
 import Content from '@/components/Content/Content.vue'
 
 @Component({
@@ -36,6 +36,14 @@ import Content from '@/components/Content/Content.vue'
   }
 })
 export default class PersonalMessagePopOver extends Vue {
+  get isDeleteMessagesEnabled () {
+    return store.state.deleteMessagesEnabled
+  }
+
+  get isForwardMessagesEnabled () {
+    return store.state.forwardMessagesEnabled
+  }
+
   handleSelectMessages () {
     store.setState('selectMessagesOpen', true)
   }
@@ -49,13 +57,13 @@ export default class PersonalMessagePopOver extends Vue {
 <style scoped>
 .robin-popup {
   width: 174px;
-  border: 1px solid #F5F7FC;
+  border: 1px solid #f5f7fc;
   border-radius: 6px;
   background-color: #fff;
 }
 
 .robin-wrapper {
-  border-top: 1px solid #EFEFEF;
+  border-top: 1px solid #efefef;
   padding: 0.813rem 1rem;
   display: flex;
   align-items: center;

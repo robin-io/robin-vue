@@ -1,10 +1,18 @@
 <template>
   <div class="robin-chat-list-container">
-    <PrimaryChatList v-show="$conversations.length > 0 || isPageLoading" :key="key" @search="searchedData($event)" :regular-conversations="regularConversations" :archived-conversations="archivedConversations" @opennewchatmodal="openModal('slide-1', $event)" @openarchivedchatmodal="openModal('slide-3', $event)" @closemodal="closeModal('slide-1', $event)" @refresh="refresh" />
+    <PrimaryChatList v-show="$conversations.length > 0 || isPageLoading" :key="key" @search="searchedData($event)" :regular-conversations="regularConversations" :archived-conversations="archivedConversations" @opennewchatmodal="openModal('slide-1', $event)" @openarchivedchatmodal="openModal('slide-3', $event)" @closemodal="closeModal('slide-1', $event)" @refresh="refresh">
+      <template #chat-list-header>
+        <slot name="chat-list-header"></slot>
+      </template>
+    </PrimaryChatList>
 
     <NewChatList :key="key + 1" ref="slide-1" v-show="sideBarType == 'newchat'" :robin-users="$robin_users" @openmodal="openModal('slide-2', $event)" @closemodal="closeModal('slide-1', $event)" />
 
-    <NoChatList v-show="$conversations.length < 1 && !isPageLoading" @opennewchatmodal="openModal('slide-1', $event)" />
+    <NoChatList v-show="$conversations.length < 1 && !isPageLoading" @opennewchatmodal="openModal('slide-1', $event)">
+      <template #chat-list-header>
+        <slot name="chat-list-header"></slot>
+      </template>
+    </NoChatList>
 
     <NewGroupChat :key="key + 2" ref="slide-2" v-show="sideBarType == 'newgroup'" @openmodal="openModal('slide-3', $event)" @set-groupname="setGroupName($event)" @set-groupicon="setGroupIcon($event)" @closemodal="closeModal('slide-2', $event)" :group-name="groupName" />
 
@@ -201,6 +209,7 @@ export default class SideContainer extends Vue {
     const res = await this.$robin.getUserToken({
       user_token: this.$user_token
     })
+
     if (!res.error) {
       this.conversations = res.data.conversations == null ? [] : res.data.conversations
       Vue.prototype.$conversations = res.data.conversations == null ? [] : res.data.conversations

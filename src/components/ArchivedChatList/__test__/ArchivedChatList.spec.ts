@@ -3,12 +3,12 @@ import ArchivedChatList from '../ArchivedChatList.vue'
 import { archivedConversations } from '@/data'
 
 describe('ArchivedChatList component', () => {
-  // test('should emits closemodal event with data when iconbutton component is clicked', () => {
-  //   const { getByTestId, emitted } = render(ArchivedChatList)
-  //   const el = getByTestId('closemodal')
-  //   fireEvent.click(el)
-  //   expect(emitted().closemodal[0][0] === 'primary')
-  // })
+  test('should emits closemodal event with data when iconbutton component is clicked', () => {
+    const { getByTestId, emitted } = render(ArchivedChatList)
+    const el = getByTestId('closemodal')
+    fireEvent.click(el)
+    expect(emitted().closemodal[0][0] === 'primary')
+  })
 
   test('should render properties in props', () => {
     const { getByText, getByTestId, queryByTestId } = render(ArchivedChatList, {

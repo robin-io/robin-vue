@@ -1,16 +1,20 @@
- <template>
+<template>
   <!-- eslint-disable vue/no-parsing-error -->
   <div class="robin-side-container">
     <header class="robin-header">
-      <img :src="assets['logo']" alt="logo" />
+      <img v-if="$logo === ''" :src="assets['logo']" alt="logo" />
+      <img v-else class="custom" :src="$logo" alt="logo" />
 
-      <IconButton name="edit" @edit="openEdit()" emit="edit" :to-emit="true" :to-click-away="false" :color="'#fff'" />
+      <div class="robin-wrapper">
+        <IconButton name="edit" @edit="openEdit()" emit="edit" :to-emit="true" :to-click-away="false" :color="'#fff'" v-if="isCreateChatEnabled" />
+        <slot name="chat-list-header"></slot>
+      </div>
     </header>
-    <div class="robin-wrapper robin-w-100 robin-pl-16 robin-pr-16">
+    <div class="robin-wrapper robin-w-100 robin-pl-16 robin-pr-16 robin-pb-16">
       <SearchBar @user-typing="searchConversation($event)" :loading="isLoading" :key="key" />
     </div>
 
-    <Button class="robin-wrapper robin-pl-16 robin-pr-16 robin-flex robin-flex-space-between robin-w-100 robin-pt-16 robin-pb-12" @archived="openArchivedChat()">
+    <Button class="robin-wrapper robin-pl-16 robin-pr-16 robin-flex robin-flex-space-between robin-w-100 robin-pt-16 robin-pb-12" @archived="openArchivedChat()" v-if="isArchiveChatEnabled">
       <div class="robin-flex robin-flex-align-center" font-weight="400" v-show="archivedConversations.length > 0">
         <SvgIcon name="mailbox" color="#15AE73" />
 
@@ -68,7 +72,7 @@
         </div>
 
         <div class="robin-popup-container" :ref="`popup-container-${index}`" v-show="popUpStates[index] ? popUpStates[index].opened : false">
-          <ChatListPopOver :ref="`popup-${index}`" :conversation="conversation" @archive-chat="handleArchiveChat(conversation)" @delete-conversation="handleDeleteConversation(conversation)"  @mark-as-read="handleMarkAsRead(conversation)" @mark-as-unread="handleMarkAsUnread(conversation)" />
+          <ChatListPopOver :ref="`popup-${index}`" :conversation="conversation" @archive-chat="handleArchiveChat(conversation)" @delete-conversation="handleDeleteConversation(conversation)" @mark-as-read="handleMarkAsRead(conversation)" @mark-as-unread="handleMarkAsUnread(conversation)" />
         </div>
       </div>
     </div>
@@ -184,13 +188,21 @@ export default class PrimaryChatList extends ComponentProps {
     return store.state.currentConversation
   }
 
+  get isCreateChatEnabled () {
+    return store.state.createChatEnabled
+  }
+
+  get isArchiveChatEnabled () {
+    return store.state.archiveChatEnabled
+  }
+
   get assets (): any {
     return assets
   }
 
   onGroupIconUpdate (): void {
     EventBus.$on('group.icon.update', (conversation: any) => {
-      const index = this.conversations.findIndex(item => item._id === conversation._id)
+      const index = this.conversations.findIndex((item) => item._id === conversation._id)
       this.conversations[index] = conversation
       this.$forceUpdate()
     })
@@ -385,12 +397,17 @@ export default class PrimaryChatList extends ComponentProps {
   z-index: 1; */
 }
 
-header {
+.robin-header {
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: clamp(6%, 2vh, 3.563rem) clamp(2%, 4vw, 1.563rem) 1.763rem;
+}
+
+.robin-header img.custom:first-child {
+  width: 36px;
+  height: 36px;
 }
 
 /* .robin-wrapper {

@@ -1,18 +1,18 @@
 <template>
   <div class="robin-popup robin-zoomIn" ref="popup-body">
-    <div class="robin-wrapper robin-w-100" @click="$emit('download')">
+    <div class="robin-wrapper robin-w-100" @click="$emit('download')" data-testid="download-button">
       <Content :font-size="14" color="#101010">Save Image</Content>
       <IconButton name="imageDownload" :to-emit="false" :to-click-away="false" />
     </div>
-    <div class="robin-wrapper robin-w-100" @click="$emit('reply')">
+    <div class="robin-wrapper robin-w-100" @click="$emit('reply')" data-testid="reply-button">
       <Content :font-size="14" color="#101010">Reply Message</Content>
       <IconButton name="reply" :to-emit="false" :to-click-away="false" />
     </div>
-    <div class="robin-wrapper robin-w-100" @click="$emit('forward')">
+    <div class="robin-wrapper robin-w-100" @click="$emit('forward')" data-testid="forward-button">
       <Content :font-size="14" color="#101010">Forward</Content>
       <IconButton name="forward" :to-emit="false" :to-click-away="false" />
     </div>
-    <div class="robin-wrapper robin-w-100" @click="$emit('delete')">
+    <div class="robin-wrapper robin-w-100" @click="$emit('delete')" data-testid="delete-button">
       <Content :font-size="14" color="#101010">Delete Message</Content>
       <IconButton name="delete" :to-emit="false" :to-click-away="false" />
     </div>

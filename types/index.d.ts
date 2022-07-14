@@ -6,6 +6,7 @@ declare module 'vue/types/vue' {
     $robin: Robin
     $conn: WebSocket
     $user_token: string
+    $logo: string
     $channel: string
     $robin_users: Array<any>
     $conversations: Array<any>

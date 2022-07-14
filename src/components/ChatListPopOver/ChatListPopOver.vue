@@ -4,11 +4,11 @@
       <Content :font-size="14" color="#101010">{{ conversation.unread_messages > 0 || conversation.unread_messages == 'marked' ? 'Mark As Read' : 'Mark As Unread' }}</Content>
       <SvgIcon name="comment" color="#51545C" />
     </div>
-    <div class="robin-wrapper robin-w-100" @click="$emit('archive-chat')">
+    <div class="robin-wrapper robin-w-100" @click="$emit('archive-chat')" v-if="isArchiveChatEnabled">
       <Content :font-size="14" color="#101010">Archive Chat</Content>
       <SvgIcon name="mailbox" color="#51545C" />
     </div>
-    <div class="robin-wrapper robin-w-100" @click="$emit('delete-conversation')">
+    <div class="robin-wrapper robin-w-100" @click="$emit('delete-conversation')" v-if="isDeleteMessagesEnabled">
       <Content :font-size="14" color="#D53120">Delete Chat</Content>
       <SvgIcon name="trash" />
     </div>
@@ -18,6 +18,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import Component from 'vue-class-component'
+import store from '@/store/index'
 import SvgIcon from '@/components/SvgIcon/SvgIcon.vue'
 import Content from '../Content/Content.vue'
 
@@ -37,7 +38,15 @@ const ComponentProps = Vue.extend({
     SvgIcon
   }
 })
-export default class ChatListPopOver extends ComponentProps {}
+export default class ChatListPopOver extends ComponentProps {
+  get isDeleteMessagesEnabled () {
+    return store.state.deleteMessagesEnabled
+  }
+
+  get isArchiveChatEnabled () {
+    return store.state.archiveChatEnabled
+  }
+}
 </script>
 
 <style scoped>

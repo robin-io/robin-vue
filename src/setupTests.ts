@@ -40,6 +40,8 @@ Vue.prototype.$toast = {
 
 Vue.prototype.$apiKey = 'NT-XmIzEmWUlsrQYypZOFRlogDFvQUsaEuxMfZf'
 
+Vue.prototype.$logo = ''
+
 Vue.prototype.$channel = 'private_chat'
 
 Vue.prototype.$conversations = [

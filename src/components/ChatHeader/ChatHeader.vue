@@ -28,13 +28,13 @@
       </div>
     </div>
 
-    <div class="robin-flex robin-robin-flex-align-center" v-show="selectMessagesOpen">
+    <div class="robin-flex robin-robin-flex-align-center" v-show="(selectMessagesOpen && isForwardMessagesEnabled) || (selectMessagesOpen && isDeleteMessagesEnabled) || (isForwardMessagesEnabled && isDeleteMessagesEnabled && selectMessagesOpen)">
       <IconButton name="remove" :to-emit="true" :to-click-away="false" emit="close" @close="cancelSelect()" />
 
       <Button color="#000" class="robin-ml-5" emit="clicked" @clicked="cancelSelect()">Select Messages</Button>
     </div>
 
-    <IconButton v-show="selectMessagesOpen && selectedMessages.length > 0" name="trash" :to-emit="true" :to-click-away="false" emit="delete" @delete="deleteSelectedMessages()" class="robin-ml-auto" data-testid="delete-button" />
+    <IconButton name="trash" :to-emit="true" :to-click-away="false" emit="delete" @delete="deleteSelectedMessages()" class="robin-ml-auto" data-testid="delete-button" v-if="(selectMessagesOpen && isDeleteMessagesEnabled) && selectedMessages.length > 0" />
 
     <div class="robin-options robin-ml-auto" @click="handleOpenPopUp($event, conversation.is_group ? 'popup-1' : 'popup-2')" v-show="!selectMessagesOpen">
       <IconButton @clickoutside="handleClosePopUp(conversation.is_group ? 'popup-1' : 'popup-2')" :to-click-away="true" :to-emit="false" name="openModalDot" />
@@ -127,6 +127,14 @@ export default class ChatHeader extends ComponentProps {
 
   get selectMessagesOpen () {
     return store.state.selectMessagesOpen
+  }
+
+  get isDeleteMessagesEnabled () {
+    return store.state.deleteMessagesEnabled
+  }
+
+  get isForwardMessagesEnabled () {
+    return store.state.forwardMessagesEnabled
   }
 
   handleOpenPopUp (event: any, refKey: string): void {

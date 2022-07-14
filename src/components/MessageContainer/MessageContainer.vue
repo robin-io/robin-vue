@@ -20,9 +20,9 @@
       </div>
     </div>
 
-    <MessageInputBar :conversation="conversation" :key="'input-' + newConversationOpenCount" :message-reply="messageReply" @open-camera="openCamera()" :captured-image="capturedImage" @on-close-reply="onCloseReply()" v-show="!selectMessagesOpen" />
+    <MessageInputBar :conversation="conversation" :key="'input-' + newConversationOpenCount" :message-reply="messageReply" @open-camera="openCamera()" :captured-image="capturedImage" @on-close-reply="onCloseReply()" v-show="!selectMessagesOpen || !isForwardMessagesEnabled" />
 
-    <div class="robin-forward-tab" v-show="selectMessagesOpen">
+    <div class="robin-forward-tab" v-if="selectMessagesOpen && isForwardMessagesEnabled">
       <Content color="#51545C"> {{ selectedMessages.length }} Messages Selected </Content>
       <Button emit="forward-message" v-show="selectedMessages.length > 0" @forward-message="forwardMessage = true"> Forward Messages </Button>
     </div>
@@ -218,6 +218,10 @@ export default class MessageContainer extends Vue {
 
   get selectMessagesOpen () {
     return store.state.selectMessagesOpen
+  }
+
+  get isForwardMessagesEnabled () {
+    return store.state.forwardMessagesEnabled
   }
 
   get clearMessages () {
@@ -430,6 +434,8 @@ export default class MessageContainer extends Vue {
       this.messageError = false
       this.testMessages(res.data ? res.data : [])
 
+      console.log(this.messages.length)
+
       this.currentPage = this.messages.length > 20 ? this.messages.length - 20 : 0
 
       if (!this.offlineMessages.messages[this.conversation._id]) {
@@ -463,6 +469,8 @@ export default class MessageContainer extends Vue {
     setTimeout(() => {
       this.isMessagesLoading = false
       this.currentPage -= 20
+
+      console.log(this.currentPage)
 
       const lastPage = this.messages.length - (this.messages.length - this.currentPage) + 20
       const messages = this.messages.slice(this.currentPage < 20 ? 0 : this.currentPage, lastPage)
@@ -623,7 +631,9 @@ export default class MessageContainer extends Vue {
       }
     }
 
-    if (message.scrollTop === 0 && this.currentPage > 19) {
+    console.log(message.scrollTop, this.currentPage, endOfScroll)
+    // this.currentPage > 19
+    if (message.scrollTop === 0 && this.offlineMessages.length !== this.messages.length && this.currentPage > 0) {
       this.loadMoreMessages()
     }
 

@@ -76,6 +76,12 @@ export default class SvgIcon extends ComponentProps {
     },
     camera: {
       innerHTML: '<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 21.3335C18.2091 21.3335 20 19.5426 20 17.3335C20 15.1244 18.2091 13.3335 16 13.3335C13.7909 13.3335 12 15.1244 12 17.3335C12 19.5426 13.7909 21.3335 16 21.3335Z" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M26.6667 9.3335H5.33333C4.59695 9.3335 4 9.93045 4 10.6668V24.0002C4 24.7365 4.59695 25.3335 5.33333 25.3335H26.6667C27.403 25.3335 28 24.7365 28 24.0002V10.6668C28 9.93045 27.403 9.3335 26.6667 9.3335Z" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19.0389 5.3335H12.9609C12.387 5.3335 11.8775 5.70074 11.696 6.24519L11.2516 7.57853C10.9638 8.4419 11.6064 9.3335 12.5165 9.3335H19.4833C20.3934 9.3335 21.0361 8.4419 20.7483 7.57853L20.3038 6.24519C20.1223 5.70074 19.6128 5.3335 19.0389 5.3335Z" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    },
+    clear: {
+      innerHTML: '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 1.41L12.59 0L7 5.59L1.41 0L0 1.41L5.59 7L0 12.59L1.41 14L7 8.41L12.59 14L14 12.59L8.41 7L14 1.41Z" fill="#9999BC"/></svg>'
+    },
+    camera2: {
+      innerHTML: '<svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip0_6_6572)"><path d="M12.4582 10.2917C12.4582 10.579 12.344 10.8545 12.1409 11.0577C11.9377 11.2609 11.6622 11.375 11.3748 11.375H1.62484C1.33752 11.375 1.06197 11.2609 0.858805 11.0577C0.655641 10.8545 0.541504 10.579 0.541504 10.2917V4.33333C0.541504 4.04602 0.655641 3.77047 0.858805 3.5673C1.06197 3.36414 1.33752 3.25 1.62484 3.25H3.7915L4.87484 1.625H8.12484L9.20817 3.25H11.3748C11.6622 3.25 11.9377 3.36414 12.1409 3.5673C12.344 3.77047 12.4582 4.04602 12.4582 4.33333V10.2917Z" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.50016 9.20833C7.69678 9.20833 8.66683 8.23828 8.66683 7.04167C8.66683 5.84505 7.69678 4.875 6.50016 4.875C5.30355 4.875 4.3335 5.84505 4.3335 7.04167C4.3335 8.23828 5.30355 9.20833 6.50016 9.20833Z" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></g><defs><clipPath id="clip0_6_6572"><rect width="13" height="13" fill="white"/></clipPath></defs></svg>'
     }
   } as IconItem
 }

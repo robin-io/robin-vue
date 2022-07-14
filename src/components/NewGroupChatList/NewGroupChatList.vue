@@ -133,6 +133,12 @@ export default class NewGroupChatList extends ComponentProps {
         this.contacts[this.getContactKey(user.userName)] = this.robinUsers.filter((item: any) => item.userToken !== this.$user_token && this.validateContact(item.userName, user.userName))
       })
 
+      for (const key in this.contacts) {
+        if (this.contacts[key].length === 0) {
+          delete this.contacts[key]
+        }
+      }
+
       this.sortContacts()
     } else {
       this.searchData.forEach((user: any) => {

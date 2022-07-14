@@ -1,7 +1,11 @@
 <template>
   <div class="robin-container">
     <transition name="robin-fadeIn">
-      <SideContainer v-show="(!isPageLoading && !conversationOpened && screenWidth <= 1200) || (conversationOpened && screenWidth > 1200) || (!conversationOpened && screenWidth > 1200)" :key="key" />
+      <SideContainer v-show="(!isPageLoading && !conversationOpened && screenWidth <= 1200) || (conversationOpened && screenWidth > 1200) || (!conversationOpened && screenWidth > 1200)" :key="key">
+        <template #chat-list-header>
+          <slot name="chat-list-header"></slot>
+        </template>
+      </SideContainer>
     </transition>
     <transition name="robin-fadeIn">
       <MessageContainer v-show="(!isPageLoading && conversationOpened && screenWidth > 1200 && !profileOpen) || (!isPageLoading && conversationOpened && screenWidth <= 1200 && !profileOpen) || (!isPageLoading && conversationOpened && screenWidth > 1200 && profileOpen)" :key="key + 1" />
@@ -10,8 +14,8 @@
     <PageLoader v-show="isPageLoading && pageLoader" />
     <MessageImagePreviewer ref="popup-1" :conversation="currentConversation" v-show="imagePreviewOpen" @close="closeImagePreview()" :images-to-preview="imagesToPreview" />
     <ViewProfile ref="popup-2" v-show="profileOpen" @close="closeMessageViewProfile()" />
-    <GroupPrompt v-show="groupPromptOpen" @close="closeGroupPrompt()" />
-    <EncryptionDetails v-show="encryptionDetailsOpen" @close="closeEncryptionDetails()" />
+    <GroupPrompt v-show="groupPromptOpen" />
+    <EncryptionDetails v-show="encryptionDetailsOpen" />
     <audio :src="assets['notification']" ref="notification" @click="playAudio($event)">Your browser does not support the audio feature</audio>
   </div>
 </template>
@@ -699,18 +703,27 @@ const ComponentProps = Vue.extend({
         }
       ]
     },
+    logo: {
+      type: String as PropType<string>,
+      default: ''
+    },
+    features: {
+      type: Array as PropType<Array<string>>,
+      default: () => ['create-chat']
+    },
     keys: {
       type: Object as PropType<any>,
       default: (): any => {
         return {
-          // userToken: 'userToken',
-          // userName: 'userName',
-          // profileImage: 'profileImage'
           userToken: 'user_token',
           userName: 'fullname',
           profileImage: 'profile_image'
         }
       }
+    },
+    imageUrl: {
+      type: String as PropType<string>,
+      default: ''
     }
   }
 })
@@ -737,7 +750,6 @@ const ComponentProps = Vue.extend({
     },
     currentConversation: {
       handler () {
-        console.log('changed conversation')
         this.closeMessageViewProfile()
       }
     },
@@ -770,6 +782,10 @@ export default class App extends ComponentProps {
     this.onExitGroup()
     this.onExitMessage()
     this.onConversationDelete()
+    store.setState('forwardMessagesEnabled', this.features.includes('forward-messages'))
+    store.setState('deleteMessagesEnabled', this.features.includes('delete-messages'))
+    store.setState('archiveChatEnabled', this.features.includes('archive-chat'))
+    store.setState('createChatEnabled', this.features.includes('create-chat'))
 
     if (this.conn) {
       this.conn.onopen = () => {
@@ -777,7 +793,6 @@ export default class App extends ComponentProps {
       }
 
       this.conn.onclosed = () => {
-        ('closed')
         this.connect()
       }
     }
@@ -859,6 +874,7 @@ export default class App extends ComponentProps {
     Vue.prototype.$regularConversations = []
     Vue.prototype.$archivedConversations = []
     Vue.prototype.$senderName = this.userName
+    Vue.prototype.$logo = this.logo
   }
 
   connect () {
@@ -1019,14 +1035,6 @@ export default class App extends ComponentProps {
 
       store.setState('profileOpen', false)
     }, 100)
-  }
-
-  closeGroupPrompt (): void {
-    store.setState('groupPromptOpen', false)
-  }
-
-  closeEncryptionDetails (): void {
-    store.setState('encryptionDetailsOpen', false)
   }
 
   playAudio (event: any): void {

@@ -23,7 +23,11 @@ interface State {
   participantToken: string,
   removeParticipant: boolean,
   isParticipantModerator: boolean,
-  currentAudioPlaying: number
+  currentAudioPlaying: number,
+  forwardMessagesEnabled: boolean,
+  deleteMessagesEnabled: boolean,
+  archiveChatEnabled: boolean,
+  createChatEnabled: boolean,
 }
 
 const state: State = {
@@ -45,7 +49,11 @@ const state: State = {
   participantToken: '',
   removeParticipant: false,
   isParticipantModerator: false,
-  currentAudioPlaying: 0
+  currentAudioPlaying: 0,
+  forwardMessagesEnabled: false,
+  deleteMessagesEnabled: false,
+  archiveChatEnabled: false,
+  createChatEnabled: false
 }
 
 const store = {

@@ -54,7 +54,7 @@ export default class AttachFilePopOver extends Vue {
   }
 
   handleFileChange (files: any): void {
-    ;[...files].forEach(async (file: any) => {
+    ;[...files].forEach((file: any) => {
       const fileURL = URL.createObjectURL(file)
       const typeIndex = file.name.lastIndexOf('.')
 
