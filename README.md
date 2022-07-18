@@ -89,9 +89,9 @@ export default {
         userName: 'fullname'
       },
       users: [{
-        userToken: '...',
-        profileImage: '...',
-        userName: '...'
+        user_token: '...',
+        profile_image: '...',
+        fullname: '...'
       }]
     }
   }
@@ -108,7 +108,7 @@ export default {
 | user-name   | String  |   ''    | Name of the current user using Robin. (required)            |
 | users       |  Array  |   []    | User list - Data should model the keys option (required)    |
 | keys        | Object  |   {}    | User data structure you want Robin to pull from. (required) |
-| page-loader | Boolean |  True   | Shows a loader when first mounting <RobinChat /> Component. |
+| page-loader | Boolean |  True   | Shows a loader when first mounting `<RobinChat />` Component. |
 
 ## License
 
