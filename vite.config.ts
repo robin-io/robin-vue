@@ -13,7 +13,9 @@ export default defineConfig({
       '@': resolve(__dirname, 'src')
     }
   },
-  plugins: [createVuePlugin()],
+  plugins: [
+    createVuePlugin()
+  ],
   build: {
     lib: {
       entry: resolve(__dirname, 'src/main.ts'),
@@ -26,8 +28,6 @@ export default defineConfig({
       // into your library
       external: ['vue', 'moment', 'mime', 'axios', 'v-lazy-image', 'v-emoji-picker', 'robin.io-js', 'vue-toast-notification', 'link-prevue', 'vue-clickaway'],
       output: {
-        // Provide global variables to use in the UMD build
-        // for externalized deps
         globals: {
           vue: 'Vue',
           moment: 'moment',

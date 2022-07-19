@@ -4,7 +4,6 @@
       <Content :font-size="14" color="#51545C">Reply Message</Content>
       <IconButton name="reply" :to-emit="false" :to-click-away="false" />
     </div>
-<<<<<<< HEAD
     <div class="robin-wrapper robin-w-100" @click="forwardMessage()" data-testid="forward-button" v-if="isForwardMessagesEnabled">
       <Content :font-size="14" color="#51545C">Forward</Content>
       <IconButton name="forward" :to-emit="false" :to-click-away="false" />
@@ -14,17 +13,6 @@
       <IconButton name="select" :to-emit="false" :to-click-away="false" />
     </div>
     <div class="robin-wrapper robin-w-100" @click="deleteMessage()" data-testid="delete-button" v-if="isDeleteMessagesEnabled">
-=======
-    <div class="robin-wrapper robin-w-100" @click="forwardMessage()" data-testid="forward-button">
-      <Content :font-size="14" color="#51545C">Forward</Content>
-      <IconButton name="forward" :to-emit="false" :to-click-away="false" />
-    </div>
-    <div class="robin-wrapper robin-w-100" @click="selectMessage()" data-testid="select-button">
-      <Content :font-size="14" color="#51545C">Select Message</Content>
-      <IconButton name="select" :to-emit="false" :to-click-away="false" />
-    </div>
-    <div class="robin-wrapper robin-w-100" @click="deleteMessage()" data-testid="delete-button">
->>>>>>> 7bd936fba048093e25f8d572ffc64823cf400f44
       <Content :font-size="14" color="#51545C">Delete Message</Content>
       <IconButton name="delete" :to-emit="false" :to-click-away="false" />
     </div>
@@ -107,13 +95,13 @@ export default class MessagePopOver extends ComponentProps {
   width: 200px;
   max-width: 220px;
   border-radius: 16px;
-  border: 1px solid #F5F7FC;
+  border: 1px solid #f5f7fc;
   border-radius: 6px;
   background-color: #fff;
 }
 
 .robin-wrapper {
-  border-top: 1px solid #EFEFEF;
+  border-top: 1px solid #efefef;
   padding: 0.813rem 1rem;
   display: flex;
   align-items: center;

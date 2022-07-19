@@ -764,7 +764,7 @@ const ComponentProps = Vue.extend({
   }
 })
 export default class App extends ComponentProps {
-  robin = null as any
+  robin = null as Robin | null
   conn = null as any
   key = 0 as number
   // profileKey = 0 as number
@@ -789,7 +789,7 @@ export default class App extends ComponentProps {
 
     if (this.conn) {
       this.conn.onopen = () => {
-        this.robin.subscribe(this.channel, this.conn)
+        this.robin?.subscribe(this.channel, this.conn)
       }
 
       this.conn.onclosed = () => {
@@ -878,7 +878,7 @@ export default class App extends ComponentProps {
   }
 
   connect () {
-    this.conn = this.robin.connect(this.userToken)
+    this.conn = this.robin?.connect(this.userToken)
 
     this.conn.onmessage = (evt: any) => {
       const notification = this.$refs.notification as any

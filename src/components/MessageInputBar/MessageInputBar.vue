@@ -361,7 +361,7 @@ export default class MessageInputBar extends ComponentProps {
     try {
       await Promise.all(
         this.files.map(async (file) => {
-          await this.$robin.sendMessageAttachment(this.$user_token, this.conversation._id, file.file, this.$senderName)
+          await this.$robin.sendMessageAttachment(this.$user_token, this.conversation._id, file.file, this.$senderName, '')
         })
       )
 

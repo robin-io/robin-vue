@@ -2,6 +2,8 @@
   "compilerOptions": {
     "target": "ES2018", // esnext for vue3 auto-enables optional chaining in typescript
     "module": "esnext",
+    "outDir": "dist/types",
+    "declaration": true,
     "moduleResolution": "node",
     "strict": true,
     "jsx": "preserve",
@@ -16,7 +18,7 @@
     "experimentalDecorators": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "lib": ["dom", "esnext"]
+    "lib": ["dom", "esnext"],
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "types/*.d.ts"]
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "src/types/*.d.ts"]
 }

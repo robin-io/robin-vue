@@ -1,11 +1,7 @@
 import Vue from 'vue'
 
-interface Conversation {
-  [key:string]: any
-}
-
 interface State {
-  currentConversation: Conversation,
+  currentConversation: Record<string, any>,
   imagesToPreview: any[],
   imageSelected: number,
   isImageReplying: boolean,
