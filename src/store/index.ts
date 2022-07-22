@@ -24,6 +24,9 @@ interface State {
   deleteMessagesEnabled: boolean,
   archiveChatEnabled: boolean,
   createChatEnabled: boolean,
+  replyMessagesEnabled: boolean,
+  voiceRecorderEnabled: boolean,
+  messageReactionsEnabled: boolean,
 }
 
 const state: State = {
@@ -49,7 +52,10 @@ const state: State = {
   forwardMessagesEnabled: false,
   deleteMessagesEnabled: false,
   archiveChatEnabled: false,
-  createChatEnabled: false
+  createChatEnabled: false,
+  replyMessagesEnabled: false,
+  voiceRecorderEnabled: false,
+  messageReactionsEnabled: false
 }
 
 const store = {

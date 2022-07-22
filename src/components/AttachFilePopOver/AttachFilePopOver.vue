@@ -38,8 +38,8 @@ import IconButton from '@/components/IconButton/IconButton.vue'
   }
 })
 export default class AttachFilePopOver extends Vue {
-  acceptedDocFiles = '.xls, .doc, .ppt, .txt, .pdf, .csv, .html, .zip, .psd, .ai, .mp3' as string
-  acceptedVisualFiles = 'image/*, video/*, video/mp4' as string
+  acceptedDocFiles = 'application/*, text/*' as string
+  acceptedVisualFiles = 'image/*, video/*' as string
   screenWidth = 0 as number
 
   mounted () {

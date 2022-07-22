@@ -434,7 +434,7 @@ export default class MessageContainer extends Vue {
       this.messageError = false
       this.testMessages(res.data ? res.data : [])
 
-      console.log(this.messages.length)
+      // console.log(this.messages.length)
 
       this.currentPage = this.messages.length > 20 ? this.messages.length - 20 : 0
 

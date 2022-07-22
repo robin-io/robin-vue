@@ -1,16 +1,16 @@
 <h1 align="start">
-  Robin.io-vue
+  Robinapp-vue
 </h1>
 
 <p align="start">
-<a href="https://npmjs.com/package/robin.io-vue">
-    <img alt="" src="https://img.shields.io/npm/v/robin.io-vue.svg">
+<a href="https://npmjs.com/package/robinapp-vue">
+    <img alt="" src="https://img.shields.io/npm/v/robinapp-vue.svg">
 </a>
-<a href="https://npmjs.com/package/robin.io-vue">
-    <img alt="" src="https://img.shields.io/npm/dt/robin.io-vue.svg">
+<a href="https://npmjs.com/package/robinapp-vue">
+    <img alt="" src="https://img.shields.io/npm/dt/robinapp-vue.svg">
 </a>
-<a href="https://npmjs.com/package/robin.io-vue">
-    <img alt="" src="https://img.shields.io/npm/l/robin.io-vue.svg">
+<a href="https://npmjs.com/package/robinapp-vue">
+    <img alt="" src="https://img.shields.io/npm/l/robinapp-vue.svg">
 </a>
 </p>
 
@@ -31,16 +31,16 @@
 
 ## About
 
-Robin.io-vue is a Vue SDK built to communicate with the [Robinapp API](https://robinapp.co/). Now you can integrate [Robin.io](https://robinapp.co/) with minimal effort and quickly setup an real-time messaging platform in your Vue.js web application.
+Robinapp-vue is a Vue SDK built to communicate with the [Robinapp API](https://robinapp.co/). Now you can integrate [Robin.io](https://robinapp.co/) with minimal effort and quickly setup an real-time messaging platform in your Vue.js web application.
 
 ## Installation
 
 ```bash
 ## npm
-npm install robin.io-vue
+npm install robinapp-vue
 
 ## yarn
-yarn add robin.io-vue
+yarn add robinapp-vue
 ```
 
 ## Usage
@@ -48,8 +48,8 @@ yarn add robin.io-vue
 ```
 import Vue from 'vue'
 import App from './App.vue'
-import RobinChat from 'robin.io-vue'
-import 'robin.io-vue-sdk/dist/style.css'
+import RobinChat from 'robinapp-vue'
+import 'robinapp-vue-sdk/dist/style.css'
 
 Vue.config.productionTip = false
 

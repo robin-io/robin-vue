@@ -28,7 +28,7 @@
         </div>
       </div>
 
-      <div class="robin-options robin-ml-auto" @click="handleOpenPopUp()" data-testid="options">
+      <div class="robin-options robin-ml-auto" @click="handleOpenPopUp()" data-testid="options" v-if="(isReplyMessagesEnabled || isDeleteMessagesEnabled || isForwardMessagesEnabled) || (isReplyMessagesEnabled && isDeleteMessagesEnabled && isForwardMessagesEnabled)">
         <IconButton name="openModalDot" @clickoutside="handleClosePopUp()" :to-emit="false" :to-click-away="true" />
 
         <div class="robin-popup-container" v-show="popUpState.opened">
@@ -132,6 +132,18 @@ export default class MessageImagePreviewer extends ComponentProps {
 
   get imagePreview (): string {
     return this.images[this.imageSelected] ? this.images[this.imageSelected].content.attachment : ''
+  }
+
+  get isDeleteMessagesEnabled () {
+    return store.state.deleteMessagesEnabled
+  }
+
+  get isForwardMessagesEnabled () {
+    return store.state.forwardMessagesEnabled
+  }
+
+  get isReplyMessagesEnabled () {
+    return store.state.replyMessagesEnabled
   }
 
   handleOpenPopUp (): void {

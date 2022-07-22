@@ -1,6 +1,6 @@
 {
-  "name": "robin.io-vue2",
-  "version": "0.7.21",
+  "name": "robinapp-vue",
+  "version": "0.7.26",
   "license": "MIT",
   "files": [
     "dist"

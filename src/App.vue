@@ -709,7 +709,7 @@ const ComponentProps = Vue.extend({
     },
     features: {
       type: Array as PropType<Array<string>>,
-      default: () => ['create-chat']
+      default: () => ['create-chat', 'voice-recorder']
     },
     keys: {
       type: Object as PropType<any>,
@@ -786,6 +786,9 @@ export default class App extends ComponentProps {
     store.setState('deleteMessagesEnabled', this.features.includes('delete-messages'))
     store.setState('archiveChatEnabled', this.features.includes('archive-chat'))
     store.setState('createChatEnabled', this.features.includes('create-chat'))
+    store.setState('replyMessagesEnabled', this.features.includes('reply-messages'))
+    store.setState('voiceRecorderEnabled', this.features.includes('voice-recorder'))
+    store.setState('messageReactionsEnabled', this.features.includes('message-reactions'))
 
     if (this.conn) {
       this.conn.onopen = () => {

@@ -106,7 +106,7 @@
       <div class="robin-send-button-loader robin-ml-21" v-show="isUploading">
         <div class="robin-spinner2"></div>
       </div>
-      <div class="robin-ml-8" v-show="text.trim() == '' && files.length < 1 && !isUploading && !isRecording" @click="toggleRecorder(true)" data-testid="record-start-button">
+      <div class="robin-ml-8" v-show="text.trim() == '' && files.length < 1 && !isUploading && !isRecording && isVoiceRecorderEnabled" @click="toggleRecorder(true)" data-testid="record-start-button">
         <IconButton name="voice" :to-click-away="false" :to-emit="false" />
       </div>
 
@@ -190,7 +190,7 @@ const ComponentProps = Vue.extend({
 export default class MessageInputBar extends ComponentProps {
   text = '' as string
   files = [] as Array<any>
-  acceptedDocFiles = '.xls, .doc, .ppt, .txt, .pdf, .csv, .html, .zip, .psd, .mp3' as string
+  acceptedDocFiles = 'application/*, text/*' as string
   isUploading = false as boolean
   replying = false as boolean
   screenWidth = 0 as number
@@ -219,6 +219,10 @@ export default class MessageInputBar extends ComponentProps {
     window.addEventListener('resize', this.onResize)
     this.resetState()
     this.focusInput()
+  }
+
+  get isVoiceRecorderEnabled () {
+    return store.state.voiceRecorderEnabled
   }
 
   get checkFileFormat () {

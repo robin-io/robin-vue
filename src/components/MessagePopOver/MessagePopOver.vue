@@ -1,6 +1,6 @@
 <template>
   <div class="robin-popup robin-zoomIn" ref="popup-body">
-    <div class="robin-wrapper robin-w-100" @click="$emit('reply-message')" data-testid="reply-button">
+    <div class="robin-wrapper robin-w-100" @click="$emit('reply-message')" data-testid="reply-button" v-if="isReplyMessagesEnabled">
       <Content :font-size="14" color="#51545C">Reply Message</Content>
       <IconButton name="reply" :to-emit="false" :to-click-away="false" />
     </div>
@@ -54,6 +54,10 @@ export default class MessagePopOver extends ComponentProps {
 
   get isForwardMessagesEnabled () {
     return store.state.forwardMessagesEnabled
+  }
+
+  get isReplyMessagesEnabled () {
+    return store.state.replyMessagesEnabled
   }
 
   async deleteMessage (): Promise<void> {

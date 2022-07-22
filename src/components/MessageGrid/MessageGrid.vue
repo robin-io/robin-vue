@@ -1,7 +1,7 @@
 <template>
   <div class="robin-bubble" :class="!validateMessageClass() ? 'robin-grid-sender' : 'robin-grid-receiver'" @click.self="$emit('open-modal')" data-testid="bubble">
     <div class="robin-popup-container reactions" ref="popup-body">
-      <ReactionPopOver v-show="messagePopup.opened" @close-modal="closeModal()" :id="message[0]._id" :message="message[0]" @reaction="$emit('add-reaction', $event)"/>
+      <ReactionPopOver v-show="messagePopup.opened && isMessageReactionsEnabled" @close-modal="closeModal()" :id="message[0]._id" :message="message[0]" @reaction="$emit('add-reaction', $event)"/>
     </div>
 
     <Content v-if="!validateMessageClass() && conversation.is_group" :font-size="12" as="span" :color="groupnameColors[message[0].content.sender_token]" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getContactName(message[0].content.sender_token) }} </Content>
@@ -32,6 +32,7 @@
 import Vue, { PropType } from 'vue'
 import VLazyImage from 'v-lazy-image/v2'
 import Component from 'vue-class-component'
+import store from '@/store/index'
 import ReactionPopOver from '../ReactionPopOver/ReactionPopOver.vue'
 import Content from '@/components/Content/Content.vue'
 import IconButton from '@/components/IconButton/IconButton.vue'
@@ -97,6 +98,10 @@ export default class MessageGrid extends ComponentProps {
     } else {
       return 'robin-grid-2-by-2'
     }
+  }
+
+  get isMessageReactionsEnabled () {
+    return store.state.messageReactionsEnabled
   }
 
   closeModal (): void {
