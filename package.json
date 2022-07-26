@@ -1,6 +1,6 @@
 {
   "name": "robinapp-vue",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "license": "MIT",
   "files": [
     "dist"
@@ -9,13 +9,13 @@
     "robin.io",
     "vue"
   ],
-  "main": "./dist/robin.io-vue2.umd.js",
-  "module": "./dist/robin.io-vue2.es.js",
+  "main": "./dist/robinapp-vue.umd.js",
+  "module": "./dist/robinapp-vue.es.js",
   "types": "./dist/types/main.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/robin.io-vue2.es.js",
-      "require": "./dist/robin.io-vue2.umd.js"
+      "import": "./dist/robinapp-vue.es.js",
+      "require": "./dist/robinapp-vue.umd.js"
     },
     "./dist/style.css": {
       "import": "./dist/style.css",

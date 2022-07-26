@@ -19,8 +19,8 @@ export default defineConfig({
   build: {
     lib: {
       entry: resolve(__dirname, 'src/main.ts'),
-      name: 'robin.io-vue2',
-      fileName: (format) => `robin.io-vue2.${format}.js`
+      name: 'robinapp-vue',
+      fileName: (format) => `robinapp-vue.${format}.js`
     },
     // brotliSize: false,
     rollupOptions: {

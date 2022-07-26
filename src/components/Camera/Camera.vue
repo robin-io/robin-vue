@@ -119,13 +119,10 @@ export default class Camera extends ComponentProps {
     this.$emit('close')
   }
 
-  takePhoto () {
+  async takePhoto () {
     const capture = this.getCanvas().toDataURL('image/jpeg')
-    let res = {}
 
-    this.convertBase64ToFile(capture).then(data => {
-      res = data
-    })
+    const res = await this.convertBase64ToFile(capture)
 
     this.$emit('captured-image', {
       file: res,

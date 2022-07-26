@@ -1,10 +1,10 @@
 <template>
   <div class="robin-flex robin-flex-column" :class="validateMessages(message)">
-    <div class="robin-conversation-date" v-if="getMessageIndex() == 0 && conversation.is_group">This group was created by {{ $user_token == conversation.moderator.user_token ? 'You' : conversation.moderator.meta_data.display_name }} {{ formatDate(message.created_at) == 'Today' ? 'today.' : `on ${formatDate(message.created_at)}.` }}</div>
+    <div class="robin-conversation-date" v-if="getMessageIndex() == 0 && conversation.is_group">This group was created by {{ $user_token == conversation.moderator.user_token ? 'You' : conversation.moderator.meta_data.display_name }} {{ formatDate(message.created_at || message[0].created_at) == 'Today' ? 'today.' : `on ${formatDate(message.created_at || message[0].created_at)}.` }}</div>
 
-    <div class="robin-conversation-date" v-if="getMessageIndex() == 0 && !conversation.is_group">This conversation was created {{ formatDate(message.created_at) == 'Today' ? 'today.' : `on ${formatDate(message.created_at)}.` }}</div>
+    <div class="robin-conversation-date" v-if="getMessageIndex() == 0 && !conversation.is_group">This conversation was created {{ formatDate(message.created_at || message[0].created_at) == 'Today' ? 'today.' : `on ${formatDate(message.created_at || message[0].created_at)}.` }}</div>
 
-    <div class="robin-activity" v-if="showDate() && getMessageIndex() != 0">{{ formatDate(message.created_at) }}</div>
+    <div class="robin-activity" v-if="showDate() && getMessageIndex() != 0">{{ formatDate(message.created_at || message[0].created_at) }}</div>
 
     <div class="robin-message-bubble robin-flex robin-flex-align-center">
       <CheckBox ref="checkbox" v-show="selectMessagesOpen" @clicked="toggleCheckAction($event)" />
@@ -329,7 +329,7 @@ export default class MessageContent extends ComponentProps {
   screenWidth = 0 as number
   imageRegex = /^image/ as any
   videoRegex = /^video/ as any
-  documentRegex = /^application\/(csv|pdf|msword|(vnd\.(ms-|openxmlformats-).*))$|^text\/plain$/i
+  documentRegex = /^application\/(csv|pdf|msword|(vnd\.(ms-|openxmlformats-).*))$|^text\/plain$|^audio\/mpeg$/i
   emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   websiteRegex = /[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/
   files = [] as any
@@ -404,15 +404,21 @@ export default class MessageContent extends ComponentProps {
       const dateA = this.messages[this.index] as any
       const dateB = this.messages[this.index - 1] as any
 
+      // YYYY-MM-DDT00:00:00[Z]
+
       if (Array.isArray(dateA) && !Array.isArray(dateB)) {
-        return moment(dateA[0].created_at).format('YYYY-MM-DDT00:00:00[Z]') !== moment(dateB.created_at).format('YYYY-MM-DDT00:00:00[Z]')
+        return moment(dateA[0].created_at).format('YYYY-MM-DD') !== moment(dateB.created_at).format('YYYY-MM-DD')
       }
 
       if (!Array.isArray(dateA) && Array.isArray(dateB)) {
-        return moment(dateA.created_at).format('YYYY-MM-DDT00:00:00[Z]') !== moment(dateB[0].created_at).format('YYYY-MM-DDT00:00:00[Z]')
+        return moment(dateA.created_at).format('YYYY-MM-DD') !== moment(dateB[0].created_at).format('YYYY-MM-DD')
       }
 
-      return moment(dateA.created_at).format('YYYY-MM-DDT00:00:00[Z]') !== moment(dateB.created_at).format('YYYY-MM-DDT00:00:00[Z]')
+      if (Array.isArray(dateA) && Array.isArray(dateB)) {
+        return moment(dateA[0].created_at).format('YYYY-MM-DD') !== moment(dateB[0].created_at).format('YYYY-MM-DD')
+      }
+
+      return moment(dateA.created_at).format('YYYY-MM-DD') !== moment(dateB.created_at).format('YYYY-MM-DD')
     }
 
     return false

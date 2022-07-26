@@ -434,8 +434,6 @@ export default class MessageContainer extends Vue {
       this.messageError = false
       this.testMessages(res.data ? res.data : [])
 
-      // console.log(this.messages.length)
-
       this.currentPage = this.messages.length > 20 ? this.messages.length - 20 : 0
 
       if (!this.offlineMessages.messages[this.conversation._id]) {
@@ -469,8 +467,6 @@ export default class MessageContainer extends Vue {
     setTimeout(() => {
       this.isMessagesLoading = false
       this.currentPage -= 20
-
-      console.log(this.currentPage)
 
       const lastPage = this.messages.length - (this.messages.length - this.currentPage) + 20
       const messages = this.messages.slice(this.currentPage < 20 ? 0 : this.currentPage, lastPage)
@@ -631,9 +627,9 @@ export default class MessageContainer extends Vue {
       }
     }
 
-    console.log(message.scrollTop, this.currentPage, endOfScroll)
+    // console.log(message.scrollTop, this.currentPage, endOfScroll)
     // this.currentPage > 19
-    if (message.scrollTop === 0 && this.offlineMessages.length !== this.messages.length && this.currentPage > 0) {
+    if (message.scrollTop === 0 && this.offlineMessages.length !== this.messages.length && this.currentPage > 19) {
       this.loadMoreMessages()
     }
 
@@ -824,9 +820,6 @@ export default class MessageContainer extends Vue {
         }
       }
 
-      // ('new ->', data)
-
-      // localForage.clear()
       await localForage.setItem('messages', data)
       this.getOfflineMessages()
     } catch (error) {
