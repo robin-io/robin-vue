@@ -13,9 +13,7 @@ export default defineConfig({
       '@': resolve(__dirname, 'src')
     }
   },
-  plugins: [
-    createVuePlugin()
-  ],
+  plugins: [createVuePlugin()],
   build: {
     lib: {
       entry: resolve(__dirname, 'src/main.ts'),
