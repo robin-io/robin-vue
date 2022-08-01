@@ -137,6 +137,10 @@ export default class ChatHeader extends ComponentProps {
     return store.state.forwardMessagesEnabled
   }
 
+  get showDefaultProfileDetails () {
+    return store.state.useDefaultProfileDetails
+  }
+
   handleOpenPopUp (event: any, refKey: string): void {
     const popupContainer = this.$refs['popup-container'] as any
     const popup = this.$refs[refKey] as any
@@ -183,7 +187,11 @@ export default class ChatHeader extends ComponentProps {
   }
 
   openProfile () {
-    store.setState('profileOpen', true)
+    if (this.showDefaultProfileDetails) {
+      store.setState('profileOpen', true)
+    } else {
+      EventBus.$emit('open-profile')
+    }
   }
 
   cancelSelect (): void {

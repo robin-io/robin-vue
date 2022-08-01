@@ -1,6 +1,6 @@
 <template>
   <div class="robin-message-container" v-on-clickaway="onChatClickAway">
-    <ChatHeader :conversation="conversation" :key="key" :selected-messages="selectedMessages" @delete-selected-messages="openPrompt('delete select')" />
+    <ChatHeader :conversation="conversation" :key="key" :selected-messages="selectedMessages" @delete-selected-messages="openPrompt('delete select')"/>
 
     <div class="robin-wrapper robin-flex robin-flex-column robin-flex-space-between" id="message-container" ref="message" @scroll="onScroll()" data-testid="message">
       <div class="robin-inner-wrapper-loader robin-flex robin-flex-align-center" id="infinite-loader" v-if="(isMessagesLoading && currentPage > 0) || (!offlineMessages.messages[conversation._id] && isMessagesLoading)">
