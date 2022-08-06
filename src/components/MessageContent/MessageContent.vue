@@ -11,19 +11,19 @@
 
       <div class="robin-bubble" @mouseover="onMouseOver()" @mouseleave="onMouseLeave()" :class="validateMessages(message).includes('message-sender') ? 'robin-ml-5' : 'robin-mr-5'" v-if="!Array.isArray(message)" v-on-clickaway="closeModal" data-testid="bubble">
         <div class="robin-popup-container reactions">
-          <ReactionPopOver v-show="messagePopup.opened && validateMessages(message) && isMessageReactionsEnabled" @close-modal="closeModal()" ref="popup-1" :id="message._id" :message="message" @reaction="addReaction" data-testid="reaction-popover" />
+          <ReactionPopOver v-show="messagePopup.opened && validateMessages(message) && isMessageReactionViewEnabled" @close-modal="closeModal()" ref="popup-1" :id="message._id" :message="message" @reaction="addReaction" data-testid="reaction-popover" />
         </div>
 
-        <div class="robin-reactions" v-if="message && message.reactions && message.reactions.length > 0 && isMessageReactionsEnabled">
-          <div class="robin-reaction" v-for="(value, key, index) in reactions" :key="index" @click="removeReaction(value[value.length - 1])" v-show="value.length > 0">{{ key + ' ' + value.length }}</div>
+        <div class="robin-reactions" v-if="message && message.reactions && message.reactions.length > 0 && isMessageReactionViewEnabled">
+          <div class="robin-reaction" :class="{'delete-enabled': isMessageReactionDeleteEnabled}" v-for="(value, key, index) in reactions" :key="index" @click="removeReaction(value[value.length - 1])" v-show="value.length > 0">{{ key + ' ' + value.length }}</div>
         </div>
 
         <!-- Personal -->
-        <div class="robin-message-bubble-inner" :class="{ 'robin-non-clickable': selectMessagesOpen, 'robin-non-clickable':   !isMessageReactionsEnabled && !isReplyMessagesEnabled && !isDeleteMessagesEnabled && !isForwardMessagesEnabled }" v-if="!message.has_attachment">
+        <div class="robin-message-bubble-inner" :class="{ 'robin-non-clickable': selectMessagesOpen, 'robin-non-clickable':   !isMessageReactionViewEnabled && !isReplyMessagesEnabled && !isDeleteMessagesEnabled && !isForwardMessagesEnabled }" v-if="!message.has_attachment">
           <Content v-if="validateMessages(message).includes('message-sender') && conversation.is_group" :font-size="12" :color="groupnameColors[message.content.sender_token]" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getContactName(message.content.sender_token) }} </Content>
 
           <!-- Modal Open Caret -->
-          <div class="robin-caret-container" v-show="(caretOpen || (messagePopup.opened && validateMessages(message))) && (isMessageReactionsEnabled || isReplyMessagesEnabled || isDeleteMessagesEnabled || isForwardMessagesEnabled || (isMessageReactionsEnabled && isReplyMessagesEnabled && isDeleteMessagesEnabled && isForwardMessagesEnabled))" @click="openModal()" data-testid="popup-caret">
+          <div class="robin-caret-container" v-show="(caretOpen || (messagePopup.opened && validateMessages(message))) && (isMessageReactionViewEnabled || isReplyMessagesEnabled || isDeleteMessagesEnabled || isForwardMessagesEnabled || (isMessageReactionViewEnabled && isReplyMessagesEnabled && isDeleteMessagesEnabled && isForwardMessagesEnabled))" @click="openModal()" data-testid="popup-caret">
             <IconButton name="messagePopupCaret" :to-emit="false" :to-click-away="false" />
           </div>
           <!-- Modal Open Caret -->
@@ -53,11 +53,11 @@
           </div>
         </div>
 
-        <div class="robin-message-bubble-image" :class="{ 'robin-non-clickable': selectMessagesOpen, 'robin-non-clickable':   !isMessageReactionsEnabled && !isReplyMessagesEnabled && !isDeleteMessagesEnabled && !isForwardMessagesEnabled }" v-if="message.content.is_attachment && imageRegex.test(checkAttachmentType(message.content.attachment))">
+        <div class="robin-message-bubble-image" :class="{ 'robin-non-clickable': selectMessagesOpen, 'robin-non-clickable':   !isMessageReactionViewEnabled && !isReplyMessagesEnabled && !isDeleteMessagesEnabled && !isForwardMessagesEnabled }" v-if="message.content.is_attachment && imageRegex.test(checkAttachmentType(message.content.attachment))">
           <Content v-if="validateMessages(message).includes('message-sender') && conversation.is_group" :font-size="12" :color="groupnameColors[message.content.sender_token]" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getContactName(message.content.sender_token) }} </Content>
 
           <!-- Modal Open Caret -->
-          <div class="robin-caret-container" v-show="(caretOpen || (messagePopup.opened && validateMessages(message))) && (isMessageReactionsEnabled || isReplyMessagesEnabled || isDeleteMessagesEnabled || isForwardMessagesEnabled || (isMessageReactionsEnabled && isReplyMessagesEnabled && isDeleteMessagesEnabled && isForwardMessagesEnabled))" @click="openModal()">
+          <div class="robin-caret-container" v-show="(caretOpen || (messagePopup.opened && validateMessages(message))) && (isMessageReactionViewEnabled || isReplyMessagesEnabled || isDeleteMessagesEnabled || isForwardMessagesEnabled || (isMessageReactionViewEnabled && isReplyMessagesEnabled && isDeleteMessagesEnabled && isForwardMessagesEnabled))" @click="openModal()">
             <IconButton name="messagePopupCaret" :to-emit="false" :to-click-away="false" />
           </div>
           <!-- Modal Open Caret -->
@@ -86,11 +86,11 @@
           </span>
         </div>
 
-        <div class="robin-message-bubble-video" :class="{ 'robin-non-clickable': selectMessagesOpen, 'robin-non-clickable':   !isMessageReactionsEnabled && !isReplyMessagesEnabled && !isDeleteMessagesEnabled && !isForwardMessagesEnabled }" v-if="message.content.is_attachment && videoRegex.test(checkAttachmentType(message.content.attachment))">
+        <div class="robin-message-bubble-video" :class="{ 'robin-non-clickable': selectMessagesOpen, 'robin-non-clickable':   !isMessageReactionViewEnabled && !isReplyMessagesEnabled && !isDeleteMessagesEnabled && !isForwardMessagesEnabled }" v-if="message.content.is_attachment && videoRegex.test(checkAttachmentType(message.content.attachment))">
           <Content v-if="validateMessages(message).includes('message-sender') && conversation.is_group" :font-size="12" :color="groupnameColors[message.content.sender_token]" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getContactName(message.content.sender_token) }} </Content>
 
           <!-- Modal Open Caret -->
-          <div class="robin-caret-container" v-show="(caretOpen || (messagePopup.opened && validateMessages(message))) && (isMessageReactionsEnabled || isReplyMessagesEnabled || isDeleteMessagesEnabled || isForwardMessagesEnabled || (isMessageReactionsEnabled && isReplyMessagesEnabled && isDeleteMessagesEnabled && isForwardMessagesEnabled))" @click="openModal()">
+          <div class="robin-caret-container" v-show="(caretOpen || (messagePopup.opened && validateMessages(message))) && (isMessageReactionViewEnabled || isReplyMessagesEnabled || isDeleteMessagesEnabled || isForwardMessagesEnabled || (isMessageReactionViewEnabled && isReplyMessagesEnabled && isDeleteMessagesEnabled && isForwardMessagesEnabled))" @click="openModal()">
             <IconButton name="messagePopupCaret" :to-emit="false" :to-click-away="false" />
           </div>
           <!-- Modal Open Caret -->
@@ -123,11 +123,11 @@
           </span>
         </div>
 
-        <div class="robin-message-bubble-document" :class="{ 'robin-non-clickable': selectMessagesOpen, 'robin-non-clickable':   !isMessageReactionsEnabled && !isReplyMessagesEnabled && !isDeleteMessagesEnabled && !isForwardMessagesEnabled }" v-if="message.content.is_attachment && documentRegex.test(checkAttachmentType(message.content.attachment))">
+        <div class="robin-message-bubble-document" :class="{ 'robin-non-clickable': selectMessagesOpen, 'robin-non-clickable':   !isMessageReactionViewEnabled && !isReplyMessagesEnabled && !isDeleteMessagesEnabled && !isForwardMessagesEnabled }" v-if="message.content.is_attachment && documentRegex.test(checkAttachmentType(message.content.attachment))">
           <Content v-if="validateMessages(message).includes('message-sender') && conversation.is_group" :font-size="12" :color="groupnameColors[message.content.sender_token]" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getContactName(message.content.sender_token) }} </Content>
 
           <!-- Modal Open Caret -->
-          <div class="robin-caret-container" v-show="(caretOpen || (messagePopup.opened && validateMessages(message))) && (isMessageReactionsEnabled || isReplyMessagesEnabled || isDeleteMessagesEnabled || isForwardMessagesEnabled || (isMessageReactionsEnabled && isReplyMessagesEnabled && isDeleteMessagesEnabled && isForwardMessagesEnabled))" @click="openModal()">
+          <div class="robin-caret-container" v-show="(caretOpen || (messagePopup.opened && validateMessages(message))) && (isMessageReactionViewEnabled || isReplyMessagesEnabled || isDeleteMessagesEnabled || isForwardMessagesEnabled || (isMessageReactionViewEnabled && isReplyMessagesEnabled && isDeleteMessagesEnabled && isForwardMessagesEnabled))" @click="openModal()">
             <IconButton name="messagePopupCaret" :to-emit="false" :to-click-away="false" />
           </div>
           <!-- Modal Open Caret -->
@@ -172,8 +172,8 @@
       </div>
 
       <div class="robin-bubble" :class="validateMessages(message).includes('message-sender') ? 'robin-ml-5' : 'robin-mr-5'" v-if="Array.isArray(message) && message.filter((image) => !image.is_deleted).length === 1">
-        <div class="robin-reactions" v-if="message[0].reactions && message[0].reactions.length > 0 && isMessageReactionsEnabled">
-          <div class="robin-reaction" v-for="(value, key, index) in reactions" :key="index" @click="removeReaction(value[value.length - 1])" v-show="value.length > 0">{{ key + ' ' + value.length }}</div>
+        <div class="robin-reactions" v-if="message[0].reactions && message[0].reactions.length > 0 && isMessageReactionViewEnabled">
+          <div class="robin-reaction" :class="{'delete-enabled': isMessageReactionDeleteEnabled}" v-for="(value, key, index) in reactions" :key="index" @click="removeReaction(value[value.length - 1])" v-show="value.length > 0">{{ key + ' ' + value.length }}</div>
         </div>
 
         <div class="robin-message-bubble-image" v-if="message[0].content.is_attachment && imageRegex.test(checkAttachmentType(message[0].content.attachment))">
@@ -196,8 +196,8 @@
         </div>
       </div>
 
-      <div class="robin-reactions" v-if="Array.isArray(message) && message[0].reactions && message[0].reactions.length > 0 && isMessageReactionsEnabled">
-        <div class="robin-reaction" v-for="(value, key, index) in reactions" :key="index" @click="removeReaction(value[value.length - 1])" v-show="value.length > 0">{{ key + ' ' + value.length }}</div>
+      <div class="robin-reactions" v-if="Array.isArray(message) && message[0].reactions && message[0].reactions.length > 0 && isMessageReactionViewEnabled">
+        <div class="robin-reaction" :class="{'delete-enabled': isMessageReactionDeleteEnabled}" v-for="(value, key, index) in reactions" :key="index" @click="removeReaction(value[value.length - 1])" v-show="value.length > 0">{{ key + ' ' + value.length }}</div>
       </div>
 
       <MessageGrid ref="popup-2" :class="!validateMessages(message) ? 'robin-ml-5' : 'robin-mr-5'" v-if="Array.isArray(message) && message.filter((image) => !image.is_deleted).length > 1" :message="message.filter((image) => !image.is_deleted)" :read-receipts="readReceipts" :conversation="conversation" :message-popup="messagePopup" @open-preview="openPreview($event)" @open-modal="openModal()" @close-modal="closeModal()" @add-reaction="addReaction" v-on-clickaway="closeModal" :groupname-colors="groupnameColors" />
@@ -353,8 +353,12 @@ export default class MessageContent extends ComponentProps {
     return store.state.forwardMessagesEnabled
   }
 
-  get isMessageReactionsEnabled () {
-    return store.state.messageReactionsEnabled
+  get isMessageReactionViewEnabled () {
+    return store.state.messageReactionViewEnabled
+  }
+
+  get isMessageReactionDeleteEnabled () {
+    return store.state.messageReactionDeleteEnabled
   }
 
   get assets (): any {
@@ -560,22 +564,17 @@ export default class MessageContent extends ComponentProps {
     const robin = this.$robin as any
     const message = Array.isArray(this.message) ? this.message[0] : (this.message as any)
 
-    // const filteredMessage = message.reactions?.filter((reaction: { reaction: any }) => reaction.reaction === emoji)
-    // (filteredMessage, emoji)
-
-    // if (!filteredMessage || filteredMessage.length === 0) {
     await robin.reactToMessage(emoji, this.conversation._id, message._id, this.$user_token)
     this.closeModal()
-    // } else {
-    //   this.removeReaction(filteredMessage[0])
-    // }
   }
 
   async removeReaction (reaction: any): Promise<void> {
     const robin = this.$robin as any
     const message = Array.isArray(this.message) ? this.message[0] : (this.message as any)
 
-    await robin.RemoveReaction(reaction._id, message._id)
+    if (this.isMessageReactionDeleteEnabled) {
+      await robin.RemoveReaction(reaction._id, message._id)
+    }
   }
 
   onNewReaction () {
@@ -1282,7 +1281,7 @@ video.video-reply {
   align-items: center;
 }
 
-.robin-reaction:active {
+.robin-reaction.delete-enabled:active {
   transform: scale(0.9);
 }
 

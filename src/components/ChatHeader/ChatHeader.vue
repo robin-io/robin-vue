@@ -7,7 +7,7 @@
         <div class="robin-card-info robin-mr-8">
           <GroupAvatar v-if="conversation.is_group" :img-url="conversation.group_icon" />
 
-          <Avatar :key="avatarKey" :robin-users="$robin_users" v-else :status="conversation.status" :sender-token="conversation.sender_token === $user_token ? conversation.receiver_token : conversation.sender_token" />
+          <Avatar :key="avatarKey" :img-url="getProfileImage(conversation) || conversation.display_photo" :robin-users="$robin_users" v-else :sender-token="conversation.sender_token === $user_token ? conversation.receiver_token : conversation.sender_token" />
         </div>
 
         <div class="robin-card-info robin-h-100 robin-flex robin-flex-column robin-flex-space-between robin-flex-1">
@@ -176,6 +176,12 @@ export default class ChatHeader extends ComponentProps {
         this.conversation.status = 'online'
       }
     })
+  }
+
+  getProfileImage (conversation: any) {
+    const index = this.$robin_users.findIndex((user: any) => user.userToken === conversation.sender_token)
+
+    return this.$robin_users[index] ? this.$robin_users[index].profileImage : null
   }
 
   handleUserDisconnect () {

@@ -26,7 +26,8 @@ interface State {
   createChatEnabled: boolean,
   replyMessagesEnabled: boolean,
   voiceRecorderEnabled: boolean,
-  messageReactionsEnabled: boolean,
+  messageReactionViewEnabled: boolean,
+  messageReactionDeleteEnabled: boolean,
   useDefaultProfileDetails: boolean,
 }
 
@@ -56,7 +57,8 @@ const state: State = {
   createChatEnabled: false,
   replyMessagesEnabled: false,
   voiceRecorderEnabled: false,
-  messageReactionsEnabled: false,
+  messageReactionViewEnabled: false,
+  messageReactionDeleteEnabled: false,
   useDefaultProfileDetails: false
 }
 

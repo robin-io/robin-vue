@@ -8,7 +8,7 @@
 
         <div class="robin-card-info robin-mr-16">
           <GroupAvatar v-if="conversation.is_group" :img-url="conversation.group_icon" />
-          <Avatar :robin-users="$robin_users"  :sender-token="conversation.sender_token === $user_token ? conversation.receiver_token : conversation.sender_token" v-else />
+          <Avatar :robin-users="$robin_users" :img-url="getProfileImage(conversation) || conversation.display_photo" :sender-token="conversation.sender_token === $user_token ? conversation.receiver_token : conversation.sender_token" v-else />
         </div>
 
         <div class="robin-card-info robin-h-100 robin-flex robin-flex-column robin-flex-space-between robin-flex-1">
@@ -20,10 +20,6 @@
             <Content font-weight="normal" color="#000000" :font-size="16" :line-height="20" v-else>
               {{ conversation.name }}
             </Content>
-          </div>
-
-          <div class="robin-mt-6">
-            <Content v-show="!conversation.is_group" as="p" font-weight="normal" color="#7A7A7A" :font-size="14" :line-height="18">{{ conversation.status }}</Content>
           </div>
         </div>
       </div>
@@ -181,6 +177,12 @@ export default class MessageImagePreviewer extends ComponentProps {
     }
   }
 
+  getProfileImage (conversation: any) {
+    const index = this.$robin_users.findIndex((user: any) => user.userToken === conversation.sender_token)
+
+    return this.$robin_users[index] ? this.$robin_users[index].profileImage : null
+  }
+
   onSelectChange (index: number): void {
     this.imageSelected = index
   }
@@ -288,6 +290,10 @@ export default class MessageImagePreviewer extends ComponentProps {
   height: 100%;
   padding: 2.5rem 2.688rem 0 3.125rem;
   overflow-y: auto;
+}
+
+.robin-body .robin-wrapper:first-child {
+  min-height: 643px;
 }
 
 .robin-image-preview {

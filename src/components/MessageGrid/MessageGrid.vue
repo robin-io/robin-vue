@@ -1,7 +1,7 @@
 <template>
   <div class="robin-bubble" :class="!validateMessageClass() ? 'robin-grid-sender' : 'robin-grid-receiver'" @click.self="$emit('open-modal')" data-testid="bubble">
     <div class="robin-popup-container reactions" ref="popup-body">
-      <ReactionPopOver v-show="messagePopup.opened && isMessageReactionsEnabled" @close-modal="closeModal()" :id="message[0]._id" :message="message[0]" @reaction="$emit('add-reaction', $event)"/>
+      <ReactionPopOver v-show="messagePopup.opened && isMessageReactionViewEnabled" @close-modal="closeModal()" :id="message[0]._id" :message="message[0]" @reaction="$emit('add-reaction', $event)"/>
     </div>
 
     <Content v-if="!validateMessageClass() && conversation.is_group" :font-size="12" as="span" :color="groupnameColors[message[0].content.sender_token]" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getContactName(message[0].content.sender_token) }} </Content>
@@ -100,8 +100,8 @@ export default class MessageGrid extends ComponentProps {
     }
   }
 
-  get isMessageReactionsEnabled () {
-    return store.state.messageReactionsEnabled
+  get isMessageReactionViewEnabled () {
+    return store.state.messageReactionViewEnabled
   }
 
   closeModal (): void {

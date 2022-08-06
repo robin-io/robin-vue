@@ -29,7 +29,7 @@
     <div v-show="!isPageLoading" class="robin-wrapper robin-card-container robin-pb-16 robin-flex robin-flex-column" @scroll="onScroll()" :class="{ 'robin-come-down': screenWidth > 1200 }">
       <div class="robin-card robin-flex robin-flex-align-center" v-for="(conversation, index) in conversations" :key="`conversation-${index}`" :class="{ 'robin-card-active': currentConversation._id == conversation._id && screenWidth > 1200 }" @click.self="openConversation(conversation)" :data-testid="`conversation-${index}`">
         <div class="robin-card-info robin-mr-12" @click="openConversation(conversation)">
-          <Avatar :robin-users="$robin_users" v-if="!conversation.is_group" :key="avatarKey" :img-url="getProfileImage(conversation)" :sender-token="conversation.sender_token === $user_token ? conversation.receiver_token : conversation.sender_token" data-testid="regular-avatar" />
+          <Avatar :robin-users="$robin_users" v-if="!conversation.is_group" :key="avatarKey" :img-url="getProfileImage(conversation) || conversation.display_photo" :sender-token="conversation.sender_token === $user_token ? conversation.receiver_token : conversation.sender_token" data-testid="regular-avatar" />
 
           <GroupAvatar v-else :img-url="conversation.group_icon" data-testid="group-avatar" />
         </div>
@@ -234,7 +234,7 @@ export default class PrimaryChatList extends ComponentProps {
   getProfileImage (conversation: any) {
     const index = this.$robin_users.findIndex((user: any) => user.userToken === conversation.sender_token)
 
-    return this.$robin_users[index] ? this.$robin_users[index].profileImage : ''
+    return this.$robin_users[index] ? this.$robin_users[index].profileImage : null
   }
 
   onScroll (): void {

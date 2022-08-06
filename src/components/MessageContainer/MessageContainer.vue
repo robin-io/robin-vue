@@ -15,7 +15,7 @@
         <MessageContent v-for="(message, index) in messages" :ref="`message-${String(index)}`" :uncheck="uncheck" @open-preview="openImagePreview($event)" :key="`message-${String(index + key)}`" v-show="!message.is_deleted" :message="message" :conversation="conversation" :message-popup="getMessagePopup(index)" :messages="messages" :index="index" :scroll="scroll" :last-id="!Array.isArray(message) && messages.length - 3 < parseInt(String(index)) ? message._id : ''" :read-receipts="readReceipts" @toggle-check-action="toggleCheckAction($event, message)" @reply-message="replyMessage($event)" @forward-message="forwardMessage = true" @scroll-replied-message="scrollToRepliedMessage" />
       </div> -->
 
-      <div class="robin-scroll-to-bottom robin-bounceIn" v-show="scrollUp && scroll" @click="scrollToBottom()" data-testid="scroll-bottom-button">
+      <div class="robin-scroll-to-bottom robin-bounceIn" v-if="scrollUp && scroll" @click="scrollToBottom()" data-testid="scroll-bottom-button">
         <i class="robin-material-icon"> arrow_downward </i>
       </div>
     </div>
@@ -756,7 +756,6 @@ export default class MessageContainer extends Vue {
   }
 
   onResize () {
-    ('resized')
     this.scrollUp = false
     this.windowHeight = window.innerHeight
   }

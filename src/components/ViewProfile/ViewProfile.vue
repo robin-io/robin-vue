@@ -7,7 +7,7 @@
 
     <div class="robin-wrapper robin-fadeIn" v-if="!isProfileLoading">
       <div class="robin-profile">
-        <Avatar :robin-users="$robin_users" v-if="!currentConversation.is_group" :sender-token="currentConversation.sender_token === $user_token ? currentConversation.receiver_token : currentConversation.sender_token" class="robin-mb-8" />
+        <Avatar :robin-users="$robin_users" :img-url="getProfileImage(currentConversation) || currentConversation.display_photo" v-if="!currentConversation.is_group" :sender-token="currentConversation.sender_token === $user_token ? currentConversation.receiver_token : currentConversation.sender_token" class="robin-mb-8" />
         <GroupAvatar v-else class="robin-mb-8" :img-url="currentConversation.group_icon" />
 
         <Content fontWeight="500" as="h3" class="robin-mb-8">{{ !currentConversation.is_group ? currentConversation.sender_token != $user_token ? currentConversation.sender_name : currentConversation.receiver_name : currentConversation.name }}</Content>
@@ -275,14 +275,18 @@ export default class ViewProfile extends Vue {
 
     const res = await this.$robin.getConversationDetails(this.currentConversation._id, this.$user_token)
 
-    console.log('dsd')
-
     if (res && !res.error) {
       this.isProfileLoading = false
       this.media = res.data.photos ? [...res.data.photos] : []
       this.links = res.data.links ? [...res.data.links] : []
       this.documents = res.data.documents ? [...res.data.documents.filter((doc: any) => this.documentRegex.test(this.checkAttachmentType(doc.content.attachment)))] : []
     }
+  }
+
+  getProfileImage (conversation: any) {
+    const index = this.$robin_users.findIndex((user: any) => user.userToken === conversation.sender_token)
+
+    return this.$robin_users[index] ? this.$robin_users[index].profileImage : null
   }
 
   handleConversationMessages () {

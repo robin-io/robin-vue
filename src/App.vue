@@ -1,7 +1,7 @@
 <template>
   <div class="robin-container">
     <transition name="robin-fadeIn">
-      <SideContainer v-if="(!isPageLoading && !conversationOpened && screenWidth <= 1200) || (conversationOpened && screenWidth > 1200) || (!conversationOpened && screenWidth > 1200)" :key="key">
+      <SideContainer v-show="(!conversationOpened && screenWidth <= 1200) || (conversationOpened && screenWidth > 1200) || (!conversationOpened && screenWidth > 1200)" :key="key">
         <template #chat-list-header>
           <slot name="chat-list-header"></slot>
         </template>
@@ -41,11 +41,11 @@ const ComponentProps = Vue.extend({
   props: {
     userToken: {
       type: String as PropType<string>,
-      default: ''
+      default: 'clpYwBMnDGdynSarEBZOuPWZ'
     },
     apiKey: {
       type: String as PropType<string>,
-      default: ''
+      default: 'NT-XmIzEmWUlsrQYypZOFRlogDFvQUsaEuxMfZf'
     },
     pageLoader: {
       type: Boolean as PropType<boolean>,
@@ -57,7 +57,7 @@ const ComponentProps = Vue.extend({
     },
     userName: {
       type: String as PropType<string>,
-      default: ''
+      default: 'Enoch Chejieh'
     },
     users: {
       type: Array as PropType<Array<any>>,
@@ -164,7 +164,8 @@ export default class App extends ComponentProps {
     store.setState('createChatEnabled', this.features.includes('create-chat'))
     store.setState('replyMessagesEnabled', this.features.includes('reply-messages'))
     store.setState('voiceRecorderEnabled', this.features.includes('voice-recorder'))
-    store.setState('messageReactionsEnabled', this.features.includes('message-reactions'))
+    store.setState('messageReactionViewEnabled', this.features.includes('message-reaction.view'))
+    store.setState('messageReactionDeleteEnabled', this.features.includes('message-reaction.delete'))
     store.setState('useDefaultProfileDetails', this.useDefaultProfileDetails)
 
     if (this.conn) {
@@ -172,7 +173,7 @@ export default class App extends ComponentProps {
         this.robin?.subscribe(this.channel, this.conn)
       }
 
-      this.conn.onclosed = () => {
+      this.conn.onclose = () => {
         this.connect()
       }
     }
@@ -268,7 +269,6 @@ export default class App extends ComponentProps {
       const notification = this.$refs.notification as any
 
       const message = JSON.parse(evt.data)
-      // (message)
       if (message.is_event !== true) {
         EventBus.$emit('new-message', message)
         this.messageEvent = message
@@ -277,15 +277,6 @@ export default class App extends ComponentProps {
           notification.click()
         }
       } else {
-        // move new conversation to the top
-        // ('new conversation')
-        // EventBus.$emit('new-conversation', message)
-
-        // check event type
-
-        // if (message.name == "new.conversation") {
-        //   EventBus.$emit('new.conversation', message.value)
-        // }
         this.handleEvents(message)
       }
 
@@ -314,7 +305,6 @@ export default class App extends ComponentProps {
   }
 
   handleEvents (message: any): void {
-    // ('event->', message)
     switch (message.name) {
       case 'user.connect':
         // set user status to online
