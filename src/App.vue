@@ -142,10 +142,8 @@ export default class App extends ComponentProps {
   robin = null as Robin | null
   conn = null as any
   key = 0 as number
-  // profileKey = 0 as number
   screenWidth = 0 as number
   messageEvent = null as any
-  start = null as any
   time = 0 as number
 
   created (): void {

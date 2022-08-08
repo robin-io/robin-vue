@@ -3,14 +3,14 @@
 </h1>
 
 <p align="start">
-<a href="https://npmjs.com/package/robinapp-vue">
-    <img alt="" src="https://img.shields.io/npm/v/robinapp-vue.svg">
+<a href="https://npmjs.com/package/robin-vue">
+    <img alt="" src="https://img.shields.io/npm/v/robin-vue.svg">
 </a>
-<a href="https://npmjs.com/package/robinapp-vue">
-    <img alt="" src="https://img.shields.io/npm/dt/robinapp-vue.svg">
+<a href="https://npmjs.com/package/robin-vue">
+    <img alt="" src="https://img.shields.io/npm/dt/robin-vue.svg">
 </a>
-<a href="https://npmjs.com/package/robinapp-vue">
-    <img alt="" src="https://img.shields.io/npm/l/robinapp-vue.svg">
+<a href="https://npmjs.com/package/robin-vue">
+    <img alt="" src="https://img.shields.io/npm/l/robin-vue.svg">
 </a>
 </p>
 
@@ -37,10 +37,10 @@ Robinapp-vue is a Vue SDK built to communicate with the [Robinapp API](https://r
 
 ```bash
 ## npm
-npm install robinapp-vue
+npm install robin-vue
 
 ## yarn
-yarn add robinapp-vue
+yarn add robin-vue
 ```
 
 ## Usage
@@ -48,8 +48,8 @@ yarn add robinapp-vue
 ```
 import Vue from 'vue'
 import App from './App.vue'
-import RobinChat from 'robinapp-vue'
-import 'robinapp-vue-sdk/dist/style.css'
+import RobinChat from 'robin-vue'
+import 'robin-vue-sdk/dist/style.css'
 
 Vue.config.productionTip = false
 
