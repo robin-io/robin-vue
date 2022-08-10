@@ -1,5 +1,5 @@
 <h1 align="start">
-  Robinapp-vue
+  robin-vue
 </h1>
 
 <p align="start">
@@ -31,7 +31,7 @@
 
 ## About
 
-Robinapp-vue is a Vue SDK built to communicate with the [Robinapp API](https://robinapp.co/). Now you can integrate [Robin.io](https://robinapp.co/) with minimal effort and quickly setup an real-time messaging platform in your Vue.js web application.
+robin-vue is a Vue SDK built to communicate with the [Robin API](https://robinapp.co/). Now you can integrate [Robin](https://robinapp.co/) with minimal effort and quickly setup an real-time messaging platform in your Vue.js web application.
 
 ## Installation
 
