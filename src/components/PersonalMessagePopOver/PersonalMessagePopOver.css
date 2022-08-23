@@ -1,0 +1,32 @@
+.robin-personal-popover {
+  width: 174px;
+  border: 1px solid #f5f7fc;
+  border-radius: 6px;
+  background-color: #fff;
+}
+
+.robin-personal-popover .robin-wrapper {
+  border-top: 1px solid #efefef;
+  padding: 0.813rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.robin-personal-popover .robin-wrapper:hover {
+  background-color: rgba(244, 246, 248, 0.8);
+}
+
+.robin-personal-popover .robin-wrapper:first-child {
+  border: none;
+}
+
+.robin-personal-popover .robin-w-100 {
+  width: 100%;
+}
+
+.robin-personal-popover .robin-zoomIn,
+.robin-personal-popover .robin-zoomOut {
+  transform-origin: top right;
+}

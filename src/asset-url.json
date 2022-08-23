@@ -1,0 +1,20 @@
+{
+  "pdf": "https://s3.us-east-2.amazonaws.com/robin.io-vue-assets/pdf.svg",
+  "doc": "https://s3.us-east-2.amazonaws.com/robin.io-vue-assets/doc.svg",
+  "csv": "https://s3.us-east-2.amazonaws.com/robin.io-vue-assets/csv.svg",
+  "ppt": "https://s3.us-east-2.amazonaws.com/robin.io-vue-assets/ppt.svg",
+  "xls": "https://s3.us-east-2.amazonaws.com/robin.io-vue-assets/xls.svg",
+  "txt": "https://s3.us-east-2.amazonaws.com/robin.io-vue-assets/txt.svg",
+  "zip": "https://s3.us-east-2.amazonaws.com/robin.io-vue-assets/zip.svg",
+  "avi": "https://s3.us-east-2.amazonaws.com/robin.io-vue-assets/avi.svg",
+  "psd": "https://s3.us-east-2.amazonaws.com/robin.io-vue-assets/psd.svg",
+  "svg": "https://s3.us-east-2.amazonaws.com/robin.io-vue-assets/svg.svg",
+  "ai": "https://s3.us-east-2.amazonaws.com/robin.io-vue-assets/ai.svg",
+  "mp3": "https://s3.us-east-2.amazonaws.com/robin.io-vue-assets/mp3.svg",
+  "mkv": "https://s3.us-east-2.amazonaws.com/robin.io-vue-assets/mkv.svg",
+  "gif": "https://s3.us-east-2.amazonaws.com/robin.io-vue-assets/gif.svg",
+  "default": "https://s3.us-east-2.amazonaws.com/robin.io-vue-assets/default.png",
+  "notification": "https://s3.us-east-2.amazonaws.com/robin.io-vue-assets/notification.wav",
+  "logo": "https://s3.us-east-2.amazonaws.com/robin.io-vue-assets/logo.svg",
+  "robin_icon": "https://s3.us-east-2.amazonaws.com/robin.io-vue-assets/robin_icon.png"
+}

@@ -1,402 +1,424 @@
-<template>
-  <div class="robin-container">
-    <transition name="robin-fadeIn">
-      <RSideContainer v-show="(!isPageLoading && !conversationOpened && screenWidth <= 1200) || (conversationOpened && screenWidth > 1200) || (!conversationOpened && screenWidth > 1200)" :user_token="userToken" :key="key" />
-    </transition>
-    <transition name="robin-fadeIn">
-      <RGroupMessageContainer v-show="!isPageLoading && conversationOpened" :key="key" />
-    </transition>
-    <RNoMessageSelected v-show="!isPageLoading && !conversationOpened" />
-    <RPageLoader v-show="isPageLoading && pageLoader" />
-    <MessageImagePreviewer ref="popup-1" :conversation="currentConversation" v-show="imagePreviewOpen" @close="closeImagePreview()" :images-to-preview="imagesToPreview" />
-    <audio src="@/assets/notification.wav" ref="notification">Your browser does not support the</audio>
-  </div>
-</template>
+<script lang="tsx">
+import {
+  ref,
+  onMounted,
+  nextTick,
+  PropType,
+  defineComponent,
+  watchEffect,
+  watch,
+  computed,
+  reactive,
+  useSlots
+} from 'vue-demi';
+import { Robin } from 'robin.io-js';
+import SideContainer from './components/SideContainer/SideContainer.vue';
+import store from './store/index';
+import useEmitter from './utilities/index';
+import { Hashmap } from './utilities/types';
+import assets from './asset-url.json';
+import PrimaryChatListVue from './components/PrimaryChatList/PrimaryChatList.vue';
 
-<script lang="ts">
-import Vue, { PropType } from 'vue'
-import RSideContainer from './components/ChatList/RSideContainer/RSideContainer.vue'
-import RGroupMessageContainer from './components/Message/RGroupMessageContainer/RGroupMessageContainer.vue'
-import RNoMessageSelected from './components/Message/RNoMessageSelected.vue'
-import RPageLoader from './components/RPageLoader.vue'
-import MessageImagePreviewer from './components/Message/MessageImagePreviewer/MessageImagePreviewer.vue'
-import Component from 'vue-class-component'
-import store from './store/index'
-import { Robin } from 'robin.io-js'
-import EventBus from './event-bus'
-
-const ComponentProps = Vue.extend({
+export default defineComponent({
+  name: 'RobinChat',
   props: {
     userToken: {
       type: String as PropType<string>,
-      default: 'JUevyXRRpyLNwzyGAStMSrXR'
+      default: 'clpYwBMnDGdynSarEBZOuPWZ'
     },
     apiKey: {
       type: String as PropType<string>,
-      default: 'NT-npUbpwzapYoTUtHSufMWQkNNnZePbqqFycjb'
+      default: 'NT-XmIzEmWUlsrQYypZOFRlogDFvQUsaEuxMfZf'
     },
     pageLoader: {
       type: Boolean as PropType<boolean>,
-      default: true
+      default: false
     },
     channel: {
       type: String as PropType<string>,
-      default: 'robin-chat'
+      default: 'private_chat'
     },
     userName: {
       type: String as PropType<string>,
-      default: ''
+      default: 'Enoch Chejieh'
     },
     users: {
       type: Array as PropType<Array<any>>,
       default: (): Array<any> => [
         {
-          userToken: 'BLAaUGurGvTewxIGKKrVANhn',
-          profileImage: '',
-          userName: 'Enoch Chejieh'
-        },
-        {
-          userToken: 'yfqjnGHHdAvWKuhCPlOnNkVb',
-          profileImage: '',
-          userName: 'bashir raji'
-        },
-        {
-          userToken: 'dphuBiRIetIJdYAoLWRiboKG',
-          profileImage: '',
-          userName: 'Michael Scoffield'
-        },
-        {
-          userToken: 'aHsvPTEBBZBKFIjojMTlEAUL',
-          profileImage: '',
-          userName: 'Temitope Akinlabi'
-        },
-        {
-          userToken: 'xfnAYadpvypqBlvrOoHVKAfK',
-          profileImage: '',
-          userName: 'Ayo O'
-        },
-        {
-          userToken: 'vSeEXsbjrxxBkzFdJxwtojoI',
-          profileImage: '',
-          userName: 'Precious Ogar'
-        },
-        {
-          userToken: 'UOjTEiQIKLZyhYVjzUtVVOfO',
-          profileImage: '',
-          userName: 'Precious Ogar'
-        },
-        {
-          userToken: 'lxDWlFTOQejJDxtITnhRIEKb',
-          profileImage: '',
-          userName: 'UBONG JIMMY'
-        },
-        {
-          userToken: 'urPBzlbXneOmjKEGgozhAVNg',
-          profileImage: '',
-          userName: 'chidinma'
-        },
-        {
-          userToken: 'BRLEgGMRtuluSwhKQkMUSixn',
-          profileImage: '',
-          userName: 'Dungke'
-        },
-        {
-          userToken: 'yiOLmoqOPkRkhLihuQRofblp',
-          profileImage: '',
-          userName: 'Raji Al-Ameen'
-        },
-        {
-          userToken: 'ATiDrRJFfXiEDHpSoHVXMAbJ',
-          profileImage: '',
-          userName: 'chidinma'
-        },
-        {
-          userToken: 'RbtLYpmHGTYQtEUQSnJkDveD',
-          profileImage: '',
-          userName: 'Okeke Chidinma'
-        },
-        {
-          userToken: 'ebDJHwYJeSCrMOOqowNxqyCC',
-          profileImage: '',
-          userName: 'd'
-        },
-        {
-          userToken: 'sxVLqqTHfxQsOrVaIFOjbyFN',
-          profileImage: '',
-          userName: 'Jimmy'
-        },
-        {
-          userToken: 'LqWCScOTHweNqOHZLlQUkhYg',
-          profileImage: '',
-          userName: 'Lekan Raji'
-        },
-        {
-          userToken: 'owaJCBPCCQwYchlRrIozVBuA',
-          profileImage: '',
-          userName: 'Gee'
-        },
-        {
-          userToken: 'dLtIoYbnvpJAggUYjqRUNXDs',
-          profileImage: '',
-          userName: 'Jimmy'
-        },
-        {
-          userToken: 'LjrFtzkvBGhtMfYfuPndkksF',
-          profileImage: '',
-          userName: 'jhvgcyvg'
-        },
-        {
-          userToken: 'KMjlQobcLHQdwBJlsdoDYoWM',
-          profileImage: '',
-          userName: 'jhvgcyvg'
-        },
-        {
-          userToken: 'YtEcPNBoXTfaRBQiSGBXrJyh',
-          profileImage: '',
-          userName: 'Victor'
-        },
-        {
-          userToken: 'OpcCyXVcSQxNFnjlGyvfjcYr',
-          profileImage: '',
-          userName: ''
+          _id: '621436282dc9a4e040d741bb',
+          created_at: '2022-02-22T01:02:32.517Z',
+          updated_at: '2022-02-22T01:02:32.517Z',
+          fullname: 'Testing Tester',
+          user_token: 'GmStKZeaAzsYzxsdIlFvoJSa',
+          password:
+            '$2a$14$ynUAMEo0StZa7FnbipS6l.qgAObpZJL.SkvXXVKjRalPKTK0Y51ce',
+          profile_image: '',
+          email: 'testingtester@gmail.com'
         }
       ]
+    },
+    logo: {
+      type: String as PropType<string>,
+      default: ''
+    },
+    features: {
+      type: Array as PropType<Array<string>>,
+      default: () => ['create-chat', 'voice-recorder']
+    },
+    useDefaultProfileDetails: {
+      type: Boolean,
+      default: true
     },
     keys: {
       type: Object as PropType<any>,
       default: (): any => {
         return {
-          userToken: 'userToken',
-          userName: 'userName',
-          profileImage: 'profileImage'
-        }
+          userToken: 'user_token',
+          userName: 'fullname',
+          profileImage: 'profile_image'
+        };
       }
+    },
+    imageUrl: {
+      type: String as PropType<string>,
+      default: ''
     }
-  }
-})
-
-// eslint-disable-next-line
-@Component<App>({
-  name: 'RobinChatContainer',
-  components: {
-    RSideContainer,
-    RGroupMessageContainer,
-    RPageLoader,
-    RNoMessageSelected,
-    MessageImagePreviewer
   },
-  watch: {
-    users: {
-      handler (val) {
-        this.filterUsers()
-      },
-      immediate: true
-    }
-  }
-})
-export default class App extends ComponentProps {
-  // @State('isPageLoading') isPageLoading?: RootState
+  components: {
+    SideContainer
+    // MessageContainer,
+    // PageLoader,
+    // NoMessageSelected,
+    // MessageImagePreviewer,
+    // ViewProfile,
+    // GroupPrompt,
+    // EncryptionDetails
+  },
+  setup(props) {
+    const slots = useSlots();
+    const robin = ref(null as null | Robin);
+    const conn = ref(null as null | WebSocket);
+    const messageEvent = ref(null as null | Record<string, any>);
+    const key = ref(0);
+    const time = ref(0);
+    const screenWidth = ref(0);
+    const popup = reactive({
+      popup1: ref(null),
+      popup2: ref(null)
+    });
 
-  robin = null as any
-  conn = null as any
-  conversationOpened = false as boolean
-  key = 0 as number
-  screenWidth = 0 as number
+    const notification = ref(null as null | HTMLAudioElement);
+    const popupOne = ref(null as null | HTMLDivElement);
+    const popupTwo = ref(null as null | HTMLDivElement);
 
-  created (): void {
-    this.filterUsers()
-    this.initiateRobin()
+    const currentConversation = computed(() => store.state.currentConversation);
 
-    this.openConversation()
-    this.onGroupConversationCreated()
-    this.onExitGroup()
-    this.onExitMessage()
-    // console.log(this.$store)
-  }
+    const { emit, listen } = useEmitter();
 
-  mounted () {
-    this.$nextTick(function () {
-      this.onResize()
-    })
-    window.addEventListener('resize', this.onResize)
-  }
-
-  get isPageLoading () {
-    return store.state.isPageLoading
-  }
-
-  get currentConversation () {
-    return store.state.currentConversation
-  }
-
-  get imagesToPreview () {
-    return store.state.imagesToPreview
-  }
-
-  get imagePreviewOpen () {
-    return store.state.imagePreviewOpen
-  }
-
-  initiateRobin () {
-    this.robin = new Robin(this.apiKey, true)
-    console.log(this.robin)
-    this.connect()
-    this.setPrototypes()
-  }
-
-  filterUsers (): void {
-    const filteredUsers: Array<any> = []
-    this.users.forEach((user) => {
-      if (user.user_token !== this.userToken) {
+    const filterUsers = () => {
+      const filteredUsers: Array<any> = [];
+      props.users.forEach((user) => {
         const newUser = {
-          userToken: user[this.keys?.userToken],
-          profileImage: user[this.keys?.profileImage],
-          userName: user[this.keys?.userName]
+          userToken: user[props.keys?.userToken],
+          profileImage: user[props.keys?.profileImage],
+          userName: user[props.keys?.userName]
+        };
+        filteredUsers.push(newUser);
+      });
+
+      store.setState('robin_users', [...filteredUsers]);
+    };
+
+    watchEffect(() => {
+      if (props.users.length) {
+        filterUsers();
+      }
+    });
+
+    listen('open-conversation', () => {
+      openConversation();
+    });
+    listen('left.group', () => {
+      leaveGroup();
+    });
+
+    listen('close-conversation', () => {
+      closeConversation();
+    });
+
+    listen('left.message', () => {
+      leaveMessage();
+    });
+
+    listen('open-profile', () => {
+      openProfile();
+    });
+
+    watch([time, currentConversation], ([time, currentConversation], []) => {
+      if (time) {
+        if (time === 9) {
+          connect();
+          resetStopWatch();
         }
-        filteredUsers.push(newUser)
       }
-    })
 
-    store.setState('users', filteredUsers)
-  }
-
-  setPrototypes () {
-    Vue.prototype.$robin = this.robin
-    Vue.prototype.$user_token = this.userToken
-    Vue.prototype.$channel = this.channel
-    Vue.prototype.$conversations = []
-    Vue.prototype.$regularConversations = []
-    Vue.prototype.$archivedConversations = []
-    Vue.prototype.$senderName = this.userName
-  }
-
-  connect () {
-    this.conn = this.robin.connect(this.userToken)
-
-    this.conn.onopen = () => {
-      // console.log('connected')
-      this.robin.subscribe(this.channel, this.conn)
-    }
-
-    this.conn.onmessage = (evt: any) => {
-      const notification = this.$refs.notification as any
-      // console.log('new message', evt.data)
-      const message = JSON.parse(evt.data)
-      // console.log(message)
-      if (message.is_event !== true) {
-        EventBus.$emit('new-message', message)
-        if (message.content.receiver_token === this.$user_token) notification.play()
-      } else {
-        // move new conversation to the top
-        // console.log('new conversation')
-        // EventBus.$emit('new-conversation', message)
-
-        // check event type
-
-        // if (message.name == "new.conversation") {
-        //   EventBus.$emit('new.conversation', message.value)
-        // }
-        this.handleEvents(message)
+      if (currentConversation) {
+        closeMessageViewProfile();
       }
-    }
+    });
 
-    this.conn.onclosed = () => {
-      this.connect()
-    }
+    onMounted(() => {
+      nextTick(() => {
+        onResize();
+      });
+      window.addEventListener('resize', onResize);
 
-    const WebSocket: WebSocket = this.conn
+      setInterval(() => {
+        time.value += 1;
+      }, 60000);
+    });
 
-    window.onbeforeunload = function () {
-      WebSocket.close()
-    }
+    const initiateRobin = () => {
+      robin.value = new Robin(props.apiKey, true);
+      connect();
+      setGlobals();
+    };
 
-    Vue.prototype.$conn = this.conn
-  }
+    const connect = () => {
+      conn.value = robin.value?.connect(props.userToken) as WebSocket;
 
-  openConversation (): void {
-    EventBus.$on('open-conversation', () => {
-      this.conversationOpened = true
-    })
-  }
+      conn.value.onmessage = (evt: any) => {
+        const message = JSON.parse(evt.data);
+        if (message.is_event !== true) {
+          emit('new-message', message);
+          messageEvent.value = message;
 
-  onGroupConversationCreated (): void {
-    EventBus.$on('new-group.conversation', (conversation: object) => {
-      // this.conversationOpened = true
-    })
-  }
-
-  handleEvents (message: any): void {
-    switch (message.name) {
-      case 'user.connect':
-        // set user status to online
-        // check conversations(dms)
-        // if this.$userToken != message.value
-        // check if reciever_token or sender_token == message.value
-        // set the conversation.status as online
-        EventBus.$emit('user.connect', message.value)
-        break
-      case 'user.disconnect':
-        // set user status to offline
-
-        // check conversations(dms)
-        // if this.$userToken != message.value
-        // check if reciever_token or sender_token == message.value
-        // set the conversation.status as offline
-        EventBus.$emit('user.disconnect', message.value)
-        break
-      case 'new.conversation':
-        console.log('new conversation', message.value)
-        if (message.value.is_group) {
-          EventBus.$emit('new-group.conversation', message.value)
+          if (notification.value) {
+            notification.value.click();
+          }
         } else {
-          EventBus.$emit('new.conversation', message.value)
+          handleEvents(message);
         }
-        break
-      case 'message.forward':
-        // loop through message.value
-        // check if current conversation._id is equal to message.conversation_id
-        // if it is, push message to message array
-        // else update last_message and unshift
-        EventBus.$emit('message.forward', message.value)
-        // console.log('forwarded message', message.value)
-        break
-      default:
-        // console.log('cannot handle event')
-        break
+
+        resetStopWatch();
+      };
+
+      const WebSocket = conn.value as WebSocket;
+
+      window.onbeforeunload = function () {
+        WebSocket.close();
+      };
+
+      store.setState('conn', conn.value);
+    };
+
+    const setGlobals = () => {
+      store.setState('robin', robin.value);
+      store.setState('api_key', props.apiKey);
+      store.setState('user_token', props.userToken);
+      store.setState('channel', props.channel);
+      store.setState('conversations', []);
+      store.setState('sender_name', props.userName);
+      store.setState('logo', props.logo);
+    };
+
+    const openConversation = () => {
+      store.setState('conversationOpened', true);
+    };
+
+    const leaveMessage = () => {
+      store.setState('conversationOpened', false);
+      store.setState('profileOpen', false);
+    };
+
+    const leaveGroup = () => {
+      key.value += 1;
+      store.setState('conversationOpened', false);
+      store.setState('profileOpen', false);
+    };
+
+    const closeConversation = () => {
+      store.setState('conversationOpened', false);
+      store.setState('profileOpen', false);
+    };
+
+    const openProfile = () => {
+      emit('open-profile');
+    };
+
+    const onResize = () => {
+      screenWidth.value = window.innerWidth;
+    };
+
+    const handleEvents = (message: Hashmap): void => {
+      switch (message.name) {
+        case 'user.connect':
+          emit('user.connect', message.value);
+
+          break;
+        case 'user.disconnect':
+          emit('user.disconnect', message.value);
+
+          break;
+        case 'new.conversation':
+          if (message.value.is_group) {
+            emit('new-group.conversation', message.value);
+          } else {
+            emit('new.conversation', message.value);
+          }
+          break;
+        case 'message.forward':
+          emit('message.forward', message.value);
+
+          break;
+        case 'message.reaction':
+          emit('message.reaction', message.value);
+
+          break;
+        case 'message.remove.reaction':
+          emit('message.remove.reaction', message.value);
+
+          break;
+        case 'remove.group.participant':
+          emit('remove.group.participant', message.value);
+
+          break;
+        case 'read.reciept':
+          emit('read.reciept', message.value);
+
+          break;
+        case 'group.icon.update':
+          emit('group.icon.update', message.value);
+
+          break;
+        default:
+          break;
+      }
+    };
+
+    const closeImagePreview = (): void => {
+      // const { popup1 } = popup as any
+      // popup1.value.popupBody.classList.remove('robin-squeezeOut')
+      // popup1.value.popupBody.classList.add('robin-squeezeIn')
+      // window.setTimeout(() => {
+      //   popup1.value.popupBody.classList.remove('robin-squeezeIn')
+      //   popup1.value.popupBody.classList.add('robin-squeezeOut')
+      //   store.setState('imagePreviewOpen', false)
+      //   store.setState('imagesToPreview', [])
+      // }, 100)
+    };
+
+    const closeMessageViewProfile = (): void => {
+      // const { popup2 } = popup as any
+      // popup2.value.popupBody.classList.remove('robin-slideInRight')
+      // popup2.value.popupBody.classList.add('robin-slideOutRight')
+      // window.setTimeout(() => {
+      //   popup2.value.popupBody.classList.remove('robin-slideOutRight')
+      //   popup2.value.popupBody.classList.add('robin-slideInRight')
+      //   store.setState('profileOpen', false)
+      // }, 100)
+    };
+
+    const resetStopWatch = () => {
+      time.value = 0;
+    };
+
+    const playAudio = (event: any): void => {
+      if (messageEvent) {
+        if (
+          messageEvent.value?.content.receiver_token === store.state.user_token
+        ) {
+          event.target.play();
+        }
+      }
+    };
+
+    filterUsers();
+    initiateRobin();
+
+    store.setState(
+      'forwardMessagesEnabled',
+      props.features.includes('forward-messages')
+    );
+    store.setState(
+      'deleteMessagesEnabled',
+      props.features.includes('delete-messages')
+    );
+    store.setState(
+      'archiveChatEnabled',
+      props.features.includes('archive-chat')
+    );
+    store.setState('createChatEnabled', props.features.includes('create-chat'));
+    store.setState(
+      'replyMessagesEnabled',
+      props.features.includes('reply-messages')
+    );
+    store.setState(
+      'voiceRecorderEnabled',
+      props.features.includes('voice-recorder')
+    );
+    store.setState(
+      'messageReactionViewEnabled',
+      props.features.includes('message-reaction.view')
+    );
+    store.setState(
+      'messageReactionDeleteEnabled',
+      props.features.includes('message-reaction.delete')
+    );
+    store.setState('useDefaultProfileDetails', props.useDefaultProfileDetails);
+
+    if (conn.value) {
+      conn.value.onopen = () => {
+        robin.value?.subscribe(props.channel, conn.value as WebSocket);
+      };
+
+      conn.value.onclose = () => {
+        connect();
+      };
     }
+
+    return {
+      slots,
+      playAudio
+    };
+  },
+  render() {
+    // if (isVue2) {
+    //   return (
+    //     <div class="robin-container">
+    //       <SideContainer>
+    //         {{
+    //           chatListHeader: () => this.slots['chat-list-header']?.(),
+    //         }}
+    //       </SideContainer>
+    //       <audio
+    //         src={assets['notification']}
+    //         onClick={(event) => this.playAudio(event)}
+    //       >
+    //         Your browser does not support the audio feature
+    //       </audio>
+    //     </div>
+    //   );
+    // } else {
+    return (
+      <div class="robin-container">
+        <SideContainer>
+          {{
+            chatListHeader: () => this.slots['chat-list-header']?.()
+          }}
+        </SideContainer>
+        <audio
+          src={assets['notification']}
+          onClick={(event) => this.playAudio(event)}
+        >
+          Your browser does not support the audio feature
+        </audio>
+      </div>
+    );
+    // }
   }
-
-  onExitGroup () {
-    EventBus.$on('left.group', () => {
-      this.key += 1
-      this.conversationOpened = false
-    })
-  }
-
-  onExitMessage () {
-    EventBus.$on('left.message', () => {
-      this.conversationOpened = false
-    })
-  }
-
-  onResize () {
-    this.screenWidth = window.innerWidth
-  }
-
-  closeImagePreview (): void {
-    const popup = this.$refs['popup-1'] as any
-    popup.$refs['popup-body'].classList.remove('robin-squeezeOut')
-    popup.$refs['popup-body'].classList.add('robin-squeezeIn')
-
-    window.setTimeout(() => {
-      popup.$refs['popup-body'].classList.remove('robin-squeezeIn')
-      popup.$refs['popup-body'].classList.add('robin-squeezeOut')
-
-      store.setState('imagePreviewOpen', false)
-      store.setState('imagesToPreview', [])
-    }, 100)
-  }
-}
+});
 </script>
 
 <style>
@@ -404,7 +426,6 @@ export default class App extends ComponentProps {
   margin: 0;
   padding: 0;
   width: 100vw;
-  height: 100vh;
   display: flex;
   position: absolute;
   top: 0;
@@ -413,16 +434,17 @@ export default class App extends ComponentProps {
   bottom: 0;
   z-index: 2000;
   overflow: hidden;
+  transition: 100ms;
 }
 
 .robin-container *,
 .robin-container *::before,
 .robin-container *::after {
+  box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
+  font-family: 'Hanken Sans', sans-serif;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
-  font-family: 'Google Sans', sans-serif;
   font-kerning: normal;
   -moz-font-feature-settings: 'kern', 'liga', 'clig', 'calt';
   -ms-font-feature-settings: 'kern', 'liga', 'clig', 'calt';
@@ -430,6 +452,26 @@ export default class App extends ComponentProps {
   font-feature-settings: 'kern', 'liga', 'clig', 'calt';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  scroll-behavior: smooth;
+}
+
+@media (min-width: 768px) {
+  .robin-container ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  .robin-container ::-webkit-scrollbar-track {
+    border-radius: 24px;
+  }
+
+  .robin-container ::-webkit-scrollbar-thumb {
+    width: 2px;
+    background-color: #d6d6d6;
+    border-radius: 24px;
+    -webkit-border-radius: 24px;
+    -moz-border-radius: 24px;
+    -ms-border-radius: 24px;
+    -o-border-radius: 24px;
+  }
 }
 </style>

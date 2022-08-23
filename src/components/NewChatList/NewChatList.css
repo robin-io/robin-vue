@@ -1,0 +1,58 @@
+.robin-new-chat-list {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  box-shadow: 0px 2px 20px rgba(0, 104, 255, 0.06);
+  position: absolute;
+  top: 0;
+  z-index: 0;
+  background-color: #fff;
+}
+
+.robin-new-chat-list header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: clamp(10%, 4vh, 3.563rem) clamp(2%, 4vw, 1rem) 1.5rem;
+}
+
+.robin-new-chat-list .robin-contact-container {
+  width: 100%;
+}
+
+.robin-new-chat-list .robin-create-group {
+  border-bottom: 1px solid #efefef;
+  max-height: 30px;
+}
+
+.robin-new-chat-list .robin-card-container {
+  width: 100%;
+}
+
+.robin-new-chat-list .robin-card-container .robin-card {
+  box-shadow: 0px 1px 0px 2.5px rgba(69, 104, 209, 0.05);
+  padding: 0.875rem 1rem 1rem;
+  transition: all 0.15s;
+  background-color: #fff;
+}
+
+.robin-new-chat-list .robin-card-container .robin-card + .robin-card {
+  margin-top: 0.25rem;
+}
+
+.robin-new-chat-list
+  .robin-alphabet-block
+  + .robin-card-container
+  .robin-card:hover {
+  background-color: #f5f7fc;
+}
+
+.robin-new-chat-list .robin-flex .robin-svg {
+  height: 16px;
+}
+
+.robin-new-chat-list .robin-card-info .robin-text {
+  text-transform: capitalize;
+}

@@ -1,0 +1,6 @@
+.robin-text {
+  display: block;
+  max-height: max-content;
+  overflow: hidden;
+  padding: 0 0.2rem;
+}

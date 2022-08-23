@@ -1,0 +1,76 @@
+.robin-new-group-chat {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0px 2px 20px rgba(0, 104, 255, 0.06);
+  position: absolute;
+  top: 0;
+  z-index: 2;
+  background-color: #fff;
+}
+
+.robin-new-group-chat .robin-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: clamp(10%, 4vh, 3.563rem) clamp(2%, 4vw, 1.5rem) 1.5rem;
+}
+
+.robin-new-group-chat >>> label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.robin-new-group-chat .robin-contact-container {
+  width: 100%;
+}
+
+.robin-new-group-chat div.robin-group-image {
+  background-color: #9999bc;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+
+.robin-new-group-chat img.robin-group-image {
+  width: 80px;
+  min-height: 80px;
+  max-height: 80px;
+  border-radius: 50%;
+  background-color: #9999bc;
+  object-fit: cover;
+}
+
+.robin-new-group-chat .robin-wrapper {
+  padding: 0 clamp(2%, 4vw, 1.5rem);
+}
+
+.robin-new-group-chat .robin-card-container {
+  width: 100%;
+}
+
+.robin-new-group-chat .robin-contact-container:nth-child(3) {
+  margin-top: 2.375rem;
+}
+
+.robin-new-group-chat .robin-card-container .robin-card {
+  border-bottom: 1px solid #f4f6f8;
+  padding: 1rem 0 1.1rem;
+  transition: all 0.15s;
+}
+
+.robin-new-group-chat .robin-card-container:last-child .robin-card {
+  border-bottom: none;
+}
+
+.robin-new-group-chat .robin-alphabet-block {
+  width: 100%;
+  padding: 0 1.5rem;
+  height: 28px;
+  background-color: #f3f3f3;
+}

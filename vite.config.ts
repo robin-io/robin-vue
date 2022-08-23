@@ -1,41 +1,54 @@
-import { defineConfig } from 'vite'
-import { createVuePlugin } from 'vite-plugin-vue2'
-import { resolve } from 'path'
+import { defineConfig } from 'vitest/config';
+import { resolve } from 'path';
+import { isVue2 } from 'vue-demi';
 
-// https://vitejs.dev/config /
+let vue;
+let vueJsx;
+
+if (isVue2) {
+  let { createVuePlugin } = require('vite-plugin-vue2');
+  vueJsx = require('@vitejs/plugin-vue2-jsx');
+  vue = createVuePlugin;
+} else {
+  vue = require('@vitejs/plugin-vue');
+  vueJsx = require('@vitejs/plugin-vue-jsx');
+}
+
 export default defineConfig({
+  plugins: [vue(), vueJsx()],
+  optimizeDeps: {
+    exclude: ['vue-demi']
+  },
+  test: {
+    globals: true,
+    setupFiles: 'src/setupTests.ts'
+  },
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src')
-    }
+    },
+    dedupe: ['vue']
   },
-  plugins: [createVuePlugin()],
   build: {
     lib: {
       entry: resolve(__dirname, 'src/main.ts'),
-      name: 'robin.io-vue',
-      fileName: (format) => `robin.io-vue.${format}.js`
+      name: 'robin-vue',
+      fileName: (format) => {
+        if (isVue2) `robin-vue.${format}2.js`;
+
+        return `robin-vue.${format}.js`;
+      }
     },
-    brotliSize: false,
     rollupOptions: {
-      // make sure to externalize deps that shouldn't be bundled
-      // into your library
-      external: ['vue', 'moment', 'mime', 'axios', 'vuex', 'vuex-class', 'v-lazy-image', 'v-emoji-picker', 'robin.io-js'],
+      external: ['vue', 'vue-demi', 'robin.io-js', 'moment'],
       output: {
-        // Provide global variables to use in the UMD build
-        // for externalized deps
         globals: {
           vue: 'Vue',
-          moment: 'moment',
-          mime: 'mime',
-          axios: 'axios',
-          vuex: 'vuex',
-          'vuex-class': 'vuex-class',
-          'v-lazy-image': 'v-lazy-image',
-          'v-emoji-picker': 'v-emoji-picker',
-          'robin.io-js': 'robin.io-js'
+          'vue-demi': 'VueDemi',
+          'robin.io-js': 'robin.io-js',
+          moment: 'moment'
         }
       }
     }
   }
-})
+});

@@ -1,0 +1,17 @@
+.robin-group-avatar {
+  width: 48px;
+  height: 48px;
+  max-width: 48px;
+  max-height: 48px;
+  border-radius: 50%;
+}
+
+.robin-group-avatar img {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.robin-group-avatar svg {
+  width: 100%;
+  height: 100%;
+}

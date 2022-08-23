@@ -1,0 +1,103 @@
+.robin-primary-chat-list {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.robin-primary-chat-list .robin-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: clamp(6%, 2vh, 3.563rem) clamp(2%, 4vw, 1.563rem) 1.763rem;
+}
+
+.robin-primary-chat-list .robin-header img.custom:first-child {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.robin-primary-chat-list .robin-button.robin-wrapper {
+  width: 100%;
+}
+
+.robin-primary-chat-list .robin-card-container {
+  width: 100%;
+  overflow-y: auto;
+}
+
+.robin-primary-chat-list .robin-card {
+  border-bottom: 3.5px solid #f5f7fc;
+  padding: 0.938rem 1rem 0.938rem;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.robin-primary-chat-list .robin-card-active {
+  background-color: #efefef;
+  cursor: default;
+}
+
+.robin-primary-chat-list .robin-card-container .robin-card:nth-last-child(1) {
+  border-bottom: none;
+}
+
+.robin-primary-chat-list .robin-card:not(.robin-card-active):hover {
+  background-color: #f5f7fc;
+  border-radius: 4px;
+}
+
+.robin-primary-chat-list .robin-card:hover .robin-hidden {
+  display: block;
+  animation: slideInRight 300ms;
+}
+
+.robin-primary-chat-list .robin-popup-container {
+  position: fixed;
+  z-index: 100;
+}
+
+.robin-primary-chat-list .robin-mini-info-container {
+  height: 20px;
+}
+
+.robin-primary-chat-list .robin-spinner {
+  width: 30px;
+  height: 30px;
+  margin: 0 auto;
+}
+
+.robin-primary-chat-list .robin-flex .robin-svg {
+  height: 16px;
+}
+
+@media (max-width: 1200px) {
+  .robin-primary-chat-list .robin-card-container {
+    box-shadow: 0px 2px 20px rgba(0, 104, 255, 0.06);
+  }
+
+  .robin-primary-chat-list .robin-card:not(.robin-card-active):hover {
+    background-color: initial;
+  }
+
+  .robin-primary-chat-list .robin-card:hover .robin-hidden {
+    animation: none;
+  }
+
+  .robin-primary-chat-list .robin-hidden {
+    display: block;
+  }
+
+  .robin-primary-chat-list .robin-hidden .robin-button {
+    width: 20px;
+    text-align: right;
+  }
+
+  .robin-primary-chat-list .robin-popup-container {
+    right: 0px;
+  }
+}

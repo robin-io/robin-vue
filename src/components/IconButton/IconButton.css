@@ -1,0 +1,25 @@
+button.robin-icon-button {
+  cursor: pointer;
+}
+
+button.robin-icon-button .fill-focused:focus,
+button.robin-icon-button .stroke-focused:focus {
+  background-color: var(--primary-focus-color) !important;
+}
+
+button.robin-icon-button .fill-focused svg path,
+button.robin-icon-button .stroke-focused svg path {
+  transition: stroke 0.1s;
+}
+
+button.robin-icon-button .stroke-focused:focus svg path {
+  stroke: var(--primary-color);
+}
+
+button.robin-icon-button .fill-focused:focus svg path {
+  fill: var(--primary-color);
+}
+
+button.robin-icon-button svg path {
+  transition: fill 50ms;
+}

@@ -1,0 +1,51 @@
+div.robin-search-bar {
+  width: 100%;
+  height: 44px;
+  background-color: #f5f7fc;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  padding: 0 0.2rem 0 1rem;
+  transition: all 0.1s;
+}
+
+div.robin-search-bar .robin-input {
+  width: 86%;
+  height: 100%;
+  background-color: transparent;
+  border: none;
+  font-size: 0.875rem;
+  padding-left: 1rem;
+}
+
+/* Input focus */
+div.robin-search-bar .robin-input:focus {
+  outline: none;
+}
+
+div.robin-search-bar .robin-spinner {
+  width: 17px;
+  height: 17px;
+  margin-left: auto;
+}
+
+/* Input placeholder */
+div.robin-search-bar ::placeholder {
+  color: #8d9091;
+}
+
+div.robin-search-bar ::-moz-placeholder {
+  color: #8d9091;
+}
+
+div.robin-search-bar :-ms-input-placeholder {
+  color: #8d9091;
+}
+
+div.robin-search-bar ::-ms-input-placeholder {
+  color: #8d9091;
+}
+
+div.robin-search-bar ::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+}

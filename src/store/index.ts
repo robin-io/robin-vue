@@ -1,36 +1,50 @@
-import Vue from 'vue'
+import {reactive} from 'vue-demi'
 
-interface Conversation {
-  [key:string]: any
-}
-
-interface State {
-  users: any[],
-  currentConversation: Conversation,
-  imagesToPreview: any[],
-  isPageLoading: boolean
-  isAuthenticated: boolean
-  selectMessagesOpen: boolean
-  clearMessages: boolean
-  imagePreviewOpen: boolean
-}
-
-const state: State = {
-  users: [],
+const state = {
+  robin: null,
+  conn: null,
+  api_key: '',
+  user_token: '',
+  channel: '',
+  conversations: [],
+  robin_users: [],
+  sender_name: '',
+  logo: '',
   currentConversation: {},
   imagesToPreview: [],
+  imageSelected: 0,
+  isImageReplying: false,
   isPageLoading: true,
   isAuthenticated: false,
   selectMessagesOpen: false,
+  conversationOpened: false,
   clearMessages: false,
-  imagePreviewOpen: false
-}
+  imagePreviewOpen: false,
+  profileOpen: false,
+  groupPromptOpen: false,
+  currentParticipantToken: '',
+  encryptionDetailsOpen: false,
+  exitGroup: false,
+  participantToken: '',
+  removeParticipant: false,
+  isParticipantModerator: false,
+  currentAudioPlaying: 0,
+  forwardMessagesEnabled: false,
+  deleteMessagesEnabled: false,
+  archiveChatEnabled: false,
+  createChatEnabled: false,
+  replyMessagesEnabled: false,
+  voiceRecorderEnabled: false,
+  messageReactionViewEnabled: false,
+  messageReactionDeleteEnabled: false,
+  useDefaultProfileDetails: false
+} as Record<string, any>
 
 const store = {
-  state: Vue.observable(state),
+  state: reactive(state),
 
   setState (key: string, val: any) {
-    Vue.set(this.state, key, val)
+    this.state[key] = val
   }
 }
 

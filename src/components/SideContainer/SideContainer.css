@@ -1,0 +1,21 @@
+.robin-side-bar {
+  position: relative;
+  flex-basis: 30%;
+  max-width: 450px;
+  height: 100%;
+  border-right: 1px solid #efefef;
+  overflow-y: hidden;
+}
+
+@media (min-width: 1200px) {
+  .robin-side-bar {
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 1200px) {
+  .robin-side-bar {
+    flex-basis: 100%;
+    max-width: initial;
+  }
+}

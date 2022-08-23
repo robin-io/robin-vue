@@ -1,115 +1,16 @@
-<h1 align="start">
-  Robin.io-vue
-</h1>
+# Vue 3 + TypeScript + Vite
 
-<p align="start">
-<a href="https://npmjs.com/package/robin.io-vue">
-    <img alt="" src="https://img.shields.io/npm/v/robin.io-vue.svg">
-</a>
-<a href="https://npmjs.com/package/robin.io-vue">
-    <img alt="" src="https://img.shields.io/npm/dt/robin.io-vue.svg">
-</a>
-<a href="https://npmjs.com/package/robin.io-vue">
-    <img alt="" src="https://img.shields.io/npm/l/robin.io-vue.svg">
-</a>
-</p>
+This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
 
-<details open="open">
-  <summary>Table of Contents</summary>
-  <ol>
-    <li>
-      <a href="#about">About</a>
-    </li>
-    <li>
-      <a href="#getting-started">Installation</a>
-    </li>
-    <li><a href="#usage">Usage</a></li>
-    <li><a href="#available-options">Available options</a></li>
-    <li><a href="#license">License</a></li>
-  </ol>
-</details>
+## Recommended IDE Setup
 
-## About
+- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar)
 
-Robin.io-vue is a Vue SDK built to communicate with the [Robinapp API](https://robinapp.co/). Now you can integrate [Robin.io](https://robinapp.co/) with minimal effort and quickly setup an real-time messaging platform in your Vue.js web application.
+## Type Support For `.vue` Imports in TS
 
-## Installation
+Since TypeScript cannot handle type information for `.vue` imports, they are shimmed to be a generic Vue component type by default. In most cases this is fine if you don't really care about component prop types outside of templates. However, if you wish to get actual prop types in `.vue` imports (for example to get props validation when using manual `h(...)` calls), you can enable Volar's Take Over mode by following these steps:
 
-```bash
-## npm
-npm install robin.io-vue
+1. Run `Extensions: Show Built-in Extensions` from VS Code's command palette, look for `TypeScript and JavaScript Language Features`, then right click and select `Disable (Workspace)`. By default, Take Over mode will enable itself if the default TypeScript extension is disabled.
+2. Reload the VS Code window by running `Developer: Reload Window` from the command palette.
 
-## yarn
-yarn add robin.io-vue
-```
-
-## Usage
-
-```
-import Vue from 'vue'
-import App from './App.vue'
-import RobinChat from 'robin.io-vue'
-import 'robin.io-vue-sdk/dist/style.css'
-
-Vue.config.productionTip = false
-
-Vue.use(RobinChat)
-
-new Vue({
-  el: '#app',
-  router,
-  store,
-  render: h => h(App)
-})
-```
-
-```
-<template>
-  <div id="app">
-    <RobinChat :api-key="apiKey" :user-token="userToken" :user-name="userName" :users="users" :keys="keys" :page-loader="pageLoader" />
-  </div>
-</template>
-
-<script>
-
-export default {
-  name: 'ChatApp',
-  components: {
-    RobinChat
-  },
-  data () {
-    return {
-      apiKey: '...'
-      userToken: '...
-      pageLoader: true,
-      userName: '...',
-      keys: {
-        userToken: 'user_token',
-        profileImage: 'profile_image',
-        userName: 'fullname'
-      },
-      users: [{
-        user_token: '...',
-        profile_image: '...',
-        fullname: '...'
-      }]
-    }
-  }
-}
-</script>
-```
-
-## Available options
-
-| Attribute   |  Type   | Default | Description                                                 |
-| :---------- | :-----: | :-----: | :---------------------------------------------------------- |
-| api-key     | String  |   ''    | SDK Authorization. (required)                               |
-| user-token  | String  |   ''    | User Authorization. (required)                              |
-| user-name   | String  |   ''    | Name of the current user using Robin. (required)            |
-| users       |  Array  |   []    | User list - Data should model the keys option (required)    |
-| keys        | Object  |   {}    | User data structure you want Robin to pull from. (required) |
-| page-loader | Boolean |  True   | Shows a loader when first mounting `<RobinChat />` Component. |
-
-## License
-
-Distributed under the MIT License. See `LICENSE` for more information.
+You can learn more about Take Over mode [here](https://github.com/johnsoncodehk/volar/discussions/471).
