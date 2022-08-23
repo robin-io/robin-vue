@@ -1,4 +1,4 @@
-name: Vue3-patch
+name: Lint
 
 on:
   push:
@@ -22,7 +22,7 @@ jobs:
       uses: actions/setup-node@v3
 
     - name: Install Dependencies
-        run: npm install
+      run: npm install
 
     - name: Lint
       run: npm run lint
