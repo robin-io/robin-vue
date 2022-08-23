@@ -2,9 +2,9 @@ name: Vue3-patch
 
 on:
   push:
-    branches: ["master", "vue3-compatibility-patch" ]
+    branches: ["master", "vue3-patch" ]
   pull_request:
-    branches: ["master", "vue3-compatibility-patch" ]
+    branches: ["master", "vue3-patch" ]
 
 jobs:
   build:
@@ -13,10 +13,17 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [14.x, 16.x]
+        node-version: 14.x
 
     steps:
     - uses: actions/checkout@v3
+    
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
-    - run: npm run lint
+
+    - name: Install Dependencies
+        run: npm install
+
+    - name: Lint
+      run: npm run lint
+
