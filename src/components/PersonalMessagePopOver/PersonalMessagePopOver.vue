@@ -29,7 +29,7 @@ import SvgIcon from '@/components/SvgIcon/SvgIcon.vue'
 import Content from '@/components/Content/Content.vue'
 
 @Component({
-  name: 'PersonalMessagePopOverr',
+  name: 'PersonalMessagePopOver',
   components: {
     Content,
     SvgIcon

@@ -28,7 +28,7 @@
               <Avatar :robin-users="$robin_users" :img-url="user.profileImage" :sender-token="user.userToken" />
             </div>
 
-            <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4˝ robin-flex-1">
+            <div class="robin-card-info robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4˝ robin-flex-1">
               <div class="robin-flex">
                 <Content :font-size="14" :line-height="18">{{ user.userName }}</Content>
               </div>

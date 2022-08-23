@@ -10,12 +10,13 @@
         <slot name="chat-list-header"></slot>
       </div>
     </header>
+
     <div class="robin-wrapper robin-w-100 robin-pl-16 robin-pr-16 robin-pb-16">
       <SearchBar @user-typing="searchConversation($event)" :loading="isLoading" :key="key" />
     </div>
 
     <Button class="robin-wrapper robin-pl-16 robin-pr-16 robin-flex robin-flex-space-between robin-w-100 robin-pt-16 robin-pb-12" @archived="openArchivedChat()" v-if="isArchiveChatEnabled">
-      <div class="robin-flex robin-flex-align-center" font-weight="400" v-show="archivedConversations.length > 0">
+      <div class="robin-flex robin-flex-align-center" v-show="archivedConversations.length > 0">
         <SvgIcon name="mailbox" color="#15AE73" />
 
         <Content class="robin-ml-6" font-weight="400" color="#15AE73"> Archived Chats </Content>
@@ -161,7 +162,7 @@ const ComponentProps = Vue.extend({
 })
 export default class PrimaryChatList extends ComponentProps {
   popUpStates: Array<any> = []
-  activeConversation = {}
+  // activeConversation = {}
   avatarKey: number = 0
   scroll = false as boolean
   isLoading = false as boolean
@@ -287,10 +288,6 @@ export default class PrimaryChatList extends ComponentProps {
       }
     }, 300)
   }
-
-  // get isConversationActive (object: Object) {
-  //   return Object.is(this.activeConversation, object)
-  // }
 
   async handleArchiveChat (conversation: any): Promise<void> {
     const res = await this.$robin.archiveConversation(conversation._id, this.$user_token)

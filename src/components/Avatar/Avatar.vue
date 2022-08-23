@@ -32,10 +32,6 @@ const ComponentProps = Vue.extend({
       type: String as PropType<string>,
       default: ''
     },
-    // status: {
-    //   type: String as PropType<string>,
-    //   default: ''
-    // },
     robinUsers: {
       type: Array,
       default: () => []
