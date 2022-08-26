@@ -64,7 +64,7 @@ const ComponentProps = Vue.extend({
   name: 'IconButton',
   mixins: [clickaway],
   watch: {
-    focusColor (): void {
+    focusColor(): void {
       this.setRootVariables()
     }
   }
@@ -400,10 +400,10 @@ export default class IconButton extends ComponentProps {
         'background-color': 'transparent',
         width: 'max-content'
       }
-    }
+    },
   } as IconItem
 
-  get focusType (): string {
+  get focusType(): string {
     if (this.focused && this.styleStroke && this.hasFocus) {
       return 'stroke-focused'
     }
@@ -415,22 +415,22 @@ export default class IconButton extends ComponentProps {
     return ''
   }
 
-  mounted () {
+  mounted() {
     this.root = document.documentElement
     this.setRootVariables()
     this.getActiveColor()
   }
 
-  setRootVariables (): void {
+  setRootVariables(): void {
     this.root.style.setProperty('--primary-focus-color', this.focusColor)
     this.root.style.setProperty('--primary-color', this.primaryColor)
   }
 
-  getActiveColor (): string {
+  getActiveColor(): string {
     return this.root.style.getPropertyValue('--primary-color')
   }
 
-  emitClickAway (): void {
+  emitClickAway(): void {
     this.$emit('clickoutside')
   }
 }

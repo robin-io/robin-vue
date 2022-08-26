@@ -57,7 +57,6 @@ import GroupAvatar from '@/components/GroupAvatar/GroupAvatar.vue'
 import Avatar from '@/components/Avatar/Avatar.vue'
 import Content from '@/components/Content/Content.vue'
 import Button from '@/components/Button/Button.vue'
-import OptionButton from '../OptionButton/OptionButton.vue'
 import GroupMessagePopOver from '../GroupMessagePopOver/GroupMessagePopOver.vue'
 import PersonalMessagePopOver from '../PersonalMessagePopOver/PersonalMessagePopOver.vue'
 import EventBus from '@/event-bus'
@@ -87,7 +86,6 @@ const ComponentProps = Vue.extend({
     GroupAvatar,
     Content,
     Button,
-    OptionButton,
     Avatar,
     GroupMessagePopOver,
     PersonalMessagePopOver

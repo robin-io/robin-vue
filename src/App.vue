@@ -118,18 +118,18 @@ const ComponentProps = Vue.extend({
   },
   watch: {
     users: {
-      handler (val) {
+      handler(val) {
         this.filterUsers()
       },
       immediate: true
     },
     currentConversation: {
-      handler () {
+      handler() {
         this.closeMessageViewProfile()
       }
     },
     time: {
-      handler (val) {
+      handler(val) {
         if (this.time === 9) {
           this.connect()
           this.resetStopWatch()
@@ -145,8 +145,9 @@ export default class App extends ComponentProps {
   screenWidth = 0 as number
   messageEvent = null as any
   time = 0 as number
+  notification = null as HTMLElement | null
 
-  created (): void {
+  created(): void {
     this.filterUsers()
     this.initiateRobin()
 
@@ -165,19 +166,11 @@ export default class App extends ComponentProps {
     store.setState('messageReactionViewEnabled', this.features.includes('message-reaction.view'))
     store.setState('messageReactionDeleteEnabled', this.features.includes('message-reaction.delete'))
     store.setState('useDefaultProfileDetails', this.useDefaultProfileDetails)
-
-    if (this.conn) {
-      this.conn.onopen = () => {
-        this.robin?.subscribe(this.channel, this.conn)
-      }
-
-      this.conn.onclose = () => {
-        this.connect()
-      }
-    }
   }
 
-  mounted () {
+  mounted() {
+    this.notification = this.$refs.notification as HTMLElement
+
     this.$nextTick(function () {
       this.onResize()
     })
@@ -186,55 +179,57 @@ export default class App extends ComponentProps {
     setInterval(() => {
       this.time += 1
     }, 60000)
+
+    this.checkCredentialAvailability()
   }
 
-  get conversationOpened () {
+  get conversationOpened() {
     return store.state.conversationOpened
   }
 
-  get isPageLoading () {
+  get isPageLoading() {
     return store.state.isPageLoading
   }
 
-  get assets (): any {
+  get assets(): any {
     return assets
   }
 
-  get currentConversation () {
+  get currentConversation() {
     return store.state.currentConversation
   }
 
-  get encryptionDetailsOpen () {
+  get encryptionDetailsOpen() {
     return store.state.encryptionDetailsOpen
   }
 
-  get imagesToPreview () {
+  get imagesToPreview() {
     return store.state.imagesToPreview
   }
 
-  get imagePreviewOpen () {
+  get imagePreviewOpen() {
     return store.state.imagePreviewOpen
   }
 
-  get profileOpen () {
+  get profileOpen() {
     return store.state.profileOpen
   }
 
-  get groupPromptOpen () {
+  get groupPromptOpen() {
     return store.state.groupPromptOpen
   }
 
-  get showDefaultProfileDetails () {
+  get showDefaultProfileDetails() {
     return store.state.useDefaultProfileDetails
   }
 
-  initiateRobin () {
+  initiateRobin() {
     this.robin = new Robin(this.apiKey, true)
     this.connect()
     this.setPrototypes()
   }
 
-  filterUsers (): void {
+  filterUsers(): void {
     const filteredUsers: Array<any> = []
     this.users.forEach((user) => {
       const newUser = {
@@ -248,7 +243,7 @@ export default class App extends ComponentProps {
     Vue.prototype.$robin_users = [...filteredUsers]
   }
 
-  setPrototypes () {
+  setPrototypes() {
     Vue.prototype.$robin = this.robin
     Vue.prototype.$apiKey = this.apiKey
     Vue.prototype.$user_token = this.userToken
@@ -260,19 +255,34 @@ export default class App extends ComponentProps {
     Vue.prototype.$logo = this.logo
   }
 
-  connect () {
+  connect() {
     this.conn = this.robin?.connect(this.userToken)
 
+    this.conn.onopen = () => {
+      this.robin?.subscribe(this.channel, this.conn)
+    }
+
+    this.conn.onclose = () => {
+      setTimeout(() => {
+        this.connect()
+      }, 2000)
+    }
+
     this.conn.onmessage = (evt: any) => {
-      const notification = this.$refs.notification as any
+      this.conn.onclose = () => {
+        setTimeout(() => {
+          this.connect()
+        }, 2000)
+      }
 
       const message = JSON.parse(evt.data)
+
       if (message.is_event !== true) {
         EventBus.$emit('new-message', message)
         this.messageEvent = message
 
-        if (notification) {
-          notification.click()
+        if (this.notification) {
+          this.notification.click()
         }
       } else {
         this.handleEvents(message)
@@ -290,19 +300,19 @@ export default class App extends ComponentProps {
     Vue.prototype.$conn = this.conn
   }
 
-  openConversation (): void {
+  openConversation(): void {
     EventBus.$on('open-conversation', () => {
       store.setState('conversationOpened', true)
     })
   }
 
-  onGroupConversationCreated (): void {
+  onGroupConversationCreated(): void {
     EventBus.$on('new-group.conversation', (conversation: object) => {
       // this.conversationOpened = true
     })
   }
 
-  handleEvents (message: any): void {
+  handleEvents(message: any): void {
     switch (message.name) {
       case 'user.connect':
         // set user status to online
@@ -356,7 +366,7 @@ export default class App extends ComponentProps {
     }
   }
 
-  onExitGroup () {
+  onExitGroup() {
     EventBus.$on('left.group', () => {
       this.key += 1
       store.setState('conversationOpened', false)
@@ -364,31 +374,31 @@ export default class App extends ComponentProps {
     })
   }
 
-  onConversationDelete () {
+  onConversationDelete() {
     EventBus.$on('close-conversation', () => {
       store.setState('conversationOpened', false)
       store.setState('profileOpen', false)
     })
   }
 
-  onExitMessage () {
+  onExitMessage() {
     EventBus.$on('left.message', () => {
       store.setState('conversationOpened', false)
       store.setState('profileOpen', false)
     })
   }
 
-  onResize () {
+  onResize() {
     this.screenWidth = window.innerWidth
   }
 
-  openProfile () {
+  openProfile() {
     EventBus.$on('open-profile', () => {
       this.$emit('open-profile')
     })
   }
 
-  closeImagePreview (): void {
+  closeImagePreview(): void {
     const popup = this.$refs['popup-1'] as any
     popup.$refs['popup-body'].classList.remove('robin-squeezeOut')
     popup.$refs['popup-body'].classList.add('robin-squeezeIn')
@@ -402,7 +412,7 @@ export default class App extends ComponentProps {
     }, 100)
   }
 
-  closeMessageViewProfile (): void {
+  closeMessageViewProfile(): void {
     const popup = this.$refs['popup-2'] as any
     popup.$refs['popup-body'].classList.remove('robin-slideInRight')
     popup.$refs['popup-body'].classList.add('robin-slideOutRight')
@@ -415,7 +425,7 @@ export default class App extends ComponentProps {
     }, 100)
   }
 
-  playAudio (event: any): void {
+  playAudio(event: any): void {
     if (this.messageEvent) {
       if (this.messageEvent.content.receiver_token === this.$user_token) {
         event.target.play()
@@ -423,8 +433,33 @@ export default class App extends ComponentProps {
     }
   }
 
-  resetStopWatch (): void {
+  resetStopWatch(): void {
     this.time = 0
+  }
+
+  checkCredentialAvailability() {
+    let centralPoint = ''
+
+    if (this.userName === '' && this.userToken !== '' && this.apiKey !== '') {
+      centralPoint = 'username'
+    } else if (this.userName === '' && this.userToken === '' && this.apiKey !== '') {
+      centralPoint = 'username and usertoken'
+    } else if (this.userName === '' && this.userToken !== '' && this.apiKey === '') {
+      centralPoint = 'api key and username'
+    } else if (this.userName !== '' && this.userToken === '' && this.apiKey !== '') {
+      centralPoint = 'usertoken'
+    } else if (this.userName !== '' && this.userToken === '' && this.apiKey === '') {
+      centralPoint = 'api key and usertoken'
+    } else if (this.userName !== '' && this.userToken !== '' && this.apiKey === '') {
+      centralPoint = 'api key'
+    } else if (this.userName === '' && this.userToken === '' && this.apiKey === '') {
+      centralPoint = 'api key, usertoken and username'
+    }
+
+    if (centralPoint !== '') {
+      let message = `Please make sure your ${centralPoint} is set.`
+      this.$toast.open({ message, type: 'error', position: 'bottom-left' })
+    }
   }
 }
 </script>

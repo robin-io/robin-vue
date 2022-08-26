@@ -1,6 +1,6 @@
 <template>
   <div class="robin-message-container" v-on-clickaway="onChatClickAway">
-    <ChatHeader :conversation="conversation" :key="key" :selected-messages="selectedMessages" @delete-selected-messages="openPrompt('delete select')"/>
+    <ChatHeader :conversation="conversation" :key="key" :selected-messages="selectedMessages" @delete-selected-messages="openPrompt('delete select')" />
 
     <div class="robin-wrapper robin-flex robin-flex-column robin-flex-space-between" id="message-container" ref="message" @scroll="onScroll()" data-testid="message">
       <div class="robin-inner-wrapper-loader robin-flex robin-flex-align-center" id="infinite-loader" v-if="(isMessagesLoading && currentPage > 0) || (!offlineMessages.messages[conversation._id] && isMessagesLoading)">
@@ -66,7 +66,7 @@ import Prompt from '../Prompt/Prompt.vue'
   mixins: [clickaway],
   watch: {
     messages: {
-      handler (val: any): void {
+      handler(val: any): void {
         this.popUpState.messagePopUp = []
         ;[...val].forEach((val) => {
           this.popUpState.messagePopUp.push({
@@ -80,7 +80,7 @@ import Prompt from '../Prompt/Prompt.vue'
       immediate: true
     },
     offlineMessages: {
-      handler (val: any): void {
+      handler(val: any): void {
         this.popUpState.messagePopUp = []
         const messages = this.offlineMessages.messages[this.conversation._id]
 
@@ -98,7 +98,7 @@ import Prompt from '../Prompt/Prompt.vue'
       immediate: true
     },
     selectMessagesOpen: {
-      handler (val): void {
+      handler(val): void {
         if (!val) {
           this.selectedMessages = []
           this.uncheck = true
@@ -111,7 +111,7 @@ import Prompt from '../Prompt/Prompt.vue'
       }
     },
     clearMessages: {
-      handler (val): void {
+      handler(val): void {
         if (this.clearMessages) {
           this.openPrompt('clear messages')
         } else {
@@ -120,7 +120,7 @@ import Prompt from '../Prompt/Prompt.vue'
       }
     },
     exitGroup: {
-      handler (val): void {
+      handler(val): void {
         if (this.exitGroup) {
           this.openPrompt('exit group')
         } else {
@@ -129,7 +129,7 @@ import Prompt from '../Prompt/Prompt.vue'
       }
     },
     removeParticipant: {
-      handler (val): void {
+      handler(val): void {
         if (this.removeParticipant) {
           this.openPrompt('remove participant')
         } else {
@@ -138,7 +138,7 @@ import Prompt from '../Prompt/Prompt.vue'
       }
     },
     isImageReplying: {
-      handler (val): void {
+      handler(val): void {
         this.messageReply = this.imagesToPreview[this.imageSelected]
       }
     }
@@ -184,7 +184,7 @@ export default class MessageContainer extends Vue {
   emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   websiteRegex = /[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/
 
-  created () {
+  created() {
     this.handleConversationOpen()
     this.onNewMessage()
     this.onMessageDelete()
@@ -194,14 +194,14 @@ export default class MessageContainer extends Vue {
     this.getReadReceipts()
   }
 
-  mounted () {
+  mounted() {
     this.$nextTick(function () {
       this.onResize()
     })
     window.addEventListener('resize', this.onResize)
   }
 
-  get groupnameColors () {
+  get groupnameColors() {
     const colors: string[] = ['#F8863D', '#18C583', '#FF0000', '#0F0FFE', '#9B2226', '#AE2012', '#BB3E03', '#CA6702', '#7F5539', '#606C38', '#283618', '#03045E', '#370617', '#6A040F', '#EE9B00', '#0A9396', '#005F73', '#0AFF99', '#9D4EDD', '#7400B8', '#6B705C', '#CB997E', '#A4133C', '#38B000', '#14213D', '#007200', '#7209B7', '#3D405B', '#8338EC', '#3A86FF', '#5A189A', '#3C096C', '#BBC4DF']
     const userColors = {} as any
 
@@ -212,51 +212,51 @@ export default class MessageContainer extends Vue {
     return userColors
   }
 
-  get currentConversation () {
+  get currentConversation() {
     return store.state.currentConversation
   }
 
-  get selectMessagesOpen () {
+  get selectMessagesOpen() {
     return store.state.selectMessagesOpen
   }
 
-  get isForwardMessagesEnabled () {
+  get isForwardMessagesEnabled() {
     return store.state.forwardMessagesEnabled
   }
 
-  get clearMessages () {
+  get clearMessages() {
     return store.state.clearMessages
   }
 
-  get exitGroup () {
+  get exitGroup() {
     return store.state.exitGroup
   }
 
-  get imagePreviewOpen () {
+  get imagePreviewOpen() {
     return store.state.imagePreviewOpen
   }
 
-  get imagesToPreview () {
+  get imagesToPreview() {
     return store.state.imagesToPreview
   }
 
-  get imageSelected () {
+  get imageSelected() {
     return store.state.imageSelected
   }
 
-  get isImageReplying () {
+  get isImageReplying() {
     return store.state.isImageReplying
   }
 
-  get participantToken () {
+  get participantToken() {
     return store.state.participantToken
   }
 
-  get removeParticipant () {
+  get removeParticipant() {
     return store.state.removeParticipant
   }
 
-  handleConversationOpen (): void {
+  handleConversationOpen(): void {
     EventBus.$on('conversation-opened', (conversation: any) => {
       this.getOfflineMessages()
 
@@ -285,13 +285,8 @@ export default class MessageContainer extends Vue {
     })
   }
 
-  async initializeReadReceipts (messageIds: Array<string>): Promise<void> {
+  async initializeReadReceipts(messageIds: Array<string>): Promise<void> {
     const res = await this.$robin.sendReadReceipts(messageIds, this.conversation._id)
-    // (res, messageIds)
-
-    if (!res.error) {
-      // (res.error, res)
-    }
 
     if (res.error) {
       this.$toast.open({
@@ -302,36 +297,85 @@ export default class MessageContainer extends Vue {
     }
   }
 
-  getReadReceipts () {
+  getReadReceipts() {
     EventBus.$on('read.reciept', (message: any) => {
       this.readReceipts.push(...message.message_ids)
     })
   }
 
-  handleUserConnect () {
+  handleUserConnect() {
     EventBus.$on('user.connect', (conversation: string) => {
       this.refresh()
     })
   }
 
-  handleUserDisconnect () {
+  handleUserDisconnect() {
     EventBus.$on('user.disconnect', (conversation: string) => {
       this.refresh()
     })
   }
 
-  refresh () {
+  refresh() {
     this.key += 1
   }
 
-  onNewMessage () {
-    EventBus.$on('new-message', (message: any) => {
-      // ('new-message', message)
+  onNewMessage() {
+    EventBus.$on('new-pseudo-message', (message: any) => {
+      console.log(message)
       if (message.conversation_id === this.conversation._id) {
         this.messages.push(message)
 
         if (this.offlineMessages.messages[message.conversation_id]) {
           this.offlineMessages.messages[message.conversation_id].push(message)
+        }
+
+        this.scrollToBottom()
+      }
+      this.$conversations.forEach((conversation, index) => {
+        if (conversation._id === message.conversation_id) {
+          this.$conversations[index].updated_at = message.content.timestamp
+          this.$conversations[index].last_message = message.content
+
+          const newConv = this.$conversations[index]
+
+          if (!newConv.archived_for || newConv.archived_for.length === 0) {
+            EventBus.$emit('search-text.reset')
+            EventBus.$emit('regular-conversation.delete', newConv)
+            EventBus.$emit('regular-conversation.add', newConv)
+          } else {
+            EventBus.$emit('archived-conversation.delete', newConv)
+            EventBus.$emit('archived-conversation.add', newConv)
+          }
+        }
+      })
+    })
+
+    EventBus.$on('new-message', (message: any) => {
+      if (message.conversation_id === this.conversation._id) {
+        const messageIndex = this.messages.findIndex((item: Record<string, any>) => item.pseudo && item.content.msg === message.content.msg)
+
+        // check if message already exists.
+        if (messageIndex !== -1) {
+        this.messages[messageIndex] = message
+        } else {
+          this.messages.push(message)
+        }
+
+        if (this.offlineMessages.messages[message.conversation_id]) {
+          const offlineMessageIndex = this.offlineMessages.messages[message.conversation_id].findIndex((item: Record<string, any>) => item.pseudo && item.content.msg === message.content.msg)
+
+          console.log(offlineMessageIndex)
+
+          // check if offline message already exists.
+          if (offlineMessageIndex !== -1) {
+            this.offlineMessages.messages[message.conversation_id][offlineMessageIndex] = message
+            console.log(false)
+          } else {
+            this.offlineMessages.messages[message.conversation_id].push(message)
+            console.log(true)
+          }
+
+          this.refresh()
         }
 
         this.scrollToBottom()
@@ -343,16 +387,16 @@ export default class MessageContainer extends Vue {
       }
       if (message.conversation_id !== this.currentConversation._id) {
         const index = this.$regularConversations.findIndex((item) => item._id === message.conversation_id)
-        // (message, index)
 
         EventBus.$emit('mark-as-unread', this.$regularConversations[index])
       }
       this.$conversations.forEach((conversation, index) => {
         if (conversation._id === message.conversation_id) {
-          // ('Conversation: ', conversation, this.conversation)
           this.$conversations[index].updated_at = message.content.timestamp
           this.$conversations[index].last_message = message.content
+
           const newConv = this.$conversations[index]
+
           if (!newConv.archived_for || newConv.archived_for.length === 0) {
             EventBus.$emit('search-text.reset')
             EventBus.$emit('regular-conversation.delete', newConv)
@@ -366,7 +410,7 @@ export default class MessageContainer extends Vue {
     })
   }
 
-  onMessageDelete () {
+  onMessageDelete() {
     EventBus.$on('message-deleted', (message: any) => {
       const index = this.messages.findIndex((item: any) => item._id === message._id) as number
       const offlineMessageIndex = this.offlineMessages.messages[this.conversation._id].findIndex((item: any) => item._id === message._id) as number
@@ -377,7 +421,7 @@ export default class MessageContainer extends Vue {
     })
   }
 
-  onImageDelete () {
+  onImageDelete() {
     EventBus.$on('image-deleted', (message: any) => {
       // (message)
       const messageIndex = this.messages.findIndex((item: any) => {
@@ -418,7 +462,7 @@ export default class MessageContainer extends Vue {
     })
   }
 
-  handleReadReceipts (data: any) {
+  handleReadReceipts(data: any) {
     const filterMessage = data ? data.filter((item: any) => !item.is_read && item.sender_token !== this.$user_token) : []
     const messageIds = filterMessage.map((item: any) => item._id)
 
@@ -427,7 +471,7 @@ export default class MessageContainer extends Vue {
     }
   }
 
-  async getConversationMessages (): Promise<void> {
+  async getConversationMessages(): Promise<void> {
     const res = await this.$robin.getConversationMessages(this.conversation._id, this.$user_token)
 
     if (res && !res.error) {
@@ -459,7 +503,7 @@ export default class MessageContainer extends Vue {
     this.scrollToBottom()
   }
 
-  loadMoreMessages () {
+  loadMoreMessages() {
     const message = this.$refs.message as HTMLElement
 
     this.isMessagesLoading = true
@@ -479,21 +523,21 @@ export default class MessageContainer extends Vue {
     }, 500)
   }
 
-  scrollToBottom (): void {
+  scrollToBottom(): void {
     window.setTimeout(() => {
       const message = this.$refs.message as HTMLElement
       if (message) {
-        message.scrollTop = message.scrollHeight
+        message.scrollTop = message.scrollHeight + 100
         this.scrollUp = false
       }
     }, 100)
   }
 
-  openCamera (): void {
+  openCamera(): void {
     this.popUpState.cameraOpened = true
   }
 
-  closeCamera (): void {
+  closeCamera(): void {
     const popup = this.$refs['popup-1'] as any
     popup.$refs['popup-body'].classList.remove('robin-squeezeOut')
     popup.$refs['popup-body'].classList.add('robin-squeezeIn')
@@ -506,36 +550,36 @@ export default class MessageContainer extends Vue {
     }, 100)
   }
 
-  openImagePreview ($event: any): void {
+  openImagePreview($event: any): void {
     store.setState('imagePreviewOpen', true)
     store.setState('imagesToPreview', $event)
     // this.imagesToPreview = $event
   }
 
-  openMessagePopup (val: number): void {
+  openMessagePopup(val: number): void {
     this.messagePopUpIndex = val
     this.popUpState.messagePopUp[this.messagePopUpIndex].opened = true
   }
 
-  closeMessagePopup (event: any): void {
+  closeMessagePopup(event: any): void {
     this.popUpState.messagePopUp[this.messagePopUpIndex].opened = false
     this.messagePopUpIndex = 0
   }
 
-  getMessagePopup (index: any): { opened: boolean; _id: string } {
+  getMessagePopup(index: any): { opened: boolean; _id: string } {
     return this.popUpState.messagePopUp[parseInt(index)]
   }
 
-  handleCapturedImage (val: Object): void {
+  handleCapturedImage(val: Object): void {
     this.capturedImage = val
   }
 
-  checkAttachmentType (attachmentUrl: String): string {
+  checkAttachmentType(attachmentUrl: String): string {
     const strArr = attachmentUrl.split('.')
     return `${mime.getType(strArr[strArr.length - 1])}`
   }
 
-  testMessages (messages: Array<any>): void {
+  testMessages(messages: Array<any>): void {
     const newMessages = []
     let temp = [] as any
 
@@ -569,7 +613,7 @@ export default class MessageContainer extends Vue {
     this.messages = newMessages
   }
 
-  async clearAllMessages (): Promise<void> {
+  async clearAllMessages(): Promise<void> {
     const id = [] as Array<any>
 
     for (let i: number = 0; i < this.messages.length; i += 1) {
@@ -607,21 +651,21 @@ export default class MessageContainer extends Vue {
     store.setState('clearMessages', false)
   }
 
-  onScroll (): void {
+  onScroll(): void {
     this.handleScrollUp()
 
     this.scroll = true
   }
 
-  handleScrollUp () {
+  handleScrollUp() {
     const message = this.$refs.message as HTMLElement
-    const endOfScroll = Math.floor(message.scrollTop) > Math.floor((message.scrollHeight - message.clientHeight) - 20)
+    const endOfScroll = Math.floor(message.scrollTop) > Math.floor(message.scrollHeight - message.clientHeight - 20)
 
     if (endOfScroll) {
       this.scrollUp = false
     }
 
-    if (message.scrollTop <= this.lastScroll) {
+    if (message.scrollTop + 10 <= this.lastScroll) {
       if (!this.isMessagesLoading) {
         this.scrollUp = true
       }
@@ -636,7 +680,7 @@ export default class MessageContainer extends Vue {
     this.lastScroll = message.scrollTop <= 0 ? 0 : message.scrollTop
   }
 
-  toggleCheckAction (val: boolean, message: any): void {
+  toggleCheckAction(val: boolean, message: any): void {
     if (!val) {
       this.selectMessage(message)
     } else {
@@ -644,7 +688,7 @@ export default class MessageContainer extends Vue {
     }
   }
 
-  selectMessage (message: any): void {
+  selectMessage(message: any): void {
     if (Array.isArray(message)) {
       message.forEach((item) => {
         this.selectedMessages.push(item)
@@ -654,32 +698,32 @@ export default class MessageContainer extends Vue {
     }
   }
 
-  removeSelectedMessage (message: any): void {
+  removeSelectedMessage(message: any): void {
     const index = this.selectedMessages.findIndex((item) => item._id === message._id)
 
     this.selectedMessages.splice(index, 1)
   }
 
-  onChatClickAway (): void {
+  onChatClickAway(): void {
     store.setState('selectMessagesOpen', false)
   }
 
-  onCloseForwardMessagePopup (): void {
+  onCloseForwardMessagePopup(): void {
     this.forwardMessage = false
     store.setState('selectMessagesOpen', false)
     this.uncheck = true
     // this.refresh()
   }
 
-  replyMessage (message: any): void {
+  replyMessage(message: any): void {
     this.messageReply = message
   }
 
-  onCloseReply (): void {
+  onCloseReply(): void {
     this.messageReply = {}
   }
 
-  async deleteSelectedMessages () {
+  async deleteSelectedMessages() {
     const res = await this.$robin.deleteMessages(
       this.selectedMessages.map((message) => message._id),
       this.$user_token
@@ -708,7 +752,7 @@ export default class MessageContainer extends Vue {
     }
   }
 
-  async handleRemoveParticipant () {
+  async handleRemoveParticipant() {
     const res = await this.$robin.removeGroupParticipant(this.currentConversation._id, this.participantToken)
 
     if (res && !res.error) {
@@ -722,13 +766,13 @@ export default class MessageContainer extends Vue {
     }
   }
 
-  openPrompt (status: String) {
+  openPrompt(status: String) {
     this.promptOpen = true
 
     this.promptStatus = status
   }
 
-  closePrompt () {
+  closePrompt() {
     this.promptOpen = false
     store.setState('selectMessagesOpen', false)
     store.setState('clearMessages', false)
@@ -737,7 +781,7 @@ export default class MessageContainer extends Vue {
   }
 
   // Method to scroll to the position of a replied message
-  scrollToRepliedMessage (id: string): void {
+  scrollToRepliedMessage(id: string): void {
     const messageIndex: any = this.offlineMessages.messages[this.conversation._id].findIndex((element: any) => {
       if (Array.isArray(element)) {
         return element.find((item) => item._id === id)
@@ -755,12 +799,12 @@ export default class MessageContainer extends Vue {
     messageRef[0].$el.scrollIntoView({ behavior: 'smooth', block: 'end' })
   }
 
-  onResize () {
+  onResize() {
     this.scrollUp = false
     this.windowHeight = window.innerHeight
   }
 
-  async handleLeaveGroup () {
+  async handleLeaveGroup() {
     const res = await this.$robin.removeGroupParticipant(this.conversation._id, this.$user_token)
 
     if (res && !res.error) {
@@ -783,7 +827,7 @@ export default class MessageContainer extends Vue {
     }
   }
 
-  proceed () {
+  proceed() {
     if (this.promptStatus === 'delete select' && this.selectMessagesOpen) {
       this.deleteSelectedMessages()
     }
@@ -798,18 +842,16 @@ export default class MessageContainer extends Vue {
     }
   }
 
-  async getOfflineMessages (): Promise<any> {
+  async getOfflineMessages(): Promise<any> {
     try {
       const value = (await localForage.getItem('messages')) as Array<any>
-      this.offlineMessages = value
-        ? { ...value }
-        : { messages: {} }
+      this.offlineMessages = value ? { ...value } : { messages: {} }
     } catch (error) {
       console.error(error)
     }
   }
 
-  async setOfflineMessages (messages: Array<any>): Promise<void> {
+  async setOfflineMessages(messages: Array<any>): Promise<void> {
     try {
       const data = { messages: { [this.conversation._id]: messages } } as any
 

@@ -57,7 +57,6 @@ import store from '@/store/index'
 import IconButton from '@/components/IconButton/IconButton.vue'
 import GroupAvatar from '@/components/GroupAvatar/GroupAvatar.vue'
 import Avatar from '@/components/Avatar/Avatar.vue'
-import OptionButton from '../OptionButton/OptionButton.vue'
 import Content from '@/components/Content/Content.vue'
 import MessagePreviewPopOver from '../MessagePreviewPopOver/MessagePreviewPopOver.vue'
 import ForwardMessage from '../ForwardMessage/ForwardMessage.vue'
@@ -86,7 +85,6 @@ const ComponentProps = Vue.extend({
     Content,
     IconButton,
     GroupAvatar,
-    OptionButton,
     Avatar,
     MessagePreviewPopOver,
     VLazyImage,

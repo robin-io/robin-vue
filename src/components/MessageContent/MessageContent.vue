@@ -1,10 +1,10 @@
 <template>
   <div class="robin-flex robin-flex-column" :class="validateMessages(message)">
-    <div class="robin-conversation-date" v-if="getMessageIndex() == 0 && conversation.is_group">This group was created by {{ $user_token == conversation.moderator.user_token ? 'You' : conversation.moderator.meta_data.display_name }} {{ formatDate(message.created_at || message[0].created_at) == 'Today' ? 'today.' : `on ${formatDate(message.created_at || message[0].created_at)}.` }}</div>
+    <div class="robin-conversation-date" v-if="getMessageIndex() == 0 && conversation.is_group">This group was created by {{ $user_token == conversation.moderator.user_token ? 'You' : conversation.moderator.meta_data.display_name }} {{ formatDate(!Array.isArray(message) ? message.created_at : message[0].created_at) == 'Today' ? 'today.' : `on ${formatDate(!Array.isArray(message) ? message.created_at : message[0].created_att)}.` }}</div>
 
-    <div class="robin-conversation-date" v-if="getMessageIndex() == 0 && !conversation.is_group">This conversation was created {{ formatDate(message.created_at || message[0].created_at) == 'Today' ? 'today.' : `on ${formatDate(message.created_at || message[0].created_at)}.` }}</div>
+    <div class="robin-conversation-date" v-if="getMessageIndex() == 0 && !conversation.is_group">This conversation was created {{ formatDate(!Array.isArray(message) ? message.created_at : message[0].created_at) == 'Today' ? 'today.' : `on ${formatDate(!Array.isArray(message) ? message.created_at : message[0].created_at)}.` }}</div>
 
-    <div class="robin-activity" v-if="showDate() && getMessageIndex() != 0">{{ formatDate(message.created_at || message[0].created_at) }}</div>
+    <div class="robin-activity" v-if="showDate() && getMessageIndex() != 0">{{ formatDate(!Array.isArray(message) ? message.created_at : message[0].created_at) }}</div>
 
     <div class="robin-message-bubble robin-flex robin-flex-align-center">
       <CheckBox ref="checkbox" v-show="selectMessagesOpen" @clicked="toggleCheckAction($event)" />
@@ -15,15 +15,15 @@
         </div>
 
         <div class="robin-reactions" v-if="message && message.reactions && message.reactions.length > 0 && isMessageReactionViewEnabled">
-          <div class="robin-reaction" :class="{'delete-enabled': isMessageReactionDeleteEnabled}" v-for="(value, key, index) in reactions" :key="index" @click="removeReaction(value[value.length - 1])" v-show="value.length > 0">{{ key + ' ' + value.length }}</div>
+          <div class="robin-reaction" :class="{ 'delete-enabled': isMessageReactionDeleteEnabled }" v-for="(value, key, index) in reactions" :key="index" @click="removeReaction(value[value.length - 1])" v-show="value.length > 0">{{ key + ' ' + value.length }}</div>
         </div>
 
         <!-- Personal -->
-        <div class="robin-message-bubble-inner" :class="{ 'robin-non-clickable': selectMessagesOpen, 'robin-non-clickable':   !isMessageReactionViewEnabled && !isReplyMessagesEnabled && !isDeleteMessagesEnabled && !isForwardMessagesEnabled }" v-if="!message.has_attachment">
+        <div class="robin-message-bubble-inner" :class="{ 'robin-non-clickable': selectMessagesOpen, 'robin-non-clickable': !isMessageReactionViewEnabled && !isReplyMessagesEnabled && !isDeleteMessagesEnabled && !isForwardMessagesEnabled && message.pseudo }" v-if="!message.has_attachment">
           <Content v-if="validateMessages(message).includes('message-sender') && conversation.is_group" :font-size="12" :color="groupnameColors[message.content.sender_token]" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getContactName(message.content.sender_token) }} </Content>
 
           <!-- Modal Open Caret -->
-          <div class="robin-caret-container" v-show="(caretOpen || (messagePopup.opened && validateMessages(message))) && (isMessageReactionViewEnabled || isReplyMessagesEnabled || isDeleteMessagesEnabled || isForwardMessagesEnabled || (isMessageReactionViewEnabled && isReplyMessagesEnabled && isDeleteMessagesEnabled && isForwardMessagesEnabled))" @click="openModal()" data-testid="popup-caret">
+          <div class="robin-caret-container" v-show="(caretOpen || (messagePopup.opened && validateMessages(message))) && (isMessageReactionViewEnabled || isReplyMessagesEnabled || isDeleteMessagesEnabled || isForwardMessagesEnabled || (isMessageReactionViewEnabled && isReplyMessagesEnabled && isDeleteMessagesEnabled && isForwardMessagesEnabled)) && !message.pseudo" @click="openModal()" data-testid="popup-caret">
             <IconButton name="messagePopupCaret" :to-emit="false" :to-click-away="false" />
           </div>
           <!-- Modal Open Caret -->
@@ -43,21 +43,23 @@
 
             <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
               <Content :font-weight="'300'" :font-size="10" color="#7a7a7a" as="p" @click.native="openModal()" class="robin-flex">
-                {{ formatTimeStamp(message.content.timestamp) }}
+                {{ !message.pseudo ? formatTimeStamp(message.content.timestamp) : '' }}
 
-                <SvgIcon name="read" v-if="!validateMessages(message).includes('message-sender') && message.is_read" />
+                <SvgIcon name="read" v-if="!validateMessages(message).includes('message-sender') && message.is_read && !message.pseudo" />
 
-                <SvgIcon name="not-read" v-if="!validateMessages(message).includes('message-sender') && !message.is_read" />
+                <SvgIcon name="not-read" v-if="!validateMessages(message).includes('message-sender') && !message.is_read && !message.pseudo" />
+
+                <i class="robin-material-icon" v-if="message.pseudo"> schedule </i>
               </Content>
             </span>
           </div>
         </div>
 
-        <div class="robin-message-bubble-image" :class="{ 'robin-non-clickable': selectMessagesOpen, 'robin-non-clickable':   !isMessageReactionViewEnabled && !isReplyMessagesEnabled && !isDeleteMessagesEnabled && !isForwardMessagesEnabled }" v-if="message.content.is_attachment && imageRegex.test(checkAttachmentType(message.content.attachment))">
+        <div class="robin-message-bubble-image" :class="{ 'robin-non-clickable': selectMessagesOpen, 'robin-non-clickable': (!isMessageReactionViewEnabled && !isReplyMessagesEnabled && !isDeleteMessagesEnabled && !isForwardMessagesEnabled) || message.pseudo }" v-if="message.content.is_attachment && imageRegex.test(checkAttachmentType(message.content.attachment))">
           <Content v-if="validateMessages(message).includes('message-sender') && conversation.is_group" :font-size="12" :color="groupnameColors[message.content.sender_token]" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getContactName(message.content.sender_token) }} </Content>
 
           <!-- Modal Open Caret -->
-          <div class="robin-caret-container" v-show="(caretOpen || (messagePopup.opened && validateMessages(message))) && (isMessageReactionViewEnabled || isReplyMessagesEnabled || isDeleteMessagesEnabled || isForwardMessagesEnabled || (isMessageReactionViewEnabled && isReplyMessagesEnabled && isDeleteMessagesEnabled && isForwardMessagesEnabled))" @click="openModal()">
+          <div class="robin-caret-container" v-show="(caretOpen || (messagePopup.opened && validateMessages(message))) && (isMessageReactionViewEnabled || isReplyMessagesEnabled || isDeleteMessagesEnabled || isForwardMessagesEnabled || (isMessageReactionViewEnabled && isReplyMessagesEnabled && isDeleteMessagesEnabled && isForwardMessagesEnabled)) && !message.pseudo" @click="openModal()">
             <IconButton name="messagePopupCaret" :to-emit="false" :to-click-away="false" />
           </div>
           <!-- Modal Open Caret -->
@@ -67,7 +69,7 @@
           <!-- place reply here -->
           <ReplyMessageBubble :messages="messages" :message="message" v-if="message.is_reply && isReplyMessagesEnabled" :sender="validateMessages(message).includes('message-sender')" @scroll-replied-message="scrollToRepliedMessage" />
           <!-- place reply here -->
-          <v-lazy-image class="robin-uploaded-image" :src="message.content.attachment" @click.native="$emit('open-preview', [message])" />
+          <v-lazy-image class="robin-uploaded-image" :src="typeof message.content.attachment !== 'string' ? pseudoAttachmentUrl : message.content.attachment" @click.native="$emit('open-preview', [message])" />
 
           <Content :max-width="message.content.msg.length < 120 ? '217' : '270'" textWrap="pre-line" wordBreak="break-word" as="span" v-if="!validateLinkInMessage().containsEmail && !validateLinkInMessage().containsWebsite && message.content.msg && message.content.msg != 'undefined'">
             {{ message.content.msg }}
@@ -77,20 +79,22 @@
 
           <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
             <Content :font-weight="'300'" :font-size="10" color="#7a7a7a" as="p" @click.native="openModal()" class="robin-flex">
-              {{ formatTimeStamp(message.content.timestamp) }}
+              {{ !message.pseudo ? formatTimeStamp(message.content.timestamp) : '' }}
 
-              <SvgIcon name="read" v-if="!validateMessages(message).includes('message-sender') && message.is_read" />
+              <SvgIcon name="read" v-if="!validateMessages(message).includes('message-sender') && message.is_read && !message.pseudo" />
 
-              <SvgIcon name="not-read" v-if="!validateMessages(message).includes('message-sender') && !message.is_read" />
+              <SvgIcon name="not-read" v-if="!validateMessages(message).includes('message-sender') && !message.is_read && !message.pseudo" />
+
+              <i class="robin-material-icon" v-if="message.pseudo"> schedule </i>
             </Content>
           </span>
         </div>
 
-        <div class="robin-message-bubble-video" :class="{ 'robin-non-clickable': selectMessagesOpen, 'robin-non-clickable':   !isMessageReactionViewEnabled && !isReplyMessagesEnabled && !isDeleteMessagesEnabled && !isForwardMessagesEnabled }" v-if="message.content.is_attachment && videoRegex.test(checkAttachmentType(message.content.attachment))">
+        <div class="robin-message-bubble-video" :class="{ 'robin-non-clickable': selectMessagesOpen, 'robin-non-clickable': (!isMessageReactionViewEnabled && !isReplyMessagesEnabled && !isDeleteMessagesEnabled && !isForwardMessagesEnabled) || message.pseudo }" v-if="message.content.is_attachment && videoRegex.test(checkAttachmentType(message.content.attachment))">
           <Content v-if="validateMessages(message).includes('message-sender') && conversation.is_group" :font-size="12" :color="groupnameColors[message.content.sender_token]" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getContactName(message.content.sender_token) }} </Content>
 
           <!-- Modal Open Caret -->
-          <div class="robin-caret-container" v-show="(caretOpen || (messagePopup.opened && validateMessages(message))) && (isMessageReactionViewEnabled || isReplyMessagesEnabled || isDeleteMessagesEnabled || isForwardMessagesEnabled || (isMessageReactionViewEnabled && isReplyMessagesEnabled && isDeleteMessagesEnabled && isForwardMessagesEnabled))" @click="openModal()">
+          <div class="robin-caret-container" v-show="(caretOpen || (messagePopup.opened && validateMessages(message))) && (isMessageReactionViewEnabled || isReplyMessagesEnabled || isDeleteMessagesEnabled || isForwardMessagesEnabled || (isMessageReactionViewEnabled && isReplyMessagesEnabled && isDeleteMessagesEnabled && isForwardMessagesEnabled)) && !message.pseudo" @click="openModal()">
             <IconButton name="messagePopupCaret" :to-emit="false" :to-click-away="false" />
           </div>
           <!-- Modal Open Caret -->
@@ -114,20 +118,22 @@
 
           <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
             <Content :font-weight="'300'" :font-size="10" color="#7a7a7a" as="p" @click.native="openModal()" class="robin-flex">
-              {{ formatTimeStamp(message.content.timestamp) }}
+              {{ !message.pseudo ? formatTimeStamp(message.content.timestamp) : '' }}
 
-              <SvgIcon name="read" v-if="!validateMessages(message).includes('message-sender') && message.is_read" />
+              <SvgIcon name="read" v-if="!validateMessages(message).includes('message-sender') && message.is_read && !message.pseudo" />
 
-              <SvgIcon name="not-read" v-if="!validateMessages(message).includes('message-sender') && !message.is_read" />
+              <SvgIcon name="not-read" v-if="!validateMessages(message).includes('message-sender') && !message.is_read && !message.pseudo" />
+
+              <i class="robin-material-icon" v-if="message.pseudo"> schedule </i>
             </Content>
           </span>
         </div>
 
-        <div class="robin-message-bubble-document" :class="{ 'robin-non-clickable': selectMessagesOpen, 'robin-non-clickable':   !isMessageReactionViewEnabled && !isReplyMessagesEnabled && !isDeleteMessagesEnabled && !isForwardMessagesEnabled }" v-if="message.content.is_attachment && documentRegex.test(checkAttachmentType(message.content.attachment))">
+        <div class="robin-message-bubble-document" :class="{ 'robin-non-clickable': selectMessagesOpen, 'robin-non-clickable': (!isMessageReactionViewEnabled && !isReplyMessagesEnabled && !isDeleteMessagesEnabled && !isForwardMessagesEnabled) || message.pseudo }" v-if="message.content.is_attachment && documentRegex.test(checkAttachmentType(message.content.attachment))">
           <Content v-if="validateMessages(message).includes('message-sender') && conversation.is_group" :font-size="12" :color="groupnameColors[message.content.sender_token]" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getContactName(message.content.sender_token) }} </Content>
 
           <!-- Modal Open Caret -->
-          <div class="robin-caret-container" v-show="(caretOpen || (messagePopup.opened && validateMessages(message))) && (isMessageReactionViewEnabled || isReplyMessagesEnabled || isDeleteMessagesEnabled || isForwardMessagesEnabled || (isMessageReactionViewEnabled && isReplyMessagesEnabled && isDeleteMessagesEnabled && isForwardMessagesEnabled))" @click="openModal()">
+          <div class="robin-caret-container" v-show="(caretOpen || (messagePopup.opened && validateMessages(message))) && (isMessageReactionViewEnabled || isReplyMessagesEnabled || isDeleteMessagesEnabled || isForwardMessagesEnabled || (isMessageReactionViewEnabled && isReplyMessagesEnabled && isDeleteMessagesEnabled && isForwardMessagesEnabled)) && !message.pseudo" @click="openModal()">
             <IconButton name="messagePopupCaret" :to-emit="false" :to-click-away="false" />
           </div>
           <!-- Modal Open Caret -->
@@ -161,11 +167,13 @@
 
           <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
             <Content :font-weight="'300'" :font-size="10" color="#7a7a7a" as="p" @click.native="openModal()" class="robin-flex">
-              {{ formatTimeStamp(message.content.timestamp) }}
+              {{ !message.pseudo ? formatTimeStamp(message.content.timestamp) : '' }}
 
-              <SvgIcon name="read" v-if="!validateMessages(message).includes('message-sender') && message.is_read" />
+              <SvgIcon name="read" v-if="!validateMessages(message).includes('message-sender') && message.is_read && !message.pseudo" />
 
-              <SvgIcon name="not-read" v-if="!validateMessages(message).includes('message-sender') && !message.is_read" />
+              <SvgIcon name="not-read" v-if="!validateMessages(message).includes('message-sender') && !message.is_read && !message.pseudo" />
+
+              <i class="robin-material-icon" v-if="message.pseudo"> schedule </i>
             </Content>
           </span>
         </div>
@@ -173,7 +181,7 @@
 
       <div class="robin-bubble" :class="validateMessages(message).includes('message-sender') ? 'robin-ml-5' : 'robin-mr-5'" v-if="Array.isArray(message) && message.filter((image) => !image.is_deleted).length === 1">
         <div class="robin-reactions" v-if="message[0].reactions && message[0].reactions.length > 0 && isMessageReactionViewEnabled">
-          <div class="robin-reaction" :class="{'delete-enabled': isMessageReactionDeleteEnabled}" v-for="(value, key, index) in reactions" :key="index" @click="removeReaction(value[value.length - 1])" v-show="value.length > 0">{{ key + ' ' + value.length }}</div>
+          <div class="robin-reaction" :class="{ 'delete-enabled': isMessageReactionDeleteEnabled }" v-for="(value, key, index) in reactions" :key="index" @click="removeReaction(value[value.length - 1])" v-show="value.length > 0">{{ key + ' ' + value.length }}</div>
         </div>
 
         <div class="robin-message-bubble-image" v-if="message[0].content.is_attachment && imageRegex.test(checkAttachmentType(message[0].content.attachment))">
@@ -197,13 +205,13 @@
       </div>
 
       <div class="robin-reactions" v-if="Array.isArray(message) && message[0].reactions && message[0].reactions.length > 0 && isMessageReactionViewEnabled">
-        <div class="robin-reaction" :class="{'delete-enabled': isMessageReactionDeleteEnabled}" v-for="(value, key, index) in reactions" :key="index" @click="removeReaction(value[value.length - 1])" v-show="value.length > 0">{{ key + ' ' + value.length }}</div>
+        <div class="robin-reaction" :class="{ 'delete-enabled': isMessageReactionDeleteEnabled }" v-for="(value, key, index) in reactions" :key="index" @click="removeReaction(value[value.length - 1])" v-show="value.length > 0">{{ key + ' ' + value.length }}</div>
       </div>
 
       <MessageGrid ref="popup-2" :class="!validateMessages(message) ? 'robin-ml-5' : 'robin-mr-5'" v-if="Array.isArray(message) && message.filter((image) => !image.is_deleted).length > 1" :message="message.filter((image) => !image.is_deleted)" :read-receipts="readReceipts" :conversation="conversation" :message-popup="messagePopup" @open-preview="openPreview($event)" @open-modal="openModal()" @close-modal="closeModal()" @add-reaction="addReaction" v-on-clickaway="closeModal" :groupname-colors="groupnameColors" />
 
       <div class="robin-popup-container message" :class="{ top: (lastId === message._id || messages.length - 3 === index) && scroll }">
-        <MessagePopOver v-show="messagePopup.opened && validateMessages(message) && !Array.isArray(message) && (isReplyMessagesEnabled || isDeleteMessagesEnabled || isForwardMessagesEnabled || (isReplyMessagesEnabled && isDeleteMessagesEnabled && isForwardMessagesEnabled))" @close-modal="closeModal()" @select-message="selectMessage()" @forward-message="$emit('forward-message')" @reply-message="$emit('reply-message', message)" ref="popup-3" :id="message._id" :message="message" data-testid="message-popover" />
+        <MessagePopOver v-show="messagePopup.opened && validateMessages(message) && !Array.isArray(message) && (isReplyMessagesEnabled || isDeleteMessagesEnabled || isForwardMessagesEnabled || (isReplyMessagesEnabled && isDeleteMessagesEnabled && isForwardMessagesEnabled)) && !message.pseudo" @close-modal="closeModal()" @select-message="selectMessage()" @forward-message="$emit('forward-message')" @reply-message="$emit('reply-message', message)" ref="popup-3" :id="message._id" :message="message" data-testid="message-popover" />
       </div>
     </div>
 
@@ -307,7 +315,7 @@ const ComponentProps = Vue.extend({
   mixins: [clickaway],
   watch: {
     uncheck: {
-      handler (val) {
+      handler(val) {
         if (this.uncheck) {
           const checkbox = this.$refs.checkbox as any
           checkbox.checked = false
@@ -315,7 +323,7 @@ const ComponentProps = Vue.extend({
       }
     },
     messages: {
-      handler (val) {
+      handler(val) {
         this.leaveGroupActivity = []
         this.reactions = { '❤️': [], '👍': [], '👎': [], '😂': [], '⁉️': [] }
         this.getMessageReactions()
@@ -336,42 +344,43 @@ export default class MessageContent extends ComponentProps {
   leaveGroupActivity = [] as any
   reactions = { '❤️': [], '👍': [], '👎': [], '😂': [], '⁉️': [] } as any
   videoPlayer = null as any
+  pseudoAttachmentUrl = ''
 
-  get selectMessagesOpen () {
+  get selectMessagesOpen() {
     return store.state.selectMessagesOpen
   }
 
-  get isReplyMessagesEnabled () {
+  get isReplyMessagesEnabled() {
     return store.state.replyMessagesEnabled
   }
 
-  get isDeleteMessagesEnabled () {
+  get isDeleteMessagesEnabled() {
     return store.state.deleteMessagesEnabled
   }
 
-  get isForwardMessagesEnabled () {
+  get isForwardMessagesEnabled() {
     return store.state.forwardMessagesEnabled
   }
 
-  get isMessageReactionViewEnabled () {
+  get isMessageReactionViewEnabled() {
     return store.state.messageReactionViewEnabled
   }
 
-  get isMessageReactionDeleteEnabled () {
+  get isMessageReactionDeleteEnabled() {
     return store.state.messageReactionDeleteEnabled
   }
 
-  get assets (): any {
+  get assets(): any {
     return assets
   }
 
-  created () {
+  created() {
     this.onNewReaction()
     this.onReactionDelete()
     this.handleLeaveGroup()
   }
 
-  mounted () {
+  mounted() {
     this.$nextTick(function () {
       this.onResize()
     })
@@ -385,9 +394,13 @@ export default class MessageContent extends ComponentProps {
         this.pauseOtherVideo()
       })
     }
+
+    if (this.message.pseudo) {
+      this.convertFileToBase64(this.message.content.attachment)
+    }
   }
 
-  getMessageIndex () {
+  getMessageIndex() {
     const message = this.messages[this.index] as any
 
     if (Array.isArray(message)) {
@@ -403,7 +416,7 @@ export default class MessageContent extends ComponentProps {
     return this.storedMessages.findIndex((item: any) => item._id === message._id)
   }
 
-  showDate () {
+  showDate() {
     if (this.index - 1 > -1) {
       const dateA = this.messages[this.index] as any
       const dateB = this.messages[this.index - 1] as any
@@ -428,11 +441,11 @@ export default class MessageContent extends ComponentProps {
     return false
   }
 
-  formatTimeStamp (value: any): string {
+  formatTimeStamp(value: any): string {
     return moment(value).format('h:mma').toUpperCase()
   }
 
-  formatDate (value: any): string {
+  formatDate(value: any): string {
     const today = moment().format('MMM DD YYYY')
     const formattedValue = moment(value).format('MMM DD YYYY')
 
@@ -441,15 +454,28 @@ export default class MessageContent extends ComponentProps {
     return moment(value).format('MMM DD YYYY')
   }
 
-  checkAttachmentType (attachmentUrl: String): string {
-    const strArr = attachmentUrl.split('.')
+  checkAttachmentType(attachment: any): string {
+    let strArr = [] as string[]
+
+    if (typeof attachment !== 'string') {
+      strArr = attachment.name.split('.')
+    } else {
+      strArr = attachment.split('.')
+    }
 
     return `${mime.getType(strArr[strArr.length - 1])}`
   }
 
-  getFileDetails (attachmentUrl: string): { name: any; extension: any } {
-    const fileName = attachmentUrl.substring(attachmentUrl.lastIndexOf('/') + 1)
-    const strArr = fileName.split('.')
+  getFileDetails(attachment: any): Record<string, any> {
+    let fileName = ''
+    let strArr = [] as string[]
+
+    if (typeof attachment !== 'string') {
+      strArr = attachment.name.split('.')
+    } else {
+      fileName = attachment.substring(attachment.lastIndexOf('/') + 1)
+      strArr = fileName.split('.') as string[]
+    }
 
     return {
       name: strArr[strArr.length - 2],
@@ -457,22 +483,38 @@ export default class MessageContent extends ComponentProps {
     }
   }
 
-  downloadFile (attachmentUrl: string): void {
-    const fileDetails = this.getFileDetails(attachmentUrl) as any
+  async convertFileToBase64(file: File): Promise<void> {
+    let base64 = new Promise<string>((resolve, reject) => {
+      const reader = new FileReader()
+      reader.readAsDataURL(file)
+      reader.onload = () => resolve(reader.result?.toString() || '')
+      reader.onerror = error => reject(error)
+    })
+
+    this.pseudoAttachmentUrl = await base64
+  }
+
+  async downloadFile(attachment: any): Promise<void> {
+    const fileDetails = this.getFileDetails(attachment) as Record<string, any>
     const element = document.createElement('a')
 
-    element.setAttribute('href', attachmentUrl)
+    if (typeof attachment !== 'string') {
+      element.setAttribute('href', this.pseudoAttachmentUrl)
+    } else {
+      element.setAttribute('href', attachment)
+    }
+
     element.setAttribute('download', fileDetails.name + ' ' + fileDetails.extension)
     element.click()
   }
 
-  openModal (): void {
+  openModal(): void {
     if (!this.selectMessagesOpen) {
       this.messagePopup.opened = true
     }
   }
 
-  closeModal (): void {
+  closeModal(): void {
     const popup = this.$refs as any
     for (const ref in popup) {
       if (ref !== 'checkbox' && popup[ref] && popup[ref].$refs) {
@@ -493,15 +535,15 @@ export default class MessageContent extends ComponentProps {
     }, 300)
   }
 
-  openPreview (event: any): void {
+  openPreview(event: any): void {
     this.$emit('open-preview', event)
   }
 
-  checkArrayReceiverUserToken (message: any) {
+  checkArrayReceiverUserToken(message: any) {
     return message.some((item: { content: { sender_token: string } }) => item.content.sender_token === this.$user_token)
   }
 
-  validateMessages (message: any): string {
+  validateMessages(message: any): string {
     const nextMessage = this.messages[this.index + 1] as any
 
     if (Array.isArray(message) && this.checkArrayReceiverUserToken(message) && nextMessage && nextMessage.content.sender_token !== this.$user_token) {
@@ -532,17 +574,17 @@ export default class MessageContent extends ComponentProps {
     return 'robin-message-sender' // false
   }
 
-  toggleCheckAction (val: boolean): void {
+  toggleCheckAction(val: boolean): void {
     this.$emit('toggle-check-action', val)
   }
 
-  getContactName (sender_token: string): string {
+  getContactName(sender_token: string): string {
     const index = this.$robin_users.findIndex((user) => user.userToken === sender_token) as number
     const user = this.$robin_users[index] as any
     return user ? user.userName : ''
   }
 
-  getReplyMessage (id: string): ReplyMessage {
+  getReplyMessage(id: string): ReplyMessage {
     const message: any = this.messages.find((element: any) => {
       if (Array.isArray(element)) {
         return element.find((item) => item._id === id)
@@ -560,7 +602,7 @@ export default class MessageContent extends ComponentProps {
     return message
   }
 
-  async addReaction (emoji: string): Promise<void> {
+  async addReaction(emoji: string): Promise<void> {
     const robin = this.$robin as any
     const message = Array.isArray(this.message) ? this.message[0] : (this.message as any)
 
@@ -568,7 +610,7 @@ export default class MessageContent extends ComponentProps {
     this.closeModal()
   }
 
-  async removeReaction (reaction: any): Promise<void> {
+  async removeReaction(reaction: any): Promise<void> {
     const robin = this.$robin as any
     const message = Array.isArray(this.message) ? this.message[0] : (this.message as any)
 
@@ -577,7 +619,7 @@ export default class MessageContent extends ComponentProps {
     }
   }
 
-  onNewReaction () {
+  onNewReaction() {
     EventBus.$on('message.reaction', (message: any) => {
       if (!Array.isArray(this.message)) {
         if (!this.message.reactions) this.message.reactions = []
@@ -605,7 +647,7 @@ export default class MessageContent extends ComponentProps {
     })
   }
 
-  getMessageReactions () {
+  getMessageReactions() {
     const reactions = Array.isArray(this.message) ? this.message[0].reactions : this.message.reactions
     if (reactions) {
       reactions.forEach((message: any) => {
@@ -614,17 +656,17 @@ export default class MessageContent extends ComponentProps {
     }
   }
 
-  increaseMessageReaction (reaction: any, message: any) {
+  increaseMessageReaction(reaction: any, message: any) {
     const reactionExists = this.reactions[reaction].some((item: any) => item._id === message._id)
 
     if (!reactionExists) this.reactions[reaction].push(message)
   }
 
-  reduceMessageReaction (reaction: any) {
+  reduceMessageReaction(reaction: any) {
     this.reactions[reaction].pop()
   }
 
-  onReactionDelete () {
+  onReactionDelete() {
     EventBus.$on('message.remove.reaction', (message: any) => {
       if (message.message_id === this.message._id) {
         const reactions = this.message.reactions as any
@@ -651,7 +693,7 @@ export default class MessageContent extends ComponentProps {
     })
   }
 
-  validateLinkInMessage () {
+  validateLinkInMessage() {
     const texts = this.message.content.msg.split(' ')
 
     return {
@@ -660,14 +702,14 @@ export default class MessageContent extends ComponentProps {
     }
   }
 
-  getTextsInMessage () {
+  getTextsInMessage() {
     return {
       texts: this.message.content.msg.split(' '),
       length: this.message.content.msg.split(' ').length
     }
   }
 
-  injectHtml (message: string): void {
+  injectHtml(message: string): void {
     let returnedMessage = ''
 
     if (message) {
@@ -692,7 +734,7 @@ export default class MessageContent extends ComponentProps {
     }
   }
 
-  onResize () {
+  onResize() {
     this.screenWidth = window.innerWidth
 
     if (this.screenWidth <= 1024) {
@@ -702,7 +744,7 @@ export default class MessageContent extends ComponentProps {
     }
   }
 
-  onMouseOver () {
+  onMouseOver() {
     if (!this.selectMessagesOpen) {
       this.caretOpen = true
     } else {
@@ -710,30 +752,30 @@ export default class MessageContent extends ComponentProps {
     }
   }
 
-  onMouseLeave () {
+  onMouseLeave() {
     if (this.screenWidth > 1024) {
       this.caretOpen = false
     }
   }
 
-  selectMessage () {
+  selectMessage() {
     const checkbox = this.$refs.checkbox as any
     checkbox.checked = true
     this.toggleCheckAction(false)
   }
 
-  forwardMessage () {
+  forwardMessage() {
     const checkbox = this.$refs.checkbox as any
     checkbox.checked = true
     this.toggleCheckAction(false)
   }
 
   // Method to scroll to the position of a replied message
-  scrollToRepliedMessage (id: string) {
+  scrollToRepliedMessage(id: string) {
     this.$emit('scroll-replied-message', id)
   }
 
-  handleLeaveGroup () {
+  handleLeaveGroup() {
     EventBus.$on('remove.group.participant', (value: any) => {
       if (value.participant.user_token === this.$user_token) {
         this.leaveGroupActivity.push('You left the group.')
@@ -746,7 +788,7 @@ export default class MessageContent extends ComponentProps {
     })
   }
 
-  pauseOtherVideo () {
+  pauseOtherVideo() {
     const videoElements = document.querySelectorAll('video')
 
     videoElements.forEach((video) => {
