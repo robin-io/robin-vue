@@ -213,10 +213,14 @@ export default class SideContainer extends Vue {
     if (!res.error) {
       this.conversations = res.data.conversations == null ? [] : res.data.conversations
       Vue.prototype.$conversations = res.data.conversations == null ? [] : res.data.conversations
-      Vue.prototype.$regularConversations = this.getRegularConversations()
-      Vue.prototype.$archivedConversations = this.getArchivedConversations()
-      this.regularConversations = this.getRegularConversations()
-      this.archivedConversations = this.getArchivedConversations()
+
+      const regularConversations = this.getRegularConversations() as Array<Record<string, any>>
+      const archivedConversations = this.getArchivedConversations() as Array<Record<string, any>>
+
+      Vue.prototype.$regularConversations = [...regularConversations]
+      Vue.prototype.$archivedConversations = [...archivedConversations]
+      this.regularConversations = [...regularConversations]
+      this.archivedConversations = [...archivedConversations]
       store.setState('isPageLoading', false)
       this.$forceUpdate()
     }
@@ -235,31 +239,35 @@ export default class SideContainer extends Vue {
       return !user.archived_for.includes(this.$user_token)
     })
 
-    return this.addUnreadMessagesToConversation(regularConversations)
+    console.log('loading regular', regularConversations)
+
+    return regularConversations
+    // return this.addUnreadMessagesToConversation(regularConversations)
   }
 
-  addUnreadMessagesToConversation (conversations: any): Array<any> {
-    let unreadMessages = 0
+  // addUnreadMessagesToConversation (conversations: any): Array<any> {
+  //   console.log('logging')
+  //   let unreadMessages = 0
 
-    const data = conversations.map((conversation: any) => {
-      this.getConversationMessages(conversation._id).then((messages) => {
-        if (messages) {
-          messages.forEach((message: any) => {
-            if (message.sender_token !== this.$user_token && !message.is_read) {
-              unreadMessages += 1
-            }
-          })
-        }
+  //   const data = conversations.map((conversation: any) => {
+  //     this.getConversationMessages(conversation._id).then((messages) => {
+  //       if (messages) {
+  //         messages.forEach((message: any) => {
+  //           if (message.sender_token !== this.$user_token && !message.is_read) {
+  //             unreadMessages += 1
+  //           }
+  //         })
+  //       }
 
-        conversation.unread_messages = unreadMessages
-        unreadMessages = 0
-      })
+  //       conversation.unread_messages = unreadMessages
+  //       unreadMessages = 0
+  //     })
 
-      return conversation
-    })
+  //     return conversation
+  //   })
 
-    return data
-  }
+  //   return data
+  // }
 
   async getConversationMessages (id: string): Promise<Array<any>> {
     const res = await this.$robin.getConversationMessages(id, this.$user_token)

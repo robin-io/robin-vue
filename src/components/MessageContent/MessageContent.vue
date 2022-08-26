@@ -144,7 +144,7 @@
           <ReplyMessageBubble :messages="messages" :message="message" :index="index" v-if="message.is_reply && isReplyMessagesEnabled" :sender="validateMessages(message).includes('message-sender')" class="robin-mb-8" />
           <!-- place reply here -->
 
-          <div class="robin-uploaded-document" v-if="getFileDetails(message.content.attachment).extension !== 'mp3'">
+          <div class="robin-uploaded-document" v-if="documentRegex.test(checkAttachmentType(getFileDetails(message.content.attachment))) && !audioRegex.test(checkAttachmentType(message.content.attachment))">
             <!-- <img v-if="assets[getFileDetails(message.content.attachment).extension]" :src="`${assets[getFileDetails(message.content.attachment).extension]}`" /> -->
             <img v-if="assets[getFileDetails(message.content.attachment).extension]" :src="assets[getFileDetails(message.content.attachment).extension]" alt="document" />
 
@@ -315,7 +315,7 @@ const ComponentProps = Vue.extend({
   mixins: [clickaway],
   watch: {
     uncheck: {
-      handler(val) {
+      handler (val) {
         if (this.uncheck) {
           const checkbox = this.$refs.checkbox as any
           checkbox.checked = false
@@ -323,7 +323,7 @@ const ComponentProps = Vue.extend({
       }
     },
     messages: {
-      handler(val) {
+      handler (val) {
         this.leaveGroupActivity = []
         this.reactions = { '❤️': [], '👍': [], '👎': [], '😂': [], '⁉️': [] }
         this.getMessageReactions()
@@ -337,7 +337,8 @@ export default class MessageContent extends ComponentProps {
   screenWidth = 0 as number
   imageRegex = /^image/ as any
   videoRegex = /^video/ as any
-  documentRegex = /^application\/(csv|pdf|msword|(vnd\.(ms-|openxmlformats-).*))$|^text\/plain$|^audio\/mpeg$/i
+  documentRegex = /^application\/(csv|pdf|msword|(vnd\.(ms-|openxmlformats-).*))$|^text\/plain$|^audio\/(mpeg|mp4|x-ogg|x-wav|x-flac|x-aac|x-ms-wma)$/i
+  audioRegex = /^audio\/(mpeg|mp4|x-ogg|x-wav|x-flac|x-aac|x-ms-wma)$/i
   emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   websiteRegex = /[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/
   files = [] as any
@@ -346,41 +347,41 @@ export default class MessageContent extends ComponentProps {
   videoPlayer = null as any
   pseudoAttachmentUrl = ''
 
-  get selectMessagesOpen() {
+  get selectMessagesOpen () {
     return store.state.selectMessagesOpen
   }
 
-  get isReplyMessagesEnabled() {
+  get isReplyMessagesEnabled () {
     return store.state.replyMessagesEnabled
   }
 
-  get isDeleteMessagesEnabled() {
+  get isDeleteMessagesEnabled () {
     return store.state.deleteMessagesEnabled
   }
 
-  get isForwardMessagesEnabled() {
+  get isForwardMessagesEnabled () {
     return store.state.forwardMessagesEnabled
   }
 
-  get isMessageReactionViewEnabled() {
+  get isMessageReactionViewEnabled () {
     return store.state.messageReactionViewEnabled
   }
 
-  get isMessageReactionDeleteEnabled() {
+  get isMessageReactionDeleteEnabled () {
     return store.state.messageReactionDeleteEnabled
   }
 
-  get assets(): any {
+  get assets (): any {
     return assets
   }
 
-  created() {
+  created () {
     this.onNewReaction()
     this.onReactionDelete()
     this.handleLeaveGroup()
   }
 
-  mounted() {
+  mounted () {
     this.$nextTick(function () {
       this.onResize()
     })
@@ -400,7 +401,7 @@ export default class MessageContent extends ComponentProps {
     }
   }
 
-  getMessageIndex() {
+  getMessageIndex () {
     const message = this.messages[this.index] as any
 
     if (Array.isArray(message)) {
@@ -416,7 +417,7 @@ export default class MessageContent extends ComponentProps {
     return this.storedMessages.findIndex((item: any) => item._id === message._id)
   }
 
-  showDate() {
+  showDate () {
     if (this.index - 1 > -1) {
       const dateA = this.messages[this.index] as any
       const dateB = this.messages[this.index - 1] as any
@@ -441,11 +442,11 @@ export default class MessageContent extends ComponentProps {
     return false
   }
 
-  formatTimeStamp(value: any): string {
+  formatTimeStamp (value: any): string {
     return moment(value).format('h:mma').toUpperCase()
   }
 
-  formatDate(value: any): string {
+  formatDate (value: any): string {
     const today = moment().format('MMM DD YYYY')
     const formattedValue = moment(value).format('MMM DD YYYY')
 
@@ -454,7 +455,7 @@ export default class MessageContent extends ComponentProps {
     return moment(value).format('MMM DD YYYY')
   }
 
-  checkAttachmentType(attachment: any): string {
+  checkAttachmentType (attachment: any): string {
     let strArr = [] as string[]
 
     if (typeof attachment !== 'string') {
@@ -466,7 +467,7 @@ export default class MessageContent extends ComponentProps {
     return `${mime.getType(strArr[strArr.length - 1])}`
   }
 
-  getFileDetails(attachment: any): Record<string, any> {
+  getFileDetails (attachment: any): Record<string, any> {
     let fileName = ''
     let strArr = [] as string[]
 
@@ -483,18 +484,18 @@ export default class MessageContent extends ComponentProps {
     }
   }
 
-  async convertFileToBase64(file: File): Promise<void> {
-    let base64 = new Promise<string>((resolve, reject) => {
+  async convertFileToBase64 (file: File): Promise<void> {
+    const base64 = new Promise<string>((resolve, reject) => {
       const reader = new FileReader()
       reader.readAsDataURL(file)
       reader.onload = () => resolve(reader.result?.toString() || '')
-      reader.onerror = error => reject(error)
+      reader.onerror = (error) => reject(error)
     })
 
     this.pseudoAttachmentUrl = await base64
   }
 
-  async downloadFile(attachment: any): Promise<void> {
+  async downloadFile (attachment: any): Promise<void> {
     const fileDetails = this.getFileDetails(attachment) as Record<string, any>
     const element = document.createElement('a')
 
@@ -508,13 +509,13 @@ export default class MessageContent extends ComponentProps {
     element.click()
   }
 
-  openModal(): void {
+  openModal (): void {
     if (!this.selectMessagesOpen) {
       this.messagePopup.opened = true
     }
   }
 
-  closeModal(): void {
+  closeModal (): void {
     const popup = this.$refs as any
     for (const ref in popup) {
       if (ref !== 'checkbox' && popup[ref] && popup[ref].$refs) {
@@ -535,15 +536,15 @@ export default class MessageContent extends ComponentProps {
     }, 300)
   }
 
-  openPreview(event: any): void {
+  openPreview (event: any): void {
     this.$emit('open-preview', event)
   }
 
-  checkArrayReceiverUserToken(message: any) {
+  checkArrayReceiverUserToken (message: any) {
     return message.some((item: { content: { sender_token: string } }) => item.content.sender_token === this.$user_token)
   }
 
-  validateMessages(message: any): string {
+  validateMessages (message: any): string {
     const nextMessage = this.messages[this.index + 1] as any
 
     if (Array.isArray(message) && this.checkArrayReceiverUserToken(message) && nextMessage && nextMessage.content.sender_token !== this.$user_token) {
@@ -574,17 +575,17 @@ export default class MessageContent extends ComponentProps {
     return 'robin-message-sender' // false
   }
 
-  toggleCheckAction(val: boolean): void {
+  toggleCheckAction (val: boolean): void {
     this.$emit('toggle-check-action', val)
   }
 
-  getContactName(sender_token: string): string {
+  getContactName (sender_token: string): string {
     const index = this.$robin_users.findIndex((user) => user.userToken === sender_token) as number
     const user = this.$robin_users[index] as any
     return user ? user.userName : ''
   }
 
-  getReplyMessage(id: string): ReplyMessage {
+  getReplyMessage (id: string): ReplyMessage {
     const message: any = this.messages.find((element: any) => {
       if (Array.isArray(element)) {
         return element.find((item) => item._id === id)
@@ -602,7 +603,7 @@ export default class MessageContent extends ComponentProps {
     return message
   }
 
-  async addReaction(emoji: string): Promise<void> {
+  async addReaction (emoji: string): Promise<void> {
     const robin = this.$robin as any
     const message = Array.isArray(this.message) ? this.message[0] : (this.message as any)
 
@@ -610,7 +611,7 @@ export default class MessageContent extends ComponentProps {
     this.closeModal()
   }
 
-  async removeReaction(reaction: any): Promise<void> {
+  async removeReaction (reaction: any): Promise<void> {
     const robin = this.$robin as any
     const message = Array.isArray(this.message) ? this.message[0] : (this.message as any)
 
@@ -619,7 +620,7 @@ export default class MessageContent extends ComponentProps {
     }
   }
 
-  onNewReaction() {
+  onNewReaction () {
     EventBus.$on('message.reaction', (message: any) => {
       if (!Array.isArray(this.message)) {
         if (!this.message.reactions) this.message.reactions = []
@@ -647,7 +648,7 @@ export default class MessageContent extends ComponentProps {
     })
   }
 
-  getMessageReactions() {
+  getMessageReactions () {
     const reactions = Array.isArray(this.message) ? this.message[0].reactions : this.message.reactions
     if (reactions) {
       reactions.forEach((message: any) => {
@@ -656,17 +657,17 @@ export default class MessageContent extends ComponentProps {
     }
   }
 
-  increaseMessageReaction(reaction: any, message: any) {
+  increaseMessageReaction (reaction: any, message: any) {
     const reactionExists = this.reactions[reaction].some((item: any) => item._id === message._id)
 
     if (!reactionExists) this.reactions[reaction].push(message)
   }
 
-  reduceMessageReaction(reaction: any) {
+  reduceMessageReaction (reaction: any) {
     this.reactions[reaction].pop()
   }
 
-  onReactionDelete() {
+  onReactionDelete () {
     EventBus.$on('message.remove.reaction', (message: any) => {
       if (message.message_id === this.message._id) {
         const reactions = this.message.reactions as any
@@ -693,7 +694,7 @@ export default class MessageContent extends ComponentProps {
     })
   }
 
-  validateLinkInMessage() {
+  validateLinkInMessage () {
     const texts = this.message.content.msg.split(' ')
 
     return {
@@ -702,14 +703,14 @@ export default class MessageContent extends ComponentProps {
     }
   }
 
-  getTextsInMessage() {
+  getTextsInMessage () {
     return {
       texts: this.message.content.msg.split(' '),
       length: this.message.content.msg.split(' ').length
     }
   }
 
-  injectHtml(message: string): void {
+  injectHtml (message: string): void {
     let returnedMessage = ''
 
     if (message) {
@@ -734,7 +735,7 @@ export default class MessageContent extends ComponentProps {
     }
   }
 
-  onResize() {
+  onResize () {
     this.screenWidth = window.innerWidth
 
     if (this.screenWidth <= 1024) {
@@ -744,7 +745,7 @@ export default class MessageContent extends ComponentProps {
     }
   }
 
-  onMouseOver() {
+  onMouseOver () {
     if (!this.selectMessagesOpen) {
       this.caretOpen = true
     } else {
@@ -752,30 +753,30 @@ export default class MessageContent extends ComponentProps {
     }
   }
 
-  onMouseLeave() {
+  onMouseLeave () {
     if (this.screenWidth > 1024) {
       this.caretOpen = false
     }
   }
 
-  selectMessage() {
+  selectMessage () {
     const checkbox = this.$refs.checkbox as any
     checkbox.checked = true
     this.toggleCheckAction(false)
   }
 
-  forwardMessage() {
+  forwardMessage () {
     const checkbox = this.$refs.checkbox as any
     checkbox.checked = true
     this.toggleCheckAction(false)
   }
 
   // Method to scroll to the position of a replied message
-  scrollToRepliedMessage(id: string) {
+  scrollToRepliedMessage (id: string) {
     this.$emit('scroll-replied-message', id)
   }
 
-  handleLeaveGroup() {
+  handleLeaveGroup () {
     EventBus.$on('remove.group.participant', (value: any) => {
       if (value.participant.user_token === this.$user_token) {
         this.leaveGroupActivity.push('You left the group.')
@@ -788,7 +789,7 @@ export default class MessageContent extends ComponentProps {
     })
   }
 
-  pauseOtherVideo() {
+  pauseOtherVideo () {
     const videoElements = document.querySelectorAll('video')
 
     videoElements.forEach((video) => {
