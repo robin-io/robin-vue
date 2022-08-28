@@ -239,35 +239,20 @@ export default class SideContainer extends Vue {
       return !user.archived_for.includes(this.$user_token)
     })
 
-    console.log('loading regular', regularConversations)
-
-    return regularConversations
-    // return this.addUnreadMessagesToConversation(regularConversations)
+    return this.addUnreadMessagesToConversation(regularConversations)
   }
 
-  // addUnreadMessagesToConversation (conversations: any): Array<any> {
-  //   console.log('logging')
-  //   let unreadMessages = 0
+  addUnreadMessagesToConversation (conversations: any): Array<any> {
+    const data = conversations.map((conversation: any) => {
+      for (const key in conversation.unread_messages) {
+        conversation.unread_messages = conversation.unread_messages[key].unread_count
+      }
 
-  //   const data = conversations.map((conversation: any) => {
-  //     this.getConversationMessages(conversation._id).then((messages) => {
-  //       if (messages) {
-  //         messages.forEach((message: any) => {
-  //           if (message.sender_token !== this.$user_token && !message.is_read) {
-  //             unreadMessages += 1
-  //           }
-  //         })
-  //       }
+      return conversation
+    })
 
-  //       conversation.unread_messages = unreadMessages
-  //       unreadMessages = 0
-  //     })
-
-  //     return conversation
-  //   })
-
-  //   return data
-  // }
+    return data
+  }
 
   async getConversationMessages (id: string): Promise<Array<any>> {
     const res = await this.$robin.getConversationMessages(id, this.$user_token)

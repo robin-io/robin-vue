@@ -61,7 +61,7 @@ const ComponentProps = Vue.extend({
     },
     users: {
       type: Array as PropType<Array<any>>,
-      default: (): Array<any> => [
+      default: (): Array<Record<any, any>> => [
         // {
         //   _id: '621436282dc9a4e040d741bb',
         //   created_at: '2022-02-22T01:02:32.517Z',
@@ -276,7 +276,6 @@ export default class App extends ComponentProps {
       }
 
       const message = JSON.parse(evt.data)
-      console.log(message, evt)
 
       if (message.is_event !== true) {
         EventBus.$emit('new-message', message)
