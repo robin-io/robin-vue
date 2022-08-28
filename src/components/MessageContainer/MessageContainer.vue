@@ -286,7 +286,7 @@ export default class MessageContainer extends Vue {
   }
 
   async initializeReadReceipts (messageIds: Array<string>): Promise<void> {
-    const res = await this.$robin.sendReadReceipts(messageIds, this.conversation._id)
+    const res = await this.$robin.sendReadReceipts(messageIds, this.conversation._id, this.$user_token)
 
     if (res.error) {
       this.$toast.open({
