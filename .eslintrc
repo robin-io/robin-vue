@@ -1,0 +1,23 @@
+{
+  "env": {
+    "es6": true,
+    "browser": true
+  },
+  "extends": ["plugin:vue/base", "plugin:@typescript-eslint/recommended"],
+  "parser": "vue-eslint-parser",
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "parser": {
+      "ts": "@typescript-eslint/parser",
+      "<template>": "espree"
+    },
+    "sourceType": "module"
+  },
+  "plugins": ["vue", "@typescript-eslint"],
+  "rules": {
+    "no-undef": "off",
+    "camelcase": "off",
+    "vue/no-reserved-component-names": "off",
+    "vue/multi-word-component-names": "off"
+  }
+}

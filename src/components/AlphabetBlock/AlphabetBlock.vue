@@ -1,4 +1,4 @@
-<script lang="ts">
+<script lang="tsx">
 import { defineComponent, PropType, h } from 'vue-demi';
 import './AlphabetBlock.css';
 
@@ -10,14 +10,11 @@ export default defineComponent({
       default: 'A'
     }
   },
-  setup(props) {},
   render() {
-    return h(
-      'div',
-      {
-        class: 'robin-alphabet-block robin-flex robin-flex-align-center'
-      },
-      this.text
+    return (
+      <div class="robin-alphabet-block robin-flex robin-flex-align-center">
+        {this.text}
+      </div>
     );
   }
 });

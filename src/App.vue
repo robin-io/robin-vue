@@ -15,9 +15,8 @@ import { Robin } from 'robin.io-js';
 import SideContainer from './components/SideContainer/SideContainer.vue';
 import store from './store/index';
 import useEmitter from './utilities/index';
-import { Hashmap } from './utilities/types';
+import { RobinType, Hashmap } from './utilities/types';
 import assets from './asset-url.json';
-import PrimaryChatListVue from './components/PrimaryChatList/PrimaryChatList.vue';
 
 export default defineComponent({
   name: 'RobinChat',
@@ -85,19 +84,9 @@ export default defineComponent({
       default: ''
     }
   },
-  components: {
-    SideContainer
-    // MessageContainer,
-    // PageLoader,
-    // NoMessageSelected,
-    // MessageImagePreviewer,
-    // ViewProfile,
-    // GroupPrompt,
-    // EncryptionDetails
-  },
   setup(props) {
     const slots = useSlots();
-    const robin = ref(null as null | Robin);
+    const robin = ref(null as null | RobinType);
     const conn = ref(null as null | WebSocket);
     const messageEvent = ref(null as null | Record<string, any>);
     const key = ref(0);
@@ -299,11 +288,11 @@ export default defineComponent({
 
     const closeImagePreview = (): void => {
       // const { popup1 } = popup as any
-      // popup1.value.popupBody.classList.remove('robin-squeezeOut')
-      // popup1.value.popupBody.classList.add('robin-squeezeIn')
+      // popup1.value.popUpBody.classList.remove('robin-squeezeOut')
+      // popup1.value.popUpBody.classList.add('robin-squeezeIn')
       // window.setTimeout(() => {
-      //   popup1.value.popupBody.classList.remove('robin-squeezeIn')
-      //   popup1.value.popupBody.classList.add('robin-squeezeOut')
+      //   popup1.value.popUpBody.classList.remove('robin-squeezeIn')
+      //   popup1.value.popUpBody.classList.add('robin-squeezeOut')
       //   store.setState('imagePreviewOpen', false)
       //   store.setState('imagesToPreview', [])
       // }, 100)
@@ -311,11 +300,11 @@ export default defineComponent({
 
     const closeMessageViewProfile = (): void => {
       // const { popup2 } = popup as any
-      // popup2.value.popupBody.classList.remove('robin-slideInRight')
-      // popup2.value.popupBody.classList.add('robin-slideOutRight')
+      // popup2.value.popUpBody.classList.remove('robin-slideInRight')
+      // popup2.value.popUpBody.classList.add('robin-slideOutRight')
       // window.setTimeout(() => {
-      //   popup2.value.popupBody.classList.remove('robin-slideOutRight')
-      //   popup2.value.popupBody.classList.add('robin-slideInRight')
+      //   popup2.value.popUpBody.classList.remove('robin-slideOutRight')
+      //   popup2.value.popUpBody.classList.add('robin-slideInRight')
       //   store.setState('profileOpen', false)
       // }, 100)
     };
@@ -341,31 +330,39 @@ export default defineComponent({
       'forwardMessagesEnabled',
       props.features.includes('forward-messages')
     );
+
     store.setState(
       'deleteMessagesEnabled',
       props.features.includes('delete-messages')
     );
+
     store.setState(
       'archiveChatEnabled',
       props.features.includes('archive-chat')
     );
+
     store.setState('createChatEnabled', props.features.includes('create-chat'));
+
     store.setState(
       'replyMessagesEnabled',
       props.features.includes('reply-messages')
     );
+
     store.setState(
       'voiceRecorderEnabled',
       props.features.includes('voice-recorder')
     );
+
     store.setState(
       'messageReactionViewEnabled',
       props.features.includes('message-reaction.view')
     );
+
     store.setState(
       'messageReactionDeleteEnabled',
       props.features.includes('message-reaction.delete')
     );
+    
     store.setState('useDefaultProfileDetails', props.useDefaultProfileDetails);
 
     if (conn.value) {
@@ -384,23 +381,6 @@ export default defineComponent({
     };
   },
   render() {
-    // if (isVue2) {
-    //   return (
-    //     <div class="robin-container">
-    //       <SideContainer>
-    //         {{
-    //           chatListHeader: () => this.slots['chat-list-header']?.(),
-    //         }}
-    //       </SideContainer>
-    //       <audio
-    //         src={assets['notification']}
-    //         onClick={(event) => this.playAudio(event)}
-    //       >
-    //         Your browser does not support the audio feature
-    //       </audio>
-    //     </div>
-    //   );
-    // } else {
     return (
       <div class="robin-container">
         <SideContainer>
@@ -416,7 +396,6 @@ export default defineComponent({
         </audio>
       </div>
     );
-    // }
   }
 });
 </script>

@@ -6,7 +6,7 @@ let vue;
 let vueJsx;
 
 if (isVue2) {
-  let { createVuePlugin } = require('vite-plugin-vue2');
+  const { createVuePlugin } = require('vite-plugin-vue2');
   vueJsx = require('@vitejs/plugin-vue2-jsx');
   vue = createVuePlugin;
 } else {

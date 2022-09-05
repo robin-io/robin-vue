@@ -6,19 +6,28 @@ import * as url from 'url';
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
 const vue2Packages = {
-  vue: '^2.7.8',
-  vite: '^2.5.1',
-  'vue-template-compiler': '^2.7.8',
-  'vite-plugin-vue2': '^2.0.2',
-  '@vitejs/plugin-vue2-jsx': '^1.0.3'
+  '@types/vue-clickaway': '^2.2.0',
+  'vue-clickaway': '^2.2.2'
 };
 
-const vue3Packages = {
-  vue: '^3.2.37',
-  vite: '^3.0.0',
-  '@vitejs/plugin-vue': '^3.0.0',
-  '@vitejs/plugin-vue-jsx': '^2.0.0'
+const vue2DevPackages = {
+  vue: '2.7.8',
+  vite: '^2.5.1',
+  'vue-template-compiler': '2.7.8',
+  'vite-plugin-vue2': '2.0.2',
+  '@vitejs/plugin-vue2-jsx': '1.0.3'
 };
+
+const vue3Packages = {};
+
+const vue3DevPackages = {
+  vue: '3.2.37',
+  vite: '^3.0.0',
+  '@vitejs/plugin-vue': '3.0.0',
+  '@vitejs/plugin-vue-jsx': '2.0.0'
+};
+
+const vue2DependeciesDifferences = [];
 
 const vue2DevDependeciesDifferences = [
   'vue',
@@ -27,6 +36,8 @@ const vue2DevDependeciesDifferences = [
   'vite-plugin-vue2',
   '@vitejs/plugin-vue2-jsx'
 ];
+
+const vue3DependeciesDifferences = [];
 
 const vue3DevDependeciesDifferences = [
   'vue',
@@ -50,13 +61,13 @@ const packageData = JSON.parse(packageFile.toString());
  * @param {string} toPackages - List of packages to change to.
  */
 async function switchVersionDependencies(version, fromPackages, toPackages) {
-  for (const dep of vue2DevDependeciesDifferences) {
+  for (const dep of vue2DependeciesDifferences) {
     if (version === 3 && dep in packageData.devDependencies) {
       delete packageData.devDependencies[dep];
     }
   }
 
-  for (const dep of vue3DevDependeciesDifferences) {
+  for (const dep of vue3DependeciesDifferences) {
     if (version === 2 && dep in packageData.devDependencies) {
       delete packageData.devDependencies[dep];
     }
@@ -69,16 +80,7 @@ async function switchVersionDependencies(version, fromPackages, toPackages) {
   Object.assign(packageData.dependencies, toPackages);
 
   const packageString = JSON.stringify(packageData, null, 2);
-  writeFileSync(packageSource, packageString, +'\n');
-
-  await execa('pnpm', ['install', '--no-fronzen-lockfile'], {
-    stdio: 'inherit'
-  });
-  await execa('pnpm', ['vue-demi-fix'], { stdio: 'inherit' });
-
-  console.log(
-    `Switched vue dependencies from ${fromPackages} to ${toPackages}`
-  );
+  writeFileSync(packageSource, packageString + '\n');
 }
 
 /**
@@ -109,14 +111,6 @@ async function switchVersionDevDependencies(version, fromPackages, toPackages) {
 
   const packageString = JSON.stringify(packageData, null, 2);
   writeFileSync(packageSource, packageString + '\n');
-
-  await execa('rm', ['-rf', 'node_modules/', 'pnpm-lock.yaml'], {
-    stdio: 'inherit'
-  });
-  await execa('pnpm', ['i', '--no-frozen-lockfile'], {
-    stdio: 'inherit'
-  });
-  await execa('pnpm', ['vue-demi-fix'], { stdio: 'inherit' });
 }
 
 /**
@@ -127,10 +121,28 @@ async function switchVersionDevDependencies(version, fromPackages, toPackages) {
  */
 async function useVueVersions(version) {
   if (version === 3) {
-    await switchVersionDevDependencies(version, vue2Packages, vue3Packages);
+    await switchVersionDevDependencies(
+      version,
+      vue2DevPackages,
+      vue3DevPackages
+    );
+    await switchVersionDependencies(version, vue2Packages, vue3Packages);
   } else if (version === 2) {
-    await switchVersionDevDependencies(version, vue3Packages, vue2Packages);
+    await switchVersionDevDependencies(
+      version,
+      vue3DevPackages,
+      vue2DevPackages
+    );
+    await switchVersionDependencies(version, vue3Packages, vue2Packages);
   }
+
+  await execa('rm', ['-rf', 'node_modules/', 'pnpm-lock.yaml'], {
+    stdio: 'inherit'
+  });
+  await execa('pnpm', ['i', '--no-frozen-lockfile'], {
+    stdio: 'inherit'
+  });
+  await execa('pnpm', ['vue-demi-fix'], { stdio: 'inherit' });
 }
 
 const version = Number(process.argv[2]) || 3;

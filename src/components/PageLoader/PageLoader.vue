@@ -1,7 +1,7 @@
 <script lang="tsx">
 import { defineComponent } from 'vue-demi';
 import Content from '../Content/Content.vue';
-import assets from './asset-url.json';
+import assets from '@/asset-url.json';
 import '../PageLoader.css';
 
 export default defineComponent({

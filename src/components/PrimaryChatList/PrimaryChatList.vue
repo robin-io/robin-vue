@@ -7,12 +7,11 @@ import {
   watch,
   computed,
   onMounted,
-  useSlots,
+  useSlots
 } from 'vue-demi';
-import { Robin } from 'robin.io-js';
 import moment from 'moment';
 import store from '@/store/index';
-import { Hashmap } from '@/utilities/types';
+import { RobinType, Hashmap } from '@/utilities/types';
 import useEventsBus from '@/utilities/index';
 import assets from '@/asset-url.json';
 import Content from '../Content/Content.vue';
@@ -26,7 +25,6 @@ import UnreadMessageCount from '../UnreadMessageCount/UnreadMessageCount.vue';
 import ChatListPopOver from '../ChatListPopOver/ChatListPopOver.vue';
 import './PrimaryChatList.css';
 
-
 export default defineComponent({
   name: 'PrimaryChatList',
   components: {
@@ -38,22 +36,24 @@ export default defineComponent({
     Avatar,
     GroupAvatar,
     UnreadMessageCount,
-    ChatListPopOver,
+    ChatListPopOver
   },
   props: {
     regularConversations: {
       type: Array,
-      default: (): Array<any> => [],
+      default: (): Array<any> => []
     },
     archivedConversations: {
       type: Array,
-      default: (): Array<any> => [],
-    },
+      default: (): Array<any> => []
+    }
   },
   setup(props) {
     const slots = useSlots();
     const conversations = ref([] as Array<Hashmap>);
     let popUpStates = ref([] as Array<Hashmap>);
+    const chatListContainers = ref([] as Array<HTMLElement>);
+    const chatListPopUp = ref([] as Array<HTMLElement>);
     const avatarKey = ref(0);
     const key = ref(0);
     const screenWidth = ref(0);
@@ -66,7 +66,7 @@ export default defineComponent({
       onGroupIconUpdate(conversation);
     });
 
-    const robin = computed(() => store.state.robin as Robin);
+    const robin = computed(() => store.state.robin as RobinType) as any;
     const robinUsers = computed(
       () => store.state.robin_users as Array<Hashmap>
     );
@@ -105,9 +105,7 @@ export default defineComponent({
         conversations.value.forEach((val: Hashmap) => {
           popUpStates.value.push({
             opened: false,
-            _id: val._id,
-            popUpContainer: ref(),
-            popUp: ref(),
+            _id: val._id
           });
         });
       }
@@ -175,7 +173,7 @@ export default defineComponent({
         lastWeek: function () {
           return '[' + datetime.fromNow() + ']';
         },
-        sameElse: 'DD/MM/YYYY',
+        sameElse: 'DD/MM/YYYY'
       });
     };
 
@@ -211,7 +209,7 @@ export default defineComponent({
       searchData = [...data];
       emit('search', {
         text: searchText,
-        data: searchData,
+        data: searchData
       });
       setTimeout(() => {
         isLoading.value = false;
@@ -271,13 +269,10 @@ export default defineComponent({
       }
     };
 
-    const handleOpenPopUp = (
-      event: any,
-      _id: string,
-      id: string
-    ) => {
-      const popUpContainer = popUpStates.value[parseInt(id)].popUpContainer as any;
-      const popUp = popUpStates.value[parseInt(id)].popUp as any;
+    const handleOpenPopUp = (event: any, _id: string, id: string) => {
+      const popUpContainer = chatListContainers.value[parseInt(id)] as any;
+      const popUp = chatListPopUp.value[parseInt(id)] as any;
+
       popUp.popUpBody.classList.remove('robin-zoomOut');
 
       if (
@@ -310,11 +305,34 @@ export default defineComponent({
       });
     };
 
-    const handleClosePopUp = (_id: string, refKey: string) => {};
+    const handleClosePopUp = (_id: string, index: number) => {
+      const popup = chatListPopUp.value[index] as any;
+
+      popup.popUpBody.classList.add('robin-zoomOut');
+
+      window.setTimeout(() => {
+        const index = popUpStates.value.findIndex((val) => val._id === _id);
+        if (
+          popUpStates.value[index] ? popUpStates.value[index].opened : false
+        ) {
+          popup.popUpBody.classList.remove('robin-zoomOut');
+
+          popUpStates.value[index].opened = false;
+        }
+      }, 300);
+    };
 
     const onResize = () => {
       screenWidth.value = window.innerWidth;
     };
+
+    const bindChatListContainerToState = ((element: HTMLElement) => {
+      chatListContainers.value.push(element);
+    }) as any;
+
+    const bindChatListPopUpsToState = ((element: HTMLElement) => {
+      chatListPopUp.value.push(element);
+    }) as any;
 
     return {
       slots,
@@ -329,6 +347,8 @@ export default defineComponent({
       avatarKey,
       userToken,
       popUpStates,
+      chatListContainers,
+      chatListPopUp,
       key,
       isLoading,
       openEdit,
@@ -343,7 +363,9 @@ export default defineComponent({
       archiveConversation,
       deleteConversation,
       markAsRead,
-      markAsUnread,
+      bindChatListContainerToState,
+      bindChatListPopUpsToState,
+      markAsUnread
     };
   },
   render() {
@@ -360,7 +382,9 @@ export default defineComponent({
               : 'robin-card robin-flex robin-flex-align-center'
           }
           key={`conversation-${index}`}
-          onClickSelf={() => this.openConversation(conversation)}
+          onClickSelf={() => {
+            this.openConversation(conversation);
+          }}
           data-testid={`conversation-${index}`}
         >
           <div
@@ -520,6 +544,9 @@ export default defineComponent({
                     name="openModalDot"
                     to-click-away={true}
                     to-emit={false}
+                    onClickoutside={() => {
+                      this.handleClosePopUp(conversation._id, index);
+                    }}
                   />
                 </div>
               </div>
@@ -528,13 +555,14 @@ export default defineComponent({
 
           <div
             class="robin-popup-container"
-            ref={(element: HTMLElement) => this.popUpStates[index].popUpContainer = element}
+            ref={this.bindChatListContainerToState}
             v-show={
               this.popUpStates[index] ? this.popUpStates[index].opened : false
             }
+            refInFor={this.chatListContainers}
           >
             <ChatListPopOver
-              ref={(element: HTMLElement) => this.popUpStates[index].popUp = element}
+              ref={this.bindChatListPopUpsToState}
               conversation={conversation}
               onArchiveChat={() => this.archiveConversation(conversation)}
               onDeleteConversation={() => this.deleteConversation(conversation)}
@@ -626,6 +654,6 @@ export default defineComponent({
         </div>
       </div>
     );
-  },
+  }
 });
 </script>

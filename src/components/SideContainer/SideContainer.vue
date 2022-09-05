@@ -5,42 +5,33 @@ import {
   defineComponent,
   computed,
   useSlots,
-  defineAsyncComponent,
+  defineAsyncComponent
 } from 'vue-demi';
-import { Robin } from 'robin.io-js';
 import store from '@/store/index';
-import { Hashmap } from '@/utilities/types';
+import { RobinType, Hashmap } from '@/utilities/types';
 import useEmitter from '@/utilities/index';
+import NoChatList from '../NoChatList/NoChatList.vue';
+import './SideContainer.css';
 
-const PrimaryChatList = defineAsyncComponent(
+const PrimaryChatList = defineAsyncComponent({
   loader: () => import('../PrimaryChatList/PrimaryChatList.vue'),
   loadingComponent: NoChatList
-);
+});
 
-const NewChatList = defineAsyncComponent(
+const NewChatList = defineAsyncComponent({
   loader: () => import('../NewChatList/NewChatList.vue'),
   loadingComponent: NoChatList
-);
-
-import './SideContainer.css';
+});
 
 export default defineComponent({
   name: 'SideContainer',
-  components: {
-    PrimaryChatList,
-    NewChatList,
-    // NoChatList,
-    // NewGroupChat,
-    // NewGroupChatList,
-    // ArchivedChatList
-  },
   setup() {
     const slots = useSlots();
     const slides = reactive({
       slide1: ref(null),
       slide2: ref(null),
       slide3: ref(null),
-      slide4: ref(null),
+      slide4: ref(null)
     });
     const sideBarType = ref('primary');
     const searchText = ref('');
@@ -97,13 +88,13 @@ export default defineComponent({
       showNewGroupModal();
     });
 
-    const robin = computed(() => store.state.robin as Robin);
+    const robin = computed(() => store.state.robin as RobinType);
     const userToken = computed(() => store.state.user_token as string);
     const isPageLoading = computed(() => store.state.isPageLoading as boolean);
 
     const getUserToken = async () => {
       const res = await robin.value.getUserToken({
-        user_token: userToken.value,
+        user_token: userToken.value
       });
 
       if (!res.error) {
@@ -119,6 +110,7 @@ export default defineComponent({
         for (const conversation of getRegularConversations()) {
           regularConversations.value.push(conversation);
         }
+
         for (const conversation of getArchivedConversations()) {
           archivedConversations.value.push(conversation);
         }
@@ -260,23 +252,11 @@ export default defineComponent({
     const addUnreadMessagesToConversation = (
       conversations: Array<Hashmap>
     ): Array<Hashmap> => {
-      let unreadMessages = 0;
-
-      const data = conversations.map((conversation: Hashmap) => {
-        getConversationMessages(conversation._id).then(
-          (messages: Array<Hashmap>) => {
-            if (messages) {
-              messages.forEach((message: any) => {
-                if (message.sender_token !== userToken && !message.is_read) {
-                  unreadMessages += 1;
-                }
-              });
-            }
-
-            conversation.unread_messages = unreadMessages;
-            unreadMessages = 0;
-          }
-        );
+      const data = conversations.map((conversation: any) => {
+        for (const key in conversation.unread_messages) {
+          conversation.unread_messages =
+            conversation.unread_messages[key].unread_count;
+        }
 
         return conversation;
       });
@@ -317,7 +297,7 @@ export default defineComponent({
         if (refKey === 'slide4') slide = slides.slide4;
 
         window.setTimeout(() => {
-          slide?.value.popupBody.classList('robin-slideInLeft');
+          slide?.value.popUpBody.classList('robin-slideInLeft');
 
           sideBarType.value = type;
         }, 200);
@@ -336,10 +316,10 @@ export default defineComponent({
         if (refKey === 'slide3') slide = slides.slide3;
         if (refKey === 'slide4') slide = slides.slide4;
 
-        slide?.value.popupBody.classList.add('robin-slideOutLeft');
+        slide?.value.popUpBody.classList.add('robin-slideOutLeft');
 
         window.setTimeout(() => {
-          slide?.value.popupBody.classList.remove('robin-slideOutLeft');
+          slide?.value.popUpBody.classList.remove('robin-slideOutLeft');
 
           sideBarType.value = type;
         }, 200);
@@ -386,7 +366,7 @@ export default defineComponent({
       searchedData,
       openModal,
       closeModal,
-      refresh,
+      refresh
     };
   },
   render() {
@@ -394,7 +374,6 @@ export default defineComponent({
       <div class="robin-side-bar robin-fadeIn">
         <PrimaryChatList
           key={this.key}
-          v-show={this.conversations.length > 0 || this.isPageLoading}
           onSearch={(event: Event) => this.searchedData(event)}
           onOpenNewchatModal={(event: string) =>
             this.openModal('slide-1', event)
@@ -406,7 +385,7 @@ export default defineComponent({
           archived-conversations={this.archivedConversations}
         >
           {{
-            chatListHeader: () => this.slots['chat-list-header']?.(),
+            chatListHeader: () => this.slots['chat-list-header']?.()
           }}
         </PrimaryChatList>
 
@@ -418,6 +397,6 @@ export default defineComponent({
         ></NewChatList>
       </div>
     );
-  },
+  }
 });
 </script>

@@ -1,0 +1,28 @@
+.robin-input {
+  background-color: #f5f7fc;
+  border: none;
+  font-size: 0.875rem;
+  padding-left: 1rem;
+  transition: all 0.1s;
+}
+
+.robin-input:focus {
+  outline: none;
+}
+
+/* Input placeholder */
+.robin-input ::placeholder {
+  color: #8d9091;
+}
+
+.robin-input ::-moz-placeholder {
+  color: #8d9091;
+}
+
+.robin-input :-ms-input-placeholder {
+  color: #8d9091;
+}
+
+.robin-input ::-ms-input-placeholder {
+  color: #8d9091;
+}

@@ -45,8 +45,8 @@ export default defineComponent({
   render() {
     return (
       <div
-        class="robin-popup robin-zoomIn"
-        ref={(element) => (this.popUpBody = element)}
+        class="robin-chat-list-popup robin-zoomIn"
+        ref={((element: HTMLElement) => (this.popUpBody = element)) as any}
       >
         <div
           class="robin-wrapper robin-w-100"

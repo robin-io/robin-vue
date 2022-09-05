@@ -8,9 +8,8 @@ import {
   reactive,
   watch
 } from 'vue-demi';
-import { Robin } from 'robin.io-js';
 import useEmitter from '@/utilities/index';
-import { Hashmap } from '@/utilities/types';
+import { RobinType, Hashmap } from '@/utilities/types';
 import store from '@/store/index';
 import AlphabetBlock from '../AlphabetBlock/AlphabetBlock.vue';
 import Content from '../Content/Content.vue';
@@ -36,7 +35,7 @@ export default defineComponent({
     const searchData = ref([] as Array<Hashmap>);
     const isLoading = ref(false);
     const key = ref(0);
-    const popupBody = ref();
+    const popUpBody = ref();
     const robinUsers = computed(
       () => store.state.robin_users as Array<Hashmap>
     );
@@ -47,7 +46,7 @@ export default defineComponent({
       getContacts('');
     });
 
-    const robin = computed(() => store.state.robin as Robin);
+    const robin = computed(() => store.state.robin as RobinType);
     const senderName = computed(() => store.state.sender_name as string);
     const conversations = computed(
       () => store.state.conversations as Array<Hashmap>
@@ -189,16 +188,19 @@ export default defineComponent({
       key.value += 1;
     };
 
+    const bindPopUpBodyToState = ((element: HTMLElement) => (popUpBody.value = element)) as any
+
     getContacts('');
 
-    expose({ popupBody });
+    expose({ popUpBody });
 
     return {
       key,
       isLoading,
       contacts,
-      popupBody,
+      popUpBody,
       robinUsers,
+      bindPopUpBodyToState,
       openPreviousModal,
       openGroupChat,
       searchContacts,
@@ -209,7 +211,7 @@ export default defineComponent({
     return (
       <div
         class="robin-new-chat-list"
-        ref={(element) => (this.popupBody = element)}
+        ref={this.bindPopUpBodyToState}
       >
         <header class="robin-header">
           <IconButton

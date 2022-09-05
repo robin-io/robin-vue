@@ -1,0 +1,79 @@
+.robin-audio i {
+  color: #9999bc;
+  font-size: 1.5rem;
+  user-select: none;
+  cursor: pointer;
+}
+
+.robin-audio .robin-audio-bar-wrapper {
+  margin-right: 7px;
+  max-width: calc(95% - 18px);
+  position: relative;
+  margin-left: 0.25rem;
+}
+
+.robin-audio .robin-audio-bar {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-top: 6%;
+}
+
+.robin-audio .robin-audio-progress {
+  width: 190px;
+}
+
+.robin-audio .robin-audio-line-container {
+  position: relative;
+  height: 2px;
+  border-radius: 5px;
+  background-color: #cccccc;
+}
+
+.robin-audio .robin-audio-line-progress {
+  position: absolute;
+  height: inherit;
+  background-color: #9999bc;
+  border-radius: inherit;
+}
+
+.robin-audio .robin-audio-line-dot {
+  position: absolute;
+  top: -5px;
+  margin-left: -1px;
+  height: 14px;
+  width: 14px;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+  transition: transform 0.25s;
+  cursor: grab;
+}
+
+.robin-audio .robin-audio-line-dot:active {
+  cursor: grabbing;
+}
+
+.robin-audio .robin-audio-line-dot.active {
+  transform: scale(1.2);
+}
+
+.robin-audio .robin-audio-time {
+  user-select: none;
+  font-size: 0.75rem;
+  color: #51545c;
+  position: absolute;
+  top: 28px;
+}
+
+@media only screen and (max-width: 768px) {
+  .robin-audio-bar {
+    margin-right: 5px;
+  }
+
+  .robin-audio-line-dot {
+    height: 12px;
+    width: 12px;
+    top: -5px;
+    margin-left: -5px;
+  }
+}

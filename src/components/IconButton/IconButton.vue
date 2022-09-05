@@ -10,10 +10,12 @@ import {
 } from 'vue-demi';
 import { Hashmap } from '@/utilities/types';
 import useEmitter from '@/utilities/index';
+import { VueClickaway } from '@/package-compatibility';
 import './IconButton.css';
 
 export default defineComponent({
   name: 'IconButton',
+  mixins: [VueClickaway],
   props: {
     name: {
       type: String as PropType<string>,
@@ -56,7 +58,7 @@ export default defineComponent({
       default: false
     }
   },
-  setup(props) {
+  setup(props, context) {
     const root = ref();
     const button = ref();
     const focused = ref(false);
@@ -467,11 +469,13 @@ export default defineComponent({
     };
 
     const emitClickAway = (): void => {
-      emit('clickoutside');
+      context.emit('clickoutside');
     };
 
+    const bindButtonToState = ((element: HTMLElement) => (button.value = element)) as any
+
     return {
-      button,
+      bindButtonToState,
       focused,
       focusType,
       iconItem,
@@ -486,19 +490,20 @@ export default defineComponent({
     if (this.toEmit && this.toClickAway) {
       button = (
         <button
-          ref={(element) => (this.button = element)}
           class={'robin-icon-button' + ' ' + this.focusType}
           style={this.iconItem[this.name].buttonStyle}
           onClick={() => this.willEmit(this.emit)}
           onFocus={() => (this.focused = true)}
           onBlur={() => (this.focused = false)}
           data-testid="button"
+          ref={this.bindButtonToState}
+          v-on-clickaway={this.emitClickAway}
         ></button>
       );
     } else if (this.toEmit && !this.toClickAway) {
       button = (
         <button
-          ref={(element) => (this.button = element)}
+          ref={this.bindButtonToState}
           class={'robin-icon-button' + ' ' + this.focusType}
           style={this.iconItem[this.name].buttonStyle}
           onClick={() => this.willEmit(this.emit)}
@@ -510,7 +515,7 @@ export default defineComponent({
     } else if (!this.toEmit && !this.toClickAway) {
       button = (
         <button
-          ref={(element) => (this.button = element)}
+          ref={this.bindButtonToState}
           class={'robin-icon-button' + ' ' + this.focusType}
           style={this.iconItem[this.name].buttonStyle}
           onFocus={() => (this.focused = true)}
@@ -521,12 +526,13 @@ export default defineComponent({
     } else {
       button = (
         <button
-          ref={(element) => (this.button = element)}
+          ref={this.bindButtonToState}
           class={'robin-icon-button' + ' ' + this.focusType}
           style={this.iconItem[this.name].buttonStyle}
           onFocus={() => (this.focused = true)}
           onBlur={() => (this.focused = false)}
           data-testid="button"
+          v-on-clickaway={this.emitClickAway}
         ></button>
       );
     }

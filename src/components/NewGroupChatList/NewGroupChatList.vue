@@ -6,9 +6,8 @@ import {
   computed,
   onBeforeUpdate,
 } from 'vue-demi';
-import { Robin } from 'robin.io-js';
 import useEmitter from '@/utilities/index';
-import { Hashmap } from '@/utilities/types';
+import { RobinType, Hashmap } from '@/utilities/types';
 import store from '@/store/index';
 import IconButton from '../IconButton/IconButton.vue';
 import Content from '../Content/Content.vue';
@@ -52,9 +51,9 @@ export default defineComponent({
     const isUploading = ref(false);
     const modalOpen = ref(false);
     const updatingParticipants = ref(false);
-    let checkboxComponents = [] as Array<any>;
+    let checkboxComponents = ref([] as Array<HTMLInputElement>);
 
-    const robin = computed(() => store.state.robin as Robin);
+    const robin = computed(() => store.state.robin as RobinType);
     const robinUsers = computed(
       () => store.state.robin_users as Array<Hashmap>
     );
@@ -63,10 +62,6 @@ export default defineComponent({
     );
     const userToken = computed(() => store.state.user_token as string);
     const { emit, listen } = useEmitter();
-
-    onBeforeUpdate(() => {
-      checkboxComponents = [];
-    });
 
     const closeModal = (): void => {
       modalOpen.value = false;
@@ -124,14 +119,14 @@ export default defineComponent({
       if (!val) {
         users.value = [...robinUsers.value];
 
-        for (let i = 0; i < checkboxComponents.length; i += 1) {
-          checkboxComponents[i].checked = true;
+        for (let i = 0; i < checkboxComponents.value.length; i += 1) {
+          checkboxComponents.value[i].checked = true;
         }
       } else {
         users.value = [];
 
-        for (let i = 0; i < checkboxComponents.length; i += 1) {
-          checkboxComponents[i].checked = false;
+        for (let i = 0; i < checkboxComponents.value.length; i += 1) {
+          checkboxComponents.value[i].checked = false;
         }
       }
     };
@@ -197,7 +192,7 @@ export default defineComponent({
       }
     };
 
-    const addGroupParticipants = () => {
+    const addGroupParticipants = async () => {
       const userData = users.value.map((user) => {
         return {
           user_token: user.userToken,
@@ -452,7 +447,7 @@ export default defineComponent({
                           onClicked={(event: boolean) =>
                             this.toggleCheckAction(event, user)
                           }
-                          ref={(element: HTMLElement) =>
+                          ref={(element: HTMLInputElement) =>
                             this.checkboxComponents.push(element)
                           }
                           data-testid="checkbox"
