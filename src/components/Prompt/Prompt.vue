@@ -4,7 +4,7 @@
       <div class="robin-wrapper">
         <Content :font-size="17" :font-weight="'500'" class="robin-mb-11"> {{ getHeaderDialog() }} </Content>
 
-        <Content color="#51545C" text-wrap="normal" text-align="center"> Are you sure you want to proceed? </Content>
+        <Content :color="currentTheme === 'light' ? '#51545C' : '#B6B6B6'" text-wrap="normal" text-align="center"> Are you sure you want to proceed? </Content>
       </div>
 
       <div class="robin-button-container">
@@ -23,6 +23,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import Component from 'vue-class-component'
+import store from '@/store/index'
 import Content from '@/components/Content/Content.vue'
 import IconButton from '@/components/IconButton/IconButton.vue'
 
@@ -43,6 +44,10 @@ const ComponentProps = Vue.extend({
   }
 })
 export default class Prompt extends ComponentProps {
+  get currentTheme () {
+    return store.state.currentTheme
+  }
+
   closeModal () {
     const popup = this.$refs['popup-2'] as any
     popup.classList.remove('robin-fadeIn')
@@ -87,7 +92,7 @@ export default class Prompt extends ComponentProps {
 }
 
 .robin-card {
-  background-color: #fff;
+  background-color: var(--rb-bg-color);
   border-radius: 10px;
   width: 264px;
   margin-top: 13.688%;
@@ -103,7 +108,7 @@ export default class Prompt extends ComponentProps {
 
 .robin-button-container {
   width: 100%;
-  border-top: 1px solid #cccccc;
+  border-top: 1px solid var(--rb-color13);
   display: flex;
 }
 

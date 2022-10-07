@@ -1,19 +1,19 @@
 <template>
   <div class="robin-popup robin-zoomIn" ref="popup-body">
     <div class="robin-wrapper robin-w-100" @click="$emit('view-profile')">
-      <Content :font-size="14" color="#51545C">Contact Info</Content>
+      <Content :font-size="14" :color="currentTheme === 'light' ? '#51545C' : '#F9F9F9'">Contact Info</Content>
 
-      <SvgIcon name="user-circle" />
+      <SvgIcon name="user-circle" :color="currentTheme === 'light' ? '#51545C' : '#F9F9F9'" />
     </div>
     <div class="robin-wrapper robin-w-100" @click="handleSelectMessages()" v-if="isForwardMessagesEnabled || isDeleteMessagesEnabled || (isForwardMessagesEnabled && isDeleteMessagesEnabled)">
-      <Content :font-size="14" color="#51545C">Select Messages</Content>
+      <Content :font-size="14" :color="currentTheme === 'light' ? '#51545C' : '#F9F9F9'">Select Messages</Content>
 
-      <SvgIcon name="check-circle" />
+      <SvgIcon name="check-circle" :color="currentTheme === 'light' ? '#51545C' : '#F9F9F9'" />
     </div>
     <div class="robin-wrapper robin-w-100" @click="handleClearMessages()" v-if="isDeleteMessagesEnabled">
-      <Content :font-size="14" color="#51545C">Delete Chat</Content>
+      <Content :font-size="14" color="#D53120">Delete Chat</Content>
 
-      <SvgIcon name="trash" />
+      <SvgIcon name="trash" :color="currentTheme === 'light' ? '#D53120' : '#000'" />
     </div>
     <!-- <div class="robin-wrapper robin-w-100">
       <Content :font-size="14" color="#51545C">Delete Chat</Content>
@@ -36,6 +36,10 @@ import Content from '@/components/Content/Content.vue'
   }
 })
 export default class PersonalMessagePopOver extends Vue {
+  get currentTheme () {
+    return store.state.currentTheme
+  }
+
   get isDeleteMessagesEnabled () {
     return store.state.deleteMessagesEnabled
   }
@@ -57,13 +61,13 @@ export default class PersonalMessagePopOver extends Vue {
 <style scoped>
 .robin-popup {
   width: 174px;
-  border: 1px solid #f5f7fc;
+  border: 1px solid var(--rb-color2);
   border-radius: 6px;
-  background-color: #fff;
+  background-color: var(--rb-bg-color);
 }
 
 .robin-wrapper {
-  border-top: 1px solid #efefef;
+  border-top: 1px solid var(--rb-color5);
   padding: 0.813rem 1rem;
   display: flex;
   align-items: center;
@@ -71,8 +75,16 @@ export default class PersonalMessagePopOver extends Vue {
   cursor: pointer;
 }
 
+.robin-wrapper:first-child {
+  border: none;
+  border-radius: 6px 6px 0 0;
+}
+.robin-wrapper:last-child {
+  border-radius: 0 0 6px 6px;
+}
+
 .robin-wrapper:hover {
-  background-color: rgba(244, 246, 248, 0.8);
+  background-color: var(--rb-color6);
 }
 
 .robin-wrapper:first-child {

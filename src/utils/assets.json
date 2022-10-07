@@ -16,5 +16,6 @@
   "default": "https://s3.us-east-2.amazonaws.com/robin.io-vue-assets/default.png",
   "notification": "https://s3.us-east-2.amazonaws.com/robin.io-vue-assets/notification.wav",
   "logo": "https://s3.us-east-2.amazonaws.com/robin.io-vue-assets/logo.svg",
+  "logo_dark": "https://s3.us-east-2.amazonaws.com/robin.io-vue-assets/logo_dark.svg",
   "robin_icon": "https://s3.us-east-2.amazonaws.com/robin.io-vue-assets/robin_icon.png"
 }

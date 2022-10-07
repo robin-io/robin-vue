@@ -3,7 +3,7 @@
     <header class="robin-header">
       <IconButton name="remove" @close="openPreviousModal()" emit="close" :to-emit="true" :to-click-away="false" />
 
-      <Content font-weight="400" :font-size="16" class="robin-ml-12">{{ !updatingParticipants ? 'New Group Chat' : 'Add Group Participants' }}</Content>
+      <Content font-weight="400" :color="currentTheme === 'light' ? '#000000' : '#F9F9F9'" :font-size="16" class="robin-ml-12">{{ !updatingParticipants ? 'New Group Chat' : 'Add Group Participants' }}</Content>
 
       <div class="robin-ml-auto">
         <Button emit="done" @done="!updatingParticipants ? createGroupConversation() : addGroupParticipants()" v-show="users.length > 0 && !isUploading" class="robin-pulse-2">Done</Button>
@@ -16,7 +16,7 @@
     </div>
 
     <div class="robin-select robin-flex robin-flex-align-center robin-flex-justify-end robin-w-100 robin-pl-16 robin-pr-16 robin-pt-24 robin-pb-23">
-      <Content color="#9999BC"> Select All </Content>
+      <Content :color="currentTheme === 'light' ? '#9999BC' : '#B6B6B6'"> Select All </Content>
       <CheckBox class="robin-ml-8" @clicked="toggleSelectAllCheckAction($event)" data-testid="select-all-button" />
     </div>
 
@@ -29,7 +29,7 @@
         <div class="robin-card-container robin-flex robin-flex-column">
           <div class="robin-card robin-flex robin-flex-align-center" v-for="(user, userIndex) in contact" :key="user.userToken">
             <div class="robin-card-info robin-mr-12">
-              <Avatar :robin-users="$robin_users" :img-url="user.profileImage" :sender-token="user.userToken" />
+              <Avatar :img-url="user.profileImage" :sender-token="user.userToken" />
             </div>
 
             <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4˝ robin-flex-1">
@@ -50,6 +50,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import Component from 'vue-class-component'
+import store from '@/store/index'
 import IconButton from '../IconButton/IconButton.vue'
 import Content from '../Content/Content.vue'
 import SearchBar from '../SearchBar/SearchBar.vue'
@@ -111,6 +112,10 @@ export default class NewGroupChatList extends ComponentProps {
   created () {
     this.getContacts('')
     this.handleAddGroupParticipants()
+  }
+
+  get currentTheme () {
+    return store.state.currentTheme
   }
 
   closeModal (): void {
@@ -366,14 +371,16 @@ export default class NewGroupChatList extends ComponentProps {
   position: absolute;
   top: 0;
   z-index: 2;
-  background-color: #fff;
+  background-color: inherit;
 }
 
 header {
   width: 100%;
   display: flex;
   align-items: center;
-  padding: clamp(10%, 4vh, 3.563rem) clamp(2%, 4vw, 1rem) 1.5rem;
+  padding: clamp(2%, 4vh, 1rem) clamp(2%, 4vw, 1rem) 1rem;
+  margin: 1.688rem 0 0.625rem;
+  background-color: var(--rb-color2);
 }
 
 .robin-contact-container {
@@ -381,7 +388,7 @@ header {
 }
 
 .robin-select {
-  border-bottom: 1px solid #efefef;
+  border-bottom: 1px solid var(--rb-color5);
 }
 
 .robin-card-container {
@@ -393,10 +400,10 @@ header {
 }
 
 .robin-card-container .robin-card {
-  box-shadow: 0px 1px 0px 2.5px rgba(69, 104, 209, 0.05);
+  /* box-shadow: 0px 1px 0px 2.5px rgba(69, 104, 209, 0.05); */
   padding: 0.875rem 1rem 1rem;
   transition: all 0.15s;
-  background-color: #fff;
+  background-color: var(--rb-color2);
 }
 
 .robin-card-container .robin-card + .robin-card {

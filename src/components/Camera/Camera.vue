@@ -3,7 +3,6 @@
     <header class="robin-head">
       <div class="robin-wrapper robin-mr-12" @click="closeCamera()" data-testid="close-camera">
         <IconButton name="remove" :to-emit="false" :to-click-away="false"/>
-        <!-- <RRemoveButton /> -->
       </div>
       <Content as="h3" :font-size="18"> Take photo </Content>
     </header>
@@ -37,7 +36,6 @@ const ComponentProps = Vue.extend({
   components: {
     Content,
     IconButton,
-    // RRemoveButton,
     CameraButton
   },
   watch: {
@@ -175,7 +173,7 @@ export default class Camera extends ComponentProps {
   bottom: 0;
   width: 100%;
   /* border: 1px solid; */
-  background-color: #fff;
+  background-color: inherit;
   z-index: 2;
   display: flex;
   flex-direction: column;
@@ -187,7 +185,7 @@ export default class Camera extends ComponentProps {
   min-height: 50px;
   display: flex;
   align-items: center;
-  background-color: #fff;
+  background-color: inherit;
   padding: 0 clamp(3%, 5vw, 2.688rem) 0 clamp(3%, 5vw, 3.125rem);
   box-shadow: 0px 0px 0px rgba(0, 104, 255, 0.07), 0px -1px 10px rgba(0, 104, 255, 0.07);
 }

@@ -4,7 +4,7 @@
       <ReactionPopOver v-show="messagePopup.opened && isMessageReactionViewEnabled" @close-modal="closeModal()" :id="message[0]._id" :message="message[0]" @reaction="$emit('add-reaction', $event)"/>
     </div>
 
-    <Content v-if="!validateMessageClass() && conversation.is_group" :font-size="12" as="span" :color="groupnameColors[message[0].content.sender_token]" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getContactName(message[0].content.sender_token) }} </Content>
+    <Content v-if="!validateMessageClass() && conversation.is_group" :font-size="12" as="span" :color="groupnameColors[message[0].sender_token]" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getContactName(message[0].sender_token) }} </Content>
 
     <div class="robin-bubble-inner robin-grid-container" :class="getSizeOfGridClass" @click="openPreview(message)" data-testid="bubble-inner">
       <div class="robin-message-bubble-image" v-for="(image, index) in images" :key="image._id" :class="validateImageClass(index)">
@@ -16,7 +16,7 @@
       </span>
     </div>
 
-    <Content :font-size="10" :font-weight="'300'" color="#7a7a7a" as="p" class="robin-side-text">
+    <Content :font-size="10" :font-weight="'300'" :color="currentTheme === 'light' ? '#7a7a7a' : '#B6B6B6'" as="p" class="robin-side-text">
       {{ formatTimeStamp(message[0].content.timestamp) }}
 
       <SvgIcon name="read" v-if="message[0].is_read" />
@@ -90,6 +90,10 @@ const ComponentProps = Vue.extend({
 export default class MessageGrid extends ComponentProps {
   images: Array<Message> = []
 
+  get currentTheme () {
+    return store.state.currentTheme
+  }
+
   get getSizeOfGridClass () {
     if (this.message.length >= 4) {
       return 'robin-grid-4-by-4'
@@ -118,11 +122,11 @@ export default class MessageGrid extends ComponentProps {
   }
 
   validateImageClass (index: number): string {
-    return this.message.some((item: any) => item.content && item.content.sender_token !== this.$user_token) ? `robin-image-sender robin-grid-${index}` : `robin-image-receiver robin-grid-${index}`
+    return this.message.some((item: any) => item.content && item.sender_token !== this.$user_token) ? `robin-image-sender robin-grid-${index}` : `robin-image-receiver robin-grid-${index}`
   }
 
   validateMessageClass (): boolean {
-    return this.message.some((item: any) => item.content && item.content.sender_token === this.$user_token)
+    return this.message.some((item: any) => item.content && item.sender_token === this.$user_token)
   }
 
   getFileDetails (attachmentUrl: string): { name: any; extension: any } {
@@ -328,18 +332,18 @@ export default class MessageGrid extends ComponentProps {
   min-width: 100%;
   width: 100%;
   border-radius: inherit;
-  background-color: #fff;
+  background-color: var(--rb-color7);
   object-fit: cover;
   /* max-width: 90px; */
   /* max-height: 350px; */
 }
 
 .robin-grid-sender {
-  background-color: #f5f7fc;
+  background-color: var(--rb-color9);
 }
 
 .robin-grid-receiver {
-  background-color: #dbe4ff;
+  background-color: var(--rb-color10);
 }
 
 .robin-grid-sender .robin-side-text {

@@ -6,14 +6,12 @@
     </svg>
 
     <div class="robin-default-profile" v-if="imgUrl == '' && getContactName != ''">
-      <Content as="span" :font-size="16">
+      <Content as="span" :font-size="16" color="#000">
         {{ renderContactName() }}
       </Content>
     </div>
 
     <img v-if="imgUrl != ''" :src="imgUrl" alt="profile" class="robin-image" data-testid="profile-picture" />
-
-    <!-- <div class="robin-ellipse" v-show="status == 'online'"></div> -->
   </div>
 </template>
 
@@ -31,10 +29,6 @@ const ComponentProps = Vue.extend({
     senderToken: {
       type: String as PropType<string>,
       default: ''
-    },
-    robinUsers: {
-      type: Array,
-      default: () => []
     }
   }
 })
@@ -47,8 +41,8 @@ const ComponentProps = Vue.extend({
 })
 export default class Avatar extends ComponentProps {
   get getContactName (): string {
-    const index = this.robinUsers.findIndex((user: any) => user.userToken === this.senderToken) as number
-    const user = this.robinUsers[index] as any
+    const index = this.$robin_users.findIndex((user: any) => user.userToken === this.senderToken) as number
+    const user = this.$robin_users[index] as any
 
     if (user) {
       return user.userName && user.userName !== '' ? user.userName.trim().split(' ') : ''

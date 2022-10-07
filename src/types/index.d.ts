@@ -8,11 +8,11 @@ declare module 'vue/types/vue' {
     $user_token: string
     $logo: string
     $channel: string
-    $robin_users: Array<any>
-    $conversations: Array<any>
-    $regularConversations: Array<any>
-    $archivedConversations: Array<any>,
+    $robin_users: Array<Record<string, any>>
+    $conversations: Array<Record<string, any>>
+    $regularConversations: Array<Record<string, any>>
+    $archivedConversations: Array<Record<string, any>>,
     $senderName: string,
-    $apiKey: string
+    $apiKey: string,
   }
 }

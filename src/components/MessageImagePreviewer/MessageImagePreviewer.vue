@@ -8,16 +8,16 @@
 
         <div class="robin-card-info robin-mr-16">
           <GroupAvatar v-if="conversation.is_group" :img-url="conversation.group_icon" />
-          <Avatar :robin-users="$robin_users" :img-url="getProfileImage(conversation) || conversation.display_photo" :sender-token="conversation.sender_token === $user_token ? conversation.receiver_token : conversation.sender_token" v-else />
+          <Avatar :img-url="getProfileImage(conversation) || conversation.display_photo" :sender-token="conversation.sender_token === $user_token ? conversation.receiver_token : conversation.sender_token" v-else />
         </div>
 
         <div class="robin-card-info robin-h-100 robin-flex robin-flex-column robin-flex-space-between robin-flex-1">
           <div class="robin-mt-6">
-            <Content font-weight="normal" color="#000000" :font-size="16" :line-height="20" v-if="!conversation.is_group">
+            <Content font-weight="normal" :font-size="16" :line-height="20" v-if="!conversation.is_group">
               {{ conversation.sender_token != $user_token ? conversation.sender_name : conversation.receiver_name }}
             </Content>
 
-            <Content font-weight="normal" color="#000000" :font-size="16" :line-height="20" v-else>
+            <Content font-weight="normal" :font-size="16" :line-height="20" v-else>
               {{ conversation.name }}
             </Content>
           </div>
@@ -40,7 +40,7 @@
         </div>
 
         <div class="robin-image-row robin-overflow-x-auto robin-flex robin-flex-align-center robin-mt-16">
-          <v-lazy-image class="robin-uploaded-image" v-for="(image, index) in images" :key="index" :src="image.content.attachment" @click.native="onSelectChange(index)" :class="[index === imageSelected && images.length > 1 ? 'selected' : '', images.length === 1 && 'not-selected']" />
+          <v-lazy-image class="robin-uploaded-image" v-for="(image, index) in images" :key="index" :src="typeof image.content.attachment !== 'string' ? convertFileToImageURL(image.content.attachment) : image.content.attachment" @click.native="onSelectChange(index)" :class="[index === imageSelected && images.length > 1 ? 'selected' : '', images.length === 1 && 'not-selected']" />
         </div>
       </div>
     </div>
@@ -109,6 +109,7 @@ export default class MessageImagePreviewer extends ComponentProps {
   imageSelected = 0 as number
   selectedMessages = [] as Array<any>
   forwardMessage = false as boolean
+  pseudoAttachmentUrl = '' as string
 
   images = [] as Array<any>
   id = 0 as number
@@ -125,7 +126,13 @@ export default class MessageImagePreviewer extends ComponentProps {
   }
 
   get imagePreview (): string {
-    return this.images[this.imageSelected] ? this.images[this.imageSelected].content.attachment : ''
+    const attachment = this.images[this.imageSelected] ? this.images[this.imageSelected].content.attachment : ''
+
+    if (typeof attachment === 'string') {
+      return attachment
+    }
+
+    return this.convertFileToImageURL(attachment)
   }
 
   get isDeleteMessagesEnabled () {
@@ -165,9 +172,20 @@ export default class MessageImagePreviewer extends ComponentProps {
     this.$emit('close')
   }
 
-  getFileDetails (attachmentUrl: string): { name: any; extension: any } {
-    const fileName = attachmentUrl.substring(attachmentUrl.lastIndexOf('/') + 1)
-    const strArr = fileName.split('.')
+  convertFileToImageURL (file: File): string {
+    return URL.createObjectURL(file)
+  }
+
+  getFileDetails (attachment: any): Record<string, any> {
+    let fileName = ''
+    let strArr = [] as Array<string>
+
+    if (typeof attachment !== 'string') {
+      strArr = attachment.name.split('.')
+    } else {
+      fileName = attachment.substring(attachment.lastIndexOf('/') + 1)
+      strArr = fileName.split('.') as Array<string>
+    }
 
     return {
       name: strArr[strArr.length - 2],
@@ -253,12 +271,12 @@ export default class MessageImagePreviewer extends ComponentProps {
 
 .robin-image-box .robin-head {
   width: 100%;
-  background-color: #fff;
+  background-color: var(--rb-bg-color);
   display: flex;
   align-items: center;
-  padding-top: 1.738rem;
+  padding-top: 1.25rem;
   padding-right: clamp(3%, 5vw, 2.625rem);
-  padding-bottom: 1.175rem;
+  padding-bottom: 1.1rem;
   padding-left: clamp(3%, 5vw, 1.5rem);
   position: relative;
   z-index: 3;
@@ -305,7 +323,7 @@ export default class MessageImagePreviewer extends ComponentProps {
   object-fit: cover;
   max-width: 100%;
   border-radius: 10px;
-  background-color: #fff;
+  background-color: var(--rb-bg-color);
 }
 
 .robin-image-row {
@@ -338,7 +356,7 @@ export default class MessageImagePreviewer extends ComponentProps {
   cursor: pointer;
   margin: 0.3rem;
   transition: 0.05s;
-  background-color: #fff;
+  background-color: var(--rb-bg-color);
   object-fit: cover;
 }
 

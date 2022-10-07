@@ -1,36 +1,80 @@
 <template>
   <div class="robin-message-box" v-on-clickaway="handleEmojiClosePopUp">
-    <div class="robin-emoji-container robin-emoji-out robin-squeezeOut" v-show="popUpState.emojiOpened" ref="popup-1" @keydown.enter.exact.prevent="!replying ? sendMessage() : replyMessage()" tabindex="1">
-      <VEmojiPicker @select="selectEmoji" :emojisByRow="screenWidth > 768 ? 15 : 7" label-search="Search" lang="pt-BR" class="robin-emoji" />
+    <div
+      class="robin-emoji-container robin-squeezeOut"
+      v-show="popUpState.emojiOpened"
+      ref="popup-1"
+      @keydown.enter.exact.prevent="!replying ? sendMessage() : replyMessage()"
+      tabindex="1"
+    >
+      <VEmojiPicker
+        @select="selectEmoji"
+        :emojisByRow="screenWidth > 768 ? 15 : 7"
+        label-search="Search"
+        lang="pt-BR"
+        class="robin-emoji"
+      />
     </div>
 
     <!-- reply message -->
 
     <div class="robin-reply-container robin-squeezeOut" ref="popup-3" v-show="replying">
-      <div class="robin-wrapper robin-flex robin-flex-1 robin-pt-8 robin-pb-8 robin-pl-24 robin-pr-24 robin-overflow-y-auto">
+      <div
+        class="robin-wrapper robin-flex robin-flex-1 robin-pt-8 robin-pb-8 robin-pl-24 robin-pr-24 robin-overflow-y-auto"
+      >
         <div class="robin-reply robin-w-100" v-if="!messageReply.has_attachment">
-          <Content :font-size="14" textWrap="pre-line" wordBreak="break-word" as="span" v-if="!validateLinkInMessage().containsEmail && !validateLinkInMessage().containsWebsite">
+          <Content
+            :font-size="14"
+            textWrap="pre-line"
+            wordBreak="break-word"
+            as="span"
+            v-if="
+              !validateLinkInMessage().containsEmail && !validateLinkInMessage().containsWebsite
+            "
+          >
             {{ messageReply.content ? messageReply.content.msg : '' }}
           </Content>
 
-          <div class="robin-link-container" v-html="injectHtml()" v-if="(validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) || validateLinkInMessage().containsEmail || validateLinkInMessage().containsWebsite"></div>
+          <div
+            class="robin-link-container"
+            v-html="injectHtml()"
+            v-if="
+              (validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) ||
+              validateLinkInMessage().containsEmail ||
+              validateLinkInMessage().containsWebsite
+            "
+          ></div>
         </div>
 
         <div class="robin-reply robin-w-100" v-else>
           <div class="robin-file-upload">
-            <img :src="messageReply.content.attachment" :alt="`${getFileDetails(messageReply.content.attachment).name}-image`" v-if="imageRegex.test(checkAttachmentType(messageReply.content.attachment))" />
+            <img
+              :src="messageReply.content.attachment"
+              :alt="`${getFileDetails(messageReply.content.attachment).name}-image`"
+              v-if="imageRegex.test(checkAttachmentType(messageReply.content.attachment))"
+            />
 
-            <div class="robin-video" v-if="videoRegex.test(checkAttachmentType(messageReply.content.attachment))">
+            <div
+              class="robin-video"
+              v-if="videoRegex.test(checkAttachmentType(messageReply.content.attachment))"
+            >
               <video width="100%" height="100%" controls>
                 <source :src="messageReply.content.attachment" />
                 Your browser does not support the video tag.
               </video>
             </div>
 
-            <div class="robin-file" v-if="documentRegex.test(checkAttachmentType(messageReply.content.attachment))">
+            <div
+              class="robin-file"
+              v-if="documentRegex.test(checkAttachmentType(messageReply.content.attachment))"
+            >
               <SvgIcon name="file" />
               <Content as="span">
-                {{ getFileDetails(messageReply.content.attachment).name.length > 6 ? getFileDetails(messageReply.content.attachment).name.substring(0, 6) + '..' : getFileDetails(messageReply.content.attachment).name }}
+                {{
+                  getFileDetails(messageReply.content.attachment).name.length > 6
+                    ? getFileDetails(messageReply.content.attachment).name.substring(0, 6) + '..'
+                    : getFileDetails(messageReply.content.attachment).name
+                }}
               </Content>
               <Content as="span">
                 {{ '.' + getFileDetails(messageReply.content.attachment).extension }}
@@ -40,20 +84,35 @@
         </div>
       </div>
       <div class="robin-reply-close">
-        <IconButton name="remove" @clicked="handleReplyMessageClose" :to-emit="true" :to-click-away="false" />
+        <IconButton
+          name="remove"
+          @clicked="handleReplyMessageClose"
+          :to-emit="true"
+          :to-click-away="false"
+        />
       </div>
     </div>
 
     <!-- normal message -->
 
-    <div class="robin-file-upload-container robin-squeezeOut" ref="popup-2" v-show="files && files.length > 0 && !recorder">
-      <div class="robin-wrapper robin-flex robin-flex-1 robin-pt-8 robin-pb-8 robin-pl-24 robin-pr-24 robin-overflow-y-auto">
+    <div
+      class="robin-file-upload-container robin-squeezeOut"
+      ref="popup-2"
+      v-show="files && files.length > 0 && !recorder"
+    >
+      <div
+        class="robin-wrapper robin-flex robin-flex-1 robin-pt-8 robin-pb-8 robin-pl-24 robin-pr-24 robin-overflow-y-auto"
+      >
         <div class="robin-file-upload" v-for="(file, index) in files" :key="`image-${index}`">
           <div class="robin-file-upload-delete" @click="removeFile(index)">
             <IconButton name="close" :to-emit="false" :to-click-away="false" />
           </div>
 
-          <img :src="file.localUrl" :alt="`${file.name}-image`" v-if="file.type.includes('image')" />
+          <img
+            :src="file.localUrl"
+            :alt="`${file.name}-image`"
+            v-if="file.type.includes('image')"
+          />
 
           <div class="robin-video" v-if="file.type.includes('video')">
             <video width="100%" height="100%" @click="removeFile(index)" controls>
@@ -74,44 +133,115 @@
         </div>
       </div>
       <div class="robin-file-upload-close">
-        <IconButton name="remove" @clicked="handleFileUploadClose" :to-emit="true" :to-click-away="false" />
+        <IconButton
+          name="remove"
+          @clicked="handleFileUploadClose"
+          :to-emit="true"
+          :to-click-away="false"
+        />
       </div>
     </div>
 
     <div class="robin-message-box-inner" @keydown.enter.exact.prevent="send($event)" tabindex="1">
       <!-- v-show="text.trim() == '' && files.length < 1 && !isUploading" -->
-      <div class="robin-mr-8" @click="toggleAttachFilePopup()" v-if="!isRecording" data-testid="attach-file-button">
-        <IconButton name="attachFileClose" v-if="!popUpState.opened" :to-click-away="false" :to-emit="false" />
-        <IconButton name="attachFileOpen" v-else @clickoutside="handleClosePopUp()" :to-click-away="true" :to-emit="false" />
+      <div
+        class="robin-mr-8"
+        @click="toggleAttachFilePopup()"
+        v-if="!isRecording"
+        data-testid="attach-file-button"
+      >
+        <IconButton
+          name="attachFileClose"
+          v-if="!popUpState.opened"
+          :to-click-away="false"
+          :to-emit="false"
+        />
+        <IconButton
+          name="attachFileOpen"
+          v-else
+          @clickoutside="handleClosePopUp()"
+          :to-click-away="true"
+          :to-emit="false"
+        />
       </div>
       <div class="robin-ar-indicator robin-mr-8" v-else>
-        <IconButton name="remove3" :to-click-away="false" :to-emit="true" @clicked="toggleRecorder(false)" data-testid="record-stop-button" />
+        <IconButton
+          name="remove3"
+          :to-click-away="false"
+          :to-emit="true"
+          @clicked="toggleRecorder(false)"
+          data-testid="record-stop-button"
+        />
 
         <div class="robin-ar-dot"></div>
       </div>
       <div class="robin-message-input" v-show="!isRecording">
         <div class="robin-mt-4">
-          <IconButton name="emoji" @clicked="!popUpState.emojiOpened ? handleEmojiOpenPopUp() : handleEmojiClosePopUp()" :active="popUpState.emojiOpened" :to-emit="true" :to-click-away="false" />
+          <IconButton
+            name="emoji"
+            @clicked="!popUpState.emojiOpened ? handleEmojiOpenPopUp() : handleEmojiClosePopUp()"
+            :active="popUpState.emojiOpened"
+            :to-emit="true"
+            :to-click-away="false"
+          />
         </div>
         <div class="robin-input-wrapper" tabindex="1" v-show="!isRecording">
-          <textarea class="robin-input" ref="input" @input="enterText($event)" :value="text" @keydown.esc="escapeText()" placeholder="Type your message..." data-testid="input"></textarea>
+          <textarea
+            class="robin-input"
+            ref="input"
+            @input="enterText($event)"
+            :value="text"
+            @keydown.esc="escapeText()"
+            placeholder="Type your message..."
+            data-testid="input"
+          ></textarea>
         </div>
       </div>
-      <div class="robin-flex robin-flex-align-center robin-ml-auto robin-pl-21 robin-come-up" v-show="(text.trim().length > 0 || files.length > 0 || isRecording) && !isUploading">
-        <div class="robin-ar-time robin-mr-8" v-show="isRecording" data-testid="current-time">
-          {{ currentTime }}
-        </div>
-        <IconButton name="send" @sendmessage="send(null)" emit="sendmessage" :to-emit="true" :to-click-away="false" data-testid="send-button" />
+      <div
+        class="robin-flex robin-flex-align-center robin-ml-auto robin-pl-21 robin-come-up"
+        v-show="(text.trim().length > 0 || files.length > 0 || isRecording) && !isUploading"
+      >
+        <Content
+          v-show="isRecording"
+          class="robin-mr-8"
+          :font-size="14"
+          data-testid="current-time"
+          >{{ currentTime }}</Content
+        >
+        <IconButton
+          name="send"
+          @sendmessage="send(null)"
+          emit="sendmessage"
+          :to-emit="true"
+          :to-click-away="false"
+          data-testid="send-button"
+        />
       </div>
       <div class="robin-send-button-loader robin-ml-21" v-show="isUploading">
         <div class="robin-spinner2"></div>
       </div>
-      <div class="robin-ml-8" v-show="text.trim() == '' && files.length < 1 && !isUploading && !isRecording && isVoiceRecorderEnabled" @click="toggleRecorder(true)" data-testid="record-start-button">
+      <div
+        class="robin-ml-8"
+        v-show="
+          text.trim() == '' &&
+          files.length < 1 &&
+          !isUploading &&
+          !isRecording &&
+          isVoiceRecorderEnabled
+        "
+        @click="toggleRecorder(true)"
+        data-testid="record-start-button"
+      >
         <IconButton name="voice" :to-click-away="false" :to-emit="false" />
       </div>
 
       <div class="robin-popup-container" v-show="popUpState.opened">
-        <AttachFilePopOver ref="popup-4" @file-upload="handleFileUpload" @open-camera="$emit('open-camera')" data-testid="attach-file-popover" />
+        <AttachFilePopOver
+          ref="popup-4"
+          @file-upload="handleFileUpload"
+          @open-camera="$emit('open-camera')"
+          data-testid="attach-file-popover"
+        />
       </div>
     </div>
   </div>
@@ -126,6 +256,7 @@ import AudioRecorder from 'audio-recorder-polyfill'
 import mpegEncoder from 'audio-recorder-polyfill/mpeg-encoder'
 import EventBus from '@/event-bus'
 import Component from 'vue-class-component'
+import { MessageQueue } from '@/utils/messageQueue'
 import store from '@/store/index'
 import IconButton from '@/components/IconButton/IconButton.vue'
 import AttachFilePopOver from '../AttachFilePopOver/AttachFilePopOver.vue'
@@ -139,17 +270,17 @@ interface PopUpState {
 
 const ComponentProps = Vue.extend({
   props: {
-    conversation: {
-      type: Object as any,
-      default: (): any => {}
-    },
     capturedImage: {
       type: Object,
-      default: (): any => {}
+      default: (): ObjectType => {
+        return {}
+      }
     },
     messageReply: {
       type: Object,
-      default: (): any => {}
+      default: (): ObjectType => {
+        return {}
+      }
     }
   }
 })
@@ -184,12 +315,17 @@ const ComponentProps = Vue.extend({
         }
       },
       deep: true
+    },
+    sendType: {
+      handler (val) {
+        if (val === 'automatic') this.retries = 0
+      }
     }
   }
 })
 export default class MessageInputBar extends ComponentProps {
   text = '' as string
-  files = [] as Array<any>
+  files = [] as Array<ObjectType>
   documentRegex = /^application\/(csv|pdf|msword|(vnd\.(ms-|openxmlformats-).*))$|^text\/plain$|^audio\/mpeg$/i
   isUploading = false as boolean
   replying = false as boolean
@@ -204,23 +340,40 @@ export default class MessageInputBar extends ComponentProps {
   emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   websiteRegex = /[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/
   videoRegex = /^video/ as any
+  retries = 0
+  manualTimestamp = '' as string
+  isManualSend = false
 
   popUpState: PopUpState = {
     opened: false,
     emojiOpened: false
   }
 
+  created () {
+    console.log('created')
+    EventBus.$on('manual.send', (message: ObjectType) => {
+      this.manualSend(message)
+    })
+  }
+
   mounted () {
     this.handleConversationOpen()
 
-    this.$nextTick(function () {
+    this.$nextTick(() => {
+      this.resetState()
+      this.focusInput()
       this.onResize()
     })
 
     window.addEventListener('resize', this.onResize)
+  }
 
-    this.resetState()
-    this.focusInput()
+  get sendType () {
+    return store.state.sendType
+  }
+
+  get messageQueue () {
+    return new MessageQueue()
   }
 
   get isVoiceRecorderEnabled () {
@@ -274,13 +427,55 @@ export default class MessageInputBar extends ComponentProps {
     input.style.height = 0
     this.text = ''
     this.files = []
-    this.isUploading = false
     this.replying = false
     this.popUpState.emojiOpened = false
     this.recorder = null
     this.isRecording = false
     this.currentTime = '00:00'
     this.sendRecording = false
+    this.manualTimestamp = ''
+  }
+
+  toggleManualSend () {
+    if (this.manualTimestamp !== '') {
+      this.isManualSend = true
+    } else {
+      this.isManualSend = false
+    }
+  }
+
+  manualSend (message: ObjectType) {
+    this.setInputState(message)
+    this.toggleManualSend()
+
+    if (message.content.msg && !message.content.attachment && !message.is_reply) {
+      this.sendTextMessage()
+    }
+
+    if (!message.content.msg && message.content.attachment && !message.is_reply) {
+      this.sendFileMessage({ file: message.content.attachment })
+    }
+
+    if (message.content.msg && message.content.attachment && !message.is_reply) {
+      this.sendMessageWithAttachment({ file: message.content.attachment }, this.text)
+    }
+
+    if (message.content.msg && !message.content.attachment && message.is_reply) {
+      this.replyTextMessage()
+    }
+
+    if (!message.content.msg && message.content.attachment && message.is_reply) {
+      this.replyFileMessage({ file: message.content.attachment })
+    }
+
+    if (message.content.msg && message.content.attachment && message.is_reply) {
+      this.replyMessageWithAttachment({ file: message.content.attachment }, this.text)
+    }
+  }
+
+  setInputState (message: ObjectType): void {
+    this.text = message.content.msg
+    this.manualTimestamp = message.content.timestamp
   }
 
   send (event: any) {
@@ -305,308 +500,569 @@ export default class MessageInputBar extends ComponentProps {
   }
 
   sendMessage (): any {
+    this.toggleManualSend()
+
     if (this.files.length > 0 && this.text.trim().length === 0) {
-      this.sendFileMessage()
+      this.files.forEach((file: ObjectType) => this.sendFileMessage(file))
     } else if (this.text.trim().length > 0 && this.files.length < 1) {
       this.sendTextMessage()
     } else if (this.text.trim().length > 0 && this.files.length > 1) {
-      Promise.all([this.sendTextMessage(), this.sendFileMessage()])
+      this.sendTextMessage()
+      this.files.forEach((file: ObjectType) => this.sendFileMessage(file))
     } else if (this.text.trim().length > 0 && this.files.length === 1) {
-      this.sendMessageWithAttachment()
+      this.files.forEach((file: ObjectType) => this.sendMessageWithAttachment(file, this.text))
     }
   }
 
   async replyMessage () {
+    this.toggleManualSend()
+
     if (this.files.length > 0 && this.text.trim().length === 0) {
-      this.replyFileMessage()
+      this.files.forEach((file: ObjectType) => this.replyFileMessage(file))
     } else if (this.text.trim().length > 0 && this.files.length < 1) {
       this.replyTextMessage()
     } else if (this.text.trim().length > 0 && this.files.length > 1) {
-      Promise.all([this.replyTextMessage(), this.replyFileMessage()])
+      this.replyTextMessage()
+      this.files.forEach((file: ObjectType) => this.replyFileMessage(file))
     } else if (this.text.trim().length > 0 && this.files.length === 1) {
-      this.replyMessageWithAttachment()
+      this.files.forEach((file: ObjectType) => this.replyMessageWithAttachment(file, this.text))
     }
   }
 
-  sendTextMessage (): void {
-    this.isUploading = true
-
+  async sendTextMessage (): Promise<void> {
     try {
       const message = {
         msg: this.text,
         sender_token: this.$user_token,
-        receiver_token: this.conversation.receiver_token === this.$user_token ? this.conversation.sender_token : this.conversation.receiver_token,
-        timestamp: new Date()
+        receiver_token:
+          this.currentConversation.receiver_token === this.$user_token
+            ? this.currentConversation.sender_token
+            : this.currentConversation.receiver_token,
+        timestamp: this.manualTimestamp !== '' ? this.manualTimestamp : new Date()
       }
 
-      setTimeout(async () => {
-        EventBus.$emit('new-pseudo-message', {
+      if (this.retries === 0 && !this.isManualSend) this.messageQueue.enqueue({ message })
+
+      await this.$robin.sendMessageToConversation(
+        this.messageQueue.peek().message,
+        this.$conn,
+        this.$channel,
+        this.currentConversation._id,
+        this.$user_token,
+        this.$senderName
+      )
+
+      if (this.retries === 0 && !this.isManualSend) {
+        this.isUploading = true
+
+        const offlineMessage = {
+          _id: this.createUuid(24),
           channel: this.$channel,
-          created_at: new Date(),
+          created_at: message.timestamp,
           content: {
             is_attachment: false,
             msg: this.text,
             sender_token: this.$user_token,
-            receiver_token: this.conversation.receiver_token === this.$user_token ? this.conversation.sender_token : this.conversation.receiver_token,
-            timestamp: new Date()
+            receiver_token:
+              this.currentConversation.receiver_token === this.$user_token
+                ? this.currentConversation.sender_token
+                : this.currentConversation.receiver_token,
+            timestamp: message.timestamp
           },
           sender_token: this.$user_token,
-          conversation_id: this.conversation._id,
+          conversation_id: this.currentConversation._id,
           sender_name: this.$senderName,
           pseudo: true
-        })
+        }
 
-        await this.$robin.sendMessageToConversation(
-          {
-            ...message
+        // Send pseudo message.
+        EventBus.$emit('new-pseudo-message', offlineMessage)
+
+        setTimeout(() => {
+          this.isUploading = false
+        }, 1000)
+      }
+
+      if (this.$conn.readyState > 1) {
+        this.retries += 1
+        // Retry upload.
+        if (this.retries < 3) {
+          setTimeout(() => {
+            this.sendTextMessage()
+          }, 5000)
+        } else {
+          this.$toast.open({
+            message: 'Message failed to send.',
+            type: 'error',
+            position: 'bottom-left'
+          })
+
+          EventBus.$emit('message-send-failed', {
+            content: {
+              msg: this.messageQueue.peek().message.msg
+            },
+            conversation_id: this.currentConversation._id
+          })
+
+          this.messageQueue.dequeue()
+          this.retries = 0
+        }
+      }
+
+      this.resetState()
+    } catch (e: any) {
+      this.isUploading = false
+      if (e.message) {
+        this.$toast.open({
+          message: 'Opps, something went wrong.',
+          type: 'error',
+          position: 'bottom-left'
+        })
+      }
+    }
+  }
+
+  async sendFileMessage (file: ObjectType): Promise<void> {
+    try {
+      // if (this.retries === 0 && !this.isManualSend) this.messageQueue.enqueue({ file: file.file })
+
+      await this.$robin.sendMessageAttachment(
+        this.$user_token,
+        this.currentConversation._id,
+        file.file,
+        this.$senderName,
+        ''
+      )
+
+      if (this.retries === 0 && !this.isManualSend) {
+        this.isUploading = true
+
+        const offlineMessage = {
+          _id: this.createUuid(24),
+          channel: this.$channel,
+          created_at: this.manualTimestamp !== '' ? this.manualTimestamp : new Date(),
+          content: {
+            attachment: file.file,
+            is_attachment: true,
+            msg: '',
+            sender_token: this.$user_token,
+            receiver_token:
+              this.currentConversation.receiver_token === this.$user_token
+                ? this.currentConversation.sender_token
+                : this.currentConversation.receiver_token,
+            timestamp: this.manualTimestamp !== '' ? this.manualTimestamp : new Date()
           },
-          this.$conn,
-          this.$channel,
-          this.conversation._id,
-          this.$user_token,
-          this.$senderName
-        )
+          has_attachment: true,
+          sender_token: this.$user_token,
+          conversation_id: this.currentConversation._id,
+          sender_name: this.$senderName,
+          pseudo: true
+        }
 
-        this.resetState()
-      }, 1000)
-    } catch (e) {
-      this.isUploading = false
+        EventBus.$emit('new-pseudo-message', offlineMessage)
 
-      this.$toast.open({
-        message: 'Check your connection.',
-        type: 'error',
-        position: 'bottom-left'
-      })
-    }
-  }
+        setTimeout(() => {
+          this.isUploading = false
+        }, 1000)
+      }
 
-  async sendFileMessage (): Promise<void> {
-    this.isUploading = true
+      if (this.$conn.readyState > 1) {
+        this.retries += 1
+        // Retry upload.
+        if (this.retries < 3) {
+          setTimeout(() => {
+            this.sendFileMessage(file)
+          }, 5000)
+        } else {
+          this.$toast.open({
+            message: 'Message failed to send.',
+            type: 'error',
+            position: 'bottom-left'
+          })
 
-    try {
-      await Promise.all(
-        this.files.map(async (file) => {
-          setTimeout(async () => {
-            EventBus.$emit('new-pseudo-message', {
-              channel: this.$channel,
-              created_at: new Date(),
-              content: {
-                attachment: file.file,
-                is_attachment: true,
-                msg: '',
-                sender_token: this.$user_token,
-                receiver_token: this.conversation.receiver_token === this.$user_token ? this.conversation.sender_token : this.conversation.receiver_token,
-                timestamp: new Date()
-              },
-              has_attachment: true,
-              sender_token: this.$user_token,
-              conversation_id: this.conversation._id,
-              sender_name: this.$senderName,
-              pseudo: true
-            })
+          EventBus.$emit('message-send-failed', {
+            content: {
+              attachment: file.file
+            },
+            conversation_id: this.currentConversation._id
+          })
 
-            await this.$robin.sendMessageAttachment(this.$user_token, this.conversation._id, file.file, this.$senderName, '')
-          }, 1000)
-        })
-      )
+          // this.messageQueue.dequeue()
+          this.retries = 0
+        }
+      }
 
       this.resetState()
-    } catch (e) {
+    } catch (e: any) {
       this.isUploading = false
 
-      this.$toast.open({
-        message: 'Check your connection.',
-        type: 'error',
-        position: 'bottom-left'
-      })
+      if (e.message) {
+        this.$toast.open({
+          message: 'Opps, something went wrong.',
+          type: 'error',
+          position: 'bottom-left'
+        })
+      }
     }
   }
 
-  async sendMessageWithAttachment (): Promise<void> {
-    this.isUploading = true
-
+  async sendMessageWithAttachment (file: ObjectType, msg: string): Promise<void> {
     try {
-      await Promise.all(
-        this.files.map(async (file) => {
-          setTimeout(async () => {
-            EventBus.$emit('new-pseudo-message', {
-              channel: this.$channel,
-              created_at: new Date(),
-              content: {
-                attachment: file.file,
-                is_attachment: true,
-                msg: this.text,
-                sender_token: this.$user_token,
-                receiver_token: this.conversation.receiver_token === this.$user_token ? this.conversation.sender_token : this.conversation.receiver_token,
-                timestamp: new Date()
-              },
-              has_attachment: true,
-              sender_token: this.$user_token,
-              conversation_id: this.conversation._id,
-              sender_name: this.$senderName,
-              pseudo: true
-            })
+      // if (this.retries === 0 && !this.isManualSend) this.messageQueue.enqueue({ file: file.file, msg: this.text })
 
-            await this.$robin.sendMessageAttachment(this.$user_token, this.conversation._id, file.file, this.$senderName, this.text)
-          }, 1000)
-        })
+      await this.$robin.sendMessageAttachment(
+        this.$user_token,
+        this.currentConversation._id,
+        file.file,
+        this.$senderName,
+        msg
       )
 
+      if (this.retries === 0 && !this.isManualSend) {
+        this.isUploading = true
+
+        const offlineMessage = {
+          _id: this.createUuid(24),
+          channel: this.$channel,
+          created_at: this.manualTimestamp !== '' ? this.manualTimestamp : new Date(),
+          content: {
+            attachment: file.file,
+            is_attachment: true,
+            msg,
+            sender_token: this.$user_token,
+            receiver_token:
+              this.currentConversation.receiver_token === this.$user_token
+                ? this.currentConversation.sender_token
+                : this.currentConversation.receiver_token,
+            timestamp: this.manualTimestamp !== '' ? this.manualTimestamp : new Date()
+          },
+          has_attachment: true,
+          sender_token: this.$user_token,
+          conversation_id: this.currentConversation._id,
+          sender_name: this.$senderName,
+          pseudo: true
+        }
+
+        EventBus.$emit('new-pseudo-message', offlineMessage)
+
+        setTimeout(() => {
+          this.isUploading = false
+        }, 1000)
+      }
+
+      if (this.$conn.readyState > 1) {
+        this.retries += 1
+        // Retry upload.
+        if (this.retries < 3) {
+          setTimeout(() => {
+            this.sendMessageWithAttachment(file, msg)
+          }, 5000)
+        } else {
+          this.$toast.open({
+            message: 'Message failed to send.',
+            type: 'error',
+            position: 'bottom-left'
+          })
+
+          EventBus.$emit('message-send-failed', {
+            content: {
+              attachment: file.file,
+              msg: msg
+            },
+            conversation_id: this.currentConversation._id
+          })
+
+          // this.messageQueue.dequeue()
+          this.retries = 0
+        }
+      }
+
       this.resetState()
-    } catch (e) {
+    } catch (e: any) {
       this.isUploading = false
 
-      this.$toast.open({
-        message: 'Check your connection.',
-        type: 'error',
-        position: 'bottom-left'
-      })
+      if (e.message) {
+        this.$toast.open({
+          message: 'Opps, something went wrong.',
+          type: 'error',
+          position: 'bottom-left'
+        })
+      }
     }
   }
 
-  replyTextMessage (): void {
-    this.isUploading = true
-
+  async replyTextMessage (): Promise<void> {
     try {
       const robin = this.$robin as any
       const message = {
         msg: this.text,
         sender_token: this.$user_token,
-        receiver_token: this.conversation.receiver_token === this.$user_token ? this.conversation.sender_token : this.conversation.receiver_token,
-        timestamp: new Date()
+        receiver_token:
+          this.currentConversation.receiver_token === this.$user_token
+            ? this.currentConversation.sender_token
+            : this.currentConversation.receiver_token,
+        timestamp: this.manualTimestamp !== '' ? this.manualTimestamp : new Date()
       }
 
-      setTimeout(async () => {
-        EventBus.$emit('new-pseudo-message', {
+      if (this.retries === 0 && !this.isManualSend) this.messageQueue.enqueue({ message })
+
+      await robin.replyToMessage(
+        this.messageQueue.peek().message,
+        this.$conn,
+        this.$channel,
+        this.currentConversation._id,
+        this.messageReply._id,
+        this.$user_token,
+        this.$senderName
+      )
+
+      if (this.retries === 0 && !this.isManualSend) {
+        this.isUploading = true
+
+        const offlineMessage = {
+          _id: this.createUuid(24),
           channel: this.$channel,
-          created_at: new Date(),
+          created_at: message.timestamp,
           content: {
             is_attachment: false,
             msg: this.text,
             sender_token: this.$user_token,
-            receiver_token: this.conversation.receiver_token === this.$user_token ? this.conversation.sender_token : this.conversation.receiver_token,
-            timestamp: new Date()
+            receiver_token:
+              this.currentConversation.receiver_token === this.$user_token
+                ? this.currentConversation.sender_token
+                : this.currentConversation.receiver_token,
+            timestamp: message.timestamp
           },
           sender_token: this.$user_token,
-          conversation_id: this.conversation._id,
+          conversation_id: this.currentConversation._id,
           sender_name: this.$senderName,
           pseudo: true,
           reply_to: this.messageReply._id,
           is_reply: true
-        })
+        }
 
-        await robin.replyToMessage(
-          {
-            ...message
+        EventBus.$emit('new-pseudo-message', offlineMessage)
+
+        setTimeout(() => {
+          this.isUploading = false
+        }, 1000)
+      }
+
+      if (this.$conn.readyState > 1) {
+        this.retries += 1
+        // Retry upload.
+        if (this.retries < 3) {
+          setTimeout(() => {
+            this.replyTextMessage()
+          }, 5000)
+        } else {
+          this.$toast.open({
+            message: 'Message failed to send.',
+            type: 'error',
+            position: 'bottom-left'
+          })
+
+          EventBus.$emit('message-send-failed', {
+            content: {
+              msg: this.messageQueue.peek().message.msg
+            },
+            conversation_id: this.currentConversation._id
+          })
+
+          this.messageQueue.dequeue()
+          this.retries = 0
+        }
+      }
+
+      this.resetState()
+    } catch (e: any) {
+      this.isUploading = false
+
+      if (e.message) {
+        this.$toast.open({
+          message: 'Opps, something went wrong.',
+          type: 'error',
+          position: 'bottom-left'
+        })
+      }
+    }
+  }
+
+  async replyFileMessage (file: ObjectType): Promise<void> {
+    try {
+      const robin = this.$robin as any
+
+      if (this.retries === 0 && !this.isManualSend) this.messageQueue.enqueue({ file: file.file })
+
+      await robin.replyMessageWithAttachment(
+        this.$user_token,
+        this.currentConversation._id,
+        this.messageReply._id,
+        file.file,
+        this.$senderName
+      )
+
+      if (this.retries === 0 && !this.isManualSend) {
+        this.isUploading = true
+
+        const offlineMessage = {
+          _id: this.createUuid(24),
+          channel: this.$channel,
+          created_at: this.manualTimestamp !== '' ? this.manualTimestamp : new Date(),
+          content: {
+            attachment: file.file,
+            is_attachment: true,
+            msg: '',
+            sender_token: this.$user_token,
+            receiver_token:
+              this.currentConversation.receiver_token === this.$user_token
+                ? this.currentConversation.sender_token
+                : this.currentConversation.receiver_token,
+            timestamp: this.manualTimestamp !== '' ? this.manualTimestamp : new Date()
           },
-          this.$conn,
-          this.$channel,
-          this.conversation._id,
-          this.messageReply._id,
-          this.$user_token,
-          this.$senderName
-        )
+          has_attachment: true,
+          sender_token: this.$user_token,
+          conversation_id: this.currentConversation._id,
+          sender_name: this.$senderName,
+          pseudo: true,
+          reply_to: this.messageReply._id,
+          is_reply: true
+        }
 
-        this.resetState()
-      }, 1000)
-    } catch (e) {
+        EventBus.$emit('new-pseudo-message', offlineMessage)
+
+        setTimeout(() => {
+          this.isUploading = false
+        }, 1000)
+      }
+
+      if (this.$conn.readyState > 1) {
+        this.retries += 1
+        // Retry upload.
+        if (this.retries < 3) {
+          setTimeout(() => {
+            this.replyFileMessage(file)
+          }, 1000)
+        } else {
+          this.$toast.open({
+            message: 'Message failed to send.',
+            type: 'error',
+            position: 'bottom-left'
+          })
+
+          EventBus.$emit('message-send-failed', {
+            content: {
+              attachment: this.messageQueue.peek().file
+            },
+            conversation_id: this.currentConversation._id
+          })
+
+          this.messageQueue.dequeue()
+          this.retries = 0
+        }
+      }
+
+      this.resetState()
+    } catch (e: any) {
       this.isUploading = false
 
-      this.$toast.open({
-        message: 'Check your connection.',
-        type: 'error',
-        position: 'bottom-left'
-      })
+      if (e.message) {
+        this.$toast.open({
+          message: 'Opps, something went wrong.',
+          type: 'error',
+          position: 'bottom-left'
+        })
+      }
     }
   }
 
-  async replyFileMessage (): Promise<void> {
-    this.isUploading = true
-
+  async replyMessageWithAttachment (file: ObjectType, msg: string): Promise<void> {
     try {
       const robin = this.$robin as any
-      await Promise.all(
-        this.files.map(async (file) => {
-          setTimeout(async () => {
-            EventBus.$emit('new-pseudo-message', {
-              channel: this.$channel,
-              created_at: new Date(),
-              content: {
-                attachment: file.file,
-                is_attachment: true,
-                msg: '',
-                sender_token: this.$user_token,
-                receiver_token: this.conversation.receiver_token === this.$user_token ? this.conversation.sender_token : this.conversation.receiver_token,
-                timestamp: new Date()
-              },
-              has_attachment: true,
-              sender_token: this.$user_token,
-              conversation_id: this.conversation._id,
-              sender_name: this.$senderName,
-              pseudo: true,
-              reply_to: this.messageReply._id,
-              is_reply: true
-            })
 
-            await robin.replyMessageWithAttachment(this.$user_token, this.conversation._id, this.messageReply._id, file.file, this.$senderName)
-          }, 1000)
-        })
+      // if (this.retries === 0 && !this.isManualSend) this.messageQueue.enqueue({ file: file?.file, msg: this.text })
+
+      await robin.replyMessageWithAttachment(
+        this.$user_token,
+        this.currentConversation._id,
+        this.messageReply._id,
+        file.file,
+        this.$senderName,
+        msg
       )
 
-      this.resetState()
-    } catch (e) {
-      this.isUploading = false
+      if (this.retries === 0 && !this.isManualSend) {
+        this.isUploading = true
 
-      this.$toast.open({
-        message: 'Check your connection.',
-        type: 'error',
-        position: 'bottom-left'
-      })
-    }
-  }
+        const offlineMessage = {
+          _id: this.createUuid(24),
+          channel: this.$channel,
+          content: {
+            attachment: file.file,
+            is_attachment: true,
+            msg,
+            sender_token: this.$user_token,
+            receiver_token:
+              this.currentConversation.receiver_token === this.$user_token
+                ? this.currentConversation.sender_token
+                : this.currentConversation.receiver_token,
+            timestamp: this.manualTimestamp !== '' ? this.manualTimestamp : new Date()
+          },
+          created_at: this.manualTimestamp !== '' ? this.manualTimestamp : new Date(),
+          has_attachment: true,
+          sender_token: this.$user_token,
+          conversation_id: this.currentConversation._id,
+          sender_name: this.$senderName,
+          pseudo: true,
+          reply_to: this.messageReply._id,
+          is_reply: true
+        }
 
-  async replyMessageWithAttachment (): Promise<void> {
-    this.isUploading = true
+        EventBus.$emit('new-pseudo-message', offlineMessage)
 
-    try {
-      const robin = this.$robin as any
-      await Promise.all(
-        this.files.map(async (file) => {
-          setTimeout(async () => {
-            EventBus.$emit('new-pseudo-message', {
-              channel: this.$channel,
-              content: {
-                attachment: file.file,
-                is_attachment: true,
-                msg: this.text,
-                sender_token: this.$user_token,
-                receiver_token: this.conversation.receiver_token === this.$user_token ? this.conversation.sender_token : this.conversation.receiver_token,
-                timestamp: new Date()
-              },
-              created_at: new Date(),
-              has_attachment: true,
-              sender_token: this.$user_token,
-              conversation_id: this.conversation._id,
-              sender_name: this.$senderName,
-              pseudo: true,
-              reply_to: this.messageReply._id,
-              is_reply: true
-            })
+        setTimeout(() => {
+          this.isUploading = false
+        }, 1000)
+      }
 
-            await robin.replyMessageWithAttachment(this.$user_token, this.conversation._id, this.messageReply._id, file.file, this.$senderName, this.text)
+      if (this.$conn.readyState > 1) {
+        this.retries += 1
+        // Retry upload.
+        if (this.retries < 3) {
+          setTimeout(() => {
+            this.replyMessageWithAttachment(file, msg)
           }, 1000)
-        })
-      )
+        } else {
+          this.$toast.open({
+            message: 'Message failed to send.',
+            type: 'error',
+            position: 'bottom-left'
+          })
+
+          EventBus.$emit('message-send-failed', {
+            content: {
+              msg,
+              attachment: file.file
+            },
+            conversation_id: this.currentConversation._id
+          })
+
+          // this.messageQueue.dequeue()
+          this.retries = 0
+        }
+      }
 
       this.resetState()
-    } catch (e) {
+    } catch (e: any) {
       this.isUploading = false
 
-      this.$toast.open({
-        message: 'Check your connection.',
-        type: 'error',
-        position: 'bottom-left'
-      })
+      if (e.message) {
+        this.$toast.open({
+          message: 'Opps, something went wrong.',
+          type: 'error',
+          position: 'bottom-left'
+        })
+      }
     }
   }
 
@@ -771,7 +1227,7 @@ export default class MessageInputBar extends ComponentProps {
   }
 
   handleConversationOpen (): void {
-    EventBus.$on('conversation-opened', (_: any) => {
+    EventBus.$on('currentConversation-opened', (_: any) => {
       const input = this.$refs.input as any
       setTimeout(() => {
         if (input) {
@@ -795,7 +1251,10 @@ export default class MessageInputBar extends ComponentProps {
 
     if (!input) return
 
-    const padding = window.getComputedStyle(input, null).getPropertyValue('padding-top').replace('px', '') as any
+    const padding = window
+      .getComputedStyle(input, null)
+      .getPropertyValue('padding-top')
+      .replace('px', '') as any
     input.style.height = 0
     input.style.height = input.scrollHeight - padding * 2 + 'px'
     input.style.lineHeight = 1.5
@@ -891,6 +1350,10 @@ export default class MessageInputBar extends ComponentProps {
 
 .robin-emoji-container {
   width: 100%;
+  position: absolute;
+  top: -426px;
+  left: 0;
+  transform-origin: bottom;
   z-index: 1;
 }
 
@@ -898,11 +1361,11 @@ export default class MessageInputBar extends ComponentProps {
   outline: none;
 }
 
-.robin-emoji-out {
-  position: absolute;
-  top: -426px;
-  left: 0;
-  transform-origin: bottom;
+.robin-emoji-container .emoji-picker {
+  --ep-color-bg: var(--rb-color2);
+  --ep-color-sbg: var(--rb-color6);
+  --ep-color-border: var(--rb-color6);
+  --ep-color-text: var(--rb-color7);
 }
 
 .robin-emoji {
@@ -914,14 +1377,10 @@ export default class MessageInputBar extends ComponentProps {
   width: 100%;
   flex: 1;
   height: 140px;
-  /* top: -140px;
-  left: 0;
-  bottom: 0; */
   transform-origin: bottom;
   display: flex;
   align-items: center;
-  background-color: #fff;
-  /* position: absolute; */
+  background-color: var(--rb-color2);
   z-index: 1;
 }
 
@@ -933,7 +1392,7 @@ export default class MessageInputBar extends ComponentProps {
   display: flex;
   align-items: center;
   transform-origin: bottom;
-  background-color: #fff;
+  background-color: var(--rb-color2);
 }
 
 .robin-file-upload-container .robin-wrapper,
@@ -952,7 +1411,7 @@ export default class MessageInputBar extends ComponentProps {
   align-items: center;
   width: 104px;
   height: 104px;
-  border: 1px solid #f4f6f8;
+  border: 1px solid var(--rb-color6);
   padding: 1rem 1rem;
 }
 
@@ -967,11 +1426,11 @@ export default class MessageInputBar extends ComponentProps {
   align-items: center;
   width: 104px;
   height: 104px;
-  border: 1px solid #f4f6f8;
+  border: 1px solid var(--rb-color6);
 }
 
 .robin-message-box-inner {
-  background-color: #fff;
+  background-color: var(--rb-color2);
   box-shadow: 0px 0px 20px rgba(0, 104, 255, 0.07);
   width: 100%;
   /* height: 44px; */
@@ -989,17 +1448,13 @@ export default class MessageInputBar extends ComponentProps {
 /* Input styles */
 .robin-message-input {
   flex: 1;
-  background-color: #fbfbfb;
-  border: 1px solid #9999bc;
+  background-color: var(--rb-color-12);
+  border: 1px solid var(--rb-color8);
   border-radius: 24px;
   display: flex;
   align-items: center;
   padding: 0 0 0 clamp(3%, 5vw, 2.063rem);
   transition: background-color 200ms;
-}
-
-.robin-message-input:focus-within {
-  background-color: #fff;
 }
 
 .robin-input-wrapper {
@@ -1021,6 +1476,9 @@ export default class MessageInputBar extends ComponentProps {
   text-align: left;
   overflow: hidden;
   box-sizing: content-box;
+
+  caret-color: var(--rb-color7);
+  color: var(--rb-color7);
 
   /* textarea */
   resize: none;
@@ -1047,7 +1505,7 @@ export default class MessageInputBar extends ComponentProps {
 }
 
 .robin-reply {
-  background-color: #f4f6f8;
+  background-color: var(--rb-color6);
   padding: 1rem;
 }
 
@@ -1056,7 +1514,7 @@ export default class MessageInputBar extends ComponentProps {
 }
 
 .robin-reply .robin-file-upload .robin-file {
-  background-color: #fff;
+  background-color: var(--rb-color2);
 }
 
 .robin-file-upload-close,

@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import { MessageQueue } from '@/utils/messageQueue'
 
 interface State {
   currentConversation: Record<string, any>,
@@ -8,7 +9,7 @@ interface State {
   isPageLoading: boolean,
   isAuthenticated: boolean,
   selectMessagesOpen: boolean,
-  conversationOpened: boolean,
+  conversationOpen: boolean,
   clearMessages: boolean,
   imagePreviewOpen: boolean,
   profileOpen: boolean,
@@ -29,6 +30,9 @@ interface State {
   messageReactionViewEnabled: boolean,
   messageReactionDeleteEnabled: boolean,
   useDefaultProfileDetails: boolean,
+  currentTheme: string,
+  messageQueue: MessageQueue,
+  sendType: string
 }
 
 const state: State = {
@@ -39,7 +43,7 @@ const state: State = {
   isPageLoading: true,
   isAuthenticated: false,
   selectMessagesOpen: false,
-  conversationOpened: false,
+  conversationOpen: false,
   clearMessages: false,
   imagePreviewOpen: false,
   profileOpen: false,
@@ -59,7 +63,10 @@ const state: State = {
   voiceRecorderEnabled: false,
   messageReactionViewEnabled: false,
   messageReactionDeleteEnabled: false,
-  useDefaultProfileDetails: false
+  useDefaultProfileDetails: false,
+  currentTheme: 'light',
+  messageQueue: new MessageQueue(),
+  sendType: 'automatic'
 }
 
 const store = {

@@ -1,25 +1,26 @@
 <template>
-  <h1 v-if="as == 'h1'" class="robin-text" :style="getStyles">
+  <h1 v-if="as == 'h1'" class="robin-text" :style="styles">
     <slot></slot>
   </h1>
-  <h2 v-else-if="as == 'h2'" class="robin-text" :style="getStyles">
+  <h2 v-else-if="as == 'h2'" class="robin-text" :style="styles">
     <slot></slot>
   </h2>
-  <h3 v-else-if="as == 'h3'" class="robin-text" :style="getStyles">
+  <h3 v-else-if="as == 'h3'" class="robin-text" :style="styles">
     <slot></slot>
   </h3>
-  <p v-else-if="as == 'p'" class="robin-text" :style="getStyles">
+  <p v-else-if="as == 'p'" class="robin-text" :style="styles">
     <slot></slot>
   </p>
-  <span v-else-if="as == 'span'" class="robin-text" :style="getStyles">
+  <span v-else-if="as == 'span'" class="robin-text" :style="styles">
     <slot></slot>
   </span>
-  <label data-testid="label" v-else-if="as == 'label'" :for="forRef" class="robin-text" :style="getStyles">
+  <label data-testid="label" v-else-if="as == 'label'" :for="forRef" class="robin-text" :style="styles">
     <slot></slot>
   </label>
 </template>
 
 <script lang="ts">
+import store from '@/store'
 import Vue, { PropType } from 'vue'
 import Component from 'vue-class-component'
 
@@ -38,7 +39,7 @@ const ComponentProps = Vue.extend({
     },
     color: {
       type: String as PropType<string>,
-      default: '#000000'
+      default: ''
     },
     fontSize: {
       type: Number as PropType<number>,
@@ -76,19 +77,31 @@ const ComponentProps = Vue.extend({
   }
 })
 
-@Component({
-  name: 'Content'
+// eslint-disable-next-line
+@Component<Content>({
+  name: 'Content',
+  watch: {
+    currentTheme (): void {
+      this.setStyles()
+    }
+  }
 })
 export default class Content extends ComponentProps {
   root = null as any
+  styles = {} as Record<string, any>
 
   mounted (): void {
     this.root = document.documentElement
+    this.setStyles()
   }
 
-  get getStyles (): Object {
-    let rootFontSize = 16 // default
-    let fontSize = `${(this.fontSize / rootFontSize) + 'rem'}`
+  get currentTheme () {
+    return store.state.currentTheme
+  }
+
+  setStyles () {
+    let rootFontSize = 16
+    let fontSize = `${this.fontSize / rootFontSize + 'rem'}`
 
     if (this.root && this.root.style.fontSize !== '') {
       rootFontSize = this.root.style.fontSize
@@ -104,9 +117,9 @@ export default class Content extends ComponentProps {
       fontSize = `clamp(0.2rem, 3.5vw, ${this.fontSize / rootFontSize + 'rem'})`
     }
 
-    return {
+    this.styles = {
       'font-size': fontSize,
-      color: this.color,
+      color: this.color !== '' ? this.color : this.currentTheme === 'light' ? '#000' : '#fff',
       'font-weight': this.fontWeight,
       'line-height': this.lineHeight === 0 ? 'initial' : this.lineHeight / rootFontSize + 'rem',
       'white-space': this.textWrap,
@@ -120,9 +133,10 @@ export default class Content extends ComponentProps {
 
 <style scoped>
 .robin-text {
-  display: block;
-  max-height: max-content;
+  /* display: block;
+  max-height: max-content; */
   overflow: hidden;
   padding: 0 0.2rem;
+  color: #000;
 }
 </style>

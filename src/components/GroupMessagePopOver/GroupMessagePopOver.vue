@@ -1,19 +1,19 @@
 <template>
   <div class="robin-popup robin-zoomIn" ref="popup-body">
     <div class="robin-wrapper robin-w-100" @click="$emit('view-group-profile')" data-testid="view-group-profile">
-      <Content :font-size="14" as="span" color="#51545C">Group Info</Content>
+      <Content :font-size="14" as="span" :color="currentTheme === 'light' ? '#51545C' : '#F9F9F9'">Group Info</Content>
 
-      <SvgIcon name="user-circle" />
+      <SvgIcon name="user-circle" :color="currentTheme === 'light' ? '#51545C' : '#F9F9F9'" />
     </div>
     <div class="robin-wrapper robin-w-100" @click="handleSelectMessages()">
-      <Content :font-size="14" as="span" color="#51545C">Select Messages</Content>
+      <Content :font-size="14" as="span" :color="currentTheme === 'light' ? '#51545C' : '#F9F9F9'">Select Messages</Content>
 
-      <SvgIcon name="check-circle" />
+      <SvgIcon name="check-circle" :color="currentTheme === 'light' ? '#51545C' : '#F9F9F9'" />
     </div>
     <div class="robin-wrapper robin-w-100" @click="handleLeaveGroup()">
-      <Content :font-size="14" as="span" color="#51545C">Leave Group</Content>
+      <Content :font-size="14" as="span" :color="currentTheme === 'light' ? '#51545C' : '#F9F9F9'">Leave Group</Content>
 
-      <SvgIcon name="times-square" />
+      <SvgIcon name="times-square" :color="currentTheme === 'light' ? '#D53120' : '#000'" />
     </div>
   </div>
 </template>
@@ -33,6 +33,10 @@ import Content from '@/components/Content/Content.vue'
   }
 })
 export default class GroupMessagePopOver extends Vue {
+  get currentTheme () {
+    return store.state.currentTheme
+  }
+
   handleSelectMessages () {
     store.setState('selectMessagesOpen', true)
   }
@@ -46,13 +50,13 @@ export default class GroupMessagePopOver extends Vue {
 <style scoped>
 .robin-popup {
   width: 174px;
-  border: 1px solid #F5F7FC;
+  border: 1px solid var(--rb-color2);
   border-radius: 6px;
-  background-color: #fff;
+  background-color: var(--rb-bg-color);
 }
 
 .robin-wrapper {
-  border-top: 1px solid #EFEFEF;
+  border-top: 1px solid var(--rb-color5);
   padding: 0.813rem 1rem;
   display: flex;
   align-items: center;
@@ -60,8 +64,16 @@ export default class GroupMessagePopOver extends Vue {
   cursor: pointer;
 }
 
+.robin-wrapper:first-child {
+  border: none;
+  border-radius: 6px 6px 0 0;
+}
+.robin-wrapper:last-child {
+  border-radius: 0 0 6px 6px;
+}
+
 .robin-wrapper:hover {
-  background-color: rgba(244, 246, 248, 0.8);
+  background-color: var(--rb-color6);
 }
 
 .robin-wrapper:first-child {

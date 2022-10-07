@@ -1,0 +1,272 @@
+.robin-bubble.image {
+  width: max-content;
+  border-radius: inherit;
+  padding: 0.813rem 0.625rem 0.813rem 0.75rem;
+  position: relative;
+}
+
+.robin-bubble.image .robin-bubble-inner {
+  width: max-content;
+  border-radius: inherit;
+  position: relative;
+  z-index: 0;
+}
+
+/* .robin-bubble.image .robin-uploaded-image {
+  width: 100%;
+  min-width: 170px;
+  max-width: 291px;
+  height: 200px;
+  border-radius: inherit;
+  background-color: #fff;
+} */
+
+.robin-bubble.image .v-lazy-image {
+  filter: blur(5px);
+  transition: filter 0.5s;
+  will-change: filter;
+}
+
+.robin-bubble.image .v-lazy-image-loaded {
+  filter: blur(0);
+}
+
+.robin-grid-container {
+  display: grid;
+  gap: 0.25rem 0.25rem;
+}
+
+.robin-grid-container::before {
+  content: '';
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  z-index: 1;
+  border-radius: 8px;
+  transition: background-color 0.1s;
+  cursor: pointer;
+}
+
+.robin-grid-container:hover::before {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.robin-grid-container:active::before {
+  background: transparent;
+}
+
+.robin-grid-container .robin-drop-shadow {
+  border-radius: 0px 0px 14px 0px;
+  width: 125px;
+  height: 94px;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  padding: 0.5rem 1rem 0.5rem 1rem;
+  z-index: 0;
+}
+
+.back-drop {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.robin-message-count {
+  align-self: center;
+  margin-top: 1.4rem;
+}
+
+.robin-grid-4-by-4 {
+  grid-template-columns: repeat(2, minmax(0, 125px));
+  grid-template-rows: 94px 94px;
+}
+
+.robin-grid-3-by-3 {
+  grid-template-columns: 125px 125px;
+  grid-template-rows: 94px 94px;
+}
+
+.robin-grid-2-by-2 {
+  grid-template-columns: 125px 125px;
+  grid-template-rows: 192px;
+}
+
+.robin-grid-1-by-1 {
+  grid-template-columns: 200px;
+  grid-template-rows: 200px;
+}
+
+.robin-image-receiver {
+  width: 100%;
+}
+
+.robin-image-sender {
+  width: 100%;
+}
+
+/* 4 by 4 */
+.robin-grid-4-by-4 .robin-grid-0 {
+  border-radius: 4px;
+}
+
+.robin-grid-4-by-4 .robin-grid-1 {
+  border-radius: 4px;
+}
+
+.robin-grid-4-by-4 .robin-grid-2 {
+  border-radius: 4px;
+}
+
+.robin-grid-4-by-4 .robin-grid-3 {
+  border-radius: 4px;
+}
+
+/* 3 by 3 */
+.robin-grid-3-by-3 .robin-image-receiver.robin-grid-0 {
+  grid-column: 1;
+  grid-row: 1;
+  border-radius: 4px;
+}
+
+.robin-grid-3-by-3 .robin-image-receiver.robin-grid-1 {
+  grid-column: 2;
+  grid-row: 1;
+  border-radius: 4px;
+}
+
+.robin-grid-3-by-3 .robin-image-receiver.robin-grid-2 {
+  grid-column: 1 / span 2;
+  grid-row: 2;
+  border-radius: 4px;
+}
+
+.robin-grid-3-by-3 .robin-image-sender.robin-grid-0 {
+  grid-column: 2;
+  grid-row: 1;
+  border-radius: 4px;
+}
+
+.robin-grid-3-by-3 .robin-image-sender.robin-grid-1 {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  border-radius: 4px;
+}
+
+.robin-grid-3-by-3 .robin-image-sender.robin-grid-2 {
+  grid-column: 2;
+  grid-row: 2;
+  border-radius: 4px;
+}
+
+/* 2 by 2 */
+.robin-grid-2-by-2 .robin-grid-0 {
+  border-radius: 4px;
+}
+
+.robin-grid-2-by-2 .robin-image-sender.robin-grid-0 {
+  border-radius: 4px;
+}
+
+.robin-grid-2-by-2 .robin-image-receiver.robin-grid-1 {
+  border-radius: 4px;
+}
+
+.robin-grid-2-by-2 .robin-image-sender.robin-grid-1 {
+  border-radius: 4px;
+}
+
+/* Image */
+.robin-message-bubble-image img {
+  height: 100%;
+  min-width: 100%;
+  width: 100%;
+  border-radius: inherit;
+  background-color: var(--rb-color7);
+  object-fit: cover;
+}
+
+.robin-grid-sender {
+  background-color: var(--rb-color9);
+}
+
+.robin-grid-receiver {
+  background-color: var(--rb-color10);
+}
+
+.robin-grid-sender .robin-side-text {
+  display: flex;
+  align-items: flex-start;
+}
+
+.robin-grid-receiver .robin-side-text {
+  display: flex;
+  align-items: flex-start;
+}
+
+/* .robin-grid-sender .robin-popup-container.reactions {
+  position: absolute;
+  top: -50px;
+  left: 50%;
+  z-index: 10;
+} */
+
+/* .robin-grid-receiver .robin-popup-container.reactions {
+  position: absolute;
+  top: -50px;
+  right: 50%;
+  z-index: 10;
+} */
+
+/* .robin-grid-receiver .robin-popup-container.reactions >>> .robin-popup::before {
+  bottom: -3px;
+  left: 100px;
+}
+
+.robin-grid-receiver .robin-popup-container.reactions >>> .robin-popup::after {
+  bottom: -8px;
+  left: 109px;
+} */
+
+/* .robin-grid-sender .robin-popup-container.reactions >>> .robin-zoomIn,
+.robin-grid-sender .robin-popup-container.reactions >>> .robin-zoomOut {
+  transform-origin: bottom top;
+}
+
+.robin-grid-sender .robin-popup-container.reactions >>> .robin-zoomIn,
+.robin-grid-sender .robin-popup-container.reactions >>> .robin-zoomOut {
+  transform-origin: bottom top;
+} */
+
+.download-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+  left: -20%;
+  transition: transform 100ms ease-in;
+}
+
+.download-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+  right: -20%;
+  transition: transform 100ms ease-in;
+}
+
+.download-btn:hover {
+  transform: translateY(-50%) scale(1.05);
+}
+
+@media (max-width: 480px) {
+  .robin-message-bubble-image {
+    max-width: 220px;
+  }
+}
+
+@media (min-width: 1025px) {
+  .robin-message-bubble-image:hover {
+    background-color:  var(--rb-color11);
+  }
+}

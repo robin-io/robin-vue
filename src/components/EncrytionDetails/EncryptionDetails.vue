@@ -52,7 +52,7 @@ export default class GroupPrompt extends Vue {
 }
 
 .robin-card {
-  background-color: #fff;
+  background-color: var(--rb-bg-color);
   border-radius: 10px;
   width: min(426px, 90%);
   height: 358px;

@@ -1,0 +1,10 @@
+.robin-forward-tab {
+  height: 88px;
+  display: flex;
+  align-items: center;
+  padding-left: 1rem;
+  padding-right: 2.5rem;
+  justify-content: space-between;
+  box-shadow: 0px 3px 20px 5px rgba(69, 104, 209, 0.1);
+  background-color: var(--rb-color2);
+}

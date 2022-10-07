@@ -1,0 +1,50 @@
+.robin-message-bubble-document {
+  display: flex;
+  flex-direction: column;
+  padding: 0.875rem 0.625rem 0.625rem 0.75rem;
+  border-radius: inherit;
+}
+
+.robin-message-bubble-document .robin-uploaded-document {
+  display: flex;
+  align-items: center;
+  background-color: var(--rb-color20);
+  border-radius: 4px;
+}
+
+.robin-message-bubble-document .robin-uploaded-document .details {
+  margin-right: 2.2rem;
+}
+
+.robin-message-bubble-document .robin-uploaded-document .details + * {
+  margin-left: auto;
+}
+
+.robin-message-bubble-document .robin-uploaded-document img {
+  margin-right: 0.5rem;
+}
+
+@media (max-width: 480px) {
+  .robin-message-bubble-document {
+    max-width: 220px;
+  }
+
+  .robin-message-bubble-document .robin-uploaded-document {
+    justify-content: space-between;
+  }
+
+  .robin-message-bubble-document .robin-text {
+    margin-left: 0;
+  }
+
+  .robin-message-bubble-document .robin-uploaded-document .details,
+  .robin-message-bubble-document .robin-uploaded-document svg {
+    margin-right: 0;
+  }
+}
+
+@media (min-width: 1025px) {
+  .robin-message-bubble-document:hover {
+    background-color:  var(--rb-color11);
+  }
+}

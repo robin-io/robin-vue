@@ -1,0 +1,34 @@
+.robin-message-bubble-video {
+  display: flex;
+  flex-direction: column;
+  max-width: 300px;
+  padding: 0.813rem 0.625rem 0.813rem 0.75rem;
+  border-radius: inherit;
+}
+
+.robin-message-bubble-video .robin-reply-message-bubble {
+  width: 96%;
+  margin: 0.5rem auto 0.625rem;
+}
+
+video.video-reply {
+  width: 96%;
+  margin: 0 auto;
+}
+
+.robin-message-bubble-video .robin-reply-message-bubble {
+  width: 96%;
+  margin: 0.5rem auto 0.625rem;
+}
+
+@media (max-width: 480px) {
+  .robin-message-bubble-video  {
+    max-width: 220px;
+  }
+}
+
+@media (min-width: 1025px) {
+  .robin-message-bubble-video:hover {
+    background-color:  var(--rb-color11);
+  }
+}

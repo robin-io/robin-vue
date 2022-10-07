@@ -1,7 +1,7 @@
 <template>
   <div :class="sender ? 'robin-reply-sender' : 'robin-reply-receiver'" class="robin-reply-message-bubble robin-flex robin-flex-align-start" v-if="getReplyMessage(message.reply_to) && !getReplyMessage(message.reply_to).content.is_attachment" @click="scrollToRepliedMessage(message.reply_to)">
     <div>
-      <Content :font-size="14" color="#51545C" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getReplyMessage(message.reply_to).sender_token === $user_token ? 'You' : getContactName(getReplyMessage(message.reply_to).content.sender_token) }} </Content>
+      <Content :font-size="14" color="#51545C" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getReplyMessage(message.reply_to).sender_token === $user_token ? 'You' : getContactName(getReplyMessage(message.reply_to).sender_token) }} </Content>
 
       <Content :font-size="14" color="#8D9091" textWrap="pre-line" wordBreak="break-word" as="span" v-if="!validateLinkInMessage().containsEmail && !validateLinkInMessage().containsWebsite">
         {{ getReplyMessage(message.reply_to).content.msg }}
@@ -12,7 +12,7 @@
   </div>
 
   <div :class="sender ? 'robin-reply-sender' : 'robin-reply-receiver'" class="robin-reply-message-bubble" v-else-if="getReplyMessage(message.reply_to) && imageRegex.test(checkAttachmentType(getReplyMessage(message.reply_to).content.attachment))" @click="scrollToRepliedMessage(message.reply_to)">
-    <Content :font-size="14" color="#51545C" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getReplyMessage(message.reply_to).sender_token === $user_token ? 'You' : getContactName(getReplyMessage(message.reply_to).content.sender_token) }} </Content>
+    <Content :font-size="14" color="#51545C" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getReplyMessage(message.reply_to).sender_token === $user_token ? 'You' : getContactName(getReplyMessage(message.reply_to).sender_token) }} </Content>
 
     <v-lazy-image class="robin-uploaded-image" :src="getReplyMessage(message.reply_to).content.attachment" />
 
@@ -24,7 +24,7 @@
   </div>
 
   <div :class="sender ? 'robin-reply-sender' : 'robin-reply-receiver'" class="robin-reply-message-bubble" v-else-if="getReplyMessage(message.reply_to) && videoRegex.test(checkAttachmentType(getReplyMessage(message.reply_to).content.attachment))" @click="scrollToRepliedMessage(message.reply_to)">
-    <Content :font-size="14" color="#51545C" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getReplyMessage(message.reply_to).sender_token === $user_token ? 'You' : getContactName(getReplyMessage(message.reply_to).content.sender_token) }} </Content>
+    <Content :font-size="14" color="#51545C" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getReplyMessage(message.reply_to).sender_token === $user_token ? 'You' : getContactName(getReplyMessage(message.reply_to).sender_token) }} </Content>
 
     <video controls>
       <source :src="getReplyMessage(message.reply_to).content.attachment" />
@@ -39,7 +39,7 @@
   </div>
 
   <div :class="sender ? 'robin-reply-sender' : 'robin-reply-receiver'" class="robin-reply-message-bubble" v-else-if="getReplyMessage(message.reply_to) && documentRegex.test(checkAttachmentType(getReplyMessage(message.reply_to).content.attachment))" @click="scrollToRepliedMessage(message.reply_to)">
-    <Content :font-size="14" color="#51545C" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getReplyMessage(message.reply_to).sender_token === $user_token ? 'You' : getContactName(getReplyMessage(message.reply_to).content.sender_token) }} </Content>
+    <Content :font-size="14" color="#51545C" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getReplyMessage(message.reply_to).sender_token === $user_token ? 'You' : getContactName(getReplyMessage(message.reply_to).sender_token) }} </Content>
 
     <div class="robin-reply-document robin-flex robin-flex-align-center" v-if="getFileDetails(getReplyMessage(message.reply_to).content.attachment).extension !== 'mp3'">
       <img v-if="assets[getFileDetails(getReplyMessage(message.reply_to).content.attachment).extension]" :src="assets[getFileDetails(getReplyMessage(message.reply_to).content.attachment).extension]" alt="document" />
@@ -146,7 +146,7 @@ export default class ReplyMessageBubble extends ComponentProps {
   }
 
   checkArrayReceiverUserToken (message: any) {
-    return message.some((item: { content: { sender_token: string } }) => item.content.sender_token === this.$user_token)
+    return message.some((item: ObjectType) => item.sender_token === this.$user_token)
   }
 
   getContactName (sender_token: string): string {
@@ -224,20 +224,20 @@ export default class ReplyMessageBubble extends ComponentProps {
 
 <style scoped>
 .robin-reply-sender.robin-reply-message-bubble {
-  background-color: #ffffff;
+  background-color: var(--rb-bg-color);
   width: 100%;
   padding: 0.4rem 0.625rem;
-  border-left: 3px solid #9999bc;
+  border-left: 3px solid var(--rb-color19);
   position: relative;
   margin-bottom: 0.625rem;
 }
 
 .robin-reply-receiver.robin-reply-message-bubble {
-  background-color: #ffffff;
+  background-color: var(--rb-bg-color);
   width: 100%;
   position: relative;
   padding: 0.4rem 0.625rem;
-  border-left: 3px solid #9999bc;
+  border-left: 3px solid var(--rb-color19);
   margin-bottom: 0.625rem;
 }
 

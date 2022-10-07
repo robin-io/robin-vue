@@ -1,0 +1,28 @@
+.robin-message-popup {
+  position: absolute;
+  z-index: 100;
+  display: none;
+  width: 200px;
+  max-width: 220px;
+  border-radius: 16px;
+  border: 1px solid var(--rb-color2);
+  border-radius: 6px;
+  background-color: var(--rb-bg-color);
+}
+
+.robin-message-popup .robin-wrapper {
+  border-top: 1px solid var(--rb-color5);
+  padding: 0.813rem 1rem;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  justify-content: space-between;
+}
+
+.robin-message-popup .robin-wrapper:first-child {
+  border: none;
+}
+
+.robin-message-popup .robin-wrapper:hover {
+  background-color: var(--rb-color6);
+}

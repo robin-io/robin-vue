@@ -79,7 +79,9 @@ export default class Input extends ComponentProps {
 <style scoped>
 /* Input styles */
 .robin-input {
-  background-color: #f5f7fc;
+  background-color: var(--rb-color6);
+  caret-color: var(--rb-color7);
+  color: var(--rb-color7);
   border: none;
   font-size: 0.875rem;
   padding-left: 1rem;

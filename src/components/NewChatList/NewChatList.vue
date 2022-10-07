@@ -3,7 +3,7 @@
     <header class="robin-header">
       <IconButton name="remove" @close="openPreviousModal()" emit="close" :to-emit="true" :to-click-away="false" />
 
-      <Content font-weight="400" :font-size="16" class="robin-ml-12"> New Chat </Content>
+      <Content font-weight="400" :color="currentTheme === 'light' ? '#000000' : '#F9F9F9'" :font-size="16" class="robin-ml-12"> New Chat </Content>
     </header>
 
     <div class="robin-w-100 robin-pl-16 robin-pr-16">
@@ -22,15 +22,15 @@
       <div v-for="(contact, key, index) in contacts" :key="`contact-${index}`">
         <AlphabetBlock :text="key" v-show="key.toString() != '*'" />
 
-        <div class="robin-wrapper robin-card-container robin-flex robin-flex-column robin-grey-200">
+        <div class="robin-wrapper robin-card-container robin-flex robin-flex-column">
           <div class="robin-card robin-flex robin-flex-align-center robin-clickable" v-for="user in contact" :key="user.userToken" @click="createConversation(user)">
             <div class="robin-card-info robin-mr-12">
-              <Avatar :robin-users="$robin_users" :img-url="user.profileImage" :sender-token="user.userToken" />
+              <Avatar :img-url="user.profileImage" :sender-token="user.userToken" />
             </div>
 
             <div class="robin-card-info robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4˝ robin-flex-1">
               <div class="robin-flex">
-                <Content :font-size="14" :line-height="18">{{ user.userName }}</Content>
+                <Content :font-size="14" :color="currentTheme === 'light' ? '#000000' : '#F9F9F9'" :line-height="18">{{ user.userName }}</Content>
               </div>
             </div>
           </div>
@@ -43,6 +43,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import Component from 'vue-class-component'
+import store from '@/store/index'
 import Content from '../Content/Content.vue'
 import SearchBar from '../SearchBar/SearchBar.vue'
 import Button from '../Button/Button.vue'
@@ -89,6 +90,10 @@ export default class NewChatList extends ComponentProps {
 
   created () {
     this.getContacts('')
+  }
+
+  get currentTheme () {
+    return store.state.currentTheme
   }
 
   async createConversation (user: any) {
@@ -230,14 +235,16 @@ export default class NewChatList extends ComponentProps {
   position: absolute;
   top: 0;
   z-index: 0;
-  background-color: #fff;
+  background-color: inherit;
 }
 
 header {
   width: 100%;
   display: flex;
   align-items: center;
-  padding: clamp(10%, 4vh, 3.563rem) clamp(2%, 4vw, 1rem) 1.5rem;
+  padding: clamp(2%, 4vh, 1rem) clamp(2%, 4vw, 1rem) 1rem;
+  margin: 1.688rem 0 0.625rem;
+  background-color: var(--rb-color2);
 }
 
 .robin-contact-container {
@@ -245,23 +252,19 @@ header {
 }
 
 .robin-create-group {
-  border-bottom: 1px solid #EFEFEF;
+  border-bottom: 1px solid var(--rb-color5);
   max-height: 30px;
 }
-
-/* .robin-wrapper {
-  padding: 0 clamp(2%, 4vw, 1.5rem);
-} */
 
 .robin-card-container {
   width: 100%;
 }
 
 .robin-card-container .robin-card {
-  box-shadow: 0px 1px 0px 2.5px rgba(69, 104, 209, 0.05);
+  /* box-shadow: 0px 1px 0px 2.5px rgba(69, 104, 209, 0.05); */
   padding: 0.875rem 1rem 1rem;
   transition: all 0.15s;
-  background-color: #fff;
+  background-color: var(--rb-color2);
 }
 
 .robin-card-container .robin-card + .robin-card {
@@ -269,7 +272,7 @@ header {
 }
 
 .robin-alphabet-block + .robin-card-container .robin-card:hover {
-  background-color: #f5f7fc;
+  background-color: var(--rb-color4);
 }
 
 .robin-flex .robin-svg {

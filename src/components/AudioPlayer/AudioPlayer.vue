@@ -1,13 +1,23 @@
 <template>
   <div class="robin-ap robin-flex robin-flex-align-start">
-    <i class="robin-material-icon" role="button" v-if="!isPlaying" @click="playback()">play_arrow</i>
+    <i class="robin-material-icon" role="button" v-if="!isPlaying" @click="playback()"
+      >play_arrow</i
+    >
     <i class="robin-material-icon" role="button" v-else @click="playback()">pause</i>
     <div class="robin-ap-bar-wrapper robin-flex robin-flex-column robin-flex-space-between">
       <div ref="progress" class="robin-ap-bar" @mousedown="onMouseDown">
         <div class="robin-ap-progress">
           <div class="robin-ap-line-container">
-            <div class="robin-ap-line-progress" :style="{ width: `${percentage > 10 ? percentage - 7 : percentage}%` }" />
-            <div role="progress-dot" class="robin-ap-line-dot" :class="{ active: isMouseDown }" :style="{ left: `${percentage > 10 ? percentage - 7 : percentage}%` }" />
+            <div
+              class="robin-ap-line-progress"
+              :style="{ width: `${percentage > 10 ? percentage - 7 : percentage}%` }"
+            />
+            <div
+              role="progress-dot"
+              class="robin-ap-line-dot"
+              :class="{ active: isMouseDown }"
+              :style="{ left: `${percentage > 10 ? percentage - 7 : percentage}%` }"
+            />
           </div>
         </div>
       </div>
@@ -15,7 +25,17 @@
         {{ percentage > 1 ? playedTime : duration }}
       </span>
     </div>
-    <audio :data-testid="`audio-${index}`" :id="`audio-${index}`" :src="message.content.attachment">Your browser does not support the</audio>
+    <audio
+      :data-testid="`audio-${index}`"
+      :id="`audio-${index}`"
+      :src="
+        typeof message.content.attachment === 'string'
+          ? message.content.attachment
+          : pseudoAttachmentUrl
+      "
+    >
+      Your browser does not support the
+    </audio>
   </div>
 </template>
 
@@ -47,10 +67,19 @@ const ComponentProps = Vue.extend({
   watch: {
     currentAudioPlaying: {
       handler (playingIndex) {
+        console.log(playingIndex, this.index)
         if (playingIndex !== this.index) {
           this.isPlaying = false
         }
       }
+    },
+    message: {
+      handler (val) {
+        if (typeof val.content.attachment !== 'string') {
+          this.convertFileToURL(val.content.attachment)
+        }
+      },
+      deep: true
     }
   }
 })
@@ -63,6 +92,7 @@ export default class AudioPlayer extends ComponentProps {
   playedTime = this.convertTimeMMSS(0) as string
   player = null as any
   progressTime = '- : -' as string
+  pseudoAttachmentUrl = ''
 
   mounted () {
     this.player = document.getElementById(`audio-${this.index}`) as any
@@ -82,6 +112,10 @@ export default class AudioPlayer extends ComponentProps {
 
   get currentAudioPlaying () {
     return store.state.currentAudioPlaying
+  }
+
+  convertFileToURL (file: File): void {
+    this.pseudoAttachmentUrl = URL.createObjectURL(file)
   }
 
   convertTimeMMSS (seconds: number) {
@@ -200,13 +234,13 @@ i {
   position: relative;
   height: 2px;
   border-radius: 5px;
-  background-color: #cccccc;
+  background-color: var(--rb-color13);
 }
 
 .robin-ap-line-progress {
   position: absolute;
   height: inherit;
-  background-color: #9999bc;
+  background-color: rgb(153, 153, 189);
   border-radius: inherit;
 }
 
@@ -233,7 +267,7 @@ i {
 .robin-ap-time {
   user-select: none;
   font-size: 0.75rem;
-  color: #51545c;
+  color: #9999bc;
   position: absolute;
   top: 28px;
 }

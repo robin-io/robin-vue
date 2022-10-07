@@ -89,13 +89,13 @@ export default class GroupPrompt extends Vue {
 }
 
 .robin-card {
-  background-color: #fff;
+  background-color: var(--rb-bg-color);
   border-radius: 8px;
   width: 264px;
 }
 
 .robin-wrapper {
-  border-top: 1px solid #EFEFEF;
+  border-top: 1px solid var(--rb-color5);
   padding: 0.813rem 1rem;
   display: flex;
   align-items: center;
@@ -113,7 +113,7 @@ export default class GroupPrompt extends Vue {
 }
 
 .robin-wrapper:hover {
-  background-color: rgba(244, 246, 248, 0.8);
+  background-color: var(--rb-color6);
 }
 
 .robin-wrapper:first-child {

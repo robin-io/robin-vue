@@ -2,46 +2,158 @@
   <!-- eslint-disable vue/no-parsing-error -->
   <div class="robin-side-container" ref="popup-body">
     <header class="robin-header">
-      <IconButton name="remove" color="#000" @close="$emit('closemodal', 'primary')" emit="close" :to-emit="true" :to-click-away="false" data-testid="closemodal" />
+      <IconButton
+        name="remove"
+        color="#000"
+        @close="$emit('closemodal', 'primary')"
+        emit="close"
+        :to-emit="true"
+        :to-click-away="false"
+        data-testid="closemodal"
+      />
 
-      <Content fontWeight="400" :fontSize="16" class="robin-ml-12"> Archived Messages </Content>
+      <Content
+        fontWeight="400"
+        :color="currentTheme === 'light' ? '#000000' : '#F9F9F9'"
+        :fontSize="16"
+        class="robin-ml-12"
+      >
+        Archived Messages
+      </Content>
     </header>
 
-    <div class="robin-wrapper robin-card-container robin-flex robin-flex-column robin-mt-42" @scroll="onScroll()">
-      <div data-testid="card" class="robin-card robin-flex robin-flex-align-center" :class="{ 'robin-card-active': isConversationActive(conversation)  && screenWidth > 1200 }" v-for="(conversation, index) in conversations" :key="`conversation-${index}`" @click.self="openConversation(conversation)" v-show="conversations.length > 0">
-        <div class="robin-card-info robin-mr-12" @click="openConversation(conversation)">
-          <Avatar data-testid="regular-avatar" :robin-users="$robin_users" v-if="!conversation.is_group" :key="avatarKey" :img-url="getProfileImage(conversation)" :sender-token="conversation.sender_token === $user_token ? conversation.receiver_token : conversation.sender_token" />
+    <div
+      class="robin-wrapper robin-card-container robin-flex robin-flex-column robin-mt-42"
+      @scroll="onScroll()"
+    >
+      <RecycleScroller
+        :items="conversations"
+        :items-size="conversations.length"
+        :page-mode="true"
+        key-field="_id"
+        v-slot="{ item, index }"
+      >
+        <div
+          data-testid="card"
+          class="robin-card robin-flex robin-flex-align-center"
+          :class="{ 'robin-card-active': currentConversation._id == item._id && screenWidth > 1200 }"
+          :key="`item-${index}`"
+          @click.self="openConversation(item)"
+          v-show="conversations.length > 0"
+        >
+          <div class="robin-card-info robin-mr-12" @click="openConversation(item)">
+            <Avatar
+              data-testid="regular-avatar"
+              v-if="!item.is_group"
+              :key="avatarKey"
+              :img-url="getProfileImage(item)"
+              :sender-token="
+                item.sender_token === $user_token ? item.receiver_token : item.sender_token
+              "
+            />
 
-          <GroupAvatar data-testid="group-avatar" v-else :img-url="conversation.group_icon" />
-        </div>
-
-        <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-column robin-flex-space-between robin-pt-4 robin-pb-4˝ robin-flex-1">
-          <div class="robin-flex robin-flex-space-between" @click="openConversation(conversation)">
-            <Content fontWeight="normal" color="#000000" :fontSize="16" :lineHeight="20" v-if="!conversation.is_group"> {{ conversation.sender_token != $user_token ? conversation.sender_name : conversation.receiver_name }} </Content>
-
-            <Content font-weight="normal" color="#000000" :font-size="16" :line-height="20" v-else>
-              {{ conversation.name }}
-            </Content>
-
-            <Content as="p" fontWeight="normal" color="#51545C" :fontSize="14" :lineHeight="18"> {{ formatRecentMessageTime(conversation.last_message ? conversation.last_message.timestamp : conversation.updated_at) }} </Content>
+            <GroupAvatar data-testid="group-avatar" v-else :img-url="item.group_icon" />
           </div>
-          <div class="robin-flex robin-flex-space-between" @click.self="openConversation(conversation)">
-            <Content as="p" fontWeight="normal" color="#8D9091" :fontSize="14" :lineHeight="18" @click.native="openConversation(conversation)"> {{ conversation.last_message && conversation.last_message.msg.length < 20 ? conversation.last_message.msg : conversation.last_message ? conversation.last_message.msg.substring(0, 20) + ' ...' : '' }} </Content>
 
-            <div class="robin-mini-info-container robin-flex robin-flex-align-center">
-              <div class="robin-hidden robin-ml-10" data-testid="chat-handler" @click="handleOpenPopUp($event, conversation._id, `popup-container-${index}`, `popup-${index}`, index.toString())">
-                <IconButton name="openModalDot" @clickoutside="handleClosePopUp(conversation._id, `popup-${index}`)" :to-emit="false" :to-click-away="true" />
+          <div
+            class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-column robin-flex-space-between robin-pt-4 robin-pb-4˝ robin-flex-1"
+          >
+            <div class="robin-flex robin-flex-space-between" @click="openConversation(item)">
+              <Content
+                fontWeight="normal"
+                :color="currentTheme == 'light' ? '#000000' : '#F9F9F9'"
+                :fontSize="16"
+                :lineHeight="20"
+                v-if="!item.is_group"
+              >
+                {{ item.sender_token != $user_token ? item.sender_name : item.receiver_name }}
+              </Content>
+
+              <Content
+                font-weight="normal"
+                :color="currentTheme == 'light' ? '#000000' : '#F9F9F9'"
+                :font-size="16"
+                :line-height="20"
+                v-else
+              >
+                {{ item.name }}
+              </Content>
+
+              <Content
+                as="p"
+                fontWeight="normal"
+                :color="currentTheme == 'light' ? '#51545C' : '#B6B6B6'"
+                :fontSize="14"
+                :lineHeight="18"
+              >
+                {{
+                  formatRecentMessageTime(
+                    item.last_message ? item.last_message.timestamp : item.updated_at
+                  )
+                }}
+              </Content>
+            </div>
+            <div class="robin-flex robin-flex-space-between" @click.self="openConversation(item)">
+              <Content
+                as="p"
+                fontWeight="normal"
+                color="#8D9091"
+                :fontSize="14"
+                :lineHeight="18"
+                @click.native="openConversation(item)"
+              >
+                {{
+                  item.last_message && item.last_message.msg.length < 20
+                    ? item.last_message.msg
+                    : item.last_message
+                    ? item.last_message.msg.substring(0, 20) + ' ...'
+                    : ''
+                }}
+              </Content>
+
+              <div class="robin-mini-info-container robin-flex robin-flex-align-center">
+                <div
+                  class="robin-hidden robin-ml-10"
+                  data-testid="chat-handler"
+                  @click="
+                    handleOpenPopUp(
+                      $event,
+                      item._id,
+                      `popup-container-${index}`,
+                      `popup-${index}`,
+                      index.toString()
+                    )
+                  "
+                >
+                  <IconButton
+                    name="openModalDot"
+                    @clickoutside="handleClosePopUp(item._id, `popup-${index}`)"
+                    :to-emit="false"
+                    :to-click-away="true"
+                  />
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="robin-popup-container" data-testid="chat-popover" :ref="`popup-container-${index}`" v-show="popUpStates[index].opened">
-          <ArchiveChatListPopOver :ref="`popup-${index}`" @unarchive-chat="unArchiveChat(conversation._id)" />
+          <div
+            class="robin-popup-container"
+            data-testid="chat-popover"
+            :ref="`popup-container-${index}`"
+            v-show="popUpStates[index].opened"
+          >
+            <ArchiveChatListPopOver
+              :ref="`popup-${index}`"
+              @unarchive-chat="unArchiveChat(item._id)"
+            />
+          </div>
         </div>
-      </div>
+      </RecycleScroller>
 
-      <div v-show="conversations.length < 1" class="robin-flex robin-flex-justify-center robin-pt-15">
+      <div
+        v-show="conversations.length < 1"
+        class="robin-flex robin-flex-justify-center robin-pt-15"
+      >
         <Content :font-size="18" color="#15AE73">No archived chat</Content>
       </div>
     </div>
@@ -59,6 +171,7 @@ import IconButton from '../IconButton/IconButton.vue'
 import Avatar from '../Avatar/Avatar.vue'
 import GroupAvatar from '../GroupAvatar/GroupAvatar.vue'
 import ArchiveChatListPopOver from '../ArchiveChatListPopOver/ArchiveChatListPopOver.vue'
+import RecycleScroller from '../RecycleScroller/RecycleScroller.vue'
 
 const ComponentProps = Vue.extend({
   props: {
@@ -75,11 +188,10 @@ const ComponentProps = Vue.extend({
   components: {
     Content,
     IconButton,
-    // RCloseButton,
     Avatar,
     GroupAvatar,
-    // ROpenModalCaretButton,
-    ArchiveChatListPopOver
+    ArchiveChatListPopOver,
+    RecycleScroller
   },
   watch: {
     archivedConversations: {
@@ -99,7 +211,6 @@ const ComponentProps = Vue.extend({
           return 0
         })
         this.popUpStates = []
-
         ;[...val].forEach((val) => {
           this.popUpStates.push({
             opened: false,
@@ -119,7 +230,6 @@ const ComponentProps = Vue.extend({
 export default class ArchivedChatList extends ComponentProps {
   conversations: Array<any> = []
   popUpStates: Array<any> = []
-  activeConversation = {}
   scroll = false as boolean
   avatarKey: number = 0
   screenWidth = 0 as number
@@ -131,38 +241,49 @@ export default class ArchivedChatList extends ComponentProps {
     window.addEventListener('resize', this.onResize)
   }
 
-  openConversation (conversation: object): void {
-    if (!this.isConversationActive(conversation) && this.screenWidth > 1200) {
-      this.activeConversation = conversation
-      store.setState('imagePreviewOpen', false)
-      EventBus.$emit('conversation-opened', conversation)
-      EventBus.$emit('open-conversation')
-    }
+  get currentConversation () {
+    return store.state.currentConversation
+  }
 
-    if (this.screenWidth <= 1200) {
-      this.activeConversation = conversation
-      store.setState('imagePreviewOpen', false)
-      EventBus.$emit('conversation-opened', conversation)
+  get currentTheme () {
+    return store.state.currentTheme
+  }
+
+  openConversation (conversation: object): void {
+    store.setState('imagePreviewOpen', false)
+    store.setState('currentConversation', [])
+    store.setState('conversationOpen', false)
+    store.setState('currentConversation', conversation)
+
+    this.$nextTick(() => {
       EventBus.$emit('open-conversation')
-    }
+      EventBus.$emit('conversation-opened', conversation)
+    })
   }
 
   getProfileImage (conversation: any) {
-    const index = this.$robin_users.findIndex((user: any) => user.userToken === conversation.sender_token)
+    const index = this.$robin_users.findIndex(
+      (user: any) => user.userToken === conversation.sender_token
+    )
 
     return this.$robin_users[index] ? this.$robin_users[index].profileImage : ''
   }
 
-  isConversationActive (object: Object) {
-    return Object.is(this.activeConversation, object)
-  }
-
-  handleOpenPopUp (event: any, _id: string, refContainerKey: string, refKey: string, id: string): void {
+  handleOpenPopUp (
+    event: any,
+    _id: string,
+    refContainerKey: string,
+    refKey: string,
+    id: string
+  ): void {
     const popupContainer = this.$refs[refContainerKey] as any
     const popup = this.$refs[refKey] as any
-    popup[0].$refs['popup-body'].classList.remove('robin-zoomOut')
+    popup.$el.classList.remove('robin-zoomOut')
 
-    if ((!this.scroll && this.conversations.length - 2 !== parseInt(id)) || this.conversations.length - 1 !== parseInt(id)) {
+    if (
+      (!this.scroll && this.conversations.length - 2 !== parseInt(id)) ||
+      this.conversations.length - 1 !== parseInt(id)
+    ) {
       popupContainer[0].style.top = event.clientY - 12 + 'px'
 
       if (this.screenWidth > 1024) {
@@ -191,13 +312,13 @@ export default class ArchivedChatList extends ComponentProps {
 
   handleClosePopUp (_id: string, refKey: string): void {
     const popup = this.$refs[refKey] as any
-    popup[0].$refs['popup-body'].classList.add('robin-zoomOut')
+    popup.$el.classList.add('robin-zoomOut')
 
     window.setTimeout(() => {
       const index = this.popUpStates.findIndex((val) => val._id === _id)
       if (this.popUpStates[index].opened) {
         const popup = this.$refs[refKey] as any
-        popup[0].$refs['popup-body'].classList.remove('robin-zoomOut')
+        popup.$el.classList.remove('robin-zoomOut')
 
         this.popUpStates[index].opened = false
       }
@@ -261,19 +382,17 @@ export default class ArchivedChatList extends ComponentProps {
   position: absolute;
   top: 0;
   z-index: 3;
-  background-color: #fff;
+  background-color: inherit;
 }
 
 header {
   width: 100%;
   display: flex;
   align-items: center;
-  padding: clamp(10%, 4vh, 3.563rem) clamp(2%, 4vw, 1.5rem) 1.5rem;
+  padding: clamp(2%, 4vh, 1rem) clamp(2%, 4vw, 1rem) 1rem;
+  margin-top: 1.688rem;
+  background-color: var(--rb-color2);
 }
-
-/* .robin-wrapper {
-  padding: 0 clamp(2%, 4vw, 1.5rem);
-} */
 
 .robin-card-container {
   width: 100%;
@@ -283,10 +402,10 @@ header {
 }
 
 .robin-card-container .robin-card {
-  border-bottom: 3.5px solid #f5f7fc;
+  border-bottom: 3.5px solid var(--rb-color4);
   padding: 1rem 1rem 1.1rem;
   transition: all 0.15s;
-  /* position: relative; */
+  background-color: var(--rb-color2);
 }
 
 .robin-card-container .robin-card:nth-last-child(2) {
@@ -294,7 +413,7 @@ header {
 }
 
 .robin-card-active {
-  background-color: #efefef;
+  background-color: var(--rb-color5);
   cursor: default;
 }
 
@@ -304,7 +423,7 @@ header {
 }
 
 .robin-card:hover {
-  background-color: #f0f3f5;
+  background-color: var(--rb-color4);
   border-radius: 4px;
   cursor: pointer;
   /* padding: 1rem 0.75rem 1.1rem; */

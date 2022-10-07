@@ -29,7 +29,7 @@
                 <div class="robin-card-info robin-mr-12">
                   <GroupAvatar v-if="item.is_group" />
 
-                  <Avatar :robin-users="$robin_users" :sender-token="item.sender_token === $user_token ? item.receiver_token : item.sender_token" v-else />
+                  <Avatar :sender-token="item.sender_token === $user_token ? item.receiver_token : item.sender_token" v-else />
                 </div>
 
                 <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4 robin-flex-1">
@@ -331,7 +331,7 @@ header {
   height: 750px;
   max-height: 750px;
   border-radius: 10px;
-  background-color: #fff;
+  background-color: var(--rb-bg-color);
   box-shadow: 0px 0px 20px rgba(0, 104, 255, 0.06);
   padding: 1.063rem 1.625rem 0 1.563rem;
   position: relative;
@@ -346,7 +346,7 @@ header {
 }
 
 .robin-select {
-  border-bottom: 1px solid #efefef;
+  border-bottom: 1px solid var(--rb-color5);
 }
 
 .robin-conversation-container {
@@ -359,7 +359,7 @@ header {
   box-shadow: 0px 1px 0px 2.5px rgba(69, 104, 209, 0.05);
   padding: 0.875rem 1rem 1rem;
   transition: all 0.15s;
-  background-color: #fff;
+  background-color: var(--rb-bg-color);
 }
 
 .robin-card-container .robin-card + .robin-card {

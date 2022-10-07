@@ -7,7 +7,7 @@
 
     <div class="robin-wrapper robin-fadeIn" v-if="!isProfileLoading">
       <div class="robin-profile">
-        <Avatar :robin-users="$robin_users" :img-url="getProfileImage(currentConversation) || currentConversation.display_photo" v-if="!currentConversation.is_group" :sender-token="currentConversation.sender_token === $user_token ? currentConversation.receiver_token : currentConversation.sender_token" class="robin-mb-8" />
+        <Avatar :img-url="getProfileImage(currentConversation) || currentConversation.display_photo" v-if="!currentConversation.is_group" :sender-token="currentConversation.sender_token === $user_token ? currentConversation.receiver_token : currentConversation.sender_token" class="robin-mb-8" />
         <GroupAvatar v-else class="robin-mb-8" :img-url="currentConversation.group_icon" />
 
         <Content fontWeight="500" as="h3" class="robin-mb-8">{{ !currentConversation.is_group ? currentConversation.sender_token != $user_token ? currentConversation.sender_name : currentConversation.receiver_name : currentConversation.name }}</Content>
@@ -29,11 +29,11 @@
 
       <!-- Media -->
       <div v-show="nav === 'Media'" class="robin-media-grids">
-        <div class="robin-media-grid" v-for="(media, mediaIndex) in media.slice(0, mediaStop)" :key="mediaIndex">
-          <v-lazy-image v-if="imageRegex.test(checkAttachmentType(media.content.attachment))" class="robin-uploaded-image" :src="media.content.attachment" @click.native="openImagePreview([media])" />
+        <div class="robin-media-grid" v-for="(message, messageIndex) in media.slice(0, mediaStop)" :key="messageIndex">
+          <v-lazy-image v-if="imageRegex.test(checkAttachmentType(message.content.attachment))" class="robin-uploaded-image" :src="message.content.attachment" @click.native="openImagePreview([message])" />
 
-          <video v-if="videoRegex.test(checkAttachmentType(media.content.attachment))" controls>
-            <source :src="media.content.attachment" />
+          <video v-if="videoRegex.test(checkAttachmentType(message.content.attachment))" controls>
+            <source :src="message.content.attachment" />
             Your browser does not support the video tag.
           </video>
         </div>
@@ -52,16 +52,16 @@
       <!-- Documents -->
 
       <div v-show="nav === 'Docs'" class="robin-document-grids">
-        <div class="robin-uploaded-documents" v-for="(document, documentIndex) in documents" :key="documentIndex">
-          <img v-if="assets[getFileDetails(document.content.attachment).extension]" :src="assets[getFileDetails(document.content.attachment).extension]" alt="document" />
+        <div class="robin-uploaded-documents" v-for="(message, messageIndex) in documents" :key="messageIndex">
+          <img v-if="assets[getFileDetails(message.content.attachment).extension]" :src="assets[getFileDetails(message.content.attachment).extension]" alt="document" />
 
           <img v-else :src="assets['default']" />
 
           <div class="detail robin-flex robin-h-100 robin-flex-align-center">
-            <Content as="span" :fontSize="14"> {{ getFileDetails(document.content.attachment).name && getFileDetails(document.content.attachment).name.length > 9 ? getFileDetails(document.content.attachment).name.substring(0, 9) + '...' + '.' + getFileDetails(document.content.attachment).extension : getFileDetails(document.content.attachment).name + '.' + getFileDetails(document.content.attachment).extension }} </Content>
+            <Content as="span" :fontSize="14"> {{ getFileDetails(message.content.attachment).name && getFileDetails(message.content.attachment).name.length > 9 ? getFileDetails(message.content.attachment).name.substring(0, 9) + '...' + '.' + getFileDetails(message.content.attachment).extension : getFileDetails(message.content.attachment).name + '.' + getFileDetails(message.content.attachment).extension }} </Content>
           </div>
 
-          <IconButton name="download" class="robin-ml-auto" color="#15AE73" @clicked="downloadFile(document.content.attachment)" :to-emit="true" :to-click-away="false" />
+          <IconButton name="download" class="robin-ml-auto" color="#15AE73" @clicked="downloadFile(message.content.attachment)" :to-emit="true" :to-click-away="false" />
         </div>
       </div>
 
@@ -74,14 +74,14 @@
       <Content :font-size="12" color="#15AE73" class="robin-mt-8 robin-mb-11 robin-ml-auto robin-mr-auto" v-show="nav === 'Docs' && documents.length == 0">No Docs</Content>
 
       <div class="robin-wrapper robin-mb-12">
-        <Button color="#51545C" class="robin-tab" :emit="'clicked'" @clicked="showEncriptionDetails()">
+        <Button :color="currentTheme === 'light' ? '#51545C' : '#B6B6B6'" class="robin-tab" :emit="'clicked'" @clicked="showEncriptionDetails()">
           <SvgIcon name="encryption" class="robin-mr-8" />
           Encryption Details
         </Button>
       </div>
 
       <div class="robin-group-container" v-show="currentConversation.is_group">
-        <Button color="#000" class="robin-tab" :emit="'clicked'" @clicked="addGroupParticipant()">
+        <Button class="robin-tab" :color="currentTheme === 'light' ? '#15AE73' : '#F9F9F9'" :emit="'clicked'" @clicked="addGroupParticipant()">
           <SvgIcon name="addParticipant" class="robin-mr-8" />
           Add Group Participant
         </Button>
@@ -89,7 +89,7 @@
         <div class="robin-card-container" v-if="!isSignedInUserModerator">
           <div class="robin-card robin-flex robin-flex-align-center" v-for="(participant, participantIndex) in groupParticipants.slice(0, participantsToShow)" :key="participantIndex">
             <div class="robin-card-info robin-mr-12">
-              <Avatar :robin-users="$robin_users" :sender-token="participant.user_token" />
+              <Avatar :sender-token="participant.user_token" />
             </div>
 
             <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4 robin-flex-1">
@@ -105,7 +105,7 @@
         <div class="robin-card-container" v-else>
           <div class="robin-card robin-flex robin-flex-align-center" v-for="(participant, participantIndex) in groupParticipants.slice(0, participantsToShow)" :key="participantIndex" @click.self="openGroupPrompt(participant.user_token, participant.is_moderator)" :class="{ 'robin-clickable': currentConversation.is_group && participant.user_token !== $user_token }">
             <div class="robin-card-info robin-mr-12" @click="openGroupPrompt(participant.user_token, participant.is_moderator)">
-              <Avatar :robin-users="$robin_users" :sender-token=" participant.user_token == $user_token ? '' : participant.user_token" />
+              <Avatar :sender-token=" participant.user_token == $user_token ? '' : participant.user_token" />
             </div>
 
             <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4 robin-flex-1" @click.self="openGroupPrompt(participant.user_token, participant.is_moderator)">
@@ -206,6 +206,10 @@ export default class ViewProfile extends Vue {
   documentRegex = /(xls|doc|ppt|txt|pdf|csv|ppt|zip|html|avi|psd|svg|ai|gif|ai|mkv)$/
   emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   websiteRegex = /[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/
+
+  get currentTheme () {
+    return store.state.currentTheme
+  }
 
   get currentConversation () {
     return store.state.currentConversation
@@ -420,8 +424,8 @@ export default class ViewProfile extends Vue {
 .robin-modal-container {
   width: 385px;
   height: 100%;
-  background-color: #fff;
-  border: 1px solid #efefef;
+  background-color: inherit;
+  border: 1px solid var(--rb-color6);
   overflow-y: auto;
   position: relative;
   z-index: -1;
@@ -433,7 +437,7 @@ export default class ViewProfile extends Vue {
   display: flex;
   align-items: center;
   padding: 0 clamp(2%, 4vw, 1.25rem);
-  border-bottom: 1px solid #f5f7fc;
+  border-bottom: 1px solid var(--rb-color6);
 }
 
 .robin-wrapper {
@@ -466,7 +470,7 @@ export default class ViewProfile extends Vue {
 }
 
 .robin-upload {
-  border: 1px solid #ecebeb;
+  border: 1px solid var(--rb-color5);
   border-radius: 12px;
   padding: 0.5rem;
   margin-bottom: 1.813rem;
@@ -496,7 +500,7 @@ export default class ViewProfile extends Vue {
   display: flex;
   align-items: center;
   width: 90%;
-  background-color: #efefef;
+  background-color: var(--rb-color5);
   border-radius: 8.91px;
   margin: 0 auto 0.438rem;
 }
@@ -506,7 +510,7 @@ export default class ViewProfile extends Vue {
   align-items: center;
   justify-content: center;
   width: 50%;
-  color: #8d9091;
+  color: var(--rb-color3);
   letter-spacing: -0.08px;
   font-size: 0.813rem;
   border-right: 1px solid rgba(84, 84, 88, 0.65);
@@ -544,12 +548,12 @@ export default class ViewProfile extends Vue {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  background-color: #fbfbfb;
+  background-color: var(--rb-color12);
   padding-left: 1rem;
 }
 
 .robin-actions >>> .robin-button:not(:last-child) {
-  border-bottom: 1px solid #f5f7fc;
+  border-bottom: 1px solid var(--rb-color13);
 }
 
 .robin-tab.robin-button {
@@ -557,7 +561,7 @@ export default class ViewProfile extends Vue {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  background-color: #fbfbfb;
+  background-color: var(--rb-color12);
   padding-left: 1rem;
   width: 100%;
 }
@@ -567,7 +571,7 @@ export default class ViewProfile extends Vue {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #fbfbfb;
+  background-color: var(--rb-colo5);
 }
 
 .robin-card-container {
@@ -577,10 +581,10 @@ export default class ViewProfile extends Vue {
 }
 
 .robin-card-container .robin-card {
-  box-shadow: 0px 1px 0px 2.5px rgba(69, 104, 209, 0.05);
+  /* box-shadow: 0px 1px 0px 2.5px rgba(69, 104, 209, 0.05); */
   padding: 0.875rem 1rem 1rem;
   transition: all 0.15s;
-  background-color: #fff;
+  background-color: var(--rb-bg-color);
 }
 
 .robin-card-container .robin-card:not(:first-child) {
@@ -647,8 +651,8 @@ export default class ViewProfile extends Vue {
 .robin-uploaded-documents {
   display: flex;
   align-items: center;
-  background-color: #f5f7fc;
-  border: 1px solid #ecebeb;
+  background-color: var(--rb-color13);
+  border: 1px solid var(--rb-color5); /* #ecebeb; */
   border-radius: 4px;
   padding: 0.5rem 0.938rem 0.5rem 0.5rem;
 }
@@ -662,7 +666,8 @@ export default class ViewProfile extends Vue {
 } */
 
 .robin-moderator-text {
-  background-color: #eeeeee;
+  background-color: var(--rb-color15);
+  color: var(--rb-color7);
   padding: 0.2rem 0.2rem;
   margin-left: auto;
   font-size: 0.625rem;

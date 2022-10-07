@@ -1,24 +1,69 @@
 <template>
   <div class="robin-chat-list-container">
-    <PrimaryChatList v-show="$conversations.length > 0 || isPageLoading" :key="key" @search="searchedData($event)" :regular-conversations="regularConversations" :archived-conversations="archivedConversations" @opennewchatmodal="openModal('slide-1', $event)" @openarchivedchatmodal="openModal('slide-3', $event)" @closemodal="closeModal('slide-1', $event)" @refresh="refresh">
+    <PrimaryChatList
+      v-show="$conversations.length > 0 || isPageLoading"
+      :key="key"
+      @search="searchedData($event)"
+      :regular-conversations="regularConversations"
+      :archived-conversations="archivedConversations"
+      @opennewchatmodal="openModal('slide-1', $event)"
+      @openarchivedchatmodal="openModal('slide-3', $event)"
+      @closemodal="closeModal('slide-1', $event)"
+      @refresh="refresh"
+    >
       <template #chat-list-header>
         <slot name="chat-list-header"></slot>
       </template>
     </PrimaryChatList>
 
-    <NewChatList :key="key + 1" ref="slide-1" v-show="sideBarType == 'newchat'" :robin-users="$robin_users" @openmodal="openModal('slide-2', $event)" @closemodal="closeModal('slide-1', $event)" />
+    <NewChatList
+      :key="key + 1"
+      ref="slide-1"
+      v-show="sideBarType == 'newchat'"
+      @openmodal="openModal('slide-2', $event)"
+      @closemodal="closeModal('slide-1', $event)"
+    />
 
-    <NoChatList v-show="$conversations.length < 1 && !isPageLoading" @opennewchatmodal="openModal('slide-1', $event)">
+    <NoChatList
+      v-show="$conversations.length < 1 && !isPageLoading"
+      @opennewchatmodal="openModal('slide-1', $event)"
+    >
       <template #chat-list-header>
         <slot name="chat-list-header"></slot>
       </template>
     </NoChatList>
 
-    <NewGroupChat :key="key + 2" ref="slide-2" v-show="sideBarType == 'newgroup'" @openmodal="openModal('slide-3', $event)" @set-groupname="setGroupName($event)" @set-groupicon="setGroupIcon($event)" @closemodal="closeModal('slide-2', $event)" :group-name="groupName" />
+    <NewGroupChat
+      :key="key + 2"
+      ref="slide-2"
+      v-show="sideBarType == 'newgroup'"
+      @openmodal="openModal('slide-3', $event)"
+      @set-groupname="setGroupName($event)"
+      @set-groupicon="setGroupIcon($event)"
+      @closemodal="closeModal('slide-2', $event)"
+      :group-name="groupName"
+    />
 
-    <NewGroupChatList :key="key + 3" ref="slide-3" v-show="sideBarType == 'newgroupchat'" :robin-users="$robin_users" :group-name="groupName" :group-icon="groupIcon" @openmodal="openModal('slide-0', $event)" @closemodal="closeModal('slide-3', $event)" @reset-groupname="resetGroupName()" @reset-groupicon="resetGroupIcon()" />
+    <NewGroupChatList
+      :key="key + 3"
+      ref="slide-3"
+      v-show="sideBarType == 'newgroupchat'"
+      :group-name="groupName"
+      :group-icon="groupIcon"
+      @openmodal="openModal('slide-0', $event)"
+      @closemodal="closeModal('slide-3', $event)"
+      @reset-groupname="resetGroupName()"
+      @reset-groupicon="resetGroupIcon()"
+    />
 
-    <ArchivedChatList ref="slide-4" v-show="sideBarType == 'archivedchat'" @closemodal="closeModal('slide-4', $event)" :archived-conversations="archivedConversations" :key="key + 4" @refresh="refresh" />
+    <ArchivedChatList
+      ref="slide-4"
+      v-show="sideBarType == 'archivedchat'"
+      @closemodal="closeModal('slide-4', $event)"
+      :archived-conversations="archivedConversations"
+      :key="key + 4"
+      @refresh="refresh"
+    />
   </div>
 </template>
 
@@ -76,8 +121,6 @@ export default class SideContainer extends Vue {
     this.handleMarkAsRead()
     this.handleMarkAsUnread()
     this.showNewGroupModal()
-    // this.onAddGroupParticipants()
-    // this.handleRemoveGroupParticipant()
     this.handleMessageForward()
   }
 
@@ -154,7 +197,10 @@ export default class SideContainer extends Vue {
 
   onNewConversationCreated () {
     EventBus.$on('new.conversation', (conversation: any) => {
-      if (conversation.sender_token === this.$user_token || conversation.receiver_token === this.$user_token) {
+      if (
+        conversation.sender_token === this.$user_token ||
+        conversation.receiver_token === this.$user_token
+      ) {
         EventBus.$emit('regular-conversation.add', conversation)
       }
     })
@@ -245,7 +291,11 @@ export default class SideContainer extends Vue {
   addUnreadMessagesToConversation (conversations: any): Array<any> {
     const data = conversations.map((conversation: any) => {
       for (const key in conversation.unread_messages) {
-        conversation.unread_messages = conversation.unread_messages[key].unread_count
+        if (key === this.$user_token) {
+          conversation.unread_messages = conversation.unread_messages[key].unread_count
+        } else {
+          conversation.unread_messages = 0
+        }
       }
 
       return conversation
@@ -274,7 +324,9 @@ export default class SideContainer extends Vue {
     EventBus.$on('mark-as-read', (conversation: any) => {
       if (conversation) {
         if (!conversation.archived_for || conversation.archived_for.length === 0) {
-          const index = this.$regularConversations.findIndex((item) => item._id === conversation._id)
+          const index = this.$regularConversations.findIndex(
+            (item) => item._id === conversation._id
+          )
 
           if (this.regularConversations[index]) {
             this.regularConversations[index].unread_messages = 0
@@ -289,7 +341,9 @@ export default class SideContainer extends Vue {
     EventBus.$on('mark-as-unread', (conversation: any) => {
       if (conversation) {
         if (!conversation.archived_for || conversation.archived_for.length === 0) {
-          const index = this.$regularConversations.findIndex((item) => item._id === conversation._id)
+          const index = this.$regularConversations.findIndex(
+            (item) => item._id === conversation._id
+          )
 
           if (this.regularConversations[index]) {
             this.$regularConversations[index].unread_messages += 1
@@ -301,7 +355,9 @@ export default class SideContainer extends Vue {
     EventBus.$on('mark-as-unread.modified', (conversation: any) => {
       if (conversation) {
         if (!conversation.archived_for || conversation.archived_for.length === 0) {
-          const index = this.$regularConversations.findIndex((item) => item._id === conversation._id)
+          const index = this.$regularConversations.findIndex(
+            (item) => item._id === conversation._id
+          )
 
           if (this.regularConversations[index]) {
             this.regularConversations[index].unread_messages = 'marked'
@@ -351,8 +407,9 @@ export default class SideContainer extends Vue {
   flex-basis: 30%;
   max-width: 450px;
   height: 100%;
-  border-right: 1px solid #efefef;
+  border-right: 1px solid var(--rb-color6);
   overflow-y: hidden;
+  background-color: inherit;
 }
 
 @media (min-width: 1200px) {

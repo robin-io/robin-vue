@@ -1,9 +1,9 @@
 <template>
   <div class="robin-side-container" ref="popup-body">
-    <header class="robin-header robin-mb-33">
+    <header class="robin-header">
       <IconButton name="remove" emit="close" :to-emit="true" :to-click-away="false" @close="openPreviousModal()" />
 
-      <Content font-weight="400" :font-size="16" class="robin-ml-12">New Group Chat</Content>
+      <Content font-weight="400" :color="currentTheme === 'light' ? '#000000' : '#F9F9F9'" :font-size="16" class="robin-ml-12">New Group Chat</Content>
 
       <div class="robin-ml-auto">
         <Button emit="done" @done="openGroupChatList()" v-show="name.length > 0" class="robin-pulse-2">Done</Button>
@@ -13,16 +13,16 @@
     <Content as="label" for-ref="group-icon-upload" class="robin-clickable">
       <div class="robin-group-image robin-mb-7" v-show="!icon.name">
         <input type="file" :style="{ display: 'none' }" :accept="acceptedVisualFiles" @change="handleFileChange($event.target.files)" @click="resetFileTarget($event)" id="group-icon-upload" data-testid="group-icon-upload" />
-        <Content color="#fff" :fontSize="24">RG</Content>
+        <Content :color="currentTheme === 'light' ? '#fff' : '#1E1E1E'"  :fontSize="24">RG</Content>
       </div>
 
       <img class="robin-group-image robin-mb-7" :src="icon.localUrl" :alt="icon.name" v-show="icon.name" data-testid="image">
 
-      <Content fontWeight="400" :fontSize="14" class="robin-mb-32">Tap To Add Group Image</Content>
+      <Content fontWeight="400" :color="currentTheme === 'light' ? '#000000' : '#F9F9F9'" :fontSize="14" class="robin-mb-32">Tap To Add Group Image</Content>
     </Content>
 
     <div class="robin-wrapper robin-w-100">
-      <Content fontWeight="400" :fontSize="14" class="robin-mb-8">Group Name</Content>
+      <Content fontWeight="400" :color="currentTheme === 'light' ? '#000000' : '#F9F9F9'" :fontSize="14" class="robin-mb-8">Group Name</Content>
 
       <Input @user-typing="userTyping" :text="groupName" :reset="resetInput" placeholder="Robin Group" />
     </div>
@@ -32,6 +32,7 @@
 <script lang="ts">
 import Vue, { PropType } from 'vue'
 import Component from 'vue-class-component'
+import store from '@/store/index'
 import IconButton from '../IconButton/IconButton.vue'
 import Content from '../Content/Content.vue'
 import Input from '../Input/Input.vue'
@@ -62,6 +63,10 @@ export default class NewGroupChatList extends ComponentProps {
   icon = {} as any
   resetInput = false
   acceptedVisualFiles = 'image/png, image/jpg, image/jpeg' as string
+
+  get currentTheme () {
+    return store.state.currentTheme
+  }
 
   userTyping (val: string): void {
     this.name = val
@@ -135,14 +140,16 @@ export default class NewGroupChatList extends ComponentProps {
   position: absolute;
   top: 0;
   z-index: 2;
-  background-color: #fff;
+  background-color: inherit;
 }
 
 header {
   width: 100%;
   display: flex;
   align-items: center;
-  padding: clamp(10%, 4vh, 3.563rem) clamp(2%, 4vw, 1.5rem) 1.5rem;
+  padding: clamp(2%, 4vh, 1rem) clamp(2%, 4vw, 1rem) 1rem;
+  margin: 1.688rem 0 3.313rem;
+  background-color: var(--rb-color2);
 }
 
 .robin-side-container >>> label {
@@ -156,7 +163,7 @@ header {
 }
 
 div.robin-group-image {
-  background-color: #9999bc;
+  background-color: var(--rb-color8);
   width: 80px;
   height: 80px;
   border-radius: 50%;
@@ -169,37 +176,12 @@ img.robin-group-image {
   min-height: 80px;
   max-height: 80px;
   border-radius: 50%;
-  background-color: #9999bc;
+  background-color: var(--rb-color8);
   object-fit: cover;
 }
 
 .robin-wrapper {
   padding: 0 clamp(2%, 4vw, 1.5rem);
-}
-
-.robin-card-container {
-  width: 100%;
-}
-
-.robin-contact-container:nth-child(3) {
-  margin-top: 2.375rem;
-}
-
-.robin-card-container .robin-card {
-  border-bottom: 1px solid #f4f6f8;
-  padding: 1rem 0 1.1rem;
-  transition: all 0.15s;
-}
-
-.robin-card-container:last-child .robin-card {
-  border-bottom: none;
-}
-
-.robin-alphabet-block {
-  width: 100%;
-  padding: 0 1.5rem;
-  height: 28px;
-  background-color: #f3f3f3;
 }
 
 @media (min-width: 768px) {
