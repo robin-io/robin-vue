@@ -151,7 +151,7 @@ const ComponentProps = Vue.extend({
     },
     conversationOpen: {
       handler () {
-        console.log(this.conversationOpen)
+        // console.log(this.conversationOpen)
       }
     }
   }

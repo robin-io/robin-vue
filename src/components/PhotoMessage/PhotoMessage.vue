@@ -148,7 +148,6 @@ import store from '@/store/index'
 import Component from 'vue-class-component'
 import moment from 'moment'
 import VLazyImage from 'v-lazy-image/v2'
-import { mixin as clickaway } from 'vue-clickaway'
 import { EmailRegex, WebsiteRegex } from '@/utils/constants'
 import IconButton from '@/components/IconButton/IconButton.vue'
 import CheckBox from '@/components/CheckBox/CheckBox.vue'
@@ -182,7 +181,6 @@ const ComponentProps = Vue.extend({
 // eslint-disable-next-line
 @Component<PhotoMessage>({
   name: 'PhotoMessage',
-  mixins: [clickaway],
   components: {
     Content,
     SvgIcon,

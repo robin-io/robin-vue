@@ -153,7 +153,6 @@
 import Vue, { PropType } from 'vue'
 import store from '@/store/index'
 import Component from 'vue-class-component'
-import { mixin as clickaway } from 'vue-clickaway'
 import { EmailRegex, WebsiteRegex } from '@/utils/constants'
 import moment from 'moment'
 import IconButton from '@/components/IconButton/IconButton.vue'
@@ -188,7 +187,6 @@ const ComponentProps = Vue.extend({
 // eslint-disable-next-line
 @Component<VideoMessage>({
   name: 'Message',
-  mixins: [clickaway],
   components: {
     Content,
     SvgIcon,

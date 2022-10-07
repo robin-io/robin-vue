@@ -1,5 +1,5 @@
 <template>
-  <div class="robin-message-box" v-on-clickaway="handleEmojiClosePopUp">
+  <div class="robin-message-box" v-clickaway="handleEmojiClosePopUp">
     <div
       class="robin-emoji-container robin-squeezeOut"
       v-show="popUpState.emojiOpened"
@@ -250,7 +250,6 @@
 <script lang="ts">
 import Vue from 'vue'
 import { VEmojiPicker } from 'v-emoji-picker'
-import { mixin as clickaway } from 'vue-clickaway'
 import mime from 'mime'
 import AudioRecorder from 'audio-recorder-polyfill'
 import mpegEncoder from 'audio-recorder-polyfill/mpeg-encoder'
@@ -288,7 +287,6 @@ const ComponentProps = Vue.extend({
 // eslint-disable-next-line
 @Component<MessageInputBar>({
   name: 'MessageInputBar',
-  mixins: [clickaway],
   components: {
     IconButton,
     AttachFilePopOver,

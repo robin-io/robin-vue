@@ -5,7 +5,7 @@
     :class="focusType"
     v-if="toEmit && toClickAway"
     @click="$emit(emit)"
-    v-on-clickaway="emitClickAway"
+    v-clickaway="emitClickAway"
     :style="iconItem.buttonStyle"
     v-html="iconItem.innerHTML"
     @focus="focused = true"
@@ -43,7 +43,7 @@
     class="robin-button"
     :class="focusType"
     v-else
-    v-on-clickaway="emitClickAway"
+    v-clickaway="emitClickAway"
     :style="iconItem.buttonStyle"
     v-html="iconItem.innerHTML"
     @focus="focused = true"
@@ -55,7 +55,6 @@
 
 <script lang="ts">
 import Vue, { PropType } from 'vue'
-import { mixin as clickaway } from 'vue-clickaway'
 import store from '@/store/index'
 import Component from 'vue-class-component'
 
@@ -111,7 +110,6 @@ const ComponentProps = Vue.extend({
 // eslint-disable-next-line
 @Component<IconButton>({
   name: 'IconButton',
-  mixins: [clickaway],
   watch: {
     name () {
       this.setIcon()

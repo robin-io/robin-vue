@@ -9,7 +9,7 @@
     <div class="robin-message-bubble robin-flex robin-flex-align-center">
       <CheckBox ref="checkbox" v-show="selectMessagesOpen" @clicked="toggleCheckAction($event)" />
 
-      <div class="robin-bubble" @mouseover="onMouseOver()" @mouseleave="onMouseLeave()" :class="validateMessages(message).includes('message-sender') ? 'robin-ml-5' : 'robin-mr-5'" v-if="!Array.isArray(message)" v-on-clickaway="closeModal" data-testid="bubble">
+      <div class="robin-bubble" @mouseover="onMouseOver()" @mouseleave="onMouseLeave()" :class="validateMessages(message).includes('message-sender') ? 'robin-ml-5' : 'robin-mr-5'" v-if="!Array.isArray(message)" v-clickaway="closeModal" data-testid="bubble">
         <div class="robin-popup-container reactions">
           <ReactionPopOver v-show="messagePopup.opened && validateMessages(message) && isMessageReactionViewEnabled" @close-modal="closeModal()" ref="popup-1" :id="message._id" :message="message" @reaction="addReaction" data-testid="reaction-popover" />
         </div>
@@ -208,7 +208,7 @@
         <div class="robin-reaction" :class="{ 'delete-enabled': isMessageReactionDeleteEnabled }" v-for="(value, key, index) in reactions" :key="index" @click="removeReaction(value[value.length - 1])" v-show="value.length > 0">{{ key + ' ' + value.length }}</div>
       </div>
 
-      <MessageGrid ref="popup-2" :class="!validateMessages(message) ? 'robin-ml-5' : 'robin-mr-5'" v-if="Array.isArray(message) && message.filter((image) => !image.is_deleted).length > 1" :message="message.filter((image) => !image.is_deleted)" :read-receipts="readReceipts" :conversation="conversation" :message-popup="messagePopup" @open-preview="openPreview($event)" @open-modal="openModal()" @close-modal="closeModal()" @add-reaction="addReaction" v-on-clickaway="closeModal" :groupname-colors="groupnameColors" />
+      <MessageGrid ref="popup-2" :class="!validateMessages(message) ? 'robin-ml-5' : 'robin-mr-5'" v-if="Array.isArray(message) && message.filter((image) => !image.is_deleted).length > 1" :message="message.filter((image) => !image.is_deleted)" :read-receipts="readReceipts" :conversation="conversation" :message-popup="messagePopup" @open-preview="openPreview($event)" @open-modal="openModal()" @close-modal="closeModal()" @add-reaction="addReaction" v-clickaway="closeModal" :groupname-colors="groupnameColors" />
 
       <div class="robin-popup-container message" :class="{ top: (lastId === message._id || messages.length - 3 === index) && scroll }">
         <MessagePopOver v-show="messagePopup.opened && !Array.isArray(message) && (isReplyMessagesEnabled || isDeleteMessagesEnabled || isForwardMessagesEnabled || (isReplyMessagesEnabled && isDeleteMessagesEnabled && isForwardMessagesEnabled))" @close-modal="closeModal()" @select-message="selectMessage()" @forward-message="$emit('forward-message')" @reply-message="$emit('reply-message', message)" ref="popup-3" :id="message._id" :message="message" data-testid="message-popover" />
@@ -224,7 +224,6 @@
 <script lang="ts">
 import Vue, { PropType } from 'vue'
 import VLazyImage from 'v-lazy-image/v2'
-import { mixin as clickaway } from 'vue-clickaway'
 import store from '@/store/index'
 import Component from 'vue-class-component'
 import EventBus from '@/event-bus'
@@ -312,7 +311,6 @@ const ComponentProps = Vue.extend({
     SvgIcon,
     AudioPlayer
   },
-  mixins: [clickaway],
   watch: {
     uncheck: {
       handler (val) {

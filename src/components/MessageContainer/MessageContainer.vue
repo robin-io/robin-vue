@@ -1,5 +1,5 @@
 <template>
-  <div class="robin-message-container" v-on-clickaway="onChatClickAway">
+  <div class="robin-message-container" v-clickaway="onChatClickAway">
     <chat-header
       :key="key"
       :selected-messages="selectedMessages"
@@ -196,9 +196,7 @@
       @closemodal="closePrompt()"
     />
     <message-pop-over
-      :message="
-        !offlineMessagesExist ? {} : offlineMessages.messages[currentConversation._id][messageIndex]
-      "
+      :message="!offlineMessagesExist ? {} : offlineMessages.messages[currentConversation._id][messageIndex] || {}"
       @forward-message="$emit('forward-message')"
       @reply-message="replyMessage"
       data-testid="message-popover"
@@ -210,7 +208,6 @@
 import Vue from 'vue'
 import EventBus from '@/event-bus'
 import Component from 'vue-class-component'
-import { mixin as clickaway } from 'vue-clickaway'
 import {
   DocumentRegex,
   EmailRegex,
@@ -257,7 +254,6 @@ import MessagePopOver from '../MessagePopOver/MessagePopOver.vue'
     Prompt,
     MessagePopOver
   },
-  mixins: [clickaway],
   watch: {
     messages: {
       handler (val: any): void {
@@ -407,6 +403,7 @@ export default class MessageContainer extends Vue {
 
   get offlineMessagesExist () {
     const offlineMessages = this.offlineMessages.messages[this.currentConversation._id]
+    console.log('conversation', offlineMessages)
     return !!offlineMessages
   }
 
@@ -456,6 +453,7 @@ export default class MessageContainer extends Vue {
 
   handleConversationOpen (): void {
     EventBus.$on('conversation-opened', (conversation: any) => {
+      this.closeModal(this.messageIndex)
       this.getOfflineMessages()
 
       this.messageReply = {}
@@ -539,8 +537,6 @@ export default class MessageContainer extends Vue {
     } else {
       popupEl.style.top = `${messageBubbleEl.getBoundingClientRect().top + 20}px`
     }
-
-    console.log(isMessageReceiver)
 
     if (isMessageReceiver) {
       popupEl.style.right = '0'
