@@ -195,11 +195,19 @@
       v-show="promptOpen"
       @closemodal="closePrompt()"
     />
-    <message-pop-over
-      :message="!offlineMessagesExist ? {} : offlineMessages.messages[currentConversation._id][messageIndex] || {}"
+    <reaction-pop-up
+      @reaction="addReaction"
+      data-testid="reaction-popup"
+    />
+    <message-pop-up
+      :message="
+        !offlineMessagesExist
+          ? {}
+          : offlineMessages.messages[currentConversation._id][messageIndex] || {}
+      "
       @forward-message="$emit('forward-message')"
       @reply-message="replyMessage"
-      data-testid="message-popover"
+      data-testid="message-popup"
     />
   </div>
 </template>
@@ -233,7 +241,8 @@ import MessageContent from '../MessageContent/MessageContent.vue'
 import ForwardMessage from '../ForwardMessage/ForwardMessage.vue'
 import ForwardTab from '../ForwardTab/ForwardTab.vue'
 import Prompt from '../Prompt/Prompt.vue'
-import MessagePopOver from '../MessagePopOver/MessagePopOver.vue'
+import MessagePopUp from '../MessagePopUp/MessagePopUp.vue'
+import ReactionPopUp from '../ReactionPopUp/ReactionPopUp.vue'
 
 // eslint-disable-next-line
 @Component<MessageContainer>({
@@ -252,7 +261,8 @@ import MessagePopOver from '../MessagePopOver/MessagePopOver.vue'
     VideoMessage,
     Button,
     Prompt,
-    MessagePopOver
+    MessagePopUp,
+    ReactionPopUp
   },
   watch: {
     messages: {
@@ -391,6 +401,10 @@ export default class MessageContainer extends Vue {
     window.addEventListener('resize', this.onResize)
   }
 
+  get isMessageReactionViewEnabled () {
+    return store.state.messageReactionViewEnabled
+  }
+
   get groupnameColors () {
     const userColors = {} as ObjectType
 
@@ -514,15 +528,17 @@ export default class MessageContainer extends Vue {
 
   openModal (index: number) {
     this.messageIndex = index
-    const messageEl = this.$refs.message as HTMLElement
     const messageBubbleEl = document.getElementById(
       `message-bubble-${this.messageIndex}`
     ) as HTMLElement
-    const popupEl = document.getElementById('message-popup') as HTMLElement
+    const messagePopUpEl = document.getElementById('message-pop-up') as HTMLElement
+    const reactionPopUpEl = document.getElementById('reaction-pop-up') as HTMLElement
     const lastThreeInArray =
       index >= this.offlineMessages.messages[this.currentConversation._id].length - 3
     let isMessageReceiver = false
-    const offlineMessage = this.offlineMessages.messages[this.currentConversation._id][this.messageIndex]
+    const offlineMessage = this.offlineMessages.messages[this.currentConversation._id][
+      this.messageIndex
+    ]
 
     if (Array.isArray(offlineMessage)) {
       isMessageReceiver = this.isReceiver(offlineMessage)
@@ -530,45 +546,49 @@ export default class MessageContainer extends Vue {
       isMessageReceiver = offlineMessage.sender_token === this.$user_token
     }
 
-    if (popupEl.style.display === 'block') popupEl.style.display = 'none'
+    if (messagePopUpEl.style.display === 'block') messagePopUpEl.style.display = 'none'
+    if (reactionPopUpEl.style.display === 'block') reactionPopUpEl.style.display = 'none'
 
     if (lastThreeInArray) {
-      popupEl.style.top = `${messageBubbleEl.getBoundingClientRect().top - 90}px`
+      messagePopUpEl.style.top = `${messageBubbleEl.getBoundingClientRect().top - 90}px`
+      reactionPopUpEl.style.top = `${messageBubbleEl.getBoundingClientRect().top - 143}px`
     } else {
-      popupEl.style.top = `${messageBubbleEl.getBoundingClientRect().top + 20}px`
+      messagePopUpEl.style.top = `${messageBubbleEl.getBoundingClientRect().top + 20}px`
+      reactionPopUpEl.style.top = `${messageBubbleEl.getBoundingClientRect().top - 55}px`
     }
 
     if (isMessageReceiver) {
-      popupEl.style.right = '0'
-      popupEl.style.left = `${
-        ((messageEl.getBoundingClientRect().width + messageBubbleEl.getBoundingClientRect().width) /
-          window.innerWidth) *
-          100 -
-        3
-      }%`
+      messagePopUpEl.style.left = 'initial'
+      messagePopUpEl.style.right = '3.688rem'
+      reactionPopUpEl.style.left = 'initial'
+      reactionPopUpEl.style.right = '3.688rem'
     } else {
-      popupEl.style.left = '0'
-      popupEl.style.right = `${
-        ((messageEl.getBoundingClientRect().width + messageBubbleEl.getBoundingClientRect().width) /
-          window.innerWidth) *
-          100 -
-        3
-      }%`
+      messagePopUpEl.style.left = 'initial'
+      messagePopUpEl.style.right = `${messageBubbleEl.getBoundingClientRect().x}px`
+      reactionPopUpEl.style.left = 'initial'
+      reactionPopUpEl.style.right = `${messageBubbleEl.getBoundingClientRect().x}px`
     }
-    popupEl.style.display = 'block'
+    messagePopUpEl.style.display = 'block'
+    reactionPopUpEl.style.display = 'block'
   }
 
   closeModal (index: number) {
-    const popup = document.getElementById('message-popup') as HTMLElement
+    const popUp1 = document.getElementById('message-pop-up') as HTMLElement
+    const popUp2 = document.getElementById('reaction-pop-up') as HTMLElement
 
     if (this.messageIndex === index) {
-      popup.classList.remove('robin-zoomIn')
-      popup.classList.add('robin-zoomOut')
+      popUp1.classList.remove('robin-zoomIn')
+      popUp2.classList.remove('robin-zoomIn')
+      popUp1.classList.add('robin-zoomOut')
+      popUp2.classList.add('robin-zoomOut')
 
       window.setTimeout(() => {
-        popup.style.display = 'none'
-        popup.classList.add('robin-zoomIn')
-        popup.classList.remove('robin-zoomOut')
+        popUp1.style.display = 'none'
+        popUp2.style.display = 'none'
+        popUp1.classList.add('robin-zoomIn')
+        popUp2.classList.add('robin-zoomIn')
+        popUp1.classList.remove('robin-zoomOut')
+        popUp2.classList.remove('robin-zoomOut')
       }, 300)
     }
   }
@@ -1459,6 +1479,18 @@ export default class MessageContainer extends Vue {
     if (today === formattedValue) return 'Today'
 
     return moment(value).format('MMM DD YYYY')
+  }
+
+  async addReaction (emoji: string): Promise<void> {
+    const robin = this.$robin as any
+    const offlineMessage = this.offlineMessages.messages[this.currentConversation._id][
+      this.messageIndex
+    ]
+    const message = Array.isArray(offlineMessage)
+      ? offlineMessage[0]
+      : (offlineMessage as ObjectType)
+
+    await robin.reactToMessage(emoji, this.currentConversation._id, message._id, this.$user_token)
   }
 }
 </script>

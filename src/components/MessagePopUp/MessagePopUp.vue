@@ -1,5 +1,5 @@
 <template>
-  <div class="robin-message-popup robin-zoomIn" id="message-popup">
+  <div class="robin-message-popup robin-zoomIn" id="message-pop-up">
     <div
       class="robin-wrapper robin-w-100"
       @click="$emit('reply-message')"
@@ -105,13 +105,13 @@ const ComponentProps = Vue.extend({
 })
 
 @Component({
-  name: 'MessagePopOver',
+  name: 'MessagePopUp',
   components: {
     Content,
     SvgIcon
   }
 })
-export default class MessagePopOver extends ComponentProps {
+export default class MessagePopUp extends ComponentProps {
   get currentTheme () {
     return store.state.currentTheme
   }

@@ -1,5 +1,5 @@
 import { render, fireEvent } from '@testing-library/vue'
-import MessagePopOver from '../MessagePopOver.vue'
+import MessagePopOver from '../MessagePopUp.vue'
 
 describe('MessagePopOver component', () => {
   test('should emit event', async () => {

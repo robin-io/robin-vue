@@ -1,7 +1,7 @@
 <template>
   <div class="robin-bubble" :class="!validateMessageClass() ? 'robin-grid-sender' : 'robin-grid-receiver'" @click.self="$emit('open-modal')" data-testid="bubble">
     <div class="robin-popup-container reactions" ref="popup-body">
-      <ReactionPopOver v-show="messagePopup.opened && isMessageReactionViewEnabled" @close-modal="closeModal()" :id="message[0]._id" :message="message[0]" @reaction="$emit('add-reaction', $event)"/>
+      <ReactionPopUp v-show="messagePopup.opened && isMessageReactionViewEnabled" @close-modal="closeModal()" :id="message[0]._id" :message="message[0]" @reaction="$emit('add-reaction', $event)"/>
     </div>
 
     <Content v-if="!validateMessageClass() && conversation.is_group" :font-size="12" as="span" :color="groupnameColors[message[0].sender_token]" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getContactName(message[0].sender_token) }} </Content>
@@ -33,7 +33,7 @@ import Vue, { PropType } from 'vue'
 import VLazyImage from 'v-lazy-image/v2'
 import Component from 'vue-class-component'
 import store from '@/store/index'
-import ReactionPopOver from '../ReactionPopOver/ReactionPopOver.vue'
+import ReactionPopUp from '../ReactionPopUp/ReactionPopUp.vue'
 import Content from '@/components/Content/Content.vue'
 import IconButton from '@/components/IconButton/IconButton.vue'
 import SvgIcon from '@/components/SvgIcon/SvgIcon.vue'
@@ -74,7 +74,7 @@ const ComponentProps = Vue.extend({
   components: {
     Content,
     VLazyImage,
-    ReactionPopOver,
+    ReactionPopUp,
     SvgIcon,
     IconButton
   },

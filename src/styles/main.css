@@ -5,4 +5,5 @@
 @import url('../components/DocumentMessage/DocumentMessage.css');
 @import url('../components/PhotoMessage/PhotoMessage.css');
 @import url('../components/VideoMessage/VideoMessage.css');
-@import url('../components/MessagePopOver/MessagePopOver.css');
+@import url('../components/MessagePopUp/MessagePopUp.css');
+@import url('../components/ReactionPopUp/ReactionPopUp.css');

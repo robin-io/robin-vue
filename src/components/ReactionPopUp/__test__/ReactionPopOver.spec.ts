@@ -1,5 +1,5 @@
 import { render, fireEvent } from '@testing-library/vue'
-import ReactionPopOver from '../ReactionPopOver.vue'
+import ReactionPopOver from '../ReactionPopUp.vue'
 
 describe('ReactionPopOver component', () => {
   test('should emit reactions', async () => {

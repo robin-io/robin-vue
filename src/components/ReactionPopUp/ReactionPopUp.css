@@ -1,0 +1,43 @@
+.robin-reaction-popup {
+  display: none;
+  position: absolute;
+  z-index: 100;
+  width: 200px;
+  max-width: 220px;
+  padding: 0.349rem 0.925rem 0.349rem 0.649rem;
+  border-radius: 24px;
+  background-color: var(--rb-color14);
+}
+
+.robin-reaction-popup::before {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  right: 100px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--rb-color14);
+}
+
+.robin-reaction-popup::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 85px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--rb-color14);
+}
+
+.robin-reaction-popup .robin-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.2rem 0 0;
+}
+
+.robin-reaction-popup .robin-wrapper >>> .robin-button:hover {
+  transform: scale(1.2);
+}

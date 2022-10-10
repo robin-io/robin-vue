@@ -385,10 +385,9 @@ export default class Message extends ComponentProps {
 
   async removeReaction (reaction: any): Promise<void> {
     const robin = this.$robin as any
-    const message = Array.isArray(this.message) ? this.message[0] : (this.message as any)
 
     if (this.isMessageReactionDeleteEnabled) {
-      await robin.RemoveReaction(reaction._id, message._id)
+      await robin.RemoveReaction(reaction._id, this.message._id)
     }
   }
 

@@ -11,7 +11,7 @@
 
       <div class="robin-bubble" @mouseover="onMouseOver()" @mouseleave="onMouseLeave()" :class="validateMessages(message).includes('message-sender') ? 'robin-ml-5' : 'robin-mr-5'" v-if="!Array.isArray(message)" v-clickaway="closeModal" data-testid="bubble">
         <div class="robin-popup-container reactions">
-          <ReactionPopOver v-show="messagePopup.opened && validateMessages(message) && isMessageReactionViewEnabled" @close-modal="closeModal()" ref="popup-1" :id="message._id" :message="message" @reaction="addReaction" data-testid="reaction-popover" />
+          <ReactionPopUp v-show="messagePopup.opened && validateMessages(message) && isMessageReactionViewEnabled" @close-modal="closeModal()" ref="popup-1" :id="message._id" :message="message" @reaction="addReaction" data-testid="reaction-popover" />
         </div>
 
         <div class="robin-reactions" v-if="message && message.reactions && message.reactions.length > 0 && isMessageReactionViewEnabled">
@@ -211,7 +211,7 @@
       <MessageGrid ref="popup-2" :class="!validateMessages(message) ? 'robin-ml-5' : 'robin-mr-5'" v-if="Array.isArray(message) && message.filter((image) => !image.is_deleted).length > 1" :message="message.filter((image) => !image.is_deleted)" :read-receipts="readReceipts" :conversation="conversation" :message-popup="messagePopup" @open-preview="openPreview($event)" @open-modal="openModal()" @close-modal="closeModal()" @add-reaction="addReaction" v-clickaway="closeModal" :groupname-colors="groupnameColors" />
 
       <div class="robin-popup-container message" :class="{ top: (lastId === message._id || messages.length - 3 === index) && scroll }">
-        <MessagePopOver v-show="messagePopup.opened && !Array.isArray(message) && (isReplyMessagesEnabled || isDeleteMessagesEnabled || isForwardMessagesEnabled || (isReplyMessagesEnabled && isDeleteMessagesEnabled && isForwardMessagesEnabled))" @close-modal="closeModal()" @select-message="selectMessage()" @forward-message="$emit('forward-message')" @reply-message="$emit('reply-message', message)" ref="popup-3" :id="message._id" :message="message" data-testid="message-popover" />
+        <MessagePopUp v-show="messagePopup.opened && !Array.isArray(message) && (isReplyMessagesEnabled || isDeleteMessagesEnabled || isForwardMessagesEnabled || (isReplyMessagesEnabled && isDeleteMessagesEnabled && isForwardMessagesEnabled))" @close-modal="closeModal()" @select-message="selectMessage()" @forward-message="$emit('forward-message')" @reply-message="$emit('reply-message', message)" ref="popup-3" :id="message._id" :message="message" data-testid="message-popover" />
       </div>
     </div>
 
@@ -231,8 +231,8 @@ import ReplyMessageBubble from '../ReplyMessageBubble/ReplyMessageBubble.vue'
 import IconButton from '@/components/IconButton/IconButton.vue'
 import Content from '@/components/Content/Content.vue'
 import MessageGrid from '../MessageGrid/MessageGrid.vue'
-import MessagePopOver from '../MessagePopOver/MessagePopOver.vue'
-import ReactionPopOver from '../ReactionPopOver/ReactionPopOver.vue'
+import MessagePopUp from '../MessagePopUp/MessagePopUp.vue'
+import ReactionPopUp from '../ReactionPopUp/ReactionPopUp.vue'
 import CheckBox from '@/components/CheckBox/CheckBox.vue'
 import AudioPlayer from '@/components/AudioPlayer/AudioPlayer.vue'
 import SvgIcon from '@/components/SvgIcon/SvgIcon.vue'
@@ -303,8 +303,8 @@ const ComponentProps = Vue.extend({
     Content,
     VLazyImage,
     MessageGrid,
-    MessagePopOver,
-    ReactionPopOver,
+    MessagePopUp,
+    ReactionPopUp,
     CheckBox,
     IconButton,
     ReplyMessageBubble,
