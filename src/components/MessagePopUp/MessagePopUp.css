@@ -21,6 +21,11 @@
 
 .robin-message-popup .robin-wrapper:first-child {
   border: none;
+  border-radius: 5px 5px 0 0;
+}
+
+.robin-message-popup .robin-wrapper:last-child {
+  border-radius: 0 0 5px 5px;
 }
 
 .robin-message-popup .robin-wrapper:hover {

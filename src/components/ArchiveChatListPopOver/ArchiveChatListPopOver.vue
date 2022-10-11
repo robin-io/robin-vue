@@ -1,7 +1,13 @@
 <template>
   <div class="robin-popup robin-zoomIn" ref="popup-body">
-    <div data-testid="unarchive-chat" class="robin-wrapper robin-w-100" @click="$emit('unarchive-chat')">
-      <Content :font-size="14" :color="currentTheme === 'light' ? '#101010' : '#F9F9F9'">Unarchive Chat</Content>
+    <div
+      data-testid="unarchive-chat"
+      class="robin-wrapper robin-w-100"
+      @click="$emit('unarchive-chat')"
+    >
+      <Content :font-size="14" :color="currentTheme === 'light' ? '#101010' : '#F9F9F9'"
+        >Unarchive Chat</Content
+      >
       <SvgIcon name="mailbox" :color="currentTheme === 'light' ? '#51545C' : '#F9F9F9'" />
     </div>
   </div>
@@ -15,13 +21,13 @@ import SvgIcon from '@/components/SvgIcon/SvgIcon.vue'
 import Content from '../Content/Content.vue'
 
 @Component({
-  name: 'ArchivedChatListPopOver',
+  name: 'ArchivedChatListPopUp',
   components: {
     Content,
     SvgIcon
   }
 })
-export default class ArchivedChatListPopOver extends Vue {
+export default class ArchivedChatListPopUp extends Vue {
   get currentTheme () {
     return store.state.currentTheme
   }

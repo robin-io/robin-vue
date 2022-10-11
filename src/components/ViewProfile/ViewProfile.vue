@@ -581,7 +581,6 @@ export default class ViewProfile extends Vue {
 }
 
 .robin-card-container .robin-card {
-  /* box-shadow: 0px 1px 0px 2.5px rgba(69, 104, 209, 0.05); */
   padding: 0.875rem 1rem 1rem;
   transition: all 0.15s;
   background-color: var(--rb-bg-color);

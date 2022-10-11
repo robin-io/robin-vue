@@ -160,7 +160,6 @@ export default class App extends ComponentProps {
   robin = null as Robin | null
   conn = null as any
   key = 0 as number
-  screenWidth = 0 as number
   messageEvent = null as any
   time = 0 as number
   notification = null as HTMLElement | null
@@ -251,6 +250,10 @@ export default class App extends ComponentProps {
     }
 
     return false
+  }
+
+  get screenWidth () {
+    return store.state.screenWidth
   }
 
   get conversationOpen () {
@@ -470,7 +473,7 @@ export default class App extends ComponentProps {
   }
 
   onResize () {
-    this.screenWidth = window.innerWidth
+    store.setState('screenWidth', window.innerWidth)
   }
 
   openProfile () {

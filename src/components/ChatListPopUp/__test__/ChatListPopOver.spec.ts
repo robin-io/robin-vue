@@ -1,10 +1,10 @@
 import { render } from '@testing-library/vue'
-import ChatListPopOver from '../ChatListPopOver.vue'
+import ChatListPopUp from '../ChatListPopUp.vue'
 import { conversation } from '@/data'
 
-describe('ChatListPopOver component', () => {
+describe('ChatListPopUp component', () => {
   test('should render marked conversation', () => {
-    const { getByText } = render(ChatListPopOver, {
+    const { getByText } = render(ChatListPopUp, {
       props: {
         conversation
       }
@@ -14,7 +14,7 @@ describe('ChatListPopOver component', () => {
   })
 
   test('should render unmarked conversation', () => {
-    const { queryByText } = render(ChatListPopOver, {
+    const { queryByText } = render(ChatListPopUp, {
       props: {
         conversation
       }

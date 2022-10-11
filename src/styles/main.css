@@ -7,3 +7,10 @@
 @import url('../components/VideoMessage/VideoMessage.css');
 @import url('../components/MessagePopUp/MessagePopUp.css');
 @import url('../components/ReactionPopUp/ReactionPopUp.css');
+@import url('../components/SideContainer/SideContainer.css');
+@import url('../components/PrimaryChatList/PrimaryChatList.css');
+@import url('../components/NewGroupChatList/NewGroupChatList.css');
+@import url('../components/ArchivedChatList/ArchivedChatList.css');
+@import url('../components/ForwardMessage/ForwardMessage.css');
+@import url('../components/CheckBox/CheckBox.css');
+@import url('../components/ChatListPopUp/ChatListPopUp.css');

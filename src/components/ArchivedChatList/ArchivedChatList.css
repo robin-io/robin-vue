@@ -1,0 +1,93 @@
+.robin-archived-chat-list-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  box-shadow: 0px 2px 20px rgba(0, 104, 255, 0.06);
+  position: absolute;
+  top: 0;
+  z-index: 3;
+  background-color: inherit;
+}
+
+.robin-archived-chat-list-container header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: clamp(2%, 4vh, 1rem) clamp(2%, 4vw, 1rem) 1rem;
+  margin-top: 1.688rem;
+  background-color: var(--rb-color2);
+}
+
+.robin-archived-chat-list-container .robin-card-container {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  padding-bottom: 1rem;
+}
+
+.robin-archived-chat-list-container .robin-card-container .robin-card {
+  border-bottom: 3.5px solid var(--rb-color4);
+  padding: 1rem 1rem 1.1rem;
+  transition: all 0.15s;
+  background-color: var(--rb-color2);
+}
+
+.robin-archived-chat-list-container .robin-card-container .robin-card:nth-last-child(2) {
+  border-bottom: none;
+}
+
+.robin-archived-chat-list-container .robin-card-active {
+  background-color: var(--rb-color5);
+  cursor: default;
+}
+
+.robin-archived-chat-list-container .robin-card-active:hover {
+  cursor: default;
+  border-radius: 4px;
+}
+
+.robin-archived-chat-list-container .robin-card:hover {
+  background-color: var(--rb-color4);
+  border-radius: 4px;
+  cursor: pointer;
+  /* padding: 1rem 0.75rem 1.1rem; */
+}
+
+.robin-archived-chat-list-container .robin-card:hover .robin-hidden {
+  display: block;
+  animation: slideInRight 300ms;
+}
+
+.robin-archived-chat-list-container .robin-popup-container {
+  position: fixed;
+  z-index: 100;
+}
+
+.robin-archived-chat-list-container .robin-mini-info-container {
+  height: 20px;
+}
+
+@media (max-width: 1200px) {
+  .robin-archived-chat-list-container .robin-card-container {
+    box-shadow: 0px 2px 20px rgba(0, 104, 255, 0.06);
+  }
+
+  .robin-archived-chat-list-container .robin-hidden {
+    display: block;
+  }
+
+  .robin-archived-chat-list-container .robin-hidden .robin-button {
+    width: 20px;
+    text-align: right;
+  }
+
+  .robin-archived-chat-list-container .robin-card:not(.robin-card-active):hover {
+    background-color: initial;
+  }
+
+  .robin-archived-chat-list-container .robin-card:hover .robin-hidden {
+    animation: none;
+  }
+}

@@ -234,16 +234,6 @@ export default class SideContainer extends Vue {
     })
   }
 
-  // handleRemoveGroupParticipant () {
-  //   EventBus.$on('participant.left.group', (user: any) => {
-  //     const index = this.$regularConversations.findIndex((item) => item._id === user.conversation_id)
-  //     const participantIndex = this.$regularConversations[index].participants.findIndex((participant: any) => participant.user_token === user.user_token)
-
-  //     this.$regularConversations[index].participants.splice(participantIndex, 1)
-  //     this.regularConversations[index].participants.splice(participantIndex, 1)
-  //   })
-  // }
-
   handleAddArchivedConversation () {
     EventBus.$on('archived-conversation.add', (conversation: any) => {
       this.archivedConversations.unshift(conversation)
@@ -400,28 +390,3 @@ export default class SideContainer extends Vue {
   }
 }
 </script>
-
-<style scoped>
-.robin-chat-list-container {
-  position: relative;
-  flex-basis: 30%;
-  max-width: 450px;
-  height: 100%;
-  border-right: 1px solid var(--rb-color6);
-  overflow-y: hidden;
-  background-color: inherit;
-}
-
-@media (min-width: 1200px) {
-  .robin-chat-list-container {
-    overflow-y: auto;
-  }
-}
-
-@media (max-width: 1200px) {
-  .robin-chat-list-container {
-    flex-basis: 100%;
-    max-width: initial;
-  }
-}
-</style>

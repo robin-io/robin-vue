@@ -1,5 +1,5 @@
 <template>
-  <div class="robin-message-popup robin-zoomIn" id="message-pop-up">
+  <div class="robin-message-popup robin-zoomIn" id="message-popup">
     <div
       class="robin-wrapper robin-w-100"
       @click="$emit('reply-message')"

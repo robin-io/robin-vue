@@ -1,46 +1,91 @@
 <template>
-  <div class="robin-side-container" ref="popup-body">
+  <div class="robin-new-groupchat-list-container" ref="popup-body">
     <header class="robin-header">
-      <IconButton name="remove" @close="openPreviousModal()" emit="close" :to-emit="true" :to-click-away="false" />
+      <icon-button
+        name="remove"
+        @close="openPreviousModal()"
+        emit="close"
+        :to-emit="true"
+        :to-click-away="false"
+      />
 
-      <Content font-weight="400" :color="currentTheme === 'light' ? '#000000' : '#F9F9F9'" :font-size="16" class="robin-ml-12">{{ !updatingParticipants ? 'New Group Chat' : 'Add Group Participants' }}</Content>
+      <content
+        font-weight="400"
+        :color="currentTheme === 'light' ? '#000000' : '#F9F9F9'"
+        :font-size="16"
+        class="robin-ml-12"
+        >{{ !updatingParticipants ? 'New Group Chat' : 'Add Group Participants' }}</content
+      >
 
       <div class="robin-ml-auto">
-        <Button emit="done" @done="!updatingParticipants ? createGroupConversation() : addGroupParticipants()" v-show="users.length > 0 && !isUploading" class="robin-pulse-2">Done</Button>
+        <custom-button
+          emit="done"
+          @done="!updatingParticipants ? createGroupConversation() : addGroupParticipants()"
+          v-show="users.length > 0 && !isUploading"
+          class="robin-pulse-2"
+          >Done</custom-button
+        >
         <div class="robin-spinner" v-show="isUploading"></div>
       </div>
     </header>
 
     <div class="robin-w-100 robin-pl-16 robin-pr-16">
-      <SearchBar @user-typing="searchContacts($event)" :loading="isLoading" placeholder="Search" />
+      <search-bar @user-typing="searchContacts($event)" :loading="isLoading" placeholder="Search" />
     </div>
 
-    <div class="robin-select robin-flex robin-flex-align-center robin-flex-justify-end robin-w-100 robin-pl-16 robin-pr-16 robin-pt-24 robin-pb-23">
-      <Content :color="currentTheme === 'light' ? '#9999BC' : '#B6B6B6'"> Select All </Content>
-      <CheckBox class="robin-ml-8" @clicked="toggleSelectAllCheckAction($event)" data-testid="select-all-button" />
+    <div
+      class="robin-select robin-flex robin-flex-align-center robin-flex-justify-end robin-w-100 robin-pl-16 robin-pr-16 robin-pt-24 robin-pb-23"
+    >
+      <content :color="currentTheme === 'light' ? '#9999BC' : '#B6B6B6'"> Select All </content>
+      <check-box
+        class="robin-ml-8"
+        @clicked="toggleSelectAllCheckAction($event)"
+        data-testid="select-all-button"
+      />
     </div>
 
     <div class="robin-contact-container robin-overflow-y-auto">
       <div v-for="(contact, key, index) in contacts" :key="`contact-${index}`">
         <div class="robin-w-100" v-show="key.toString() != '*'">
-          <AlphabetBlock :text="key" />
+          <alphabet-block :text="key" />
         </div>
 
         <div class="robin-card-container robin-flex robin-flex-column">
-          <div class="robin-card robin-flex robin-flex-align-center" v-for="(user, userIndex) in contact" :key="user.userToken">
+          <!-- <div
+            class="robin-card robin-flex robin-flex-align-center"
+            v-for="(user, userIndex) in contact"
+            :key="user.userToken"
+          >
             <div class="robin-card-info robin-mr-12">
               <Avatar :img-url="user.profileImage" :sender-token="user.userToken" />
             </div>
 
-            <div class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4˝ robin-flex-1">
+            <div
+              class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4˝ robin-flex-1"
+            >
               <div class="robin-flex">
-                <Content :font-size="14" :line-height="18" data-testid="content">{{ user.userName }}</Content>
+                <Content :font-size="14" :line-height="18" data-testid="content">{{
+                  user.userName
+                }}</Content>
               </div>
               <div class="robin-ml-auto">
-                <CheckBox :key="addIndexToCheckBoxState(userIndex, checkBoxKeyState)" @clicked="toggleCheckAction($event, user)" ref="checkbox-comp" data-testid="checkbox" />
+                <CheckBox
+                  :key="addIndexToCheckBoxState(userIndex, checkBoxKeyState)"
+                  @clicked="toggleCheckAction($event, user)"
+                  ref="checkbox-comp"
+                  data-testid="checkbox"
+                />
               </div>
             </div>
-          </div>
+          </div> -->
+          <chat-list-card
+            v-for="(user, userIndex) in contact"
+            :key="user.userToken"
+            :index="userIndex"
+            :item="user"
+            :type="3"
+            @toggle-check-action="toggleCheckAction"
+          />
         </div>
       </div>
     </div>
@@ -58,6 +103,7 @@ import Button from '../Button/Button.vue'
 import Avatar from '../Avatar/Avatar.vue'
 import CheckBox from '../CheckBox/CheckBox.vue'
 import AlphabetBlock from '../AlphabetBlock/AlphabetBlock.vue'
+import ChatListCard from '../ChatListCard/ChatListCard.vue'
 import EventBus from '@/event-bus'
 
 const ComponentProps = Vue.extend({
@@ -83,11 +129,12 @@ const ComponentProps = Vue.extend({
   components: {
     Content,
     SearchBar,
-    Button,
+    'custom-button': Button,
     Avatar,
     IconButton,
     CheckBox,
-    AlphabetBlock
+    AlphabetBlock,
+    ChatListCard
   },
   watch: {
     robinUsers: {
@@ -101,7 +148,7 @@ export default class NewGroupChatList extends ComponentProps {
   modalOpen = false as boolean
   contacts = {} as any
   checkBoxKeyState = 0 as number
-  users = [] as Array<any>
+  users = [] as Array<ObjectType>
   isLoading = false as boolean
   isUploading = false as boolean
   searchData = [] as Array<any>
@@ -135,7 +182,13 @@ export default class NewGroupChatList extends ComponentProps {
 
     if (searchText.trim() === '') {
       this.robinUsers.forEach((user: any) => {
-        this.contacts[this.getContactKey(user.userName)] = this.robinUsers.filter((item: any) => item.userToken !== this.$user_token && this.validateContact(item.userName, user.userName))
+        const data = this.robinUsers.filter(
+          (item: any) =>
+            item.userToken !== this.$user_token &&
+            this.validateContact(item.userName, user.userName)
+        )
+
+        this.$set(this.contacts, this.contacts[this.getContactKey(user.userName)], data)
       })
 
       for (const key in this.contacts) {
@@ -147,7 +200,13 @@ export default class NewGroupChatList extends ComponentProps {
       this.sortContacts()
     } else {
       this.searchData.forEach((user: any) => {
-        this.contacts[this.getContactKey(user.userName)] = this.searchData.filter((item: any) => item.userToken !== this.$user_token && this.validateContact(item.userName, user.userName))
+        const data = this.searchData.filter(
+          (item: any) =>
+            item.userToken !== this.$user_token &&
+            this.validateContact(item.userName, user.userName)
+        )
+
+        this.$set(this.contacts, this.contacts[this.getContactKey(user.userName)], data)
       })
     }
   }
@@ -164,7 +223,7 @@ export default class NewGroupChatList extends ComponentProps {
     const checkboxComponents = this.$refs['checkbox-comp'] as any
 
     if (!val) {
-      this.users = [...this.robinUsers]
+      this.users = [...this.robinUsers] as Array<ObjectType>
 
       for (let i = 0; i < checkboxComponents.length; i += 1) {
         checkboxComponents[i].checked = true
@@ -349,91 +408,6 @@ export default class NewGroupChatList extends ComponentProps {
       this.toggleSelectAllCheckAction(true)
     }
     this.updatingParticipants = false
-    setTimeout(() => {
-      this.refresh()
-    }, 300)
-  }
-
-  refresh (): void {
-    this.key += 1
   }
 }
 </script>
-
-<style scoped>
-.robin-side-container {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  box-shadow: 0px 2px 20px rgba(0, 104, 255, 0.06);
-  position: absolute;
-  top: 0;
-  z-index: 2;
-  background-color: inherit;
-}
-
-header {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  padding: clamp(2%, 4vh, 1rem) clamp(2%, 4vw, 1rem) 1rem;
-  margin: 1.688rem 0 0.625rem;
-  background-color: var(--rb-color2);
-}
-
-.robin-contact-container {
-  width: 100%;
-}
-
-.robin-select {
-  border-bottom: 1px solid var(--rb-color5);
-}
-
-.robin-card-container {
-  width: 100%;
-}
-
-.robin-contact-container:nth-child(3) {
-  margin-top: 2.375rem;
-}
-
-.robin-card-container .robin-card {
-  /* box-shadow: 0px 1px 0px 2.5px rgba(69, 104, 209, 0.05); */
-  padding: 0.875rem 1rem 1rem;
-  transition: all 0.15s;
-  background-color: var(--rb-color2);
-}
-
-.robin-card-container .robin-card + .robin-card {
-  margin-top: 0.25rem;
-}
-
-.robin-spinner {
-  width: 19px;
-  height: 19px;
-}
-
-@media (min-width: 768px) {
-  ::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
-  }
-
-  ::-webkit-scrollbar-track {
-    /* border: 1px solid #00000017; */
-    border-radius: 24px;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    width: 2px;
-    background-color: #d6d6d6;
-    border-radius: 24px;
-    -webkit-border-radius: 24px;
-    -moz-border-radius: 24px;
-    -ms-border-radius: 24px;
-    -o-border-radius: 24px;
-  }
-}
-</style>

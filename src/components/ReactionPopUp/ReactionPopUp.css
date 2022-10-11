@@ -38,6 +38,16 @@
   padding: 0.2rem 0 0;
 }
 
-.robin-reaction-popup .robin-wrapper >>> .robin-button:hover {
+.robin-reaction-popup .robin-wrapper .robin-button:hover {
   transform: scale(1.2);
+}
+
+.robin-reaction-popup.receiver::before {
+  bottom: -3px;
+  left: 100px;
+}
+
+.robin-reaction-popup.receiver::after {
+  bottom: -8px;
+  left: 109px;
 }

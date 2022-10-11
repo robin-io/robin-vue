@@ -66,7 +66,10 @@
                   )}.`
             }}
           </div>
-          <div class="robin-activity" v-if="showDate(index) && index != 0">
+          <div
+            class="robin-activity"
+            v-if="showDate(index) && index != 0 && checkMessageNotDeleted(index)"
+          >
             {{ formatDate(!Array.isArray(message) ? message.created_at : message[0].created_at) }}
           </div>
           <message
@@ -179,10 +182,10 @@
     />
     <camera
       ref="popup-1"
-      :camera-opened="popUpState.cameraOpened"
+      :camera-opened="cameraOpened"
       @close="closeCamera()"
       @captured-image="handleCapturedImage"
-      v-show="popUpState.cameraOpened"
+      v-show="cameraOpened"
     />
     <forward-message
       v-if="forwardMessage == true"
@@ -195,10 +198,7 @@
       v-show="promptOpen"
       @closemodal="closePrompt()"
     />
-    <reaction-pop-up
-      @reaction="addReaction"
-      data-testid="reaction-popup"
-    />
+    <reaction-pop-up @reaction="addReaction" data-testid="reaction-popup" />
     <message-pop-up
       :message="
         !offlineMessagesExist
@@ -207,6 +207,7 @@
       "
       @forward-message="$emit('forward-message')"
       @reply-message="replyMessage"
+      @delete-message="setMessageToDelete"
       data-testid="message-popup"
     />
   </div>
@@ -267,31 +268,15 @@ import ReactionPopUp from '../ReactionPopUp/ReactionPopUp.vue'
   watch: {
     messages: {
       handler (val: any): void {
-        this.popUpState.messagePopUp = []
-        ;[...val].forEach((val) => {
-          this.popUpState.messagePopUp.push({
-            opened: false,
-            _id: val._id
-          })
-        })
-
         EventBus.$emit('messages.get', [...val])
       },
       immediate: true
     },
     offlineMessages: {
       handler (val: any): void {
-        this.popUpState.messagePopUp = []
         const messages = this.offlineMessages.messages[this.currentConversation._id]
 
         if (messages) {
-          messages.forEach((val: any) => {
-            this.popUpState.messagePopUp.push({
-              opened: false,
-              _id: val._id
-            })
-          })
-
           EventBus.$emit('messages.get', [...messages])
         }
       },
@@ -357,10 +342,8 @@ export default class MessageContainer extends Vue {
   scroll = false as boolean
   scrollUp = false as boolean
   lastScroll = 0
-  popUpState = {
-    cameraOpened: false,
-    messagePopUp: [] as Array<any>
-  }
+  messageDeleteFailed = false as boolean
+  cameraOpened = false as boolean
 
   offlineMessages = { messages: {} } as any
 
@@ -417,7 +400,6 @@ export default class MessageContainer extends Vue {
 
   get offlineMessagesExist () {
     const offlineMessages = this.offlineMessages.messages[this.currentConversation._id]
-    console.log('conversation', offlineMessages)
     return !!offlineMessages
   }
 
@@ -508,21 +490,18 @@ export default class MessageContainer extends Vue {
     }
   }
 
+  checkMessageNotDeleted (index: number) {
+    const offlineMessage = this.offlineMessages.messages[this.currentConversation._id][index]
+    if (Array.isArray(offlineMessage)) {
+      return offlineMessage.every((item) => !item.is_deleted)
+    }
+
+    return !offlineMessage.is_deleted
+  }
+
   getReadReceipts () {
     EventBus.$on('read.reciept', (message: any) => {
       this.readReceipts.push(...message.message_ids)
-    })
-  }
-
-  handleUserConnect () {
-    EventBus.$on('user.connect', (conversation: string) => {
-      // this.refresh()
-    })
-  }
-
-  handleUserDisconnect () {
-    EventBus.$on('user.disconnect', (conversation: string) => {
-      // this.refresh()
     })
   }
 
@@ -531,8 +510,8 @@ export default class MessageContainer extends Vue {
     const messageBubbleEl = document.getElementById(
       `message-bubble-${this.messageIndex}`
     ) as HTMLElement
-    const messagePopUpEl = document.getElementById('message-pop-up') as HTMLElement
-    const reactionPopUpEl = document.getElementById('reaction-pop-up') as HTMLElement
+    const messagePopupEl = document.getElementById('message-popup') as HTMLElement
+    const reactionPopupEl = document.getElementById('reaction-pop-up') as HTMLElement
     const lastThreeInArray =
       index >= this.offlineMessages.messages[this.currentConversation._id].length - 3
     let isMessageReceiver = false
@@ -546,49 +525,67 @@ export default class MessageContainer extends Vue {
       isMessageReceiver = offlineMessage.sender_token === this.$user_token
     }
 
-    if (messagePopUpEl.style.display === 'block') messagePopUpEl.style.display = 'none'
-    if (reactionPopUpEl.style.display === 'block') reactionPopUpEl.style.display = 'none'
+    if (messagePopupEl.style.display === 'block') messagePopupEl.style.display = 'none'
+    if (reactionPopupEl.style.display === 'block') reactionPopupEl.style.display = 'none'
 
     if (lastThreeInArray) {
-      messagePopUpEl.style.top = `${messageBubbleEl.getBoundingClientRect().top - 90}px`
-      reactionPopUpEl.style.top = `${messageBubbleEl.getBoundingClientRect().top - 143}px`
+      messagePopupEl.style.top = `${messageBubbleEl.getBoundingClientRect().top - 90}px`
+      reactionPopupEl.style.top = `${messageBubbleEl.getBoundingClientRect().top - 143}px`
     } else {
-      messagePopUpEl.style.top = `${messageBubbleEl.getBoundingClientRect().top + 20}px`
-      reactionPopUpEl.style.top = `${messageBubbleEl.getBoundingClientRect().top - 55}px`
+      messagePopupEl.style.top = `${messageBubbleEl.getBoundingClientRect().top + 20}px`
+      reactionPopupEl.style.top = `${messageBubbleEl.getBoundingClientRect().top - 55}px`
     }
 
     if (isMessageReceiver) {
-      messagePopUpEl.style.left = 'initial'
-      messagePopUpEl.style.right = '3.688rem'
-      reactionPopUpEl.style.left = 'initial'
-      reactionPopUpEl.style.right = '3.688rem'
+      messagePopupEl.style.left = 'initial'
+      messagePopupEl.style.right = '3.688rem'
+      reactionPopupEl.classList.add('receiver')
+      reactionPopupEl.style.left = 'initial'
+      reactionPopupEl.style.right = '3.688rem'
     } else {
-      messagePopUpEl.style.left = 'initial'
-      messagePopUpEl.style.right = `${messageBubbleEl.getBoundingClientRect().x}px`
-      reactionPopUpEl.style.left = 'initial'
-      reactionPopUpEl.style.right = `${messageBubbleEl.getBoundingClientRect().x}px`
+      messagePopupEl.style.right = 'initial'
+      messagePopupEl.style.left = `${this.getPopUpLeftPosition('message')}`
+      reactionPopupEl.classList.remove('receiver')
+      reactionPopupEl.style.right = 'initial'
+      reactionPopupEl.style.left = `${this.getPopUpLeftPosition('reaction')}`
     }
-    messagePopUpEl.style.display = 'block'
-    reactionPopUpEl.style.display = 'block'
+    messagePopupEl.style.display = 'block'
+    reactionPopupEl.style.display = 'block'
+  }
+
+  getPopUpLeftPosition (type: String) {
+    const messageEl = this.$refs.message as HTMLElement
+    const messageBubbleEl = document.getElementById(
+      `message-bubble-${this.messageIndex}`
+    ) as HTMLElement
+    const pos =
+      type === 'reaction'
+        ? (messageBubbleEl.getBoundingClientRect().width - 20) / 16
+        : messageBubbleEl.getBoundingClientRect().width / 16 + 1.688
+
+    if (pos * 16 + 200 > messageEl.getBoundingClientRect().width) {
+      return pos + '%'
+    }
+    return pos + 'rem'
   }
 
   closeModal (index: number) {
-    const popUp1 = document.getElementById('message-pop-up') as HTMLElement
-    const popUp2 = document.getElementById('reaction-pop-up') as HTMLElement
+    const popup1 = document.getElementById('message-popup') as HTMLElement
+    const popup2 = document.getElementById('reaction-pop-up') as HTMLElement
 
     if (this.messageIndex === index) {
-      popUp1.classList.remove('robin-zoomIn')
-      popUp2.classList.remove('robin-zoomIn')
-      popUp1.classList.add('robin-zoomOut')
-      popUp2.classList.add('robin-zoomOut')
+      popup1.classList.remove('robin-zoomIn')
+      popup2.classList.remove('robin-zoomIn')
+      popup1.classList.add('robin-zoomOut')
+      popup2.classList.add('robin-zoomOut')
 
       window.setTimeout(() => {
-        popUp1.style.display = 'none'
-        popUp2.style.display = 'none'
-        popUp1.classList.add('robin-zoomIn')
-        popUp2.classList.add('robin-zoomIn')
-        popUp1.classList.remove('robin-zoomOut')
-        popUp2.classList.remove('robin-zoomOut')
+        popup1.style.display = 'none'
+        popup2.style.display = 'none'
+        popup1.classList.add('robin-zoomIn')
+        popup2.classList.add('robin-zoomIn')
+        popup1.classList.remove('robin-zoomOut')
+        popup2.classList.remove('robin-zoomOut')
       }, 300)
     }
   }
@@ -784,34 +781,11 @@ export default class MessageContainer extends Vue {
   }
 
   onMessageDelete () {
-    const offlineMessage = this.offlineMessages.messages[this.currentConversation._id][
-      this.messageIndex
-    ] as Array<ObjectType> | ObjectType
-    const isArray = Array.isArray(offlineMessage)
+    this.messages.splice(this.messageIndex, 1)
+    this.offlineMessages.messages[this.currentConversation._id].splice(this.messageIndex, 1)
 
-    if (isArray) {
-      const imageData = [...(offlineMessage as Array<ObjectType>)] as Array<ObjectType>
-      const data = { ...this.offlineMessages.messages }
-
-      for (const item of imageData) {
-        item.is_deleted = true
-      }
-
-      data[this.currentConversation._id][this.messageIndex] = imageData
-
-      this.$set(this.messages, this.messages[this.messageIndex], imageData)
-      this.$set(this.offlineMessages, this.offlineMessages.messages, data)
-    } else {
-      const data = { ...this.offlineMessages.messages }
-      data[this.currentConversation._id][this.messageIndex].is_deleted = true
-
-      this.$set(
-        this.messages,
-        this.messages[this.messageIndex],
-        data[this.currentConversation._id][this.messageIndex]
-      )
-      this.$set(this.offlineMessages, this.offlineMessages.messages, data)
-    }
+    this.resetCurrentPage()
+    this.sortOfflineMessages(this.offlineMessages.messages[this.currentConversation._id])
   }
 
   onImageDelete () {
@@ -927,19 +901,17 @@ export default class MessageContainer extends Vue {
   }
 
   scrollToBottom (): void {
-    window.setTimeout(() => {
-      const message = this.$refs.message as HTMLElement
+    const message = this.$refs.message as HTMLElement
 
-      if (message) {
-        message.scrollTop = message.scrollHeight + 100
-        this.scrollUp = false
-        this.scroll = false
-      }
-    }, 100)
+    if (message) {
+      message.scrollTop = message.scrollHeight + 100
+      this.scrollUp = false
+      this.scroll = false
+    }
   }
 
   openCamera (): void {
-    this.popUpState.cameraOpened = true
+    this.cameraOpened = true
   }
 
   closeCamera (): void {
@@ -951,7 +923,7 @@ export default class MessageContainer extends Vue {
       popup.$refs['popup-body'].classList.remove('robin-squeezeIn')
       popup.$refs['popup-body'].classList.add('robin-squeezeOut')
 
-      this.popUpState.cameraOpened = false
+      this.cameraOpened = false
     }, 100)
   }
 
@@ -959,20 +931,6 @@ export default class MessageContainer extends Vue {
     store.setState('imagePreviewOpen', true)
     store.setState('imagesToPreview', $event)
     // this.imagesToPreview = $event
-  }
-
-  openMessagePopup (val: number): void {
-    this.messagePopUpIndex = val
-    this.popUpState.messagePopUp[this.messagePopUpIndex].opened = true
-  }
-
-  closeMessagePopup (event: any): void {
-    this.popUpState.messagePopUp[this.messagePopUpIndex].opened = false
-    this.messagePopUpIndex = 0
-  }
-
-  getMessagePopup (index: any): { opened: boolean; _id: string } {
-    return this.popUpState.messagePopUp[parseInt(index)]
   }
 
   handleCapturedImage (val: Object): void {
@@ -1336,7 +1294,9 @@ export default class MessageContainer extends Vue {
     this.currentPage = this.messages.length > 20 ? this.messages.length - 20 : 0
   }
 
-  async processMessageToDelete () {
+  async setMessageToDelete () {
+    this.messageDeleteFailed = false
+
     const message = this.offlineMessages.messages[this.currentConversation._id][
       this.messageIndex
     ] as Array<ObjectType> | ObjectType
@@ -1348,13 +1308,8 @@ export default class MessageContainer extends Vue {
     } else {
       await this.deleteMessage(message)
     }
-  }
 
-  async deleteMessage (message: ObjectType): Promise<void> {
-    const res = await this.$robin.deleteMessages([message._id], this.$user_token)
-
-    if (res && !res.error) {
-      this.onMessageDelete()
+    if (!this.messageDeleteFailed) {
       this.$toast.open({
         message: 'Message Deleted.',
         type: 'success',
@@ -1366,6 +1321,17 @@ export default class MessageContainer extends Vue {
         type: 'error',
         position: 'bottom-left'
       })
+    }
+  }
+
+  async deleteMessage (message: ObjectType): Promise<void> {
+    const res = await this.$robin.deleteMessages([message._id], this.$user_token)
+
+    if (res && !res.error) {
+      this.onMessageDelete()
+      this.messageDeleteFailed = false
+    } else {
+      this.messageDeleteFailed = true
     }
   }
 
@@ -1439,8 +1405,6 @@ export default class MessageContainer extends Vue {
       const dateB = this.offlineMessages.messages[this.currentConversation._id][index - 1] as
         | Array<ObjectType>
         | ObjectType
-
-      // console.log(dateA, dateB, index)
 
       if (Array.isArray(dateA) && !Array.isArray(dateB)) {
         return (

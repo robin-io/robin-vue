@@ -1,0 +1,22 @@
+.robin-chat-list-container {
+  position: relative;
+  flex-basis: 30%;
+  max-width: 450px;
+  height: 100%;
+  border-right: 1px solid var(--rb-color6);
+  overflow-y: hidden;
+  background-color: inherit;
+}
+
+@media (min-width: 1200px) {
+  .robin-chat-list-container {
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 1200px) {
+  .robin-chat-list-container {
+    flex-basis: 100%;
+    max-width: initial;
+  }
+}

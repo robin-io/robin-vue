@@ -1,6 +1,5 @@
 <template>
-  <!-- eslint-disable vue/no-parsing-error -->
-  <div class="robin-side-container">
+  <div class="robin-primary-chat-list-container">
     <header class="robin-header">
       <img
         v-if="$logo === ''"
@@ -10,7 +9,7 @@
       <img v-else class="custom" :src="$logo" alt="logo" />
 
       <div class="robin-wrapper">
-        <IconButton
+        <icon-button
           name="edit"
           @edit="openEdit()"
           emit="edit"
@@ -24,8 +23,8 @@
     </header>
 
     <div class="robin-wrapper robin-flex robin-w-100 robin-pl-16 robin-pr-16 robin-pb-16">
-      <SearchBar @user-typing="searchConversation($event)" :loading="isLoading" :key="key" />
-      <IconButton
+      <search-bar @user-typing="searchConversation($event)" :loading="isLoading" :key="key" />
+      <icon-button
         class="robin-ml-4"
         name="filter"
         @filter="filterConversationsByUnread()"
@@ -37,26 +36,26 @@
       />
     </div>
 
-    <Button
+    <custom-button
       class="robin-wrapper robin-pl-16 robin-pr-16 robin-flex robin-flex-space-between robin-w-100 robin-pt-16 robin-pb-12"
       @archived="openArchivedChat()"
       v-if="isArchiveChatEnabled"
     >
       <div class="robin-flex robin-flex-align-center" v-show="archivedConversations.length > 0">
-        <SvgIcon name="mailbox" color="#15AE73" />
+        <svg-icon name="mailbox" color="#15AE73" />
 
-        <Content class="robin-ml-6" font-weight="400" color="#15AE73"> Archived Chats </Content>
+        <content class="robin-ml-6" font-weight="400" color="#15AE73"> Archived Chats </content>
       </div>
 
-      <Content
+      <content
         font-weight="400"
         color="#15AE73"
         v-show="archivedConversations.length > 0"
         data-testid="archived-conversation-count"
       >
         {{ archivedConversations.length }}
-      </Content>
-    </Button>
+      </content>
+    </custom-button>
 
     <div v-show="isPageLoading" class="robin-spinner"></div>
 
@@ -66,160 +65,38 @@
       @scroll="onScroll()"
       :class="{ 'robin-come-down': screenWidth > 1200 }"
     >
-      <RecycleScroller
+      <recycle-scroller
         :items="conversations"
         key-field="_id"
         :page-mode="true"
         :item-size="83"
         v-slot="{ item, index }"
       >
-        <div
-          class="robin-card robin-flex robin-flex-align-center"
-          :key="`conversation-${index}`"
-          :class="{
-            'robin-card-active': currentConversation._id == item._id && screenWidth > 1200
-          }"
-          @click.self="openConversation(item)"
-          :data-testid="`conversation-${index}`"
-        >
-          <div class="robin-card-info robin-mr-12" @click="openConversation(item)">
-            <Avatar
-              v-if="!item.is_group"
-              :key="avatarKey"
-              :img-url="getProfileImage(item) || item.display_photo"
-              :sender-token="
-                item.sender_token === $user_token ? item.receiver_token : item.sender_token
-              "
-              data-testid="regular-avatar"
-            />
-
-            <GroupAvatar v-else :img-url="item.group_icon" data-testid="group-avatar" />
-          </div>
-
-          <div
-            class="robin-card-info robin-h-100 robin-flex robin-flex-column robin-flex-space-between robin-pt-4 robin-pb-41 robin-flex-1"
-            @click.self="openConversation(item)"
-          >
-            <div class="robin-flex robin-flex-space-between" @click="openConversation(item)">
-              <Content
-                font-weight="normal"
-                :color="currentTheme == 'light' ? '#000000' : '#F9F9F9'"
-                :font-size="16"
-                :line-height="20"
-                v-if="!item.is_group"
-              >
-                {{ item.sender_token != $user_token ? item.sender_name : item.receiver_name }}
-              </Content>
-
-              <Content
-                font-weight="normal"
-                :color="currentTheme == 'light' ? '#000000' : '#F9F9F9'"
-                :font-size="16"
-                :line-height="20"
-                v-else
-              >
-                {{ item.name }}
-              </Content>
-
-              <Content
-                as="p"
-                fontWeight="normal"
-                :color="currentTheme == 'light' ? '#51545C' : '#B6B6B6'"
-                :fontSize="14"
-                :lineHeight="18"
-              >
-                {{
-                  formatRecentMessageTime(
-                    item.last_message ? item.last_message.timestamp : item.updated_at
-                  )
-                }}
-              </Content>
-            </div>
-
-            <div class="robin-flex robin-flex-space-between" @click.self="openConversation(item)">
-              <div class="robin-mini-info-container robin-flex-1" @click="openConversation(item)">
-                <Content
-                  as="p"
-                  font-weight="normal"
-                  :color="currentTheme == 'light' ? '#8D9091' : '#B6B6B6'"
-                  :font-size="14"
-                  :line-height="18"
-                  v-if="item.last_message && !item.last_message.is_attachment"
-                >
-                  {{
-                    item.last_message && item.last_message.msg.length < 20
-                      ? item.last_message.msg
-                      : item.last_message
-                      ? item.last_message.msg.substring(0, 20) + ' ...'
-                      : ''
-                  }}
-                </Content>
-
-                <Content
-                  v-show="item.last_message && item.last_message.is_attachment"
-                  as="p"
-                  font-weight="normal"
-                  :color="currentTheme == 'light' ? '#8D9091' : '#B6B6B6'"
-                  :font-size="14"
-                  :line-height="18"
-                >
-                  <b><i>Attachment</i></b>
-                </Content>
-              </div>
-
-              <div class="robin-mini-info-container robin-flex robin-flex-align-center">
-                <div
-                  class="mini-info robin-ml-10"
-                  v-if="item.unread_messages > 0 || item.unread_messages == 'marked'"
-                  @click="openConversation(item)"
-                >
-                  <UnreadMessageCount :unread="item.unread_messages" />
-                </div>
-                <div
-                  class="robin-hidden robin-ml-10"
-                  @click="
-                    handleOpenPopUp(
-                      $event,
-                      item._id,
-                      `popup-container-${index}`,
-                      `popup-${index}`,
-                      index.toString()
-                    )
-                  "
-                >
-                  <IconButton
-                    name="openModalDot"
-                    @clickoutside="handleClosePopUp(item._id, `popup-${index}`)"
-                    :to-click-away="true"
-                    :to-emit="false"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div
-            class="robin-popup-container"
-            :ref="`popup-container-${index}`"
-            v-show="popUpStates[index] ? popUpStates[index].opened : false"
-          >
-            <ChatListPopOver
-              :ref="`popup-${index}`"
-              :conversation="item"
-              @archive-chat="handleArchiveChat(item)"
-              @delete-conversation="handleDeleteConversation(item)"
-              @mark-as-read="handleMarkAsRead(item)"
-              @mark-as-unread="handleMarkAsUnread(item)"
-            />
-          </div>
-        </div>
-      </RecycleScroller>
+        <chat-list-card
+          :index="index"
+          :item="item"
+          :type="1"
+          @open-conversation="openConversation(item)"
+          @open-modal="openModal"
+          @close-modal="closeModal"
+        />
+      </recycle-scroller>
     </div>
+
+    <chat-list-pop-up
+      v-if="conversations[conversationIndex]"
+      :conversation="conversations[conversationIndex]"
+      :is-archived="false"
+      @archive-chat="handleArchiveChat"
+      @delete-conversation="handleDeleteConversation"
+      @mark-as-read="handleMarkAsRead"
+      @mark-as-unread="handleMarkAsUnread"
+    />
   </div>
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue, { PropType } from 'vue'
 import moment from 'moment'
 import Component from 'vue-class-component'
 import store from '@/store/index'
@@ -229,23 +106,21 @@ import IconButton from '../IconButton/IconButton.vue'
 import SearchBar from '../SearchBar/SearchBar.vue'
 import SvgIcon from '../SvgIcon/SvgIcon.vue'
 import Button from '../Button/Button.vue'
-import Avatar from '../Avatar/Avatar.vue'
 import Mention from '../Mention/Mention.vue'
-import ChatListPopOver from '../ChatListPopOver/ChatListPopOver.vue'
-import GroupAvatar from '../GroupAvatar/GroupAvatar.vue'
-import UnreadMessageCount from '../UnreadMessageCount/UnreadMessageCount.vue'
+import ChatListPopUp from '../ChatListPopUp/ChatListPopUp.vue'
+import ChatListCard from '../ChatListCard/ChatListCard.vue'
 import RecycleScroller from '../RecycleScroller/RecycleScroller.vue'
 import assets from '@/utils/assets.json'
 
 const ComponentProps = Vue.extend({
   props: {
     regularConversations: {
-      type: Array,
-      default: (): Array<any> => []
+      type: Array as PropType<Array<ObjectType>>,
+      default: (): Array<ObjectType> => []
     },
     archivedConversations: {
       type: Array,
-      default: (): Array<any> => []
+      default: (): Array<ObjectType> => []
     }
   }
 })
@@ -258,17 +133,15 @@ const ComponentProps = Vue.extend({
     IconButton,
     SvgIcon,
     SearchBar,
-    Button,
-    Avatar,
+    'custom-button': Button,
     Mention,
-    GroupAvatar,
-    UnreadMessageCount,
-    ChatListPopOver,
+    ChatListPopUp,
+    ChatListCard,
     RecycleScroller
   },
   watch: {
     regularConversations: {
-      handler (val: Array<any>): void {
+      handler (val: Array<ObjectType>): void {
         this.conversations = [...val].sort((a, b) => {
           const dateA = moment(a.last_message ? a.last_message.timestamp : a.updated_at).valueOf()
           const dateB = moment(b.last_message ? b.last_message.timestamp : b.updated_at).valueOf()
@@ -301,25 +174,17 @@ const ComponentProps = Vue.extend({
   }
 })
 export default class PrimaryChatList extends ComponentProps {
-  popUpStates: Array<any> = []
-  // activeConversation = {}
-  avatarKey: number = 0
+  popUpStates: Array<ObjectType> = []
+  conversationIndex = 0
+  avatarKey = 0
   scroll = false as boolean
   isLoading = false as boolean
-  conversations = [] as Array<any>
+  conversations = [] as Array<ObjectType>
   key = 0 as number
-  screenWidth = 0 as number
   filterActive = false
 
   created () {
     this.onGroupIconUpdate()
-  }
-
-  mounted () {
-    this.$nextTick(function () {
-      this.onResize()
-    })
-    window.addEventListener('resize', this.onResize)
   }
 
   get isPageLoading () {
@@ -346,16 +211,20 @@ export default class PrimaryChatList extends ComponentProps {
     return store.state.currentTheme
   }
 
+  get screenWidth () {
+    return store.state.screenWidth
+  }
+
   filterConversationsByUnread () {
     this.filterActive = !this.filterActive
 
     if (this.filterActive) {
-      this.conversations = this.conversations.filter(
+      this.conversations = [...this.conversations.filter(
         (conversation) =>
           conversation.unread_messages > 0 || conversation.unread_messages === 'marked'
-      )
+      )]
     } else {
-      this.conversations = this.regularConversations.sort((a, b) => {
+      this.conversations = [...this.regularConversations.sort((a, b) => {
         const dateA = moment(a.last_message ? a.last_message.timestamp : a.updated_at).valueOf()
         const dateB = moment(b.last_message ? b.last_message.timestamp : b.updated_at).valueOf()
 
@@ -368,19 +237,19 @@ export default class PrimaryChatList extends ComponentProps {
         }
 
         return 0
-      })
+      })] as Array<ObjectType>
     }
   }
 
   onGroupIconUpdate (): void {
-    EventBus.$on('group.icon.update', (conversation: any) => {
+    EventBus.$on('group.icon.update', (conversation: ObjectType) => {
       const index = this.conversations.findIndex((item) => item._id === conversation._id)
-      this.conversations[index] = conversation
-      this.$forceUpdate()
+      this.conversations.splice(index, 1, conversation)
+      // this.$forceUpdate()
     })
   }
 
-  openConversation (conversation: any): void {
+  openConversation (conversation: ObjectType): void {
     store.setState('imagePreviewOpen', false)
     store.setState('currentConversation', [])
     store.setState('conversationOpen', false)
@@ -409,77 +278,46 @@ export default class PrimaryChatList extends ComponentProps {
     })
   }
 
-  getProfileImage (conversation: any) {
-    const index = this.$robin_users.findIndex(
-      (user: any) => user.userToken === conversation.sender_token
-    )
-
-    return this.$robin_users[index] ? this.$robin_users[index].profileImage : null
-  }
-
   onScroll (): void {
     this.scroll = true
   }
 
-  handleOpenPopUp (
-    event: any,
-    _id: string,
-    refContainerKey: string,
-    refKey: string,
-    id: string
-  ): void {
-    const popupContainer = this.$refs[refContainerKey] as any
-    const popup = this.$refs[refKey] as any
-    popup.$el.classList.remove('robin-zoomOut')
+  openModal (index: number) {
+    this.conversationIndex = index
+    const chatEl = document.getElementById(`conversation-${this.conversationIndex}`) as HTMLElement
+    const chatListPopupEl = document.getElementById('chat-list-popup') as HTMLElement
+    const lastThreeInArray = index >= this.conversations.length - 3
 
-    if (
-      (!this.scroll && this.conversations.length - 2 !== parseInt(id)) ||
-      this.conversations.length - 1 !== parseInt(id)
-    ) {
-      popupContainer.style.top = event.clientY - 12 + 'px'
+    if (chatListPopupEl.style.display === 'block') chatListPopupEl.style.display = 'none'
 
-      if (this.screenWidth > 1024) {
-        popupContainer.style.left = event.clientX - 90 + 'px'
-      } else {
-        popupContainer.style.left = event.clientX - 145 + 'px'
-      }
+    if (lastThreeInArray) {
+      chatListPopupEl.style.top = `${chatEl.getBoundingClientRect().top - 40}px`
     } else {
-      // popupContainer.style.top = event.clientY - 60 + 'px'
-
-      if (this.screenWidth > 1024) {
-        popupContainer.style.left = event.clientX - 90 + 'px'
-      } else {
-        popupContainer.style.left = event.clientX - 145 + 'px'
-      }
+      chatListPopupEl.style.top = `${chatEl.getBoundingClientRect().top + 50}px`
     }
 
-    const index = this.popUpStates.findIndex((val) => val._id === _id)
-    this.popUpStates[index].opened = true
+    chatListPopupEl.style.left = `${chatEl.getBoundingClientRect().right - 80}px`
 
-    this.popUpStates.forEach((val, i) => {
-      if (val._id !== _id) {
-        this.popUpStates[i].opened = false
-      }
-    })
+    chatListPopupEl.style.display = 'block'
   }
 
-  handleClosePopUp (_id: string, refKey: string): void {
-    const popup = this.$refs[refKey] as any
+  closeModal (index: number) {
+    const popup = document.getElementById('chat-list-popup') as HTMLElement
 
-    popup.$el.classList.add('robin-zoomOut')
+    if (this.conversationIndex === index) {
+      popup.classList.remove('robin-zoomIn')
+      popup.classList.add('robin-zoomOut')
 
-    window.setTimeout(() => {
-      const index = this.popUpStates.findIndex((val) => val._id === _id)
-      if (this.popUpStates[index] ? this.popUpStates[index].opened : false) {
-        const popup = this.$refs[refKey] as any
-        popup.$el.classList.remove('robin-zoomOut')
-
-        this.popUpStates[index].opened = false
-      }
-    }, 300)
+      window.setTimeout(() => {
+        popup.style.display = 'none'
+        popup.classList.add('robin-zoomIn')
+        popup.classList.remove('robin-zoomOut')
+      }, 300)
+    }
   }
 
-  async handleArchiveChat (conversation: any): Promise<void> {
+  async handleArchiveChat (): Promise<void> {
+    const conversation = this.conversations[this.conversationIndex] as ObjectType
     const res = await this.$robin.archiveConversation(conversation._id, this.$user_token)
 
     if (!res.error) {
@@ -495,7 +333,7 @@ export default class PrimaryChatList extends ComponentProps {
   }
 
   searchConversation (searchText: string) {
-    let searchData = [] as Array<any>
+    let searchData = [] as Array<ObjectType>
     this.isLoading = true
     // eslint-disable-next-line array-callback-return
     const data = this.$regularConversations.filter((obj) => {
@@ -539,15 +377,18 @@ export default class PrimaryChatList extends ComponentProps {
     this.key += 1
   }
 
-  handleMarkAsRead (conversation: any) {
+  handleMarkAsRead () {
+    const conversation = this.conversations[this.conversationIndex] as ObjectType
     EventBus.$emit('mark-as-read', conversation)
   }
 
-  handleMarkAsUnread (conversation: any) {
+  handleMarkAsUnread () {
+    const conversation = this.conversations[this.conversationIndex] as ObjectType
     EventBus.$emit('mark-as-unread.modified', conversation)
   }
 
-  async handleDeleteConversation (conversation: any) {
+  async handleDeleteConversation () {
+    const conversation = this.conversations[this.conversationIndex]
     const res = await this.$robin.deleteConversation(this.$user_token, conversation._id)
 
     if (res && !res.error) {
@@ -566,138 +407,5 @@ export default class PrimaryChatList extends ComponentProps {
       })
     }
   }
-
-  onResize () {
-    this.screenWidth = window.innerWidth
-  }
 }
 </script>
-
-<style scoped>
-.robin-side-container {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  background-color: inherit;
-}
-
-.robin-header {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: clamp(6%, 2vh, 3.563rem) clamp(2%, 4vw, 1.563rem) 1.763rem;
-}
-
-.robin-header img.custom:first-child {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.robin-button.robin-wrapper {
-  width: 100%;
-}
-
-.robin-card-container {
-  width: 100%;
-  overflow-y: auto;
-  gap: 0.2rem 0;
-}
-
-.robin-card {
-  padding: 0.938rem 1rem 0.938rem;
-  transition: all 0.2s;
-  cursor: pointer;
-  background-color: var(--rb-color2);
-}
-
-.robin-card-active {
-  background-color: var(--rb-color5);
-  cursor: default;
-}
-
-.robin-card-container .robin-card:nth-last-child(1) {
-  border-bottom: none;
-}
-
-.robin-card:not(.robin-card-active):hover {
-  background-color: var(--rb-color4);
-  border-radius: 4px;
-}
-
-.robin-card:hover .robin-hidden {
-  display: block;
-  animation: slideInRight 300ms;
-}
-
-.robin-popup-container {
-  position: fixed;
-  z-index: 100;
-}
-
-.robin-mini-info-container {
-  height: 20px;
-}
-
-.robin-spinner {
-  width: 30px;
-  height: 30px;
-  margin: 0 auto;
-}
-
-.robin-flex .robin-svg {
-  height: 16px;
-}
-
-@media (min-width: 768px) {
-  ::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
-  }
-
-  ::-webkit-scrollbar-track {
-    border-radius: 24px;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    width: 2px;
-    background-color: #d6d6d6;
-    border-radius: 24px;
-    -webkit-border-radius: 24px;
-    -moz-border-radius: 24px;
-    -ms-border-radius: 24px;
-    -o-border-radius: 24px;
-  }
-}
-
-@media (max-width: 1200px) {
-  .robin-card-container {
-    box-shadow: 0px 2px 20px rgba(0, 104, 255, 0.06);
-  }
-
-  .robin-card:not(.robin-card-active):hover {
-    background-color: initial;
-  }
-
-  .robin-card:hover .robin-hidden {
-    animation: none;
-  }
-
-  .robin-hidden {
-    display: block;
-  }
-
-  .robin-hidden >>> .robin-button {
-    width: 20px;
-    text-align: right;
-  }
-
-  .robin-popup-container {
-    right: 0px;
-  }
-}
-</style>
