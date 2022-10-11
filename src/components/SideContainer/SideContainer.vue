@@ -1,7 +1,7 @@
 <template>
   <div class="robin-chat-list-container">
     <PrimaryChatList
-      v-show="$conversations.length > 0 || isPageLoading"
+      v-show="$conversations.length || isPageLoading"
       :key="key"
       @search="searchedData($event)"
       :regular-conversations="regularConversations"

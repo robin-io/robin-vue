@@ -1,28 +1,7 @@
 <template>
   <!-- eslint-disable vue/no-parsing-error -->
   <div class="robin-side-container">
-    <header class="robin-header">
-      <img
-        v-if="$logo === ''"
-        :src="assets[currentTheme === 'light' ? 'logo' : 'logo_dark']"
-        alt="logo"
-      />
-      <img v-else class="custom" :src="$logo" alt="logo" />
-
-      <div class="robin-wrapper">
-        <IconButton
-          name="edit"
-          @edit="openEdit()"
-          emit="edit"
-          :to-emit="true"
-          :to-click-away="false"
-          :color="'#fff'"
-          v-if="isCreateChatEnabled"
-        />
-        <slot name="chat-list-header"></slot>
-      </div>
-    </header>
-
+    <ChatListHeader @open-edit="openEdit()" />
     <div class="robin-wrapper robin-flex robin-w-100 robin-pl-16 robin-pr-16 robin-pb-16">
       <SearchBar @user-typing="searchConversation($event)" :loading="isLoading" :key="key" />
       <IconButton
@@ -58,10 +37,9 @@
       </Content>
     </Button>
 
-    <div v-show="isPageLoading" class="robin-spinner"></div>
-
+    <RobinSpinner v-if="isPageLoading" />
     <div
-      v-show="!isPageLoading"
+      v-else
       class="robin-wrapper robin-card-container robin-flex robin-flex-column"
       @scroll="onScroll()"
       :class="{ 'robin-come-down': screenWidth > 1200 }"
@@ -102,25 +80,24 @@
           >
             <div class="robin-flex robin-flex-space-between" @click="openConversation(item)">
               <Content
+                v-if="!item.is_group"
                 font-weight="normal"
                 :color="currentTheme == 'light' ? '#000000' : '#F9F9F9'"
                 :font-size="16"
                 :line-height="20"
-                v-if="!item.is_group"
               >
                 {{ item.sender_token != $user_token ? item.sender_name : item.receiver_name }}
               </Content>
 
               <Content
+                v-else
                 font-weight="normal"
                 :color="currentTheme == 'light' ? '#000000' : '#F9F9F9'"
                 :font-size="16"
                 :line-height="20"
-                v-else
               >
                 {{ item.name }}
               </Content>
-
               <Content
                 as="p"
                 fontWeight="normal"
@@ -197,7 +174,6 @@
               </div>
             </div>
           </div>
-
           <div
             class="robin-popup-container"
             :ref="`popup-container-${index}`"
@@ -235,7 +211,8 @@ import ChatListPopOver from '../ChatListPopOver/ChatListPopOver.vue'
 import GroupAvatar from '../GroupAvatar/GroupAvatar.vue'
 import UnreadMessageCount from '../UnreadMessageCount/UnreadMessageCount.vue'
 import RecycleScroller from '../RecycleScroller/RecycleScroller.vue'
-import assets from '@/utils/assets.json'
+import ChatListHeader from '../PrimaryChatList/ChatListHeader.vue'
+import RobinSpinner from '../RobinSpinner.vue'
 
 const ComponentProps = Vue.extend({
   props: {
@@ -264,7 +241,9 @@ const ComponentProps = Vue.extend({
     GroupAvatar,
     UnreadMessageCount,
     ChatListPopOver,
-    RecycleScroller
+    RecycleScroller,
+    ChatListHeader,
+    RobinSpinner
   },
   watch: {
     regularConversations: {
@@ -330,16 +309,8 @@ export default class PrimaryChatList extends ComponentProps {
     return store.state.currentConversation
   }
 
-  get isCreateChatEnabled () {
-    return store.state.createChatEnabled
-  }
-
   get isArchiveChatEnabled () {
     return store.state.archiveChatEnabled
-  }
-
-  get assets (): any {
-    return assets
   }
 
   get currentTheme () {
@@ -641,12 +612,6 @@ export default class PrimaryChatList extends ComponentProps {
 
 .robin-mini-info-container {
   height: 20px;
-}
-
-.robin-spinner {
-  width: 30px;
-  height: 30px;
-  margin: 0 auto;
 }
 
 .robin-flex .robin-svg {

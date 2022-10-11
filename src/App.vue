@@ -572,10 +572,7 @@ export default class App extends ComponentProps {
   /* height: 100vh; */
   display: flex;
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+ inset: 0;
   z-index: 2000;
   overflow: hidden;
   transition: 100ms;
