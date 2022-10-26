@@ -1,6 +1,6 @@
 <template>
-  <div class="robin-message-bubble robin-flex robin-flex-align-center">
-    <CheckBox ref="checkbox" v-show="selectMessagesOpen" @clicked="toggleCheckAction($event)" />
+  <div class="robin-message-bubble robin-flex robin-flex-align-center"  v-clickaway="closeModal" :id="`message-bubble-${index}`">
+    <CheckBox v-show="selectMessagesOpen" @clicked="toggleCheckAction($event)" />
 
     <div
       class="robin-bubble"
@@ -9,19 +9,6 @@
       :class="validateMessages(message).includes('message-sender') ? 'robin-ml-5' : 'robin-mr-5'"
       data-testid="bubble"
     >
-      <div class="robin-popup-container reactions">
-        <!-- messagePopup.opened &&  -->
-        <!-- <ReactionPopOver
-          v-show="validateMessages(message) && isMessageReactionViewEnabled"
-          @close-modal="closeModal()"
-          ref="popup-1"
-          :id="message._id"
-          :message="message"
-          @reaction="addReaction"
-          data-testid="reaction-popover"
-        /> -->
-      </div>
-
       <div
         class="robin-reactions"
         v-if="
@@ -45,15 +32,7 @@
 
       <div
         class="robin-message-bubble-video"
-        :class="{
-          'robin-non-clickable':
-            (!isMessageReactionViewEnabled &&
-              !isReplyMessagesEnabled &&
-              !isDeleteMessagesEnabled &&
-              !isForwardMessagesEnabled &&
-              !message.pseudo) ||
-            selectMessagesOpen
-        }"
+        :class="{ 'robin-non-clickable': isMessageClickable }"
       >
         <Content
           v-if="
@@ -270,11 +249,11 @@ export default class VideoMessage extends ComponentProps {
   }
 
   openModal (event: ObjectType) {
-    this.$emit('open-modal', event, this.index)
+    this.$emit('open-modal', this.index)
   }
 
   closeModal () {
-    this.$emit('close-modal')
+    this.$emit('close-modal', this.index)
   }
 
   onResize () {

@@ -1,0 +1,56 @@
+.robin-new-chat-list-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  box-shadow: 0px 2px 20px rgba(0, 104, 255, 0.06);
+  position: absolute;
+  top: 0;
+  z-index: 0;
+  background-color: inherit;
+}
+
+.robin-new-chat-list-container header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: clamp(2%, 4vh, 1rem) clamp(2%, 4vw, 1rem) 1rem;
+  margin: 1.688rem 0 0.625rem;
+  background-color: var(--rb-color2);
+}
+
+.robin-new-chat-list-container .robin-contact-container {
+  width: 100%;
+}
+
+.robin-new-chat-list-container .robin-create-group {
+  border-bottom: 1px solid var(--rb-color5);
+  max-height: 30px;
+}
+
+.robin-new-chat-list-container .robin-card-container {
+  width: 100%;
+}
+
+.robin-new-chat-list-container .robin-card-container .robin-card {
+  padding: 0.875rem 1rem 1rem;
+  transition: all 0.15s;
+  background-color: var(--rb-color2);
+}
+
+.robin-new-chat-list-container .robin-card-container .robin-card + .robin-card {
+  margin-top: 0.25rem;
+}
+
+.robin-new-chat-list-container .robin-alphabet-block + .robin-card-container .robin-card:hover {
+  background-color: var(--rb-color4);
+}
+
+.robin-new-chat-list-container .robin-flex .robin-svg {
+  height: 16px;
+}
+
+.robin-new-chat-list-container .robin-card-info .robin-text {
+  text-transform: capitalize;
+}

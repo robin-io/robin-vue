@@ -98,11 +98,10 @@
           >
             <unread-message-count :unread="item.unread_messages" />
           </div>
-          <div class="robin-hidden robin-ml-10" @click="$emit('open-modal', index)">
+          <div class="robin-hidden robin-ml-10" @click="openModal" v-clickaway="closeModal">
             <icon-button
               name="openModalDot"
-              @clickoutside="$emit('close-modal', index)"
-              :to-click-away="true"
+              :to-click-away="false"
               :to-emit="false"
             />
           </div>
@@ -132,18 +131,17 @@
           item.sender_token != $user_token ? item.sender_name : item.receiver_name
         }}</message-content>
 
-        <message-content v-show="item.is_group" :font-size="14" :line-height="18">{{ item.name }}</message-content>
+        <message-content v-show="item.is_group" :font-size="14" :line-height="18">{{
+          item.name
+        }}</message-content>
       </div>
 
       <div class="robin-ml-auto">
-        <check-box
-          @clicked="toggleCheckAction"
-          ref="checkbox-comp"
-        />
+        <check-box @clicked="toggleCheckAction" ref="checkbox-comp" />
       </div>
     </div>
   </div>
-  <div v-else class="robin-card robin-flex robin-flex-align-center">
+  <div v-else-if="type === 3" class="robin-card robin-flex robin-flex-align-center">
     <div class="robin-card-info robin-mr-12">
       <avatar :img-url="item.profileImage" :sender-token="item.userToken" />
     </div>
@@ -157,11 +155,30 @@
         </message-content>
       </div>
       <div class="robin-ml-auto">
-        <check-box
-          @clicked="toggleCheckAction"
-          ref="checkbox-comp"
-          data-testid="checkbox"
-        />
+        <check-box @clicked="toggleCheckAction" ref="checkbox-comp" data-testid="checkbox" />
+      </div>
+    </div>
+  </div>
+
+  <div
+    v-else
+    class="robin-card robin-flex robin-flex-align-center robin-clickable"
+    @click="$emit('create-conversation')"
+  >
+    <div class="robin-card-info robin-mr-12">
+      <avatar :img-url="item.profileImage" :sender-token="item.userToken" />
+    </div>
+
+    <div
+      class="robin-card-info robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4˝ robin-flex-1"
+    >
+      <div class="robin-flex">
+        <message-content
+          :font-size="14"
+          :color="currentTheme === 'light' ? '#000000' : '#F9F9F9'"
+          :line-height="18"
+          >{{ item.userName }}</message-content
+        >
       </div>
     </div>
   </div>
@@ -220,8 +237,16 @@ export default class ChatListCard extends ComponentProps {
     return store.state.currentConversation
   }
 
+  openModal () {
+    this.$emit('open-modal', this.index)
+  }
+
+  closeModal () {
+    this.$emit('close-modal', this.index)
+  }
+
   openConversation (): void {
-    this.$emit('open-conversation')
+    if (this.currentConversation._id !== this.item._id) this.$emit('open-conversation')
   }
 
   formatRecentMessageTime (time: string): string {

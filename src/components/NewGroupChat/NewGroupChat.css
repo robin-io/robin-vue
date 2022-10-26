@@ -1,0 +1,53 @@
+.robin-new-group-chat-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0px 2px 20px rgba(0, 104, 255, 0.06);
+    position: absolute;
+    top: 0;
+    z-index: 2;
+    background-color: inherit;
+  }
+  
+  .robin-new-group-chat-container header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding: clamp(2%, 4vh, 1rem) clamp(2%, 4vw, 1rem) 1rem;
+    margin: 1.688rem 0 3.313rem;
+    background-color: var(--rb-color2);
+  }
+  
+  .robin-new-group-chat-container .robin-side-container label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .robin-new-group-chat-container .robin-contact-container {
+    width: 100%;
+  }
+  
+  .robin-new-group-chat-container div.robin-group-image {
+    background-color: var(--rb-color8);
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+  }
+  
+  .robin-new-group-chat-container img.robin-group-image {
+    width: 80px;
+    min-height: 80px;
+    max-height: 80px;
+    border-radius: 50%;
+    background-color: var(--rb-color8);
+    object-fit: cover;
+  }
+  
+  .robin-new-group-chat-container .robin-wrapper {
+    padding: 0 clamp(2%, 4vw, 1.5rem);
+  }

@@ -162,12 +162,12 @@
 }
 
 .robin-message-container .robin-message-sender .robin-message-bubble.image {
-  background-color: var(--rb-color9);
+  /* background-color: var(--rb-color9); */
   transition: background-color 100ms;
 }
 
 .robin-message-container .robin-message-receiver .robin-message-bubble.image {
-  background-color: var(--rb-color10);
+  /* background-color: var(--rb-color10); */
   transition: background-color 100ms;
 }
 
@@ -319,6 +319,24 @@
   border-top: none;
   transform: rotate(-5deg);
   z-index: 1;
+}
+
+.robin-message-container .robin-message-receiver .download-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+  left: -20%;
+  transition: transform 100ms ease-in;
+}
+
+.robin-message-container .robin-message-sender .download-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+  right: -20%;
+  transition: transform 100ms ease-in;
 }
 
 .robin-message-container .robin-reaction {

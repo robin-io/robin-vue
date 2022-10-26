@@ -1,0 +1,47 @@
+.robin-camera-box {
+  height: calc(100% - 4.96rem);
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background-color: inherit;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  transform-origin: bottom;
+}
+
+.robin-camera-box .robin-head {
+  width: 100%;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  background-color: inherit;
+  padding: 0 clamp(3%, 5vw, 2.688rem) 0 clamp(3%, 5vw, 3.125rem);
+  box-shadow: 0px 0px 0px rgba(0, 104, 255, 0.07), 0px -1px 10px rgba(0, 104, 255, 0.07);
+}
+
+.robin-camera-box .robin-head .robin-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.robin-camera-box .robin-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  height: 100%;
+  padding: 0rem clamp(3%, 5vw, 2.688rem) 1rem clamp(3%, 5vw, 3.125rem);
+  overflow-y: auto;
+}
+
+.robin-camera-box video {
+  margin: 2rem 0 1.5rem;
+}
+
+@media (max-width: 1200px) {
+  .robin-camera-box {
+    height: 100%;
+    z-index: 4;
+  }
+}

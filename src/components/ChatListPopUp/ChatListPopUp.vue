@@ -1,6 +1,6 @@
 <template>
-  <div class="robin-chat-list-popup robin-zoomIn" id="chat-list-popup">
-    <div class="robin-wrapper robin-w-100" @click="conversation.unread_messages > 0 || conversation.unread_messages == 'marked' ? $emit('mark-as-read') : $emit('mark-as-unread')">
+  <div class="robin-chat-list-popup robin-zoomIn">
+    <div class="robin-wrapper robin-w-100" @click="conversation.unread_messages > 0 || conversation.unread_messages == 'marked' ? $emit('mark-as-read') : $emit('mark-as-unread')" v-if="!isArchived">
       <Content :font-size="14" :color="currentTheme === 'light' ? '#101010' : '#F9F9F9'">{{ conversation.unread_messages > 0 || conversation.unread_messages == 'marked' ? 'Mark As Read' : 'Mark As Unread' }}</Content>
       <SvgIcon name="comment" :color="currentTheme === 'light' ? '#51545C' : '#F9F9F9'" />
     </div>

@@ -1,10 +1,10 @@
 <template>
-  <header>
+  <header class="robin-chat-header">
     <div
       class="robin-card-container robin-flex robin-flex-align-center"
       v-show="!selectMessagesOpen"
     >
-      <IconButton
+      <icon-button
         name="back"
         :to-emit="true"
         :to-click-away="false"
@@ -15,12 +15,12 @@
 
       <div class="robin-flex robin-flex-align-center robin-clickable" @click="openProfile()">
         <div class="robin-card-info robin-mr-8">
-          <GroupAvatar
+          <group-avatar
             v-if="currentConversation.is_group"
             :img-url="currentConversation.group_icon"
           />
 
-          <Avatar
+          <avatar
             :key="avatarKey"
             :img-url="getProfileImage(currentConversation) || currentConversation.display_photo"
             v-else
@@ -36,7 +36,7 @@
           class="robin-card-info robin-h-100 robin-flex robin-flex-column robin-flex-space-between robin-flex-1"
         >
           <div class="robin-mt-6">
-            <Content
+            <message-content
               font-weight="normal"
               :color="currentTheme === 'light' ? '#000000' : '#F9F9F9'"
               :font-size="14"
@@ -48,9 +48,9 @@
                   ? currentConversation.sender_name
                   : currentConversation.receiver_name
               }}
-            </Content>
+            </message-content>
 
-            <Content
+            <message-content
               font-weight="normal"
               :color="currentTheme === 'light' ? '#000000' : '#F9F9F9'"
               :font-size="14"
@@ -58,7 +58,7 @@
               v-else
             >
               {{ currentConversation.name }}
-            </Content>
+            </message-content>
           </div>
         </div>
       </div>
@@ -72,7 +72,7 @@
         (isForwardMessagesEnabled && isDeleteMessagesEnabled && selectMessagesOpen)
       "
     >
-      <IconButton
+      <icon-button
         name="remove"
         :to-emit="true"
         :to-click-away="false"
@@ -80,12 +80,12 @@
         @close="cancelSelect()"
       />
 
-      <Button color="#000" class="robin-ml-5" emit="clicked" @clicked="cancelSelect()"
-        >Select Messages</Button
+      <message-content class="robin-ml-5" emit="clicked" @clicked="cancelSelect()"
+        >Select Messages</message-content
       >
     </div>
 
-    <IconButton
+    <icon-button
       name="trash"
       :to-emit="true"
       :to-click-away="false"
@@ -98,11 +98,11 @@
 
     <div
       class="robin-options robin-ml-auto"
-      @click="handleOpenPopUp($event, currentConversation.is_group ? 'popup-1' : 'popup-2')"
+      @click="handleOpenPopUp($event)"
       v-show="!selectMessagesOpen"
     >
-      <IconButton
-        @clickoutside="handleClosePopUp(currentConversation.is_group ? 'popup-1' : 'popup-2')"
+      <icon-button
+        @clickoutside="handleClosePopUp()"
         :to-click-away="true"
         :to-emit="false"
         name="openModalDot"
@@ -113,15 +113,8 @@
         ref="popup-container"
         v-show="popUpState.opened && !selectMessagesOpen"
       >
-        <GroupMessagePopOver
-          ref="popup-1"
-          v-show="currentConversation.is_group"
-          @view-group-profile="openProfile()"
-        />
-
-        <PersonalMessagePopOver
-          ref="popup-2"
-          v-show="!currentConversation.is_group"
+        <chat-header-pop-up
+          :is-group="currentConversation.is_group"
           @view-profile="openProfile()"
         />
       </div>
@@ -138,8 +131,7 @@ import GroupAvatar from '@/components/GroupAvatar/GroupAvatar.vue'
 import Avatar from '@/components/Avatar/Avatar.vue'
 import Content from '@/components/Content/Content.vue'
 import Button from '@/components/Button/Button.vue'
-import GroupMessagePopOver from '../GroupMessagePopOver/GroupMessagePopOver.vue'
-import PersonalMessagePopOver from '../PersonalMessagePopOver/PersonalMessagePopOver.vue'
+import ChatHeaderPopUp from '../ChatHeaderPopUp/ChatHeaderPopUp.vue'
 import EventBus from '@/event-bus'
 
 interface PopUpState {
@@ -161,11 +153,10 @@ const ComponentProps = Vue.extend({
   components: {
     IconButton,
     GroupAvatar,
-    Content,
-    Button,
+    'message-content': Content,
+    'custom-button': Button,
     Avatar,
-    GroupMessagePopOver,
-    PersonalMessagePopOver
+    ChatHeaderPopUp
   },
   watch: {
     $robin_users: {
@@ -223,10 +214,10 @@ export default class ChatHeader extends ComponentProps {
     return store.state.useDefaultProfileDetails
   }
 
-  handleOpenPopUp (event: any, refKey: string): void {
-    const popupContainer = this.$refs['popup-container'] as any
-    const popup = this.$refs[refKey] as any
-    popup.$refs['popup-body'].classList.remove('robin-zoomOut')
+  handleOpenPopUp (event: ObjectType): void {
+    const popupContainer = this.$refs['popup-container'] as HTMLElement
+    const popup = document.getElementById('chat-header-popup') as HTMLElement
+    popup.classList.remove('robin-zoomOut')
 
     if (!this.profileOpen) {
       popupContainer.style.right = Math.floor(event.clientX / 26) + 'px'
@@ -237,16 +228,14 @@ export default class ChatHeader extends ComponentProps {
     this.popUpState.opened = true
   }
 
-  handleClosePopUp (refKey: string): void {
-    const popup = this.$refs[refKey] as any
-    popup.$refs['popup-body'].classList.remove('robin-zoomIn')
-    popup.$refs['popup-body'].classList.add('robin-zoomOut')
+  handleClosePopUp (): void {
+    const popup = document.getElementById('chat-header-popup') as HTMLElement
+    popup.classList.remove('robin-zoomIn')
+    popup.classList.add('robin-zoomOut')
 
     window.setTimeout(() => {
-      if (popup.$refs['popup-body']) {
-        popup.$refs['popup-body'].classList.add('robin-zoomIn')
-        popup.$refs['popup-body'].classList.remove('robin-zoomOut')
-      }
+      popup.classList.add('robin-zoomIn')
+      popup.classList.remove('robin-zoomOut')
 
       this.popUpState.opened = false
     }, 300)
@@ -302,44 +291,3 @@ export default class ChatHeader extends ComponentProps {
   }
 }
 </script>
-
-<style scoped>
-header {
-  width: 100%;
-  background-color: inherit;
-  display: flex;
-  align-items: center;
-  padding: 1rem clamp(3%, 5vw, 2.688rem) 1rem clamp(3%, 5vw, 3.125rem);
-  position: relative;
-  z-index: 3;
-  border-bottom: 1px solid var(--rb-color6);
-  min-height: max-content;
-}
-
-.robin-card-container >>> .robin-button {
-  margin-right: 10%;
-}
-
-.robin-options {
-  position: relative;
-}
-
-.robin-popup-container {
-  position: fixed;
-  top: 50px;
-  /* right: 55px; */
-  z-index: 100;
-}
-
-@media (max-width: 1200px) {
-  header {
-    box-shadow: 0px 2px 20px rgba(0, 104, 255, 0.06);
-  }
-}
-
-@media (max-width: 768px) {
-  header {
-    padding: 1rem clamp(3%, 5vw, 2.688rem) 1rem clamp(3%, 5vw, 3.125rem);
-  }
-}
-</style>

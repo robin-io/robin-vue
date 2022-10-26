@@ -1,0 +1,35 @@
+.robin-attach-file-popup {
+  width: 178px;
+  border: 1px solid var(--rb-color9);
+  border-radius: 6px;
+  background-color: var(--rb-color2);
+}
+
+.robin-attach-file-popup .robin-wrapper {
+  border-top: 1px solid var(--rb-color5);
+  padding: 0.813rem 1rem;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+}
+
+.robin-attach-file-popup .robin-wrapper:first-child {
+  border-radius: 6px 6px 0 0;
+}
+.robin-attach-file-popup .robin-wrapper:last-child {
+  border-radius: 0 0 6px 6px;
+}
+
+.robin-attach-file-popup .robin-wrapper:hover {
+  background-color: var(--rb-color6);
+}
+
+.robin-attach-file-popup .robin-wrapper:first-child {
+  border: none;
+}
+
+.robin-attach-file-popup.robin-zoomIn,
+.robin-attach-file-popup.robin-zoomOut {
+  transform-origin: bottom left;
+}

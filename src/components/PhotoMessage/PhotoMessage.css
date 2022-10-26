@@ -203,58 +203,6 @@
   align-items: flex-start;
 }
 
-/* .robin-grid-sender .robin-popup-container.reactions {
-  position: absolute;
-  top: -50px;
-  left: 50%;
-  z-index: 10;
-} */
-
-/* .robin-grid-receiver .robin-popup-container.reactions {
-  position: absolute;
-  top: -50px;
-  right: 50%;
-  z-index: 10;
-} */
-
-/* .robin-grid-receiver .robin-popup-container.reactions >>> .robin-popup::before {
-  bottom: -3px;
-  left: 100px;
-}
-
-.robin-grid-receiver .robin-popup-container.reactions >>> .robin-popup::after {
-  bottom: -8px;
-  left: 109px;
-} */
-
-/* .robin-grid-sender .robin-popup-container.reactions >>> .robin-zoomIn,
-.robin-grid-sender .robin-popup-container.reactions >>> .robin-zoomOut {
-  transform-origin: bottom top;
-}
-
-.robin-grid-sender .robin-popup-container.reactions >>> .robin-zoomIn,
-.robin-grid-sender .robin-popup-container.reactions >>> .robin-zoomOut {
-  transform-origin: bottom top;
-} */
-
-.download-btn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 1;
-  left: -20%;
-  transition: transform 100ms ease-in;
-}
-
-.download-btn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 1;
-  right: -20%;
-  transition: transform 100ms ease-in;
-}
-
 .download-btn:hover {
   transform: translateY(-50%) scale(1.05);
 }

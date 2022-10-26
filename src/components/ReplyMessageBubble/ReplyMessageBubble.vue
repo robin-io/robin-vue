@@ -1,63 +1,255 @@
 <template>
-  <div :class="sender ? 'robin-reply-sender' : 'robin-reply-receiver'" class="robin-reply-message-bubble robin-flex robin-flex-align-start" v-if="getReplyMessage(message.reply_to) && !getReplyMessage(message.reply_to).content.is_attachment" @click="scrollToRepliedMessage(message.reply_to)">
+  <div
+    :class="sender ? 'robin-reply-sender' : 'robin-reply-receiver'"
+    class="robin-reply-message-bubble robin-flex robin-flex-align-start"
+    v-if="
+      getReplyMessage(message.reply_to) && !getReplyMessage(message.reply_to).content.is_attachment
+    "
+    @click="scrollToRepliedMessage(message.reply_to)"
+  >
     <div>
-      <Content :font-size="14" color="#51545C" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getReplyMessage(message.reply_to).sender_token === $user_token ? 'You' : getContactName(getReplyMessage(message.reply_to).sender_token) }} </Content>
+      <message-content
+        :font-size="14"
+        color="#51545C"
+        as="span"
+        :line-height="20"
+        class="robin-messager-name robin-mb-4"
+      >
+        {{
+          getReplyMessage(message.reply_to).sender_token === $user_token
+            ? 'You'
+            : getContactName(getReplyMessage(message.reply_to).sender_token)
+        }}
+      </message-content>
 
-      <Content :font-size="14" color="#8D9091" textWrap="pre-line" wordBreak="break-word" as="span" v-if="!validateLinkInMessage().containsEmail && !validateLinkInMessage().containsWebsite">
+      <message-content
+        :font-size="14"
+        color="#8D9091"
+        textWrap="pre-line"
+        wordBreak="break-word"
+        as="span"
+        v-if="!validateLinkInMessage().containsEmail && !validateLinkInMessage().containsWebsite"
+      >
         {{ getReplyMessage(message.reply_to).content.msg }}
-      </Content>
+      </message-content>
 
-      <div class="robin-link-container" v-html="injectHtml()" v-if="(validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) || validateLinkInMessage().containsEmail || validateLinkInMessage().containsWebsite"></div>
+      <div
+        class="robin-link-container"
+        v-html="injectHtml()"
+        v-if="
+          (validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) ||
+          validateLinkInMessage().containsEmail ||
+          validateLinkInMessage().containsWebsite
+        "
+      ></div>
     </div>
   </div>
 
-  <div :class="sender ? 'robin-reply-sender' : 'robin-reply-receiver'" class="robin-reply-message-bubble" v-else-if="getReplyMessage(message.reply_to) && imageRegex.test(checkAttachmentType(getReplyMessage(message.reply_to).content.attachment))" @click="scrollToRepliedMessage(message.reply_to)">
-    <Content :font-size="14" color="#51545C" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getReplyMessage(message.reply_to).sender_token === $user_token ? 'You' : getContactName(getReplyMessage(message.reply_to).sender_token) }} </Content>
+  <div
+    :class="sender ? 'robin-reply-sender' : 'robin-reply-receiver'"
+    class="robin-reply-message-bubble"
+    v-else-if="
+      getReplyMessage(message.reply_to) &&
+      imageRegex.test(checkAttachmentType(getReplyMessage(message.reply_to).content.attachment))
+    "
+    @click="scrollToRepliedMessage(message.reply_to)"
+  >
+    <message-content
+      :font-size="14"
+      color="#51545C"
+      as="span"
+      :line-height="20"
+      class="robin-messager-name robin-mb-4"
+    >
+      {{
+        getReplyMessage(message.reply_to).sender_token === $user_token
+          ? 'You'
+          : getContactName(getReplyMessage(message.reply_to).sender_token)
+      }}
+    </message-content>
 
-    <v-lazy-image class="robin-uploaded-image" :src="getReplyMessage(message.reply_to).content.attachment" />
+    <v-lazy-image
+      class="robin-uploaded-image"
+      :src="getReplyMessage(message.reply_to).content.attachment"
+    />
 
-    <Content :max-width="getReplyMessage(message.reply_to).content.msg.length < 120 ? '217' : '270'" textWrap="pre-line" wordBreak="break-word" as="span" v-if="!validateLinkInMessage().containsEmail && !validateLinkInMessage().containsWebsite && getReplyMessage(message.reply_to).content.msg && getReplyMessage(message.reply_to).content.msg != 'undefined'">
+    <message-content
+      :max-width="getReplyMessage(message.reply_to).content.msg.length < 120 ? '217' : '270'"
+      textWrap="pre-line"
+      wordBreak="break-word"
+      as="span"
+      v-if="
+        !validateLinkInMessage().containsEmail &&
+        !validateLinkInMessage().containsWebsite &&
+        getReplyMessage(message.reply_to).content.msg &&
+        getReplyMessage(message.reply_to).content.msg != 'undefined'
+      "
+    >
       {{ getReplyMessage(message.reply_to).content.msg }}
-    </Content>
+    </message-content>
 
-    <div class="robin-link-container" v-html="injectHtml()" v-if="(validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) || validateLinkInMessage().containsEmail || (validateLinkInMessage().containsWebsite && getReplyMessage(message.reply_to).content.msg && getReplyMessage(message.reply_to).content.msg != 'undefined')"></div>
+    <div
+      class="robin-link-container"
+      v-html="injectHtml()"
+      v-if="
+        (validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) ||
+        validateLinkInMessage().containsEmail ||
+        (validateLinkInMessage().containsWebsite &&
+          getReplyMessage(message.reply_to).content.msg &&
+          getReplyMessage(message.reply_to).content.msg != 'undefined')
+      "
+    ></div>
   </div>
 
-  <div :class="sender ? 'robin-reply-sender' : 'robin-reply-receiver'" class="robin-reply-message-bubble" v-else-if="getReplyMessage(message.reply_to) && videoRegex.test(checkAttachmentType(getReplyMessage(message.reply_to).content.attachment))" @click="scrollToRepliedMessage(message.reply_to)">
-    <Content :font-size="14" color="#51545C" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getReplyMessage(message.reply_to).sender_token === $user_token ? 'You' : getContactName(getReplyMessage(message.reply_to).sender_token) }} </Content>
+  <div
+    :class="sender ? 'robin-reply-sender' : 'robin-reply-receiver'"
+    class="robin-reply-message-bubble"
+    v-else-if="
+      getReplyMessage(message.reply_to) &&
+      videoRegex.test(checkAttachmentType(getReplyMessage(message.reply_to).content.attachment))
+    "
+    @click="scrollToRepliedMessage(message.reply_to)"
+  >
+    <message-content
+      :font-size="14"
+      color="#51545C"
+      as="span"
+      :line-height="20"
+      class="robin-messager-name robin-mb-4"
+    >
+      {{
+        getReplyMessage(message.reply_to).sender_token === $user_token
+          ? 'You'
+          : getContactName(getReplyMessage(message.reply_to).sender_token)
+      }}
+    </message-content>
 
     <video controls>
       <source :src="getReplyMessage(message.reply_to).content.attachment" />
       Your browser does not support the video tag.
     </video>
 
-    <Content :max-width="getReplyMessage(message.reply_to).content.msg.length < 120 ? '217' : '270'" textWrap="pre-line" wordBreak="break-word" as="span" v-if="!validateLinkInMessage().containsEmail && !validateLinkInMessage().containsWebsite && getReplyMessage(message.reply_to).content.msg && getReplyMessage(message.reply_to).content.msg != 'undefined'">
+    <message-content
+      :max-width="getReplyMessage(message.reply_to).content.msg.length < 120 ? '217' : '270'"
+      textWrap="pre-line"
+      wordBreak="break-word"
+      as="span"
+      v-if="
+        !validateLinkInMessage().containsEmail &&
+        !validateLinkInMessage().containsWebsite &&
+        getReplyMessage(message.reply_to).content.msg &&
+        getReplyMessage(message.reply_to).content.msg != 'undefined'
+      "
+    >
       {{ getReplyMessage(message.reply_to).content.msg }}
-    </Content>
+    </message-content>
 
-    <div class="robin-link-container" v-html="injectHtml()" v-if="(validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) || validateLinkInMessage().containsEmail || (validateLinkInMessage().containsWebsite && getReplyMessage(message.reply_to).content.msg && getReplyMessage(message.reply_to).content.msg != 'undefined')"></div>
+    <div
+      class="robin-link-container"
+      v-html="injectHtml()"
+      v-if="
+        (validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) ||
+        validateLinkInMessage().containsEmail ||
+        (validateLinkInMessage().containsWebsite &&
+          getReplyMessage(message.reply_to).content.msg &&
+          getReplyMessage(message.reply_to).content.msg != 'undefined')
+      "
+    ></div>
   </div>
 
-  <div :class="sender ? 'robin-reply-sender' : 'robin-reply-receiver'" class="robin-reply-message-bubble" v-else-if="getReplyMessage(message.reply_to) && documentRegex.test(checkAttachmentType(getReplyMessage(message.reply_to).content.attachment))" @click="scrollToRepliedMessage(message.reply_to)">
-    <Content :font-size="14" color="#51545C" as="span" :line-height="20" class="robin-messager-name robin-mb-4"> {{ getReplyMessage(message.reply_to).sender_token === $user_token ? 'You' : getContactName(getReplyMessage(message.reply_to).sender_token) }} </Content>
+  <div
+    :class="sender ? 'robin-reply-sender' : 'robin-reply-receiver'"
+    class="robin-reply-message-bubble"
+    v-else-if="
+      getReplyMessage(message.reply_to) &&
+      documentRegex.test(checkAttachmentType(getReplyMessage(message.reply_to).content.attachment))
+    "
+    @click="scrollToRepliedMessage(message.reply_to)"
+  >
+    <message-content
+      :font-size="14"
+      color="#51545C"
+      as="span"
+      :line-height="20"
+      class="robin-messager-name robin-mb-4"
+    >
+      {{
+        getReplyMessage(message.reply_to).sender_token === $user_token
+          ? 'You'
+          : getContactName(getReplyMessage(message.reply_to).sender_token)
+      }}
+    </message-content>
 
-    <div class="robin-reply-document robin-flex robin-flex-align-center" v-if="getFileDetails(getReplyMessage(message.reply_to).content.attachment).extension !== 'mp3'">
-      <img v-if="assets[getFileDetails(getReplyMessage(message.reply_to).content.attachment).extension]" :src="assets[getFileDetails(getReplyMessage(message.reply_to).content.attachment).extension]" alt="document" />
+    <div
+      class="robin-reply-document robin-flex robin-flex-align-center"
+      v-if="
+        getFileDetails(getReplyMessage(message.reply_to).content.attachment).extension !== 'mp3'
+      "
+    >
+      <img
+        v-if="
+          assets[getFileDetails(getReplyMessage(message.reply_to).content.attachment).extension]
+        "
+        :src="
+          assets[getFileDetails(getReplyMessage(message.reply_to).content.attachment).extension]
+        "
+        alt="document"
+      />
 
       <img v-else :src="assets['default']" />
 
       <div class="details robin-ml-5">
-        <Content as="span" :fontSize="14"> {{ getFileDetails(getReplyMessage(message.reply_to).content.attachment).name.length > 9 ? getFileDetails(getReplyMessage(message.reply_to).content.attachment).name.substring(0, 9) + '...' + '.' + getFileDetails(getReplyMessage(message.reply_to).content.attachment).extension : getFileDetails(getReplyMessage(message.reply_to).content.attachment).name + '.' + getFileDetails(getReplyMessage(message.reply_to).content.attachment).extension }} </Content>
+        <message-content as="span" :fontSize="14">
+          {{
+            getFileDetails(getReplyMessage(message.reply_to).content.attachment).name.length > 9
+              ? getFileDetails(getReplyMessage(message.reply_to).content.attachment).name.substring(
+                  0,
+                  9
+                ) +
+                '...' +
+                '.' +
+                getFileDetails(getReplyMessage(message.reply_to).content.attachment).extension
+              : getFileDetails(getReplyMessage(message.reply_to).content.attachment).name +
+                '.' +
+                getFileDetails(getReplyMessage(message.reply_to).content.attachment).extension
+          }}
+        </message-content>
       </div>
     </div>
 
-    <AudioPlayer :message="getReplyMessage(message.reply_to)" :index="`reply-${index}`" :show-progress-time="false" v-else />
+    <audio-player
+      :message="getReplyMessage(message.reply_to)"
+      :index="`reply-${index}`"
+      :show-progress-time="false"
+      v-else
+    />
 
-    <Content :max-width="getReplyMessage(message.reply_to).content.msg.length < 120 ? '217' : '270'" textWrap="pre-line" wordBreak="break-word" as="span" v-if="!validateLinkInMessage().containsEmail && !validateLinkInMessage().containsWebsite && getReplyMessage(message.reply_to).content.msg && getReplyMessage(message.reply_to).content.msg != 'undefined'">
+    <message-content
+      :max-width="getReplyMessage(message.reply_to).content.msg.length < 120 ? '217' : '270'"
+      textWrap="pre-line"
+      wordBreak="break-word"
+      as="span"
+      v-if="
+        !validateLinkInMessage().containsEmail &&
+        !validateLinkInMessage().containsWebsite &&
+        getReplyMessage(message.reply_to).content.msg &&
+        getReplyMessage(message.reply_to).content.msg != 'undefined'
+      "
+    >
       {{ getReplyMessage(message.reply_to).content.msg }}
-    </Content>
+    </message-content>
 
-    <div class="robin-link-container" v-html="injectHtml()" v-if="(validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) || validateLinkInMessage().containsEmail || (validateLinkInMessage().containsWebsite && getReplyMessage(message.reply_to).content.msg && getReplyMessage(message.reply_to).content.msg != 'undefined')"></div>
+    <div
+      class="robin-link-container"
+      v-html="injectHtml()"
+      v-if="
+        (validateLinkInMessage().containsEmail && validateLinkInMessage().containsWebsite) ||
+        validateLinkInMessage().containsEmail ||
+        (validateLinkInMessage().containsWebsite &&
+          getReplyMessage(message.reply_to).content.msg &&
+          getReplyMessage(message.reply_to).content.msg != 'undefined')
+      "
+    ></div>
   </div>
 </template>
 
@@ -68,6 +260,7 @@ import store from '@/store/index'
 import Component from 'vue-class-component'
 import Content from '@/components/Content/Content.vue'
 import mime from 'mime'
+import { EmailRegex, WebsiteRegex, VideoRegex, ImageRegex, DocumentRegex } from '@/utils/constants'
 import AudioPlayer from '@/components/AudioPlayer/AudioPlayer.vue'
 import assets from '@/utils/assets.json'
 
@@ -100,18 +293,18 @@ const ComponentProps = Vue.extend({
 @Component<ReplyMessageBubble>({
   name: 'ReplyMessageBubble',
   components: {
-    Content,
+    'message-content': Content,
     VLazyImage,
     AudioPlayer
   }
 })
 export default class ReplyMessageBubble extends ComponentProps {
   props = {} as any
-  imageRegex = /^image/ as any
-  videoRegex = /^video/ as any
-  documentRegex = /(csv|xlsx|xls|doc|docx|ppt|pptx|txt|pdf|ppt|rtf|rar|tar|odt|md|zip|7z|zip|mp3|html)$/
-  emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-  websiteRegex = /[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/
+  imageRegex = ImageRegex as any
+  videoRegex = VideoRegex as any
+  documentRegex = DocumentRegex
+  emailRegex = EmailRegex
+  websiteRegex = WebsiteRegex
 
   get imageSelected () {
     return store.state.imageSelected

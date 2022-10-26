@@ -1,24 +1,24 @@
 <template>
   <div class="robin-container">
     <transition name="robin-fadeIn" v-show="isSideContainerOpen">
-      <SideContainer v-show="isSideContainerOpen" :key="key">
+      <side-container v-show="isSideContainerOpen" :key="key">
         <template #chat-list-header>
           <slot name="chat-list-header"></slot>
         </template>
-      </SideContainer>
+      </side-container>
     </transition>
     <transition name="robin-fadeIn">
-      <MessageContainer v-show="isMessageContainerOpen" :key="key + 1" />
+      <message-container v-show="isMessageContainerOpen" :key="key + 1" />
     </transition>
     <PageLoader v-if="isPageLoading && pageLoader" />
-    <MessageImagePreviewer
+    <photo-previewer
       ref="popup-1"
       :conversation="currentConversation"
       v-show="imagePreviewOpen"
       @close="closeImagePreview()"
       :images-to-preview="imagesToPreview"
     />
-    <ViewProfile
+    <view-profile
       ref="popup-2"
       v-show="profileOpen && showDefaultProfileDetails"
       @close="closeMessageViewProfile()"
@@ -28,8 +28,8 @@
       v-if="!showDefaultProfileDetails"
       :current-conversation="currentConversation"
     ></slot>
-    <GroupPrompt v-if="groupPromptOpen" />
-    <EncryptionDetails v-if="encryptionDetailsOpen" />
+    <group-prompt v-if="groupPromptOpen" />
+    <encryption-details v-if="encryptionDetailsOpen" />
     <audio :src="assets['notification']" ref="notification" @click="playAudio($event)">
       Your browser does not support the audio feature
     </audio>
@@ -41,7 +41,7 @@ import Vue, { PropType } from 'vue'
 import SideContainer from './components/SideContainer/SideContainer.vue'
 import MessageContainer from './components/MessageContainer/MessageContainer.vue'
 import PageLoader from './components/PageLoader/PageLoader.vue'
-import MessageImagePreviewer from './components/MessageImagePreviewer/MessageImagePreviewer.vue'
+import PhotoPreviewer from './components/PhotoPreviewer/PhotoPreviewer.vue'
 import ViewProfile from './components/ViewProfile/ViewProfile.vue'
 import GroupPrompt from './components/GroupPrompt/GroupPrompt.vue'
 import EncryptionDetails from './components/EncrytionDetails/EncryptionDetails.vue'
@@ -95,7 +95,7 @@ const ComponentProps = Vue.extend({
     },
     features: {
       type: Array as PropType<Array<string>>,
-      default: () => ['create-chat', 'voice-recorder', 'delete-messages']
+      default: () => ['create-chat', 'voice-recorder', 'delete-messages', 'forward-messages', 'message-reaction.view', 'archive-chat']
     },
     useDefaultProfileDetails: {
       type: Boolean,
@@ -125,7 +125,7 @@ const ComponentProps = Vue.extend({
     SideContainer,
     MessageContainer,
     PageLoader,
-    MessageImagePreviewer,
+    PhotoPreviewer,
     ViewProfile,
     GroupPrompt,
     EncryptionDetails
@@ -431,6 +431,7 @@ export default class App extends ComponentProps {
         EventBus.$emit('message.forward', message.value)
         break
       case 'message.reaction':
+        console.log(messages.value)
         EventBus.$emit('message.reaction', message.value)
         break
       case 'message.remove.reaction':

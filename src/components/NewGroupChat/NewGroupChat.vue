@@ -1,30 +1,79 @@
 <template>
-  <div class="robin-side-container" ref="popup-body">
+  <div class="robin-new-group-chat-container" ref="popup-body">
     <header class="robin-header">
-      <IconButton name="remove" emit="close" :to-emit="true" :to-click-away="false" @close="openPreviousModal()" />
+      <icon-button
+        name="remove"
+        emit="close"
+        :to-emit="true"
+        :to-click-away="false"
+        @close="openPreviousModal()"
+      />
 
-      <Content font-weight="400" :color="currentTheme === 'light' ? '#000000' : '#F9F9F9'" :font-size="16" class="robin-ml-12">New Group Chat</Content>
+      <message-content
+        font-weight="400"
+        :color="currentTheme === 'light' ? '#000000' : '#F9F9F9'"
+        :font-size="16"
+        class="robin-ml-12"
+        >New Group Chat</message-content
+      >
 
       <div class="robin-ml-auto">
-        <Button emit="done" @done="openGroupChatList()" v-show="name.length > 0" class="robin-pulse-2">Done</Button>
+        <custom-button
+          emit="done"
+          @done="openGroupChatList()"
+          v-show="name.length > 0"
+          class="robin-pulse-2"
+          >Done</custom-button
+        >
       </div>
     </header>
 
-    <Content as="label" for-ref="group-icon-upload" class="robin-clickable">
+    <message-content as="label" for-ref="group-icon-upload" class="robin-clickable">
       <div class="robin-group-image robin-mb-7" v-show="!icon.name">
-        <input type="file" :style="{ display: 'none' }" :accept="acceptedVisualFiles" @change="handleFileChange($event.target.files)" @click="resetFileTarget($event)" id="group-icon-upload" data-testid="group-icon-upload" />
-        <Content :color="currentTheme === 'light' ? '#fff' : '#1E1E1E'"  :fontSize="24">RG</Content>
+        <input
+          type="file"
+          :style="{ display: 'none' }"
+          :accept="acceptedVisualFiles"
+          @change="handleFileChange($event.target.files)"
+          @click="resetFileTarget($event)"
+          id="group-icon-upload"
+          data-testid="group-icon-upload"
+        />
+        <message-content :color="currentTheme === 'light' ? '#fff' : '#1E1E1E'" :fontSize="24">RG</message-content>
       </div>
 
-      <img class="robin-group-image robin-mb-7" :src="icon.localUrl" :alt="icon.name" v-show="icon.name" data-testid="image">
+      <img
+        class="robin-group-image robin-mb-7"
+        :src="icon.localUrl"
+        :alt="icon.name"
+        v-show="icon.name"
+        data-testid="image"
+      />
 
-      <Content fontWeight="400" :color="currentTheme === 'light' ? '#000000' : '#F9F9F9'" :fontSize="14" class="robin-mb-32">Tap To Add Group Image</Content>
-    </Content>
+      <message-content
+        fontWeight="400"
+        :color="currentTheme === 'light' ? '#000000' : '#F9F9F9'"
+        :fontSize="14"
+        class="robin-mb-32"
+        >Tap To Add Group Image</message-content
+      >
+    </message-content>
 
     <div class="robin-wrapper robin-w-100">
-      <Content fontWeight="400" :color="currentTheme === 'light' ? '#000000' : '#F9F9F9'" :fontSize="14" class="robin-mb-8">Group Name</Content>
+      <message-content
+        fontWeight="400"
+        :color="currentTheme === 'light' ? '#000000' : '#F9F9F9'"
+        :fontSize="14"
+        class="robin-mb-8"
+        >Group Name</message-content
+      >
 
-      <Input @user-typing="userTyping" :text="groupName" :reset="resetInput" placeholder="Robin Group" />
+      <custom-input
+        @user-typing="userTyping"
+        :text="groupName"
+        :reset="resetInput"
+        placeholder="Robin Group"
+      />
     </div>
   </div>
 </template>
@@ -51,9 +100,9 @@ const ComponentProps = Vue.extend({
 @Component({
   name: 'NewGroupChat',
   components: {
-    Content,
-    Input,
-    Button,
+    'message-content': Content,
+    'custom-input': Input,
+    'custom-button': Button,
     GroupAvatar,
     IconButton
   }
@@ -94,7 +143,7 @@ export default class NewGroupChatList extends ComponentProps {
       const reader = new FileReader()
       reader.readAsDataURL(file)
       reader.onload = () => resolve(reader.result?.toString() || '')
-      reader.onerror = error => reject(error)
+      reader.onerror = (error) => reject(error)
     })
   }
 
@@ -128,81 +177,3 @@ export default class NewGroupChatList extends ComponentProps {
   }
 }
 </script>
-
-<style scoped>
-.robin-side-container {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  box-shadow: 0px 2px 20px rgba(0, 104, 255, 0.06);
-  position: absolute;
-  top: 0;
-  z-index: 2;
-  background-color: inherit;
-}
-
-header {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  padding: clamp(2%, 4vh, 1rem) clamp(2%, 4vw, 1rem) 1rem;
-  margin: 1.688rem 0 3.313rem;
-  background-color: var(--rb-color2);
-}
-
-.robin-side-container >>> label {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.robin-contact-container {
-  width: 100%;
-}
-
-div.robin-group-image {
-  background-color: var(--rb-color8);
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-}
-
-img.robin-group-image {
-  width: 80px;
-  min-height: 80px;
-  max-height: 80px;
-  border-radius: 50%;
-  background-color: var(--rb-color8);
-  object-fit: cover;
-}
-
-.robin-wrapper {
-  padding: 0 clamp(2%, 4vw, 1.5rem);
-}
-
-@media (min-width: 768px) {
-  ::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
-  }
-
-  ::-webkit-scrollbar-track {
-    /* border: 1px solid #00000017; */
-    border-radius: 24px;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    width: 2px;
-    background-color: #d6d6d6;
-    border-radius: 24px;
-    -webkit-border-radius: 24px;
-    -moz-border-radius: 24px;
-    -ms-border-radius: 24px;
-    -o-border-radius: 24px;
-  }
-}
-</style>

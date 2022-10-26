@@ -1,0 +1,37 @@
+.robin-chat-header {
+  width: 100%;
+  background-color: inherit;
+  display: flex;
+  align-items: center;
+  padding: 1rem clamp(3%, 5vw, 2.688rem) 1rem clamp(3%, 5vw, 3.125rem);
+  position: relative;
+  z-index: 3;
+  border-bottom: 1px solid var(--rb-color6);
+  min-height: max-content;
+}
+
+.robin-chat-header .robin-card-container .robin-button {
+  margin-right: 10%;
+}
+
+.robin-chat-header .robin-options {
+  position: relative;
+}
+
+.robin-chat-header .robin-popup-container {
+  position: fixed;
+  top: 50px;
+  z-index: 100;
+}
+
+@media (max-width: 1200px) {
+  .robin-chat-header {
+    box-shadow: 0px 2px 20px rgba(0, 104, 255, 0.06);
+  }
+}
+
+@media (max-width: 768px) {
+  .robin-chat-header {
+    padding: 1rem clamp(3%, 5vw, 2.688rem) 1rem clamp(3%, 5vw, 3.125rem);
+  }
+}

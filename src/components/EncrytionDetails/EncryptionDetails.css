@@ -1,0 +1,38 @@
+.robin-encryption-details.robin-shim {
+  width: 100%;
+  height: 100vh;
+  background-color: rgba(81, 84, 92, 0.4);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  display: flex;
+  justify-content: center;
+  overflow-y: auto;
+}
+
+.robin-encryption-details .robin-card {
+  background-color: var(--rb-bg-color);
+  border-radius: 10px;
+  width: min(426px, 90%);
+  height: 358px;
+  padding: 1.063rem min(1.563rem, 2%) 1.063rem min(1.625rem, 2.1%);
+  position: relative;
+  margin-top: 4.063rem;
+}
+
+.robin-encryption-details .robin-head {
+  display: flex;
+  align-items: center;
+  padding: 1rem min(1.188rem, 1.188%) 1rem;
+}
+
+.robin-encryption-details .robin-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}

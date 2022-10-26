@@ -1,19 +1,31 @@
 <template>
-  <div class="robin-shim robin-fadeIn" ref="popup-2" @click.self="closeModal()">
+  <div class="robin-prompt robin-shim robin-fadeIn" ref="popup-2" @click.self="closeModal()">
     <div class="robin-card">
       <div class="robin-wrapper">
-        <Content :font-size="17" :font-weight="'500'" class="robin-mb-11"> {{ getHeaderDialog() }} </Content>
+        <message-content :font-size="17" :font-weight="'500'" class="robin-mb-11">
+          {{ getHeaderDialog() }}
+        </message-content>
 
-        <Content :color="currentTheme === 'light' ? '#51545C' : '#B6B6B6'" text-wrap="normal" text-align="center"> Are you sure you want to proceed? </Content>
+        <message-content
+          :color="currentTheme === 'light' ? '#51545C' : '#B6B6B6'"
+          text-wrap="normal"
+          text-align="center"
+        >
+          Are you sure you want to proceed?
+        </message-content>
       </div>
 
       <div class="robin-button-container">
-        <button class="robin-button cancel" @click="$emit('closemodal')" data-testid="cancel-button">
-          <Content color="#D53120">Cancel</Content>
+        <button
+          class="robin-button cancel"
+          @click="$emit('closemodal')"
+          data-testid="cancel-button"
+        >
+          <message-content color="#D53120">Cancel</message-content>
         </button>
 
         <button class="robin-button proceed" @click="$emit('proceed')" data-testid="proceed-button">
-          <Content color="#15AE73">Proceed</Content>
+          <message-content color="#15AE73">Proceed</message-content>
         </button>
       </div>
     </div>
@@ -25,7 +37,6 @@ import Vue from 'vue'
 import Component from 'vue-class-component'
 import store from '@/store/index'
 import Content from '@/components/Content/Content.vue'
-import IconButton from '@/components/IconButton/IconButton.vue'
 
 const ComponentProps = Vue.extend({
   props: {
@@ -39,8 +50,7 @@ const ComponentProps = Vue.extend({
 @Component({
   name: 'Prompt',
   components: {
-    Content,
-    IconButton
+    'message-content': Content
   }
 })
 export default class Prompt extends ComponentProps {
@@ -69,61 +79,11 @@ export default class Prompt extends ComponentProps {
       return 'Exit Group'
     } else if (this.status === 'clear messages') {
       return 'Clear Messages'
+    } else if (this.status === 'delete select') {
+      return 'Delete Messages'
     } else {
       return 'Remove Participant'
     }
   }
 }
 </script>
-
-<style scoped>
-.robin-shim {
-  width: 100%;
-  height: 100vh;
-  background-color: rgba(81, 84, 92, 0.4);
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 3;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  overflow-y: auto;
-}
-
-.robin-card {
-  background-color: var(--rb-bg-color);
-  border-radius: 10px;
-  width: 264px;
-  margin-top: 13.688%;
-}
-
-.robin-wrapper {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 1.5rem clamp(3%, 5vw, 1.063rem) 2.375rem clamp(3%, 5vw, 0.563rem);
-}
-
-.robin-button-container {
-  width: 100%;
-  border-top: 1px solid var(--rb-color13);
-  display: flex;
-}
-
-.robin-button {
-  width: 100%;
-  height: 44px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-}
-
-.robin-button-container .robin-button:first-child {
-  border-right: 0.5px solid rgba(60, 60, 67, 0.36);
-}
-</style>

@@ -1,0 +1,44 @@
+.robin-recycle-scroller {
+  position: relative;
+}
+
+.robin-recycle-scroller.direction-vertical:not(.page-mode) {
+  overflow-y: auto;
+}
+
+.robin-recycle-scroller.direction-horizontal:not(.page-mode) {
+  overflow-x: auto;
+}
+
+.robin-recycle-scroller.direction-horizontal {
+  display: flex;
+}
+
+.item-wrapper {
+  flex: 1;
+  box-sizing: border-box;
+  overflow: hidden;
+  position: relative;
+}
+
+.robin-recycle-scroller.ready .item-view {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.robin-recycle-scroller.direction-vertical .item-wrapper {
+  width: 100%;
+}
+
+.robin-recycle-scroller.direction-horizontal .item-wrapper {
+  height: 100%;
+}
+
+.robin-recycle-scroller.ready.direction-vertical .item-view {
+  width: 100%;
+}
+
+.robin-recycle-scroller.ready.direction-horizontal .item-view {
+  height: 100%;
+}

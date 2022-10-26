@@ -6,10 +6,10 @@
       data-testid="reply-button"
       v-if="isReplyMessagesEnabled"
     >
-      <Content :font-size="14" :color="currentTheme === 'light' ? '#51545C' : '#F9F9F9'"
-        >Reply Message</Content
+      <message-content :font-size="14" :color="currentTheme === 'light' ? '#51545C' : '#F9F9F9'"
+        >Reply Message</message-content
       >
-      <SvgIcon
+      <svg-icon
         name="reply"
         :color="currentTheme === 'light' ? '#51545C' : '#F9F9F9'"
         :to-emit="false"
@@ -22,10 +22,10 @@
       data-testid="forward-button"
       v-if="isForwardMessagesEnabled"
     >
-      <Content :font-size="14" :color="currentTheme === 'light' ? '#51545C' : '#F9F9F9'"
-        >Forward</Content
+      <message-content :font-size="14" :color="currentTheme === 'light' ? '#51545C' : '#F9F9F9'"
+        >Forward</message-content
       >
-      <SvgIcon
+      <svg-icon
         name="forward"
         :color="currentTheme === 'light' ? '#51545C' : '#F9F9F9'"
         :to-emit="false"
@@ -42,10 +42,10 @@
         (isForwardMessagesEnabled && isDeleteMessagesEnabled)
       "
     >
-      <Content :font-size="14" :color="currentTheme === 'light' ? '#51545C' : '#F9F9F9'"
-        >Select Message</Content
+      <message-content :font-size="14" :color="currentTheme === 'light' ? '#51545C' : '#F9F9F9'"
+        >Select Message</message-content
       >
-      <SvgIcon
+      <svg-icon
         name="select"
         :color="currentTheme === 'light' ? '#51545C' : '#F9F9F9'"
         :to-emit="false"
@@ -58,10 +58,10 @@
       data-testid="delete-button"
       v-if="message.failed"
     >
-      <Content :font-size="14" :color="currentTheme === 'light' ? '#51545C' : '#F9F9F9'"
-        >Resend</Content
+      <message-content :font-size="14" :color="currentTheme === 'light' ? '#51545C' : '#F9F9F9'"
+        >Resend</message-content
       >
-      <SvgIcon
+      <svg-icon
         name="forward"
         :to-emit="false"
         :to-click-away="false"
@@ -74,10 +74,10 @@
       data-testid="delete-button"
       v-if="isDeleteMessagesEnabled"
     >
-      <Content :font-size="14" :color="currentTheme === 'light' ? '#51545C' : '#F9F9F9'"
-        >Delete Message</Content
+      <message-content :font-size="14" :color="currentTheme === 'light' ? '#51545C' : '#F9F9F9'"
+        >Delete Message</message-content
       >
-      <SvgIcon
+      <svg-icon
         name="trash"
         :to-emit="false"
         :to-click-away="false"
@@ -107,7 +107,7 @@ const ComponentProps = Vue.extend({
 @Component({
   name: 'MessagePopUp',
   components: {
-    Content,
+    'message-content': Content,
     SvgIcon
   }
 })

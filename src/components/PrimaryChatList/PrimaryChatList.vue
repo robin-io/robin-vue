@@ -47,14 +47,14 @@
         <content class="robin-ml-6" font-weight="400" color="#15AE73"> Archived Chats </content>
       </div>
 
-      <content
+      <message-content
         font-weight="400"
         color="#15AE73"
         v-show="archivedConversations.length > 0"
         data-testid="archived-conversation-count"
       >
         {{ archivedConversations.length }}
-      </content>
+      </message-content>
     </custom-button>
 
     <div v-show="isPageLoading" class="robin-spinner"></div>
@@ -76,6 +76,7 @@
           :index="index"
           :item="item"
           :type="1"
+          conversation-type="primary"
           @open-conversation="openConversation(item)"
           @open-modal="openModal"
           @close-modal="closeModal"
@@ -87,6 +88,7 @@
       v-if="conversations[conversationIndex]"
       :conversation="conversations[conversationIndex]"
       :is-archived="false"
+      ref="chat-list-popup"
       @archive-chat="handleArchiveChat"
       @delete-conversation="handleDeleteConversation"
       @mark-as-read="handleMarkAsRead"
@@ -129,7 +131,7 @@ const ComponentProps = Vue.extend({
 @Component<PrimaryChatList>({
   name: 'PrimaryChatList',
   components: {
-    Content,
+    'message-content': Content,
     IconButton,
     SvgIcon,
     SearchBar,
@@ -155,13 +157,6 @@ const ComponentProps = Vue.extend({
           }
 
           return 0
-        })
-        this.popUpStates = []
-        this.conversations.forEach((val) => {
-          this.popUpStates.push({
-            opened: false,
-            _id: val._id
-          })
         })
       },
       immediate: true
@@ -285,12 +280,12 @@ export default class PrimaryChatList extends ComponentProps {
   openModal (index: number) {
     this.conversationIndex = index
     const chatEl = document.getElementById(`conversation-${this.conversationIndex}`) as HTMLElement
-    const chatListPopupEl = document.getElementById('chat-list-popup') as HTMLElement
+    const chatListPopupEl = this.$refs['chat-list-popup'].$el as HTMLElement
     const lastThreeInArray = index >= this.conversations.length - 3
 
     if (chatListPopupEl.style.display === 'block') chatListPopupEl.style.display = 'none'
 
-    if (lastThreeInArray) {
+    if (lastThreeInArray && this.scroll) {
       chatListPopupEl.style.top = `${chatEl.getBoundingClientRect().top - 40}px`
     } else {
       chatListPopupEl.style.top = `${chatEl.getBoundingClientRect().top + 50}px`
@@ -302,16 +297,16 @@ export default class PrimaryChatList extends ComponentProps {
   }
 
   closeModal (index: number) {
-    const popup = document.getElementById('chat-list-popup') as HTMLElement
+    const chatListPopupEl = this.$refs['chat-list-popup'].$el as HTMLElement
 
     if (this.conversationIndex === index) {
-      popup.classList.remove('robin-zoomIn')
-      popup.classList.add('robin-zoomOut')
+      chatListPopupEl.classList.remove('robin-zoomIn')
+      chatListPopupEl.classList.add('robin-zoomOut')
 
       window.setTimeout(() => {
-        popup.style.display = 'none'
-        popup.classList.add('robin-zoomIn')
-        popup.classList.remove('robin-zoomOut')
+        chatListPopupEl.style.display = 'none'
+        chatListPopupEl.classList.add('robin-zoomIn')
+        chatListPopupEl.classList.remove('robin-zoomOut')
       }, 300)
     }
   }

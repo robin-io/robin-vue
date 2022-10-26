@@ -1,5 +1,11 @@
 <template>
-  <button type="button" @click="$emit(emit)" class="robin-button" :style="getStyles" data-testid="button">
+  <button
+    type="button"
+    @click="$emit(emit)"
+    class="robin-button"
+    :style="getStyles"
+    data-testid="button"
+  >
     <slot>Archived</slot>
   </button>
 </template>
@@ -37,12 +43,11 @@ export default class Button extends ComponentProps {
 
   mounted (): void {
     this.root = document.documentElement
-    // this.getStyles()
   }
 
   get getStyles (): Object {
     let rootFontSize = 16 // default
-    let fontSize = `${(this.fontSize / rootFontSize) + 'rem'}`
+    let fontSize = `${this.fontSize / rootFontSize + 'rem'}`
 
     if (this.root && this.root.style.fontSize !== '') {
       rootFontSize = this.root.style.fontSize
@@ -64,12 +69,3 @@ export default class Button extends ComponentProps {
   }
 }
 </script>
-
-<style scoped>
-.robin-button {
-  cursor: pointer;
-  border: none;
-  background-color: transparent;
-  width: max-content;
-}
-</style>

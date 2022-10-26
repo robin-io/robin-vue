@@ -1,24 +1,14 @@
 <template>
-  <div class="robin-message-bubble robin-flex robin-flex-align-center image">
-    <CheckBox ref="checkbox" v-show="selectMessagesOpen" @clicked="toggleCheckAction($event)" />
+  <div class="robin-message-bubble robin-flex robin-flex-align-center image" v-clickaway="closeModal" :id="`message-bubble-${index}`">
+    <CheckBox v-show="selectMessagesOpen" @clicked="toggleCheckAction($event)" />
 
     <div
       class="robin-bubble image"
       @mouseover="onMouseOver()"
       @mouseleave="onMouseLeave()"
-      :class="validateMessages(message).includes('message-sender') ? 'robin-grid-sender' : 'robin-grid-receiver'"
+      :class="validateMessages(message).includes('message-sender') ? 'robin-grid-sender robin-ml-5' : 'robin-grid-receiver robin-mr-5'"
       data-testid="bubble"
     >
-      <div class="robin-popup-container reactions" ref="popup-body">
-        <!-- <ReactionPopOver
-          v-show="isMessageReactionViewEnabled"
-          @close-modal="closeModal()"
-          :id="message[0]._id"
-          :message="message[0]"
-          @reaction="$emit('add-reaction', $event)"
-        /> -->
-      </div>
-
       <Content
         v-if="currentConversation.is_group"
         :font-size="12"
@@ -48,25 +38,25 @@
           :key="image._id"
           :class="validateImageClass(index)"
         >
-          <v-lazy-image class="robin-uploaded-image" :src="image.content.attachment" />
+          <v-lazy-image class="robin-uploaded-image" :src="typeof image.content.attachment !== 'string' ? convertFileToURL(image.content.attachment) : image.content.attachment" />
         </div>
 
         <span
           :class="
-            message.length > 4
+            images.length > 4
               ? 'back-drop robin-flex-column robin-flex-space-between'
               : 'robin-flex-end'
           "
           class="robin-drop-shadow robin-flex"
         >
           <Content
-            v-show="message.length > 4"
+            v-show="images.length > 4"
             :font-size="26"
             color="#fff"
             as="p"
             class="robin-message-count"
           >
-            {{ message.length - 4 }}+
+            {{ images.length - 4 }}+
           </Content>
         </span>
       </div>
@@ -80,7 +70,7 @@
           !validateLinkInMessage().containsEmail &&
           !validateLinkInMessage().containsWebsite &&
           message[0].content.msg &&
-          message[0].content.msg != 'undefined'
+          message[0].content.msg != ''
         "
       >
         {{ message[0].content.msg }}
@@ -192,7 +182,7 @@ const ComponentProps = Vue.extend({
   watch: {
     message: {
       handler (val: any) {
-        this.images = [...val].slice(0, 4) as Array<ObjectType>
+        this.images = [...val].filter((item) => !item.is_deleted).slice(0, 4) as Array<ObjectType>
       },
       immediate: true
     }
@@ -295,6 +285,10 @@ export default class PhotoMessage extends ComponentProps {
     }
   }
 
+  convertFileToURL (file: File): string {
+    return URL.createObjectURL(file)
+  }
+
   injectHtml (message: string): void {
     let returnedMessage = ''
 
@@ -321,11 +315,11 @@ export default class PhotoMessage extends ComponentProps {
   }
 
   openModal (event: ObjectType) {
-    this.$emit('open-modal', event, this.index)
+    this.$emit('open-modal', this.index)
   }
 
   closeModal () {
-    this.$emit('close-modal')
+    this.$emit('close-modal', this.index)
   }
 
   toggleCheckAction (val: boolean): void {
@@ -507,17 +501,3 @@ export default class PhotoMessage extends ComponentProps {
   }
 }
 </script>
-
-<style scoped>
-@media (max-width: 480px) {
-  .robin-message-container .robin-message-bubble-image {
-    max-width: 220px;
-  }
-}
-
-@media (min-width: 1025px) {
-  .robin-message-bubble-image:hover {
-    background-color: var(--rb-color11);
-  }
-}
-</style>

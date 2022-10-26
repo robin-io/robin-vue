@@ -1,0 +1,54 @@
+.robin-box-search {
+    width: 100%;
+    height: 44px;
+    background-color: var(--rb-color6);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    padding: 0 0.2rem 0 1rem;
+    transition: all 0.1s;
+  }
+  
+  .robin-box-search .robin-input {
+    width: 86%;
+    height: 100%;
+    background-color: transparent;
+    caret-color: var(--rb-color7);
+    color: var(--rb-color7);
+    border: none;
+    font-size: 0.875rem;
+    padding-left: 1rem;
+  }
+  
+  /* Input focus */
+  .robin-box-search .robin-input:focus {
+    outline: none;
+  }
+  
+  .robin-box-search .robin-spinner {
+    width: 17px;
+    height: 17px;
+    margin-left: auto;
+  }
+  
+  /* Input placeholder */
+  .robin-box-search ::placeholder {
+    color: #8d9091;
+  }
+  
+  .robin-box-search ::-moz-placeholder {
+    color: #8d9091;
+  }
+  
+  .robin-box-search :-ms-input-placeholder {
+    color: #8d9091;
+  }
+  
+  .robin-box-search ::-ms-input-placeholder {
+    color: #8d9091;
+  }
+  
+  .robin-box-search ::-webkit-search-cancel-button {
+    appearance: none;
+    -webkit-appearance: none;
+  }

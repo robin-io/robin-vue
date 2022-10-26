@@ -32,7 +32,6 @@ interface State {
   useDefaultProfileDetails: boolean,
   currentTheme: string,
   messageQueue: MessageQueue,
-  sendType: string,
   screenWidth: number,
 }
 
@@ -67,7 +66,6 @@ const state: State = {
   useDefaultProfileDetails: false,
   currentTheme: 'light',
   messageQueue: new MessageQueue(),
-  sendType: 'automatic',
   screenWidth: 0
 }
 

@@ -258,7 +258,7 @@ export default class SideContainer extends Vue {
       this.regularConversations = [...regularConversations]
       this.archivedConversations = [...archivedConversations]
       store.setState('isPageLoading', false)
-      this.$forceUpdate()
+      // this.$forceUpdate()
     }
   }
 
@@ -270,10 +270,12 @@ export default class SideContainer extends Vue {
   }
 
   getRegularConversations () {
-    const regularConversations = this.$conversations.filter((user: any) => {
-      if (!user.archived_for || user.archived_for.length === 0) return true
-      return !user.archived_for.includes(this.$user_token)
-    })
+    const regularConversations = [
+      ...this.$conversations.filter((user: any) => {
+        if (!user.archived_for || user.archived_for.length === 0) return true
+        return !user.archived_for.includes(this.$user_token)
+      })
+    ]
 
     return this.addUnreadMessagesToConversation(regularConversations)
   }
@@ -319,8 +321,10 @@ export default class SideContainer extends Vue {
           )
 
           if (this.regularConversations[index]) {
-            this.regularConversations[index].unread_messages = 0
-            this.$regularConversations[index].unread_messages = 0
+            const data = { ...this.regularConversations[index] }
+            data.unread_messages = 0
+            this.$set(this.regularConversations, this.regularConversations[index], data)
+            this.$set(this.$regularConversations, this.$regularConversations[index], data)
           }
         }
       }
@@ -336,7 +340,10 @@ export default class SideContainer extends Vue {
           )
 
           if (this.regularConversations[index]) {
-            this.$regularConversations[index].unread_messages += 1
+            const data = { ...this.regularConversations[index] }
+            data.unread_messages += 1
+            this.$set(this.regularConversations, this.regularConversations[index], data)
+            this.$set(this.$regularConversations, this.$regularConversations[index], data)
           }
         }
       }
@@ -350,8 +357,10 @@ export default class SideContainer extends Vue {
           )
 
           if (this.regularConversations[index]) {
-            this.regularConversations[index].unread_messages = 'marked'
-            this.$regularConversations[index].unread_messages = 'marked'
+            const data = { ...this.regularConversations[index] }
+            data.unread_messages = 'marked'
+            this.$set(this.regularConversations, this.regularConversations[index], data)
+            this.$set(this.$regularConversations, this.$regularConversations[index], data)
           }
         }
       }
@@ -359,13 +368,15 @@ export default class SideContainer extends Vue {
   }
 
   handleMessageForward (): void {
-    EventBus.$on('message.forward', (messages: any) => {
-      // (messages)
-      messages.forEach((msg: any) => {
+    EventBus.$on('message.forward', (messages: ObjectType) => {
+      messages.forEach((msg: ObjectType) => {
         this.conversations.forEach((conversation: any, index: any) => {
           if (conversation._id === msg.conversation_id) {
-            msg.content.timestamp = new Date()
-            this.conversations[index].last_message = msg.content
+            const data = { ...this.conversations[index] }
+            const msgData = { ...msg }
+            msgData.content.timestamp = new Date()
+            data.last_message = msgData.content
+            this.$set(this.conversations, this.conversations[index], data)
             EventBus.$emit('regular-conversation.delete', this.conversations[index])
             EventBus.$emit('regular-conversation.add', this.conversations[index])
           }
@@ -378,7 +389,7 @@ export default class SideContainer extends Vue {
     this.key += 1
   }
 
-  searchedData (event: any): void {
+  searchedData (event: ObjectType): void {
     this.searchText = event.text.trim()
 
     if (event.text.trim() !== '') {

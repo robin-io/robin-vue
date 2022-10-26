@@ -1,6 +1,6 @@
 <template>
   <div class="robin-message-bubble robin-flex robin-flex-align-center" v-clickaway="closeModal" :id="`message-bubble-${index}`">
-    <CheckBox ref="checkbox" v-show="selectMessagesOpen" @clicked="toggleCheckAction($event)" />
+    <check-box v-show="selectMessagesOpen" @clicked="toggleCheckAction($event)" />
 
     <div
       class="robin-bubble"
@@ -9,19 +9,6 @@
       :class="validateMessages(message).includes('message-sender') ? 'robin-ml-5' : 'robin-mr-5'"
       data-testid="bubble"
     >
-      <div class="robin-popup-container reactions">
-        <!-- messagePopup.opened &&  -->
-        <!-- <ReactionPopOver
-          v-show="validateMessages(message) && isMessageReactionViewEnabled"
-          @close-modal="closeModal()"
-          ref="popup-1"
-          :id="message._id"
-          :message="message"
-          @reaction="addReaction"
-          data-testid="reaction-popover"
-        /> -->
-      </div>
-
       <div
         class="robin-reactions"
         v-if="
@@ -46,9 +33,8 @@
       <div
         class="robin-message-bubble-inner"
         :class="{ 'robin-non-clickable': isMessageClickable }"
-        v-if="!message.has_attachment"
       >
-        <Content
+        <message-content
           v-if="
             validateMessages(message).includes('message-sender') && currentConversation.is_group
           "
@@ -59,7 +45,7 @@
           class="robin-messager-name robin-mb-4"
         >
           {{ getContactName(message.sender_token) }}
-        </Content>
+        </message-content>
         <!-- messagePopup.opened && (caretOpen || (validateMessages(message))) && (isMessageReactionViewEnabled || isReplyMessagesEnabled || isDeleteMessagesEnabled || isForwardMessagesEnabled || message.pseudo || (isMessageReactionViewEnabled && isReplyMessagesEnabled && isDeleteMessagesEnabled && isForwardMessagesEnabled) -->
         <div
           class="robin-caret-container robin-flex robin-flex-align-center robin-flex-justify-center"
@@ -67,12 +53,12 @@
           @click="openModal"
           data-testid="popup-caret"
         >
-          <IconButton name="messagePopupCaret" :to-emit="false" :to-click-away="false" />
+          <icon-button name="messagePopupCaret" :to-emit="false" :to-click-away="false" />
         </div>
 
-        <SvgIcon class="robin-forwarded" name="forwarded" v-show="message.is_forwarded" />
+        <svg-icon class="robin-forwarded" name="forwarded" v-show="message.is_forwarded" />
 
-        <ReplyMessageBubble
+        <reply-message-bubble
           :messages="messages"
           :message="message"
           v-if="message.is_reply && isReplyMessagesEnabled"
@@ -81,7 +67,7 @@
         />
 
         <div class="message-inner" :class="{ 'robin-flex-column': isLink }">
-          <Content
+          <message-content
             :max-width="message.content.msg.length < 120 ? '217' : '270'"
             :font-size="17"
             textWrap="pre-line"
@@ -92,12 +78,12 @@
             "
           >
             {{ message.content.msg }}
-          </Content>
+          </message-content>
 
           <div class="robin-link-container" ref="message" v-if="isLink"></div>
 
           <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
-            <Content
+            <message-content
               :font-weight="'300'"
               :font-size="10"
               :color="currentTheme === 'light' ? '#7a7a7a' : '#B6B6B6'"
@@ -115,7 +101,7 @@
                 "
               />
 
-              <SvgIcon
+              <svg-icon
                 name="not-read"
                 v-if="
                   !validateMessages(message).includes('message-sender') &&
@@ -125,7 +111,7 @@
               />
 
               <i class="robin-material-icon" v-if="message.pseudo"> schedule </i>
-            </Content>
+            </message-content>
           </span>
         </div>
       </div>
@@ -172,7 +158,7 @@ const ComponentProps = Vue.extend({
 @Component<Message>({
   name: 'Message',
   components: {
-    Content,
+    'message-content': Content,
     CheckBox,
     SvgIcon,
     ReplyMessageBubble,

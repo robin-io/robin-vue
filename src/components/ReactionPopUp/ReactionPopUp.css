@@ -34,6 +34,7 @@
 .robin-reaction-popup .robin-wrapper {
   display: flex;
   justify-content: space-between;
+  overflow: hidden;
   align-items: center;
   padding: 0.2rem 0 0;
 }

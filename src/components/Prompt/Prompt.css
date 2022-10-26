@@ -1,0 +1,49 @@
+.robin-prompt.robin-shim {
+  width: 100%;
+  height: 100vh;
+  background-color: rgba(81, 84, 92, 0.4);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow-y: auto;
+}
+
+.robin-prompt .robin-card {
+  background-color: var(--rb-bg-color);
+  border-radius: 10px;
+  width: 264px;
+  margin-top: 13.688%;
+}
+
+.robin-prompt .robin-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 1.5rem clamp(3%, 5vw, 1.063rem) 2.375rem clamp(3%, 5vw, 0.563rem);
+}
+
+.robin-prompt .robin-button-container {
+  width: 100%;
+  border-top: 1px solid var(--rb-color13);
+  display: flex;
+}
+
+.robin-prompt .robin-button {
+  width: 100%;
+  height: 44px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.robin-prompt .robin-button-container .robin-button:first-child {
+  border-right: 0.5px solid rgba(60, 60, 67, 0.36);
+}

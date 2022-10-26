@@ -41,50 +41,19 @@
             </div>
 
             <div class="robin-card-container robin-flex robin-flex-column">
-              <!-- <div
-                class="robin-card robin-flex robin-flex-align-center"
-                v-for="(item, conversationIndex) in conversation"
-                :key="item._id"
-                :data-testid="`conversation-${item._id}`"
+              <recycle-scroller
+                :items="conversation"
+                key-field="_id"
+                :page-mode="true"
+                :item-size="83"
+                v-slot="{ item }"
               >
-                <div class="robin-card-info robin-mr-12">
-                  <GroupAvatar v-if="item.is_group" />
-
-                  <Avatar
-                    :sender-token="
-                      item.sender_token === $user_token ? item.receiver_token : item.sender_token
-                    "
-                    v-else
-                  />
-                </div>
-
-                <div
-                  class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4 robin-flex-1"
-                >
-                  <div class="robin-flex">
-                    <Content :font-size="14" :line-height="18" v-if="!item.is_group">{{
-                      item.sender_token != $user_token ? item.sender_name : item.receiver_name
-                    }}</Content>
-
-                    <Content :font-size="14" :line-height="18" v-else>{{ item.name }}</Content>
-                  </div>
-
-                  <div class="robin-ml-auto">
-                    <CheckBox
-                      :key="addIndexToCheckBoxState(conversationIndex, checkBoxKeyState)"
-                      @clicked="toggleCheckAction($event, item)"
-                      ref="checkbox-comp"
-                    />
-                  </div>
-                </div>
-              </div> -->
-              <chat-list-card
-                v-for="(item, conversationIndex) in conversation"
-                :key="item._id"
-                :index="conversationIndex"
-                :type="2"
-                @toggle-check-action="toggleCheckAction"
-              />
+                <chat-list-card
+                  :item="item"
+                  :type="2"
+                  @toggle-check-action="toggleCheckAction"
+                />
+              </recycle-scroller>
             </div>
           </div>
         </div>
@@ -112,8 +81,8 @@ import IconButton from '@/components/IconButton/IconButton.vue'
 import SearchBar from '@/components/SearchBar/SearchBar.vue'
 import AlphabetBlock from '@/components/AlphabetBlock/AlphabetBlock.vue'
 import CheckBox from '@/components/CheckBox/CheckBox.vue'
-import Button from '@/components/Button/Button.vue'
 import ChatListCard from '../ChatListCard/ChatListCard.vue'
+import RecycleScroller from '../RecycleScroller/RecycleScroller.vue'
 import EventBus from '@/event-bus'
 
 const ComponentProps = Vue.extend({
@@ -133,8 +102,8 @@ const ComponentProps = Vue.extend({
     AlphabetBlock,
     SearchBar,
     CheckBox,
-    Button,
-    ChatListCard
+    ChatListCard,
+    RecycleScroller
   }
 })
 export default class ForwardMessage extends ComponentProps {

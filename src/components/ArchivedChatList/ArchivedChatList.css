@@ -52,7 +52,6 @@
   background-color: var(--rb-color4);
   border-radius: 4px;
   cursor: pointer;
-  /* padding: 1rem 0.75rem 1.1rem; */
 }
 
 .robin-archived-chat-list-container .robin-card:hover .robin-hidden {
@@ -60,8 +59,8 @@
   animation: slideInRight 300ms;
 }
 
-.robin-archived-chat-list-container .robin-popup-container {
-  position: fixed;
+.robin-archived-chat-list-container .robin-chat-list-popup {
+  position: absolute;
   z-index: 100;
 }
 

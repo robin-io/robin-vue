@@ -1,0 +1,17 @@
+.robin-unread-message-count {
+  font-size: 0.875rem;
+  border-radius: 20px;
+  font-weight: 100;
+  white-space: nowrap;
+  width: 22px;
+  height: 22px;
+  padding: 0.2rem 0.25rem;
+  min-width: 1.4rem;
+  max-width: max-content;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--rb-bg-color2);
+  color: var(--rb-color2);
+  overflow: hidden;
+}

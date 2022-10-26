@@ -43,7 +43,6 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import store from '@/store/index'
-import Content from '@/components/Content/Content.vue'
 
 const ComponentProps = Vue.extend({
   props: {
@@ -61,9 +60,6 @@ const ComponentProps = Vue.extend({
 // eslint-disable-next-line
 @Component<AudioPlayer>({
   name: 'AudioPlayer',
-  components: {
-    Content
-  },
   watch: {
     currentAudioPlaying: {
       handler (playingIndex) {
@@ -203,85 +199,3 @@ export default class AudioPlayer extends ComponentProps {
   }
 }
 </script>
-
-<style scoped>
-i {
-  color: #9999bc;
-  font-size: 1.5rem;
-  user-select: none;
-  cursor: pointer;
-}
-
-.robin-ap-bar-wrapper {
-  margin-right: 7px;
-  max-width: calc(95% - 18px);
-  position: relative;
-  margin-left: 0.25rem;
-}
-
-.robin-ap-bar {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  margin-top: 6%;
-}
-
-.robin-ap-progress {
-  width: 190px;
-}
-
-.robin-ap-line-container {
-  position: relative;
-  height: 2px;
-  border-radius: 5px;
-  background-color: var(--rb-color13);
-}
-
-.robin-ap-line-progress {
-  position: absolute;
-  height: inherit;
-  background-color: rgb(153, 153, 189);
-  border-radius: inherit;
-}
-
-.robin-ap-line-dot {
-  position: absolute;
-  top: -5px;
-  margin-left: -1px;
-  height: 14px;
-  width: 14px;
-  border-radius: 50%;
-  background-color: var(--primary-color);
-  transition: transform 0.25s;
-  cursor: grab;
-}
-
-.robin-ap-line-dot:active {
-  cursor: grabbing;
-}
-
-.robin-ap-line-dot.active {
-  transform: scale(1.2);
-}
-
-.robin-ap-time {
-  user-select: none;
-  font-size: 0.75rem;
-  color: #9999bc;
-  position: absolute;
-  top: 28px;
-}
-
-@media only screen and (max-width: 768px) {
-  .robin-ap-bar {
-    margin-right: 5px;
-  }
-
-  .robin-ap-line-dot {
-    height: 12px;
-    width: 12px;
-    top: -5px;
-    margin-left: -5px;
-  }
-}
-</style>

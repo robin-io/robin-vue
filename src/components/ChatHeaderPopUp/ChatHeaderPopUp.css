@@ -1,0 +1,40 @@
+.robin-chat-header-popup {
+  width: 174px;
+  border: 1px solid var(--rb-color2);
+  border-radius: 6px;
+  background-color: var(--rb-bg-color);
+}
+
+.robin-chat-header-popup .robin-wrapper {
+  border-top: 1px solid var(--rb-color5);
+  padding: 0.813rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.robin-chat-header-popup .robin-wrapper:first-child {
+  border: none;
+  border-radius: 6px 6px 0 0;
+}
+.robin-chat-header-popup .robin-wrapper:last-child {
+  border-radius: 0 0 6px 6px;
+}
+
+.robin-chat-header-popup .robin-wrapper:hover {
+  background-color: var(--rb-color6);
+}
+
+.robin-chat-header-popup .robin-wrapper:first-child {
+  border: none;
+}
+
+.robin-chat-header-popup .robin-w-100 {
+  width: 100%;
+}
+
+.robin-chat-header-popup.robin-zoomIn,
+.robin-chat-header-popup.robin-zoomOut {
+  transform-origin: top right;
+}

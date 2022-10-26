@@ -22,15 +22,3 @@ const ComponentProps = Vue.extend({
 })
 export default class AlphabetBlock extends ComponentProps {}
 </script>
-
-<style scoped>
-.robin-alphabet-block {
-  width: 100%;
-  padding: 0 1rem;
-  min-height: 42px;
-  background-color: var(--rb-bg-color);
-  color: var(--rb-color7);
-  font-size: clamp(0.3rem, 5vw, 1rem);
-  text-transform: uppercase;
-}
-</style>

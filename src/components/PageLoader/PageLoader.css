@@ -1,0 +1,44 @@
+.robin-page-loader.robin-shim {
+  width: 100vw;
+  height: 100vh;
+  background-color: #fff;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  overflow-y: auto;
+}
+
+.robin-page-loader .robin-inner-shim {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.robin-page-loader .robin-loader-ctn {
+  position: relative;
+}
+
+.robin-page-loader .robin-loader {
+  border: 5px solid #f3f3f3;
+  position: relative;
+  border-radius: 50%;
+  border-top: 5px solid #000;
+  width: 100px;
+  height: 100px;
+  -webkit-animation: spin 1s linear infinite;
+  animation: spin 1s linear infinite;
+}
+
+.robin-page-loader .robin-loader-ctn img {
+  width: 50px;
+  position: absolute;
+  top: 25px;
+  right: 25px;
+  transform: scale(5);
+}

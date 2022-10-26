@@ -1,6 +1,6 @@
 <template>
-  <div class="robin-message-bubble robin-flex robin-flex-align-center">
-    <CheckBox ref="checkbox" v-show="selectMessagesOpen" @clicked="toggleCheckAction($event)" />
+  <div class="robin-message-bubble robin-flex robin-flex-align-center" v-clickaway="closeModal" :id="`message-bubble-${index}`">
+    <CheckBox v-show="selectMessagesOpen" @clicked="toggleCheckAction($event)" />
 
     <div
       class="robin-bubble"
@@ -9,19 +9,6 @@
       :class="validateMessages(message).includes('message-sender') ? 'robin-ml-5' : 'robin-mr-5'"
       data-testid="bubble"
     >
-      <div class="robin-popup-container reactions">
-        <!-- messagePopup.opened &&  -->
-        <!-- <ReactionPopOver
-          v-show="validateMessages(message) && isMessageReactionViewEnabled"
-          @close-modal="closeModal()"
-          ref="popup-1"
-          :id="message._id"
-          :message="message"
-          @reaction="addReaction"
-          data-testid="reaction-popover"
-        /> -->
-      </div>
-
       <div
         class="robin-reactions"
         v-if="
@@ -47,7 +34,7 @@
         class="robin-message-bubble-document"
         :class="{ 'robin-non-clickable': isMessageClickable }"
       >
-        <Content
+        <message-content
           v-if="
             validateMessages(message).includes('message-sender') && currentConversation.is_group
           "
@@ -58,15 +45,15 @@
           class="robin-messager-name robin-mb-4"
         >
           {{ getContactName(message.sender_token) }}
-        </Content>
+        </message-content>
 
         <div class="robin-caret-container" v-show="caretOpen" @click="openModal($event)">
-          <IconButton name="messagePopupCaret" :to-emit="false" :to-click-away="false" />
+          <icon-button name="messagePopupCaret" :to-emit="false" :to-click-away="false" />
         </div>
 
-        <SvgIcon class="robin-forwarded" name="forwarded" v-show="message.is_forwarded" />
+        <svg-icon class="robin-forwarded" name="forwarded" v-show="message.is_forwarded" />
 
-        <ReplyMessageBubble
+        <reply-message-bubble
           :messages="messages"
           :message="message"
           :index="index"
@@ -87,7 +74,7 @@
           <img v-else :src="assets['default']" />
 
           <div class="details robin-flex robin-h-100 robin-flex-align-center">
-            <Content as="span" :fontSize="14">
+            <message-content as="span" :fontSize="14">
               {{
                 getFileDetails(message.content.attachment).name.length > 9
                   ? getFileDetails(message.content.attachment).name.substring(0, 9) +
@@ -98,10 +85,10 @@
                     '.' +
                     getFileDetails(message.content.attachment).extension
               }}
-            </Content>
+            </message-content>
           </div>
 
-          <IconButton
+          <icon-button
             name="download"
             color="#15AE73"
             @clicked="downloadFile(message.content.attachment)"
@@ -110,9 +97,9 @@
           />
         </div>
 
-        <AudioPlayer :message="message" :index="index" v-else />
+        <audio-player :message="message" :index="index" v-else />
 
-        <Content
+        <message-content
           :max-width="message.content.msg.length < 120 ? '217' : '270'"
           textWrap="pre-line"
           wordBreak="break-word"
@@ -125,7 +112,7 @@
           "
         >
           {{ message.content.msg }}
-        </Content>
+        </message-content>
 
         <div
           class="robin-link-container"
@@ -140,7 +127,7 @@
         ></div>
 
         <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
-          <Content
+          <message-content
             :font-weight="'300'"
             :font-size="10"
             :color="currentTheme === 'light' ? '#7a7a7a' : '#B6B6B6'"
@@ -149,7 +136,7 @@
           >
             {{ !message.pseudo ? formatTimeStamp(message.content.timestamp) : '' }}
 
-            <SvgIcon
+            <svg-icon
               name="read"
               v-if="
                 !validateMessages(message).includes('message-sender') &&
@@ -158,7 +145,7 @@
               "
             />
 
-            <SvgIcon
+            <svg-icon
               name="not-read"
               v-if="
                 !validateMessages(message).includes('message-sender') &&
@@ -168,7 +155,7 @@
             />
 
             <i class="robin-material-icon" v-if="message.pseudo"> schedule </i>
-          </Content>
+          </message-content>
         </span>
       </div>
     </div>
@@ -217,7 +204,7 @@ const ComponentProps = Vue.extend({
 @Component<DocumentMessage>({
   name: 'DocumentMessage',
   components: {
-    Content,
+    'message-content': Content,
     SvgIcon,
     ReplyMessageBubble,
     IconButton,
@@ -355,11 +342,11 @@ export default class DocumentMessage extends ComponentProps {
   }
 
   openModal (event: ObjectType) {
-    this.$emit('open-modal', event, this.index)
+    this.$emit('open-modal', this.index)
   }
 
   closeModal () {
-    this.$emit('close-modal')
+    this.$emit('close-modal', this.index)
   }
 
   toggleCheckAction (val: boolean): void {
@@ -391,7 +378,7 @@ export default class DocumentMessage extends ComponentProps {
     }
   }
 
-  validateMessages (message: any): string {
+  validateMessages (message: Array<ObjectType> | ObjectType): string {
     const nextMessage = this.messages[this.index + 1] as any
 
     if (
@@ -458,7 +445,7 @@ export default class DocumentMessage extends ComponentProps {
     }
   }
 
-  formatTimeStamp (value: any): string {
+  formatTimeStamp (value: string): string {
     return moment(value).format('h:mma').toUpperCase()
   }
 

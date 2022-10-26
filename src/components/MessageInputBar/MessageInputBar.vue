@@ -1,5 +1,5 @@
 <template>
-  <div class="robin-message-box" v-clickaway="handleEmojiClosePopUp">
+  <div class="robin-message-input-box" v-clickaway="handleEmojiClosePopUp">
     <div
       class="robin-emoji-container robin-squeezeOut"
       v-show="popUpState.emojiOpened"
@@ -7,7 +7,7 @@
       @keydown.enter.exact.prevent="!replying ? sendMessage() : replyMessage()"
       tabindex="1"
     >
-      <VEmojiPicker
+      <v-emoji-picker
         @select="selectEmoji"
         :emojisByRow="screenWidth > 768 ? 15 : 7"
         label-search="Search"
@@ -23,7 +23,7 @@
         class="robin-wrapper robin-flex robin-flex-1 robin-pt-8 robin-pb-8 robin-pl-24 robin-pr-24 robin-overflow-y-auto"
       >
         <div class="robin-reply robin-w-100" v-if="!messageReply.has_attachment">
-          <Content
+          <message-content
             :font-size="14"
             textWrap="pre-line"
             wordBreak="break-word"
@@ -33,7 +33,7 @@
             "
           >
             {{ messageReply.content ? messageReply.content.msg : '' }}
-          </Content>
+          </message-content>
 
           <div
             class="robin-link-container"
@@ -68,23 +68,23 @@
               class="robin-file"
               v-if="documentRegex.test(checkAttachmentType(messageReply.content.attachment))"
             >
-              <SvgIcon name="file" />
-              <Content as="span">
+              <svg-icon name="file" />
+              <message-content as="span">
                 {{
                   getFileDetails(messageReply.content.attachment).name.length > 6
                     ? getFileDetails(messageReply.content.attachment).name.substring(0, 6) + '..'
                     : getFileDetails(messageReply.content.attachment).name
                 }}
-              </Content>
-              <Content as="span">
+              </message-content>
+              <message-content as="span">
                 {{ '.' + getFileDetails(messageReply.content.attachment).extension }}
-              </Content>
+              </message-content>
             </div>
           </div>
         </div>
       </div>
       <div class="robin-reply-close">
-        <IconButton
+        <icon-button
           name="remove"
           @clicked="handleReplyMessageClose"
           :to-emit="true"
@@ -105,16 +105,16 @@
       >
         <div class="robin-file-upload" v-for="(file, index) in files" :key="`image-${index}`">
           <div class="robin-file-upload-delete" @click="removeFile(index)">
-            <IconButton name="close" :to-emit="false" :to-click-away="false" />
+            <icon-button name="close" :to-emit="false" :to-click-away="false" />
           </div>
 
           <img
             :src="file.localUrl"
-            :alt="`${file.name}-image`"
-            v-if="file.type.includes('image')"
+            alt="image"
+            v-if="imageRegex.test(checkAttachmentType(file.file))"
           />
 
-          <div class="robin-video" v-if="file.type.includes('video')">
+          <div class="robin-video" v-if="videoRegex.test(checkAttachmentType(file.file))">
             <video width="100%" height="100%" @click="removeFile(index)" controls>
               <source :src="file.localUrl" :type="file.type" />
               Your browser does not support the video tag.
@@ -122,18 +122,18 @@
           </div>
 
           <div class="robin-file" v-if="documentRegex.test(checkAttachmentType(file.extension))">
-            <SvgIcon name="file" />
-            <Content as="span">
+            <svg-icon name="file" />
+            <message-content as="span">
               {{ file.name.length > 6 ? file.name.substring(0, 6) + '..' : file.name }}
-            </Content>
-            <Content as="span">
+            </message-content>
+            <message-content as="span">
               {{ '.' + file.extension }}
-            </Content>
+            </message-content>
           </div>
         </div>
       </div>
       <div class="robin-file-upload-close">
-        <IconButton
+        <icon-button
           name="remove"
           @clicked="handleFileUploadClose"
           :to-emit="true"
@@ -143,20 +143,19 @@
     </div>
 
     <div class="robin-message-box-inner" @keydown.enter.exact.prevent="send($event)" tabindex="1">
-      <!-- v-show="text.trim() == '' && files.length < 1 && !isUploading" -->
       <div
         class="robin-mr-8"
         @click="toggleAttachFilePopup()"
         v-if="!isRecording"
         data-testid="attach-file-button"
       >
-        <IconButton
+        <icon-button
           name="attachFileClose"
           v-if="!popUpState.opened"
           :to-click-away="false"
           :to-emit="false"
         />
-        <IconButton
+        <icon-button
           name="attachFileOpen"
           v-else
           @clickoutside="handleClosePopUp()"
@@ -165,7 +164,7 @@
         />
       </div>
       <div class="robin-ar-indicator robin-mr-8" v-else>
-        <IconButton
+        <icon-button
           name="remove3"
           :to-click-away="false"
           :to-emit="true"
@@ -177,7 +176,7 @@
       </div>
       <div class="robin-message-input" v-show="!isRecording">
         <div class="robin-mt-4">
-          <IconButton
+          <icon-button
             name="emoji"
             @clicked="!popUpState.emojiOpened ? handleEmojiOpenPopUp() : handleEmojiClosePopUp()"
             :active="popUpState.emojiOpened"
@@ -201,14 +200,14 @@
         class="robin-flex robin-flex-align-center robin-ml-auto robin-pl-21 robin-come-up"
         v-show="(text.trim().length > 0 || files.length > 0 || isRecording) && !isUploading"
       >
-        <Content
+        <message-content
           v-show="isRecording"
           class="robin-mr-8"
           :font-size="14"
           data-testid="current-time"
-          >{{ currentTime }}</Content
+          >{{ currentTime }}</message-content
         >
-        <IconButton
+        <icon-button
           name="send"
           @sendmessage="send(null)"
           emit="sendmessage"
@@ -232,11 +231,11 @@
         @click="toggleRecorder(true)"
         data-testid="record-start-button"
       >
-        <IconButton name="voice" :to-click-away="false" :to-emit="false" />
+        <icon-button name="voice" :to-click-away="false" :to-emit="false" />
       </div>
 
       <div class="robin-popup-container" v-show="popUpState.opened">
-        <AttachFilePopOver
+        <attach-file-pop-up
           ref="popup-4"
           @file-upload="handleFileUpload"
           @open-camera="$emit('open-camera')"
@@ -255,10 +254,11 @@ import AudioRecorder from 'audio-recorder-polyfill'
 import mpegEncoder from 'audio-recorder-polyfill/mpeg-encoder'
 import EventBus from '@/event-bus'
 import Component from 'vue-class-component'
-import { MessageQueue } from '@/utils/messageQueue'
+import { createUuid } from '@/utils/helpers'
 import store from '@/store/index'
 import IconButton from '@/components/IconButton/IconButton.vue'
-import AttachFilePopOver from '../AttachFilePopOver/AttachFilePopOver.vue'
+import { EmailRegex, WebsiteRegex, VideoRegex, ImageRegex, DocumentRegex } from '@/utils/constants'
+import AttachFilePopUp from '../AttachFilePopUp/AttachFilePopUp.vue'
 import Content from '@/components/Content/Content.vue'
 import SvgIcon from '@/components/SvgIcon/SvgIcon.vue'
 
@@ -289,15 +289,15 @@ const ComponentProps = Vue.extend({
   name: 'MessageInputBar',
   components: {
     IconButton,
-    AttachFilePopOver,
-    VEmojiPicker,
-    Content,
+    AttachFilePopUp,
+    'v-emoji-picker': VEmojiPicker,
+    'message-content': Content,
     SvgIcon
   },
   watch: {
     capturedImage: function (image) {
       this.files.push({
-        name: 'captured-image',
+        name: image.file.name,
         type: 'image/jpeg',
         extension: 'jpeg',
         localUrl: image.localUrl,
@@ -314,9 +314,14 @@ const ComponentProps = Vue.extend({
       },
       deep: true
     },
-    sendType: {
+    text: {
       handler (val) {
-        if (val === 'automatic') this.retries = 0
+        if (val === '') this.isManualSend = false
+      }
+    },
+    files: {
+      handler (val) {
+        if (val.length === 0) this.isManualSend = false
       }
     }
   }
@@ -324,7 +329,7 @@ const ComponentProps = Vue.extend({
 export default class MessageInputBar extends ComponentProps {
   text = '' as string
   files = [] as Array<ObjectType>
-  documentRegex = /^application\/(csv|pdf|msword|(vnd\.(ms-|openxmlformats-).*))$|^text\/plain$|^audio\/mpeg$/i
+  documentRegex = DocumentRegex
   isUploading = false as boolean
   replying = false as boolean
   screenWidth = 0 as number
@@ -334,10 +339,10 @@ export default class MessageInputBar extends ComponentProps {
   isRecording = false as boolean
   sendRecording = false as boolean
 
-  imageRegex = /^image/ as any
-  emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-  websiteRegex = /[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/
-  videoRegex = /^video/ as any
+  imageRegex = ImageRegex
+  emailRegex = EmailRegex
+  websiteRegex = WebsiteRegex
+  videoRegex = VideoRegex
   retries = 0
   manualTimestamp = '' as string
   isManualSend = false
@@ -348,7 +353,6 @@ export default class MessageInputBar extends ComponentProps {
   }
 
   created () {
-    console.log('created')
     EventBus.$on('manual.send', (message: ObjectType) => {
       this.manualSend(message)
     })
@@ -366,20 +370,8 @@ export default class MessageInputBar extends ComponentProps {
     window.addEventListener('resize', this.onResize)
   }
 
-  get sendType () {
-    return store.state.sendType
-  }
-
-  get messageQueue () {
-    return new MessageQueue()
-  }
-
   get isVoiceRecorderEnabled () {
     return store.state.voiceRecorderEnabled
-  }
-
-  get checkFileFormat () {
-    return this.files.some((file) => file.type.includes('image'))
   }
 
   get currentConversation () {
@@ -446,8 +438,15 @@ export default class MessageInputBar extends ComponentProps {
     this.setInputState(message)
     this.toggleManualSend()
 
+    const textMessage = {
+      msg: message.content.msg,
+      sender_token: message.sender_token,
+      receiver_token: message.receiver_token,
+      timestamp: this.manualTimestamp
+    }
+
     if (message.content.msg && !message.content.attachment && !message.is_reply) {
-      this.sendTextMessage()
+      this.sendTextMessage(textMessage)
     }
 
     if (!message.content.msg && message.content.attachment && !message.is_reply) {
@@ -459,7 +458,7 @@ export default class MessageInputBar extends ComponentProps {
     }
 
     if (message.content.msg && !message.content.attachment && message.is_reply) {
-      this.replyTextMessage()
+      this.replyTextMessage(textMessage)
     }
 
     if (!message.content.msg && message.content.attachment && message.is_reply) {
@@ -498,14 +497,24 @@ export default class MessageInputBar extends ComponentProps {
   }
 
   sendMessage (): any {
+    const message = {
+      msg: this.text,
+      sender_token: this.$user_token,
+      receiver_token:
+          this.currentConversation.receiver_token === this.$user_token
+            ? this.currentConversation.sender_token
+            : this.currentConversation.receiver_token,
+      timestamp: new Date()
+    }
+
     this.toggleManualSend()
 
     if (this.files.length > 0 && this.text.trim().length === 0) {
       this.files.forEach((file: ObjectType) => this.sendFileMessage(file))
     } else if (this.text.trim().length > 0 && this.files.length < 1) {
-      this.sendTextMessage()
+      this.sendTextMessage(message)
     } else if (this.text.trim().length > 0 && this.files.length > 1) {
-      this.sendTextMessage()
+      this.sendTextMessage(message)
       this.files.forEach((file: ObjectType) => this.sendFileMessage(file))
     } else if (this.text.trim().length > 0 && this.files.length === 1) {
       this.files.forEach((file: ObjectType) => this.sendMessageWithAttachment(file, this.text))
@@ -513,53 +522,42 @@ export default class MessageInputBar extends ComponentProps {
   }
 
   async replyMessage () {
+    const message = {
+      msg: this.text,
+      sender_token: this.$user_token,
+      receiver_token:
+          this.currentConversation.receiver_token === this.$user_token
+            ? this.currentConversation.sender_token
+            : this.currentConversation.receiver_token,
+      timestamp: new Date()
+    }
+
     this.toggleManualSend()
 
     if (this.files.length > 0 && this.text.trim().length === 0) {
       this.files.forEach((file: ObjectType) => this.replyFileMessage(file))
     } else if (this.text.trim().length > 0 && this.files.length < 1) {
-      this.replyTextMessage()
+      this.replyTextMessage(message)
     } else if (this.text.trim().length > 0 && this.files.length > 1) {
-      this.replyTextMessage()
+      this.replyTextMessage(message)
       this.files.forEach((file: ObjectType) => this.replyFileMessage(file))
     } else if (this.text.trim().length > 0 && this.files.length === 1) {
       this.files.forEach((file: ObjectType) => this.replyMessageWithAttachment(file, this.text))
     }
   }
 
-  async sendTextMessage (): Promise<void> {
+  async sendTextMessage (message: ObjectType): Promise<void> {
     try {
-      const message = {
-        msg: this.text,
-        sender_token: this.$user_token,
-        receiver_token:
-          this.currentConversation.receiver_token === this.$user_token
-            ? this.currentConversation.sender_token
-            : this.currentConversation.receiver_token,
-        timestamp: this.manualTimestamp !== '' ? this.manualTimestamp : new Date()
-      }
-
-      if (this.retries === 0 && !this.isManualSend) this.messageQueue.enqueue({ message })
-
-      await this.$robin.sendMessageToConversation(
-        this.messageQueue.peek().message,
-        this.$conn,
-        this.$channel,
-        this.currentConversation._id,
-        this.$user_token,
-        this.$senderName
-      )
-
       if (this.retries === 0 && !this.isManualSend) {
         this.isUploading = true
 
         const offlineMessage = {
-          _id: this.createUuid(24),
+          _id: createUuid(24),
           channel: this.$channel,
           created_at: message.timestamp,
           content: {
             is_attachment: false,
-            msg: this.text,
+            msg: message.msg,
             sender_token: this.$user_token,
             receiver_token:
               this.currentConversation.receiver_token === this.$user_token
@@ -575,11 +573,18 @@ export default class MessageInputBar extends ComponentProps {
 
         // Send pseudo message.
         EventBus.$emit('new-pseudo-message', offlineMessage)
-
-        setTimeout(() => {
-          this.isUploading = false
-        }, 1000)
       }
+
+      await this.$robin.sendMessageToConversation(
+        message,
+        this.$conn,
+        this.$channel,
+        this.currentConversation._id,
+        this.$user_token,
+        this.$senderName
+      )
+
+      this.isUploading = false
 
       if (this.$conn.readyState > 1) {
         this.retries += 1
@@ -597,12 +602,11 @@ export default class MessageInputBar extends ComponentProps {
 
           EventBus.$emit('message-send-failed', {
             content: {
-              msg: this.messageQueue.peek().message.msg
+              msg: message.msg
             },
             conversation_id: this.currentConversation._id
           })
 
-          this.messageQueue.dequeue()
           this.retries = 0
         }
       }
@@ -622,21 +626,11 @@ export default class MessageInputBar extends ComponentProps {
 
   async sendFileMessage (file: ObjectType): Promise<void> {
     try {
-      // if (this.retries === 0 && !this.isManualSend) this.messageQueue.enqueue({ file: file.file })
-
-      await this.$robin.sendMessageAttachment(
-        this.$user_token,
-        this.currentConversation._id,
-        file.file,
-        this.$senderName,
-        ''
-      )
-
       if (this.retries === 0 && !this.isManualSend) {
         this.isUploading = true
 
         const offlineMessage = {
-          _id: this.createUuid(24),
+          _id: file.name,
           channel: this.$channel,
           created_at: this.manualTimestamp !== '' ? this.manualTimestamp : new Date(),
           content: {
@@ -658,11 +652,17 @@ export default class MessageInputBar extends ComponentProps {
         }
 
         EventBus.$emit('new-pseudo-message', offlineMessage)
-
-        setTimeout(() => {
-          this.isUploading = false
-        }, 1000)
       }
+
+      await this.$robin.sendMessageAttachment(
+        this.$user_token,
+        this.currentConversation._id,
+        file.file,
+        this.$senderName,
+        ''
+      )
+
+      this.isUploading = false
 
       if (this.$conn.readyState > 1) {
         this.retries += 1
@@ -685,7 +685,6 @@ export default class MessageInputBar extends ComponentProps {
             conversation_id: this.currentConversation._id
           })
 
-          // this.messageQueue.dequeue()
           this.retries = 0
         }
       }
@@ -706,21 +705,11 @@ export default class MessageInputBar extends ComponentProps {
 
   async sendMessageWithAttachment (file: ObjectType, msg: string): Promise<void> {
     try {
-      // if (this.retries === 0 && !this.isManualSend) this.messageQueue.enqueue({ file: file.file, msg: this.text })
-
-      await this.$robin.sendMessageAttachment(
-        this.$user_token,
-        this.currentConversation._id,
-        file.file,
-        this.$senderName,
-        msg
-      )
-
       if (this.retries === 0 && !this.isManualSend) {
         this.isUploading = true
 
         const offlineMessage = {
-          _id: this.createUuid(24),
+          _id: file.name,
           channel: this.$channel,
           created_at: this.manualTimestamp !== '' ? this.manualTimestamp : new Date(),
           content: {
@@ -742,11 +731,17 @@ export default class MessageInputBar extends ComponentProps {
         }
 
         EventBus.$emit('new-pseudo-message', offlineMessage)
-
-        setTimeout(() => {
-          this.isUploading = false
-        }, 1000)
       }
+
+      await this.$robin.sendMessageAttachment(
+        this.$user_token,
+        this.currentConversation._id,
+        file.file,
+        this.$senderName,
+        msg
+      )
+
+      this.isUploading = false
 
       if (this.$conn.readyState > 1) {
         this.retries += 1
@@ -770,7 +765,6 @@ export default class MessageInputBar extends ComponentProps {
             conversation_id: this.currentConversation._id
           })
 
-          // this.messageQueue.dequeue()
           this.retries = 0
         }
       }
@@ -789,36 +783,15 @@ export default class MessageInputBar extends ComponentProps {
     }
   }
 
-  async replyTextMessage (): Promise<void> {
+  async replyTextMessage (message: ObjectType): Promise<void> {
     try {
       const robin = this.$robin as any
-      const message = {
-        msg: this.text,
-        sender_token: this.$user_token,
-        receiver_token:
-          this.currentConversation.receiver_token === this.$user_token
-            ? this.currentConversation.sender_token
-            : this.currentConversation.receiver_token,
-        timestamp: this.manualTimestamp !== '' ? this.manualTimestamp : new Date()
-      }
-
-      if (this.retries === 0 && !this.isManualSend) this.messageQueue.enqueue({ message })
-
-      await robin.replyToMessage(
-        this.messageQueue.peek().message,
-        this.$conn,
-        this.$channel,
-        this.currentConversation._id,
-        this.messageReply._id,
-        this.$user_token,
-        this.$senderName
-      )
 
       if (this.retries === 0 && !this.isManualSend) {
         this.isUploading = true
 
         const offlineMessage = {
-          _id: this.createUuid(24),
+          _id: createUuid(24),
           channel: this.$channel,
           created_at: message.timestamp,
           content: {
@@ -840,11 +813,19 @@ export default class MessageInputBar extends ComponentProps {
         }
 
         EventBus.$emit('new-pseudo-message', offlineMessage)
-
-        setTimeout(() => {
-          this.isUploading = false
-        }, 1000)
       }
+
+      await robin.replyToMessage(
+        message,
+        this.$conn,
+        this.$channel,
+        this.currentConversation._id,
+        this.messageReply._id,
+        this.$user_token,
+        this.$senderName
+      )
+
+      this.isUploading = false
 
       if (this.$conn.readyState > 1) {
         this.retries += 1
@@ -862,12 +843,11 @@ export default class MessageInputBar extends ComponentProps {
 
           EventBus.$emit('message-send-failed', {
             content: {
-              msg: this.messageQueue.peek().message.msg
+              msg: message.msg
             },
             conversation_id: this.currentConversation._id
           })
 
-          this.messageQueue.dequeue()
           this.retries = 0
         }
       }
@@ -890,21 +870,11 @@ export default class MessageInputBar extends ComponentProps {
     try {
       const robin = this.$robin as any
 
-      if (this.retries === 0 && !this.isManualSend) this.messageQueue.enqueue({ file: file.file })
-
-      await robin.replyMessageWithAttachment(
-        this.$user_token,
-        this.currentConversation._id,
-        this.messageReply._id,
-        file.file,
-        this.$senderName
-      )
-
       if (this.retries === 0 && !this.isManualSend) {
         this.isUploading = true
 
         const offlineMessage = {
-          _id: this.createUuid(24),
+          _id: file.name,
           channel: this.$channel,
           created_at: this.manualTimestamp !== '' ? this.manualTimestamp : new Date(),
           content: {
@@ -928,11 +898,17 @@ export default class MessageInputBar extends ComponentProps {
         }
 
         EventBus.$emit('new-pseudo-message', offlineMessage)
-
-        setTimeout(() => {
-          this.isUploading = false
-        }, 1000)
       }
+
+      await robin.replyMessageWithAttachment(
+        this.$user_token,
+        this.currentConversation._id,
+        this.messageReply._id,
+        file.file,
+        this.$senderName
+      )
+
+      this.isUploading = false
 
       if (this.$conn.readyState > 1) {
         this.retries += 1
@@ -950,12 +926,11 @@ export default class MessageInputBar extends ComponentProps {
 
           EventBus.$emit('message-send-failed', {
             content: {
-              attachment: this.messageQueue.peek().file
+              attachment: file.file
             },
             conversation_id: this.currentConversation._id
           })
 
-          this.messageQueue.dequeue()
           this.retries = 0
         }
       }
@@ -978,22 +953,11 @@ export default class MessageInputBar extends ComponentProps {
     try {
       const robin = this.$robin as any
 
-      // if (this.retries === 0 && !this.isManualSend) this.messageQueue.enqueue({ file: file?.file, msg: this.text })
-
-      await robin.replyMessageWithAttachment(
-        this.$user_token,
-        this.currentConversation._id,
-        this.messageReply._id,
-        file.file,
-        this.$senderName,
-        msg
-      )
-
       if (this.retries === 0 && !this.isManualSend) {
         this.isUploading = true
 
         const offlineMessage = {
-          _id: this.createUuid(24),
+          _id: file.name,
           channel: this.$channel,
           content: {
             attachment: file.file,
@@ -1017,11 +981,18 @@ export default class MessageInputBar extends ComponentProps {
         }
 
         EventBus.$emit('new-pseudo-message', offlineMessage)
-
-        setTimeout(() => {
-          this.isUploading = false
-        }, 1000)
       }
+
+      await robin.replyMessageWithAttachment(
+        this.$user_token,
+        this.currentConversation._id,
+        this.messageReply._id,
+        file.file,
+        this.$senderName,
+        msg
+      )
+
+      this.isUploading = false
 
       if (this.$conn.readyState > 1) {
         this.retries += 1
@@ -1045,7 +1016,6 @@ export default class MessageInputBar extends ComponentProps {
             conversation_id: this.currentConversation._id
           })
 
-          // this.messageQueue.dequeue()
           this.retries = 0
         }
       }
@@ -1177,8 +1147,14 @@ export default class MessageInputBar extends ComponentProps {
     }, 100)
   }
 
-  checkAttachmentType (attachmentUrl: String): string {
-    const strArr = attachmentUrl.split('.')
+  checkAttachmentType (attachment: any): string {
+    let strArr = [] as Array<string>
+
+    if (typeof attachment !== 'string') {
+      strArr = attachment.name.split('.')
+    } else {
+      strArr = attachment.split('.')
+    }
 
     return `${mime.getType(strArr[strArr.length - 1])}`
   }
@@ -1264,16 +1240,6 @@ export default class MessageInputBar extends ComponentProps {
     }
   }
 
-  createUuid (length: number) {
-    let result = ''
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-    const charactersLength = characters.length
-    for (let i = 0; i < length; i++) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength))
-    }
-    return result
-  }
-
   toggleRecorder (record: boolean): void {
     if (record) {
       this.startRecorder()
@@ -1336,300 +1302,3 @@ export default class MessageInputBar extends ComponentProps {
   }
 }
 </script>
-
-<style scoped>
-.robin-message-box {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  z-index: 1;
-}
-
-.robin-emoji-container {
-  width: 100%;
-  position: absolute;
-  top: -426px;
-  left: 0;
-  transform-origin: bottom;
-  z-index: 1;
-}
-
-.robin-emoji-container:focus {
-  outline: none;
-}
-
-.robin-emoji-container .emoji-picker {
-  --ep-color-bg: var(--rb-color2);
-  --ep-color-sbg: var(--rb-color6);
-  --ep-color-border: var(--rb-color6);
-  --ep-color-text: var(--rb-color7);
-}
-
-.robin-emoji {
-  width: 100% !important;
-}
-
-.robin-file-upload-container {
-  box-shadow: 0px 0px 20px rgba(0, 104, 255, 0.07);
-  width: 100%;
-  flex: 1;
-  height: 140px;
-  transform-origin: bottom;
-  display: flex;
-  align-items: center;
-  background-color: var(--rb-color2);
-  z-index: 1;
-}
-
-.robin-reply-container {
-  box-shadow: 0px 0px 20px rgba(0, 104, 255, 0.07);
-  width: 100%;
-  flex: 1;
-  height: max-content;
-  display: flex;
-  align-items: center;
-  transform-origin: bottom;
-  background-color: var(--rb-color2);
-}
-
-.robin-file-upload-container .robin-wrapper,
-.robin-reply-container .robin-wrapper {
-  gap: 1rem;
-}
-
-.robin-file-upload-container img {
-  width: 100px;
-  height: 100px;
-}
-
-.robin-file-upload .robin-file {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 104px;
-  height: 104px;
-  border: 1px solid var(--rb-color6);
-  padding: 1rem 1rem;
-}
-
-.robin-file > .material-icon {
-  color: var(--primary-color);
-  font-size: 1.3rem;
-}
-
-.robin-file-upload .robin-video {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 104px;
-  height: 104px;
-  border: 1px solid var(--rb-color6);
-}
-
-.robin-message-box-inner {
-  background-color: var(--rb-color2);
-  box-shadow: 0px 0px 20px rgba(0, 104, 255, 0.07);
-  width: 100%;
-  /* height: 44px; */
-  display: flex;
-  align-items: center;
-  padding: clamp(1rem, 4vh, 1.1175rem) min(5%, 2.688rem) clamp(1rem, 4vh, 1.175rem) 1rem;
-  position: relative;
-  z-index: 2;
-}
-
-.robin-message-box-inner:focus {
-  outline: 0;
-}
-
-/* Input styles */
-.robin-message-input {
-  flex: 1;
-  background-color: var(--rb-color-12);
-  border: 1px solid var(--rb-color8);
-  border-radius: 24px;
-  display: flex;
-  align-items: center;
-  padding: 0 0 0 clamp(3%, 5vw, 2.063rem);
-  transition: background-color 200ms;
-}
-
-.robin-input-wrapper {
-  width: 100%;
-  position: relative;
-}
-
-.robin-input {
-  width: 97%;
-  min-height: 20px;
-  height: 20px;
-  max-height: 500px;
-  background-color: transparent;
-  border: none;
-  font-size: 1rem;
-  line-height: 1;
-  /* white-space: pre-wrap; */
-  /* word-wrap: break-word; */
-  text-align: left;
-  overflow: hidden;
-  box-sizing: content-box;
-
-  caret-color: var(--rb-color7);
-  color: var(--rb-color7);
-
-  /* textarea */
-  resize: none;
-  padding: 1rem 0.625rem 0.5rem 0.625rem;
-}
-
-.robin-input::placeholder {
-  white-space: nowrap;
-}
-
-.robin-popup-container {
-  position: absolute;
-  top: -150px;
-  left: 12px;
-  /* right: 89px; */
-  z-index: 100;
-}
-
-.robin-file-upload,
-.robin-reply {
-  position: relative;
-  word-break: break-word;
-  /* font-size: 0.8rem; */
-}
-
-.robin-reply {
-  background-color: var(--rb-color6);
-  padding: 1rem;
-}
-
-.robin-reply .robin-file-upload img {
-  width: 80px;
-}
-
-.robin-reply .robin-file-upload .robin-file {
-  background-color: var(--rb-color2);
-}
-
-.robin-file-upload-close,
-.robin-reply-close {
-  flex: 1;
-  max-width: 50px;
-  min-height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: -1px 0px 20px -10px rgba(35, 107, 248, 0.2);
-}
-
-.robin-file-upload-delete {
-  position: absolute;
-  top: -3px;
-  left: -7px;
-  z-index: 3;
-  transition: transform 0.4s;
-}
-
-.robin-file-upload-delete:hover {
-  transform: scale(1.1);
-}
-
-.robin-send-button-loader {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: #15ae73;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: none;
-  cursor: default;
-}
-
-a {
-  display: block;
-  text-decoration: none;
-  color: #4568d1;
-  max-width: 220px;
-}
-
-.robin-link-container {
-  font-size: 0.625rem;
-}
-
-.robin-link-container >>> a {
-  color: #4568d1;
-}
-
-/* Input focus */
-.robin-input:focus {
-  outline: none;
-}
-
-/* Input placeholder */
-::placeholder {
-  font-size: 1rem;
-  color: #cccccc;
-}
-
-::-moz-placeholder {
-  font-size: 1rem;
-  color: #cccccc;
-}
-
-:-ms-input-placeholder {
-  font-size: 1rem;
-  color: #cccccc;
-}
-
-::-ms-input-placeholder {
-  font-size: 1rem;
-  color: #cccccc;
-}
-
-.robin-ar-indicator {
-  display: flex;
-  align-items: center;
-  gap: 0 0.5rem;
-}
-
-.robin-ar-dot {
-  height: 15px;
-  width: 15px;
-  border-radius: 50%;
-  background-color: #d53120;
-  animation: record-scaling 0.8s ease-in-out infinite alternate;
-}
-
-@media (min-width: 768px) {
-  .robin-file-upload-container .robin-wrapper::-webkit-scrollbar,
-  .robin-reply-container .robin-wrapper::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
-  }
-
-  ::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
-  }
-
-  ::-webkit-scrollbar-track {
-    /* border: 1px solid #00000017; */
-    border-radius: 24px;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    width: 2px;
-    background-color: #d6d6d6;
-    border-radius: 24px;
-    -webkit-border-radius: 24px;
-    -moz-border-radius: 24px;
-    -ms-border-radius: 24px;
-    -o-border-radius: 24px;
-  }
-}
-</style>

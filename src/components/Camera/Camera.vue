@@ -2,13 +2,25 @@
   <div class="robin-camera-box robin-squeezeOut" ref="popup-body">
     <header class="robin-head">
       <div class="robin-wrapper robin-mr-12" @click="closeCamera()" data-testid="close-camera">
-        <IconButton name="remove" :to-emit="false" :to-click-away="false"/>
+        <icon-button name="remove" :to-emit="false" :to-click-away="false" />
       </div>
-      <Content as="h3" :font-size="18"> Take photo </Content>
+      <content as="h3" :font-size="18"> Take photo </content>
     </header>
     <div class="robin-body">
-      <video v-show="!isPhotoTaken" ref="camera" width="100%" :height="screenWidth > 480 ? '500px' : '250px'" autoplay="true" muted="true"></video>
-      <CameraButton :camera-opened="cameraOpened" v-if="cameraOpened" @clicked="takePhoto()" data-testid="camera-button" />
+      <video
+        v-show="!isPhotoTaken"
+        ref="camera"
+        width="100%"
+        :height="screenWidth > 480 ? '500px' : '250px'"
+        autoplay="true"
+        muted="true"
+      ></video>
+      <camera-button
+        :camera-opened="cameraOpened"
+        v-if="cameraOpened"
+        @clicked="takePhoto()"
+        data-testid="camera-button"
+      />
     </div>
   </div>
 </template>
@@ -17,7 +29,6 @@
 import Vue, { PropType } from 'vue'
 import Component from 'vue-class-component'
 import IconButton from '@/components/IconButton/IconButton.vue'
-// import RRemoveButton from '@/components/RRemoveButton/RRemoveButton.vue'
 import Content from '@/components/Content/Content.vue'
 import CameraButton from '../CameraButton/CameraButton.vue'
 
@@ -41,7 +52,6 @@ const ComponentProps = Vue.extend({
   watch: {
     cameraOpened: {
       handler (val) {
-        // (val)
         if (val) {
           this.setupMedia()
         }
@@ -79,7 +89,12 @@ export default class Camera extends ComponentProps {
     const navigatorExtended = navigator as any
 
     return (constraints: MediaStreamConstraints) => {
-      const getUserMedia = navigatorExtended.getUserMedia || navigatorExtended.webkitGetUserMedia || navigatorExtended.mozGetUserMedia || navigatorExtended.msGetUserMedia || navigatorExtended.oGetUserMedia
+      const getUserMedia =
+        navigatorExtended.getUserMedia ||
+        navigatorExtended.webkitGetUserMedia ||
+        navigatorExtended.mozGetUserMedia ||
+        navigatorExtended.msGetUserMedia ||
+        navigatorExtended.oGetUserMedia
       if (!getUserMedia) {
         return Promise.reject(new Error('getUserMedia is not implemented in this browser'))
       }
@@ -164,50 +179,3 @@ export default class Camera extends ComponentProps {
   }
 }
 </script>
-
-<style scoped>
-.robin-camera-box {
-  height: calc(100% - 4.96rem);
-  position: absolute;
-  /* top: 300px; */
-  bottom: 0;
-  width: 100%;
-  /* border: 1px solid; */
-  background-color: inherit;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  transform-origin: bottom;
-}
-
-.robin-head {
-  width: 100%;
-  min-height: 50px;
-  display: flex;
-  align-items: center;
-  background-color: inherit;
-  padding: 0 clamp(3%, 5vw, 2.688rem) 0 clamp(3%, 5vw, 3.125rem);
-  box-shadow: 0px 0px 0px rgba(0, 104, 255, 0.07), 0px -1px 10px rgba(0, 104, 255, 0.07);
-}
-
-.robin-body {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  height: 100%;
-  padding: 0rem clamp(3%, 5vw, 2.688rem) 1rem clamp(3%, 5vw, 3.125rem);
-  overflow-y: auto;
-}
-
-video {
-  margin: 2rem 0 1.5rem;
-}
-
-@media (max-width: 1200px) {
-  .robin-camera-box {
-    height: 100%;
-    z-index: 4;
-  }
-}
-</style>

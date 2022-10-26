@@ -1,7 +1,7 @@
 <template>
   <div
     v-observe-visibility="handleVisibilityChange"
-    class="vue-recycle-scroller"
+    class="robin-recycle-scroller"
     :class="{
       ready,
       'page-mode': pageMode,
@@ -9,9 +9,26 @@
     }"
     @scroll.passive="handleScroll"
   >
-
-    <div :style="{ [direction === 'vertical' ? 'minHeight' : 'minWidth']: totalSize + 'px' }" class="vue-recycle-scroller__item-wrapper">
-      <div v-for="view of pool" :key="view.nr.id" :style="ready ? {[direction === 'vertical' ? 'top' : 'left'] : `${view.position}px`, willChange : 'unset'} : null" class="vue-recycle-scroller__item-view" :class="{ hover: hoverKey === view.nr.key }" @mouseenter="hoverKey = view.nr.key" @mouseleave="hoverKey = null">
+    <div
+      :style="{ [direction === 'vertical' ? 'minHeight' : 'minWidth']: totalSize + 'px' }"
+      class="item-wrapper"
+    >
+      <div
+        v-for="view of pool"
+        :key="view.nr.id"
+        :style="
+          ready
+            ? {
+                [direction === 'vertical' ? 'top' : 'left']: `${view.position}px`,
+                willChange: 'unset'
+              }
+            : null
+        "
+        class="item-view"
+        :class="{ hover: hoverKey === view.nr.key }"
+        @mouseenter="hoverKey = view.nr.key"
+        @mouseleave="hoverKey = null"
+      >
         <slot :item="view.item" :index="view.nr.index" :active="view.nr.used" />
       </div>
     </div>
@@ -197,7 +214,11 @@ export default class RecycleScroller extends ComponentProps {
 
   handleVisibilityChange (isVisible: boolean, entry: ObjectType) {
     if (this.ready) {
-      if (isVisible || entry.boundingClientRect.width !== 0 || entry.boundingClientRect.height !== 0) {
+      if (
+        isVisible ||
+        entry.boundingClientRect.width !== 0 ||
+        entry.boundingClientRect.height !== 0
+      ) {
         requestAnimationFrame(() => {
           this.updateVisibleItems(false)
         })
@@ -269,7 +290,11 @@ export default class RecycleScroller extends ComponentProps {
         totalSize = sizes[count - 1].accumulator
 
         // Searching for endIndex
-        for (endIndex = i; endIndex < count && sizes[endIndex].accumulator < scroll.end; endIndex++);
+        for (
+          endIndex = i;
+          endIndex < count && sizes[endIndex].accumulator < scroll.end;
+          endIndex++
+        );
         if (endIndex === -1) {
           endIndex = items.length - 1
         } else {
@@ -316,7 +341,9 @@ export default class RecycleScroller extends ComponentProps {
         if (view.nr.used) {
           // Update view item index
           if (checkItem) {
-            view.nr.index = items.findIndex((item: any) => (keyField ? item[keyField] === view.item[keyField] : item === view.item))
+            view.nr.index = items.findIndex((item: any) =>
+              keyField ? item[keyField] === view.item[keyField] : item === view.item
+            )
           }
 
           // Check if index is still in visible range
@@ -412,7 +439,10 @@ export default class RecycleScroller extends ComponentProps {
   getListenerTarget () {
     let target = ScrollParent(this.$el)
     // Fix global scroll target for Chrome and Safari
-    if (window.document && (target === window.document.documentElement || target === window.document.body)) {
+    if (
+      window.document &&
+      (target === window.document.documentElement || target === window.document.body)
+    ) {
       target = window
     }
     return target
@@ -522,8 +552,14 @@ export default class RecycleScroller extends ComponentProps {
 
   itemsLimitError () {
     setTimeout(() => {
-      console.log("It seems the scroller element isn't scrolling, so it tries to render all the items at once.", 'Scroller:', this.$el)
-      console.log("Make sure the scroller has a fixed height (or width) and 'overflow-y' (or 'overflow-x') set to 'auto' so it can scroll correctly and only render the items visible in the scroll viewport.")
+      console.log(
+        "It seems the scroller element isn't scrolling, so it tries to render all the items at once.",
+        'Scroller:',
+        this.$el
+      )
+      console.log(
+        "Make sure the scroller has a fixed height (or width) and 'overflow-y' (or 'overflow-x') set to 'auto' so it can scroll correctly and only render the items visible in the scroll viewport."
+      )
     })
     throw new Error('Rendered items limit reached')
   }
@@ -533,50 +569,3 @@ export default class RecycleScroller extends ComponentProps {
   }
 }
 </script>
-
-<style scoped>
-.vue-recycle-scroller {
-  position: relative;
-}
-
-.vue-recycle-scroller.direction-vertical:not(.page-mode) {
-  overflow-y: auto;
-}
-
-.vue-recycle-scroller.direction-horizontal:not(.page-mode) {
-  overflow-x: auto;
-}
-
-.vue-recycle-scroller.direction-horizontal {
-  display: flex;
-}
-
-.vue-recycle-scroller__item-wrapper {
-  flex: 1;
-  box-sizing: border-box;
-  overflow: hidden;
-  position: relative;
-}
-
-.vue-recycle-scroller.ready .vue-recycle-scroller__item-view {
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-
-.vue-recycle-scroller.direction-vertical .vue-recycle-scroller__item-wrapper {
-  width: 100%;
-}
-
-.vue-recycle-scroller.direction-horizontal .vue-recycle-scroller__item-wrapper {
-  height: 100%;
-}
-
-.vue-recycle-scroller.ready.direction-vertical .vue-recycle-scroller__item-view {
-  width: 100%;
-}
-
-.vue-recycle-scroller.ready.direction-horizontal .vue-recycle-scroller__item-view {
-  height: 100%;
-}
-</style>

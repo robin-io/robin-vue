@@ -1,6 +1,6 @@
 <template>
   <div class="robin-forward-tab">
-      <content color="#51545C"> {{ selectedMessages.length }} Messages Selected </content>
+      <message-content :color="currentTheme === 'light' ? '#7a7a7a' : '#B6B6B6'"> {{ selectedMessages.length }} Messages Selected </message-content>
       <custom-button
         emit="clicked"
         v-show="selectedMessages.length > 0"
@@ -13,6 +13,7 @@
 
 <script lang="ts">
 import Vue, { PropType } from 'vue'
+import store from '@/store/index'
 import Component from 'vue-class-component'
 import Content from '@/components/Content/Content.vue'
 import Button from '@/components/Button/Button.vue'
@@ -20,8 +21,8 @@ import Button from '@/components/Button/Button.vue'
 const ComponentProps = Vue.extend({
   props: {
     selectedMessages: {
-      type: Object as PropType<ObjectType>,
-      default: () => ({})
+      type: Array as PropType<Array<ObjectType>>,
+      default: () => ([])
     }
   }
 })
@@ -29,10 +30,13 @@ const ComponentProps = Vue.extend({
 @Component({
   name: 'ForwardTab',
   components: {
-    Content,
+    'message-content': Content,
     'custom-button': Button
   }
 })
 export default class ForwardTab extends ComponentProps {
+  get currentTheme () {
+    return store.state.currentTheme
+  }
 }
 </script>

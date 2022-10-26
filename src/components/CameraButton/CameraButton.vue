@@ -1,6 +1,12 @@
 <template>
-  <button class="robin-button" type="button" @click="$emit('clicked')" @keyup.enter="$emit('clicked')" data-testid="camera-button">
-    <SvgIcon name="camera" />
+  <button
+    class="robin-camera-button"
+    type="button"
+    @click="$emit('clicked')"
+    @keyup.enter="$emit('clicked')"
+    data-testid="camera-button"
+  >
+    <svg-icon name="camera" />
   </button>
 </template>
 
@@ -35,21 +41,3 @@ export default class CameraButton extends ComponentProps {
   }
 }
 </script>
-
-<style scoped>
-.robin-button {
-  cursor: pointer;
-  border: none;
-  background-color: transparent;
-  width: max-content;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 50px;
-  min-height: 50px;
-  background-color: var(--primary-color);
-  border-radius: 50%;
-  color: #fff;
-  font-size: 2rem;
-}
-</style>

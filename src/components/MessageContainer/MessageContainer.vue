@@ -16,7 +16,9 @@
         class="robin-loader robin-flex robin-flex-align-center"
         id="infinite-loader"
         v-if="
-          (isMessagesLoading && currentPage > 0) ||
+          (offlineMessages.messages[currentConversation._id] &&
+            currentPage > 0 &&
+            isMessagesLoading) ||
           (!offlineMessages.messages[currentConversation._id] && isMessagesLoading)
         "
       >
@@ -66,14 +68,12 @@
                   )}.`
             }}
           </div>
-          <div
-            class="robin-activity"
-            v-if="showDate(index) && index != 0 && checkMessageNotDeleted(index)"
-          >
+          <div class="robin-activity" v-if="showDate(index) && index != 0">
             {{ formatDate(!Array.isArray(message) ? message.created_at : message[0].created_at) }}
           </div>
+          <!-- && !message.is_deleted -->
           <message
-            v-if="!Array.isArray(message) && !message.has_attachment && !message.is_deleted"
+            v-if="!Array.isArray(message) && !message.has_attachment"
             :message="message"
             :index="index"
             :messages="offlineMessages.messages[currentConversation._id]"
@@ -83,8 +83,9 @@
             @toggle-check-action="toggleCheckAction($event, message)"
             @scroll-to-message="scrollToMessage"
           />
+          <!-- && !imagesDeleted(message) -->
           <photo-message
-            v-if="Array.isArray(message) && imagesDeleted(message)"
+            v-if="Array.isArray(message)"
             :message="message"
             :messages="offlineMessages.messages[currentConversation._id]"
             :index="index"
@@ -95,12 +96,12 @@
             @open-preview="openImagePreview($event)"
             @scroll-to-message="scrollToMessage"
           />
+          <!-- && !message.is_deleted -->
           <document-message
             v-if="
               !Array.isArray(message) &&
               message.has_attachment &&
-              documentRegex.test(checkAttachmentType(message.content.attachment)) &&
-              !message.is_deleted
+              documentRegex.test(checkAttachmentType(message.content.attachment))
             "
             :index="index"
             :message="message"
@@ -111,12 +112,12 @@
             @toggle-check-action="toggleCheckAction($event, message)"
             @scroll-to-message="scrollToMessage"
           />
+          <!-- && !message.is_deleted -->
           <video-message
             v-if="
               !Array.isArray(message) &&
               message.has_attachment &&
-              videoRegex.test(checkAttachmentType(message.content.attachment)) &&
-              !message.is_deleted
+              videoRegex.test(checkAttachmentType(message.content.attachment))
             "
             :message="message"
             :messages="offlineMessages.messages[currentConversation._id]"
@@ -128,33 +129,6 @@
             @scroll-to-message="scrollToMessage"
           />
         </div>
-        <!-- <MessageContent
-          v-for="(message, index) in offlineMessages.messages[conversation._id]"
-          :ref="`message-${String(index)}`"
-          :groupname-colors="groupnameColors"
-          :uncheck="uncheck"
-          @open-preview="openImagePreview($event)"
-          :key="`message-${String(index + key)}`"
-          v-show="!message.is_deleted"
-          :message="message"
-          :conversation="conversation"
-          :message-popup="getMessagePopup(index)"
-          :messages="offlineMessages.messages[conversation._id]"
-          :stored-messages="messages"
-          :index="index"
-          :scroll="scroll"
-          :last-id="
-            !Array.isArray(message) &&
-            parseInt(String(index)) >= offlineMessages.messages[conversation._id].length - 3
-              ? message._id
-              : ''
-          "
-          :read-receipts="readReceipts"
-          @toggle-check-action="toggleCheckAction($event, message)"
-          @reply-message="replyMessage($event)"
-          @forward-message="forwardMessage = true"
-          @scroll-replied-message="scrollToMessage"
-        /> -->
       </div>
 
       <div
@@ -166,7 +140,6 @@
         <i class="robin-material-icon"> arrow_downward </i>
       </div>
     </div>
-    <!-- v-if="Object.keys(currentConversation).length > 0" -->
     <message-input-bar
       :message-reply="messageReply"
       @open-camera="openCamera()"
@@ -198,12 +171,18 @@
       v-show="promptOpen"
       @closemodal="closePrompt()"
     />
-    <reaction-pop-up @reaction="addReaction" data-testid="reaction-popup" />
+    <reaction-pop-up
+      v-if="isMessageReactionViewEnabled"
+      @reaction="addReaction"
+      data-testid="reaction-popup"
+    />
     <message-pop-up
       :message="
         !offlineMessagesExist
           ? {}
-          : offlineMessages.messages[currentConversation._id][messageIndex] || {}
+          : !Array.isArray(offlineMessages.messages[currentConversation._id][messageIndex])
+          ? offlineMessages.messages[currentConversation._id][messageIndex] || {}
+          : {}
       "
       @forward-message="$emit('forward-message')"
       @reply-message="replyMessage"
@@ -238,12 +217,12 @@ import Message from '../Message/Message.vue'
 import PhotoMessage from '../PhotoMessage/PhotoMessage.vue'
 import VideoMessage from '../VideoMessage/VideoMessage.vue'
 import DocumentMessage from '../DocumentMessage/DocumentMessage.vue'
-import MessageContent from '../MessageContent/MessageContent.vue'
 import ForwardMessage from '../ForwardMessage/ForwardMessage.vue'
 import ForwardTab from '../ForwardTab/ForwardTab.vue'
 import Prompt from '../Prompt/Prompt.vue'
 import MessagePopUp from '../MessagePopUp/MessagePopUp.vue'
 import ReactionPopUp from '../ReactionPopUp/ReactionPopUp.vue'
+import debounce from 'lodash.debounce'
 
 // eslint-disable-next-line
 @Component<MessageContainer>({
@@ -253,7 +232,7 @@ import ReactionPopUp from '../ReactionPopUp/ReactionPopUp.vue'
     Content,
     MessageInputBar,
     Camera,
-    MessageContent,
+    'message-content': Content,
     Message,
     DocumentMessage,
     ForwardMessage,
@@ -326,6 +305,10 @@ import ReactionPopUp from '../ReactionPopUp/ReactionPopUp.vue'
       handler (): void {
         this.messageReply = this.imagesToPreview[this.imageSelected]
       }
+    },
+    screenWidth () {
+      this.scroll = false
+      this.scrollUp = false
     }
   }
 })
@@ -354,7 +337,6 @@ export default class MessageContainer extends Vue {
 
   messagePopUpIndex = 0 as number
   key = 0 as number
-  newConversationOpenCount = 0 as number
   currentPage = 0 as number
   totalPages = 0 as number
 
@@ -369,19 +351,13 @@ export default class MessageContainer extends Vue {
     this.handleConversationOpen()
     this.onNewPseudoMessage()
     this.onNewMessage()
-    // this.onMessageDelete()
     this.onImageDelete()
-    // this.handleUserConnect()
-    // this.handleUserDisconnect()
     this.getReadReceipts()
     this.onFailedMessageSend()
   }
 
-  mounted () {
-    this.$nextTick(function () {
-      this.onResize()
-    })
-    window.addEventListener('resize', this.onResize)
+  get screenWidth () {
+    return store.state.screenWidth
   }
 
   get isMessageReactionViewEnabled () {
@@ -448,15 +424,13 @@ export default class MessageContainer extends Vue {
   }
 
   handleConversationOpen (): void {
-    EventBus.$on('conversation-opened', (conversation: any) => {
+    EventBus.$on('conversation-opened', async (conversation: ObjectType) => {
       this.closeModal(this.messageIndex)
-      this.getOfflineMessages()
 
-      this.messageReply = {}
       this.messages = []
+      this.messageReply = {}
       this.currentPage = 0
       this.totalPages = 0
-      this.newConversationOpenCount += 1
 
       this.scroll = false
       this.scrollUp = false
@@ -466,11 +440,14 @@ export default class MessageContainer extends Vue {
       EventBus.$emit('mark-as-read', conversation)
       store.setState('messageViewProfileOpen', false)
 
-      this.getConversationMessages().then(() => {
+      await this.getOfflineMessages()
+
+      debounce(async () => {
+        await this.getConversationMessages()
         if (!this.messageError) {
           this.isMessagesLoading = false
         }
-      })
+      }, 2000)()
     })
   }
 
@@ -490,14 +467,14 @@ export default class MessageContainer extends Vue {
     }
   }
 
-  checkMessageNotDeleted (index: number) {
-    const offlineMessage = this.offlineMessages.messages[this.currentConversation._id][index]
-    if (Array.isArray(offlineMessage)) {
-      return offlineMessage.every((item) => !item.is_deleted)
-    }
+  // checkMessageNotDeleted (index: number) {
+  //   const offlineMessage = this.offlineMessages.messages[this.currentConversation._id][index]
+  //   if (Array.isArray(offlineMessage)) {
+  //     return offlineMessage.every((item) => !item.is_deleted)
+  //   }
 
-    return !offlineMessage.is_deleted
-  }
+  //   return !offlineMessage.is_deleted
+  // }
 
   getReadReceipts () {
     EventBus.$on('read.reciept', (message: any) => {
@@ -525,32 +502,52 @@ export default class MessageContainer extends Vue {
       isMessageReceiver = offlineMessage.sender_token === this.$user_token
     }
 
-    if (messagePopupEl.style.display === 'block') messagePopupEl.style.display = 'none'
-    if (reactionPopupEl.style.display === 'block') reactionPopupEl.style.display = 'none'
+    /*
+      Message popup.
+    */
 
-    if (lastThreeInArray) {
+    if (messagePopupEl.style.display === 'block') messagePopupEl.style.display = 'none'
+
+    if (lastThreeInArray && this.scroll) {
       messagePopupEl.style.top = `${messageBubbleEl.getBoundingClientRect().top - 90}px`
-      reactionPopupEl.style.top = `${messageBubbleEl.getBoundingClientRect().top - 143}px`
     } else {
       messagePopupEl.style.top = `${messageBubbleEl.getBoundingClientRect().top + 20}px`
-      reactionPopupEl.style.top = `${messageBubbleEl.getBoundingClientRect().top - 55}px`
     }
 
     if (isMessageReceiver) {
       messagePopupEl.style.left = 'initial'
       messagePopupEl.style.right = '3.688rem'
-      reactionPopupEl.classList.add('receiver')
-      reactionPopupEl.style.left = 'initial'
-      reactionPopupEl.style.right = '3.688rem'
     } else {
       messagePopupEl.style.right = 'initial'
       messagePopupEl.style.left = `${this.getPopUpLeftPosition('message')}`
-      reactionPopupEl.classList.remove('receiver')
-      reactionPopupEl.style.right = 'initial'
-      reactionPopupEl.style.left = `${this.getPopUpLeftPosition('reaction')}`
     }
+
     messagePopupEl.style.display = 'block'
-    reactionPopupEl.style.display = 'block'
+
+    /*
+      Reaction popup.
+    */
+
+    if (this.isMessageReactionViewEnabled) {
+      if (reactionPopupEl.style.display === 'block') reactionPopupEl.style.display = 'none'
+
+      if (lastThreeInArray && this.scroll) {
+        reactionPopupEl.style.top = `${messageBubbleEl.getBoundingClientRect().top - 143}px`
+      } else {
+        reactionPopupEl.style.top = `${messageBubbleEl.getBoundingClientRect().top - 55}px`
+      }
+
+      if (isMessageReceiver) {
+        reactionPopupEl.classList.add('receiver')
+        reactionPopupEl.style.left = 'initial'
+        reactionPopupEl.style.right = '3.688rem'
+      } else {
+        reactionPopupEl.classList.remove('receiver')
+        reactionPopupEl.style.right = 'initial'
+        reactionPopupEl.style.left = `${this.getPopUpLeftPosition('reaction')}`
+      }
+      reactionPopupEl.style.display = 'block'
+    }
   }
 
   getPopUpLeftPosition (type: String) {
@@ -570,29 +567,39 @@ export default class MessageContainer extends Vue {
   }
 
   closeModal (index: number) {
-    const popup1 = document.getElementById('message-popup') as HTMLElement
-    const popup2 = document.getElementById('reaction-pop-up') as HTMLElement
+    const messagePopupEl = document.getElementById('message-popup') as HTMLElement
+    const reactionPopupEl = document.getElementById('reaction-pop-up') as HTMLElement
+
+    /*
+      Message popup.
+    */
 
     if (this.messageIndex === index) {
-      popup1.classList.remove('robin-zoomIn')
-      popup2.classList.remove('robin-zoomIn')
-      popup1.classList.add('robin-zoomOut')
-      popup2.classList.add('robin-zoomOut')
+      messagePopupEl.classList.remove('robin-zoomIn')
+      messagePopupEl.classList.add('robin-zoomOut')
 
       window.setTimeout(() => {
-        popup1.style.display = 'none'
-        popup2.style.display = 'none'
-        popup1.classList.add('robin-zoomIn')
-        popup2.classList.add('robin-zoomIn')
-        popup1.classList.remove('robin-zoomOut')
-        popup2.classList.remove('robin-zoomOut')
+        messagePopupEl.style.display = 'none'
+        messagePopupEl.classList.add('robin-zoomIn')
+        messagePopupEl.classList.remove('robin-zoomOut')
+      }, 300)
+    }
+
+    /*
+      Reaction popup.
+    */
+
+    if (this.isMessageReactionViewEnabled && this.messageIndex === index) {
+      reactionPopupEl.classList.remove('robin-zoomIn')
+      reactionPopupEl.classList.add('robin-zoomOut')
+
+      window.setTimeout(() => {
+        reactionPopupEl.style.display = 'none'
+        reactionPopupEl.classList.add('robin-zoomIn')
+        reactionPopupEl.classList.remove('robin-zoomOut')
       }, 300)
     }
   }
-
-  // refresh () {
-  //   this.key += 1
-  // }
 
   onFailedMessageSend () {
     EventBus.$on('message-send-failed', (message: ObjectType) => {
@@ -639,14 +646,21 @@ export default class MessageContainer extends Vue {
   }
 
   onNewPseudoMessage () {
-    EventBus.$on('new-pseudo-message', (message: any) => {
+    EventBus.$on('new-pseudo-message', (message: ObjectType) => {
       if (message.conversation_id === this.currentConversation._id) {
-        this.messages.push(message)
+        const newMessage =
+          message.has_attachment &&
+          this.imageRegex.test(this.checkAttachmentType(message.content.attachment))
+            ? [message]
+            : message
+
+        this.messages.push(newMessage)
 
         if (this.offlineMessages.messages[message.conversation_id]) {
-          const tempOfflineMessages = [...this.offlineMessages.messages[message.conversation_id]]
-
-          tempOfflineMessages.push(message)
+          const tempOfflineMessages = [
+            ...this.offlineMessages.messages[message.conversation_id],
+            newMessage
+          ]
 
           this.resetCurrentPage()
           this.sortOfflineMessages(tempOfflineMessages)
@@ -675,69 +689,77 @@ export default class MessageContainer extends Vue {
   }
 
   onNewMessage () {
-    EventBus.$on('new-message', (message: any) => {
+    EventBus.$on('new-message', (message: ObjectType) => {
       if (message.conversation_id === this.currentConversation._id) {
-        const messageIndex = this.messages.findIndex((item: ObjectType) => {
-          if (item.pseudo) {
-            const isText = item.content.msg === message.content.msg
-            const isDocument =
-              message.content.attachment &&
-              message.content.attachment.includes(item.content.attachment.name || '')
-            const isTextAndDocument =
-              message.content.attachment &&
-              message.content.attachment.includes(item.content.attachment.name || '') &&
-              item.content.msg === message.content.msg
+        const messageIndex = this.messages.findIndex((item: Array<ObjectType> | ObjectType) => {
+          const msgAttachment = message.content.attachment
 
-            return (
-              isText ||
-              isDocument ||
-              isTextAndDocument ||
-              (isText && !isDocument && isTextAndDocument)
-            )
+          if (message.has_attachment) {
+            if (Array.isArray(item)) {
+              return item.some((obj) => msgAttachment.includes(obj.content.attachment.name))
+            } else {
+              if (message.content.msg !== '') {
+                return (
+                  msgAttachment.includes(item.content.attachment.name) &&
+                  message.content.msg === item.content.msg
+                )
+              }
+
+              return msgAttachment.includes(item.content.attachment.name)
+            }
+          } else {
+            return message.content.msg === item.content.msg
           }
-
-          return false
         })
+
+        console.log(messageIndex, message)
+
+        const newMessage =
+          message.has_attachment &&
+          this.imageRegex.test(this.checkAttachmentType(message.content.attachment))
+            ? [message]
+            : message
 
         // check if message already exists.
         if (messageIndex !== -1) {
-          this.messages.splice(messageIndex, 1, message)
+          this.messages.splice(messageIndex, 1, newMessage)
         } else {
-          this.messages.push(message)
+          this.messages.push(newMessage)
         }
 
         if (this.offlineMessages.messages[message.conversation_id]) {
           const offlineMessageIndex = this.offlineMessages.messages[
             message.conversation_id
-          ].findIndex((item: ObjectType) => {
-            if (item.pseudo) {
-              const isText = item.content.msg === message.content.msg
-              const isDocument =
-                message.content.attachment &&
-                message.content.attachment.includes(item.content.attachment.name || '')
-              const isTextAndDocument =
-                message.content.attachment &&
-                message.content.attachment.includes(item.content.attachment.name || '') &&
-                item.content.msg === message.content.msg
+          ].findIndex((item: Array<ObjectType> | ObjectType) => {
+            const msgAttachment = message.content.attachment
 
-              return (
-                isText ||
-                isDocument ||
-                isTextAndDocument ||
-                (isText && !isDocument && isTextAndDocument)
-              )
+            if (message.has_attachment) {
+              if (Array.isArray(item)) {
+                return item.some((obj) => msgAttachment.includes(obj.content.attachment.name))
+              } else {
+                if (message.content.msg !== '') {
+                  return (
+                    msgAttachment.includes(item.content.attachment.name) &&
+                  message.content.msg === item.content.msg
+                  )
+                }
+
+                return msgAttachment.includes(item.content.attachment.name)
+              }
+            } else {
+              return message.content.msg === item.content.msg
             }
-
-            return false
           })
+
+          console.log(offlineMessageIndex, message)
 
           const tempOfflineMessages = [...this.offlineMessages.messages[message.conversation_id]]
 
           // check if offline message already exists.
           if (offlineMessageIndex !== -1) {
-            tempOfflineMessages.splice(offlineMessageIndex, 1, message)
+            tempOfflineMessages.splice(offlineMessageIndex, 1, newMessage)
           } else {
-            tempOfflineMessages.push(message)
+            tempOfflineMessages.push(newMessage)
           }
 
           this.resetCurrentPage()
@@ -749,7 +771,10 @@ export default class MessageContainer extends Vue {
         this.scrollToBottom()
 
         if (message.sender_token !== this.$user_token) {
-          const messageIds = [this.messages[this.messages.length - 1]._id]
+          const tempMessage = this.messages[this.messages.length - 1]
+          const messageId = Array.isArray(tempMessage) ? tempMessage[0]._id : tempMessage._id
+          const messageIds = [messageId]
+
           this.initializeReadReceipts(messageIds)
         }
       }
@@ -780,12 +805,23 @@ export default class MessageContainer extends Vue {
     })
   }
 
-  onMessageDelete () {
-    this.messages.splice(this.messageIndex, 1)
+  onMessageDelete (message) {
+    const messageIndex = this.messages.findIndex((item: Array<ObjectType> | ObjectType) => {
+      if (Array.isArray(item)) return item.some((image) => image._id === message._id)
+      return item._id === message._id
+    }) as number
+
+    this.messages.splice(messageIndex, 1)
     this.offlineMessages.messages[this.currentConversation._id].splice(this.messageIndex, 1)
 
-    this.resetCurrentPage()
-    this.sortOfflineMessages(this.offlineMessages.messages[this.currentConversation._id])
+    const offlineMessages = [...this.offlineMessages.messages[this.currentConversation._id]]
+
+    const currentPage = offlineMessages.length > 20 ? offlineMessages.length - 20 : 0
+
+    this.setOfflineMessages(offlineMessages.slice(currentPage, offlineMessages.length))
+
+    // this.resetCurrentPage()
+    // this.sortOfflineMessages(this.offlineMessages.messages[this.currentConversation._id])
   }
 
   onImageDelete () {
@@ -804,13 +840,18 @@ export default class MessageContainer extends Vue {
 
       if (messageIndex >= 0) {
         // Delete message from image grid.
-        const index = this.messages[messageIndex].findIndex(
-          (item: ObjectType) => item._id === message._id
-        ) as number
+        if (this.messages[messageIndex].length > 1) {
+          const index = this.messages[messageIndex].findIndex(
+            (item: ObjectType) => item._id === message._id
+          ) as number
 
-        const data = [...this.messages[messageIndex]] as Array<ObjectType>
-        data[index].is_deleted = true
-        this.$set(this.messages, this.messages[messageIndex], data)
+          const data = [...this.messages[messageIndex]] as Array<ObjectType>
+          data.splice(index, 1)
+
+          this.$set(this.messages, this.messages[messageIndex], data)
+        } else {
+          this.messages.splice(messageIndex, 1)
+        }
       }
 
       // if (messageIndex === -1) {
@@ -820,13 +861,31 @@ export default class MessageContainer extends Vue {
 
       if (offlineMessageIndex >= 0) {
         // Delete message from image grid.
-        const index = this.offlineMessages.messages[this.currentConversation._id][
-          offlineMessageIndex
-        ].findIndex((item: any) => item._id === message._id) as number
+        const offlineMessages = { ...this.offlineMessages.messages }
 
-        const data = { ...this.offlineMessages.messages }
-        data[this.currentConversation._id][offlineMessageIndex][index].is_deleted = true
-        this.$set(this.offlineMessages, this.offlineMessages.messages, data)
+        if (offlineMessages[this.currentConversation._id][offlineMessageIndex].length > 1) {
+          const index = offlineMessages[this.currentConversation._id][
+            offlineMessageIndex
+          ].findIndex((item: any) => item._id === message._id) as number
+
+          offlineMessages[this.currentConversation._id][offlineMessageIndex].splice(index, 1)
+
+          this.$set(this.offlineMessages, this.offlineMessages.messages, offlineMessages)
+
+          store.setState(
+            'imagesToPreview',
+            offlineMessages[this.currentConversation._id][offlineMessageIndex]
+          )
+        } else {
+          offlineMessages[this.currentConversation._id].splice(offlineMessageIndex, 1)
+          this.closeImagePreview()
+        }
+
+        const currentPage = offlineMessages.length > 20 ? offlineMessages.length - 20 : 0
+
+        this.setOfflineMessages(
+          offlineMessages[this.currentConversation._id].slice(currentPage, offlineMessages.length)
+        )
       }
 
       // if (offlineMessageIndex === -1) {
@@ -863,7 +922,9 @@ export default class MessageContainer extends Vue {
       this.resetCurrentPage()
 
       const offlineMessages =
-        this.offlineMessages.messages[this.currentConversation._id] ?? ([] as Array<ObjectType>)
+        this.offlineMessages.messages[this.currentConversation._id] && res.data
+          ? [...this.offlineMessages.messages[this.currentConversation._id]]
+          : ([] as Array<ObjectType>)
 
       this.sortOfflineMessages(offlineMessages)
 
@@ -876,8 +937,6 @@ export default class MessageContainer extends Vue {
         position: 'bottom-left'
       })
     }
-
-    this.scrollToBottom()
   }
 
   loadMoreMessages () {
@@ -901,13 +960,12 @@ export default class MessageContainer extends Vue {
   }
 
   scrollToBottom (): void {
-    const message = this.$refs.message as HTMLElement
-
-    if (message) {
+    const message = document.getElementById('message-container') as HTMLElement
+    window.setTimeout(() => {
       message.scrollTop = message.scrollHeight + 100
       this.scrollUp = false
       this.scroll = false
-    }
+    }, 0)
   }
 
   openCamera (): void {
@@ -930,19 +988,30 @@ export default class MessageContainer extends Vue {
   openImagePreview ($event: any): void {
     store.setState('imagePreviewOpen', true)
     store.setState('imagesToPreview', $event)
-    // this.imagesToPreview = $event
+  }
+
+  closeImagePreview (): void {
+    store.setState('imagePreviewOpen', false)
+    store.setState('imagesToPreview', [])
   }
 
   handleCapturedImage (val: Object): void {
     this.capturedImage = val
   }
 
-  checkAttachmentType (attachmentUrl: String): string {
-    const strArr = attachmentUrl.split('.')
+  checkAttachmentType (attachment: any): string {
+    let strArr = [] as Array<string>
+
+    if (typeof attachment !== 'string') {
+      strArr = attachment.name.split('.')
+    } else {
+      strArr = attachment.split('.')
+    }
+
     return `${mime.getType(strArr[strArr.length - 1])}`
   }
 
-  testMessages (messages: Array<any>): void {
+  testMessages (messages: Array<ObjectType>): void {
     const newMessages = []
     let temp = [] as any
 
@@ -991,7 +1060,7 @@ export default class MessageContainer extends Vue {
   }
 
   async clearAllMessages (): Promise<void> {
-    const id = [] as Array<any>
+    const id = [] as Array<ObjectType>
 
     for (let i: number = 0; i < this.messages.length; i += 1) {
       if (Array.isArray(this.messages[i])) {
@@ -1013,10 +1082,8 @@ export default class MessageContainer extends Vue {
         position: 'bottom-left'
       })
       this.promptOpen = false
-      this.promise = this.getConversationMessages()
-      this.promise.then(() => {
-        this.scrollToBottom()
-      })
+      await this.getConversationMessages()
+      // this.scrollToBottom()
     } else {
       this.$toast.open({
         message: 'Check your connection.',
@@ -1036,22 +1103,24 @@ export default class MessageContainer extends Vue {
 
   handleScrollUp () {
     const messagesLen = this.messages.length
-    const offlineMessagesLen = this.offlineMessages.messages[this.currentConversation._id].length
+    const offlineMessagesLen = this.offlineMessages.messages[this.currentConversation._id]
+      ? this.offlineMessages.messages[this.currentConversation._id].length
+      : 0
     const message = this.$refs.message as HTMLElement
-    const endOfScroll =
-      Math.floor(message.scrollTop) > Math.floor(message.scrollHeight - message.clientHeight - 20)
+    const scrollSpaceLeft = Math.floor(message.scrollHeight - message.clientHeight - 20)
+    const endOfScroll = Math.floor(message.scrollTop) > scrollSpaceLeft
 
     if (endOfScroll && this.scrollUp) {
       this.scrollUp = false
     }
 
-    if (message.scrollTop + 10 <= this.lastScroll && offlineMessagesLen !== messagesLen) {
+    if (message.scrollTop < scrollSpaceLeft) {
       if (!this.isMessagesLoading && !this.scrollUp) {
         this.scrollUp = true
       }
     }
 
-    if (message.scrollTop === 0 && offlineMessagesLen !== messagesLen && this.currentPage > 19) {
+    if (message.scrollTop === 0 && offlineMessagesLen !== messagesLen && this.currentPage > 0) {
       this.loadMoreMessages()
     }
 
@@ -1066,18 +1135,18 @@ export default class MessageContainer extends Vue {
     }
   }
 
-  selectMessage (message: any): void {
-    if (Array.isArray(message)) {
-      message.forEach((item) => {
-        this.selectedMessages.push(item)
-      })
-    } else {
-      this.selectedMessages.push(message)
-    }
+  selectMessage (message: Array<ObjectType> | ObjectType): void {
+    this.selectedMessages.push(message)
   }
 
-  removeSelectedMessage (message: any): void {
-    const index = this.selectedMessages.findIndex((item) => item._id === message._id)
+  removeSelectedMessage (message: Array<ObjectType> | ObjectType): void {
+    const index = this.selectedMessages.findIndex((item) => {
+      if (Array.isArray(message)) {
+        return item[0]._id === message[0]._id
+      }
+
+      return item._id === message._id
+    })
 
     this.selectedMessages.splice(index, 1)
   }
@@ -1106,12 +1175,28 @@ export default class MessageContainer extends Vue {
 
   async deleteSelectedMessages () {
     const res = await this.$robin.deleteMessages(
-      this.selectedMessages.map((message) => message._id),
+      this.selectedMessages.map((message) => {
+        if (Array.isArray(message)) {
+          message.forEach((item) => {
+            return item._id
+          })
+        }
+
+        return message._id
+      }),
       this.$user_token
     )
 
     if (res && !res.error) {
-      this.selectedMessages.forEach((message) => EventBus.$emit('message-deleted', message))
+      this.selectedMessages.forEach(async (message) => {
+        if (Array.isArray(message)) {
+          for (const item of message) {
+            await this.deleteMessage(item)
+          }
+        } else {
+          await this.deleteMessage(message)
+        }
+      })
 
       this.selectedMessages = []
       store.setState('selectMessagesOpen', false)
@@ -1185,10 +1270,6 @@ export default class MessageContainer extends Vue {
     messageRef[0].$el.scrollIntoView({ behavior: 'smooth', block: 'end' })
   }
 
-  onResize () {
-    this.scrollUp = false
-  }
-
   async handleLeaveGroup () {
     const res = await this.$robin.removeGroupParticipant(
       this.currentConversation._id,
@@ -1232,8 +1313,9 @@ export default class MessageContainer extends Vue {
 
   async getOfflineMessages (): Promise<any> {
     try {
-      const value = (await localForage.getItem('messages')) as Array<any>
+      const value = (await localForage.getItem('messages')) as Array<ObjectType>
       this.offlineMessages = value ? { ...value } : { messages: {} }
+      this.scrollToBottom()
     } catch (error) {
       console.error(error)
     }
@@ -1256,17 +1338,24 @@ export default class MessageContainer extends Vue {
     }
   }
 
-  sortOfflineMessages (messages: Array<ObjectType>) {
+  async sortOfflineMessages (messages: Array<ObjectType>) {
     const messageIds = new Set()
+    const findMessage = (item) => {
+      if (Array.isArray(item)) {
+        return item[0].conversation_id === this.currentConversation._id
+      }
 
+      return item.conversation_id === this.currentConversation._id
+    }
     const removedDuplicates = [
-      ...messages,
-      ...this.messages.slice(this.currentPage, this.messages.length)
+      ...messages.filter(findMessage),
+      ...this.messages.slice(this.currentPage, this.messages.length).filter(findMessage)
     ]
       .filter((item: ObjectType) => {
-        const isDuplicate = messageIds.has(item._id)
+        const itemId = Array.isArray(item) ? item[0]._id : item._id
+        const isDuplicate = messageIds.has(itemId)
 
-        messageIds.add(item._id)
+        messageIds.add(itemId)
 
         if (!isDuplicate) {
           return true
@@ -1328,7 +1417,7 @@ export default class MessageContainer extends Vue {
     const res = await this.$robin.deleteMessages([message._id], this.$user_token)
 
     if (res && !res.error) {
-      this.onMessageDelete()
+      this.onMessageDelete(message)
       this.messageDeleteFailed = false
     } else {
       this.messageDeleteFailed = true
@@ -1389,9 +1478,9 @@ export default class MessageContainer extends Vue {
     return 'robin-message-sender robin-flex-align-start' // false
   }
 
-  imagesDeleted (message: Array<ObjectType>) {
-    return message.every((image: ObjectType) => !image.is_deleted)
-  }
+  // imagesDeleted (message: Array<ObjectType>) {
+  //   return message.every((image: ObjectType) => image.is_deleted)
+  // }
 
   isDataEqual (dataA: Array<ObjectType> | ObjectType, dataB: Array<ObjectType> | ObjectType) {
     return Object.is(JSON.stringify(dataA), JSON.stringify(dataB))
