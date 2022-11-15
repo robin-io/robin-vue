@@ -31,6 +31,7 @@ import Component from 'vue-class-component'
 import IconButton from '@/components/IconButton/IconButton.vue'
 import Content from '@/components/Content/Content.vue'
 import CameraButton from '../CameraButton/CameraButton.vue'
+import { createUUID } from '@/utils/helpers'
 
 const ComponentProps = Vue.extend({
   props: {
@@ -158,20 +159,10 @@ export default class Camera extends ComponentProps {
     return canvas
   }
 
-  createUuid (length: number) {
-    let result = ''
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-    const charactersLength = characters.length
-    for (let i = 0; i < length; i++) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength))
-    }
-    return result
-  }
-
   async convertBase64ToFile (base64: string): Promise<File> {
     const res: Response = await fetch(base64)
     const blob: Blob = await res.blob()
-    return new File([blob], `${this.createUuid(30)}.jpeg`, { type: 'image/jpeg' })
+    return new File([blob], `${createUUID(30)}.jpeg`, { type: 'image/jpeg' })
   }
 
   onResize () {

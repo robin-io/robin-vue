@@ -267,7 +267,7 @@ export default class DocumentMessage extends ComponentProps {
 
     return {
       asset,
-      present: true
+      present: false
     }
   }
 

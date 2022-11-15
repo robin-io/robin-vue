@@ -1,5 +1,5 @@
 // Helper functions.
-function createUuid (length: number) {
+function createUUID (length: number) {
   let result = ''
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
   const charactersLength = characters.length
@@ -9,4 +9,4 @@ function createUuid (length: number) {
   return result
 }
 
-export { createUuid }
+export { createUUID }

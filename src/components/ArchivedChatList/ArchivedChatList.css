@@ -60,7 +60,7 @@
 }
 
 .robin-archived-chat-list-container .robin-chat-list-popup {
-  position: absolute;
+  position: fixed;
   z-index: 100;
 }
 

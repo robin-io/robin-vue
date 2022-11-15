@@ -50,19 +50,13 @@
         <alphabet-block :text="key" v-show="key.toString() != '*'" />
 
         <div class="robin-wrapper robin-card-container robin-flex robin-flex-column">
-          <recycle-scroller
-            :items="contact"
-            :page-mode="true"
-            key-field="userToken"
-            :item-size="83"
-            v-slot="{ item }"
-          >
-            <chat-list-card
-              :item="item"
-              :type="4"
-              @create-conversation="createConversation(item)"
-            />
-          </recycle-scroller>
+          <chat-list-card
+            v-for="(item, index) in contact"
+            :key="index"
+            :item="item"
+            :type="4"
+            @create-conversation="createConversation(item)"
+          />
         </div>
       </div>
     </div>
@@ -82,7 +76,6 @@ import AlphabetBlock from '../AlphabetBlock/AlphabetBlock.vue'
 import EventBus from '@/event-bus'
 import IconButton from '../IconButton/IconButton.vue'
 import ChatListCard from '../ChatListCard/ChatListCard.vue'
-import RecycleScroller from '../RecycleScroller/RecycleScroller.vue'
 
 // eslint-disable-next-line
 @Component<NewChatList>({
@@ -92,7 +85,6 @@ import RecycleScroller from '../RecycleScroller/RecycleScroller.vue'
     SearchBar,
     'custom-button': Button,
     SvgIcon,
-    RecycleScroller,
     IconButton,
     Avatar,
     AlphabetBlock,
@@ -120,6 +112,10 @@ export default class NewChatList extends Vue {
     return store.state.currentTheme
   }
 
+  get allConversations () {
+    return store.state.allConversations
+  }
+
   async createConversation (user: any) {
     const res = await this.$robin.createConversation({
       sender_name: this.$senderName,
@@ -130,7 +126,7 @@ export default class NewChatList extends Vue {
 
     if (res && !res.error) {
       if (!this.checkConversations(res.data)) {
-        this.$conversations.push(res.data)
+        this.allConversations.push(res.data)
       }
 
       EventBus.$emit('conversation-opened', res.data)
@@ -145,9 +141,9 @@ export default class NewChatList extends Vue {
     }
   }
 
-  checkConversations (convo: any): Boolean {
+  checkConversations (convo: ObjectType): Boolean {
     let res = false
-    this.$conversations.forEach((conversation) => {
+    this.allConversations.forEach((conversation) => {
       if (conversation._id === convo._id) {
         res = true
       }

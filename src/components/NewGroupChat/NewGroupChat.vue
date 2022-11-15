@@ -29,7 +29,7 @@
     </header>
 
     <message-content as="label" for-ref="group-icon-upload" class="robin-clickable">
-      <div class="robin-group-image robin-mb-7" v-show="!icon.name">
+      <div class="robin-group-image robin-m-auto robin-mb-7" v-show="!icon.name">
         <input
           type="file"
           :style="{ display: 'none' }"
@@ -43,7 +43,7 @@
       </div>
 
       <img
-        class="robin-group-image robin-mb-7"
+        class="robin-group-image robin-m-auto robin-mb-7"
         :src="icon.localUrl"
         :alt="icon.name"
         v-show="icon.name"

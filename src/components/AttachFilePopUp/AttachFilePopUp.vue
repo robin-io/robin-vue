@@ -97,7 +97,7 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import store from '@/store/index'
-import { createUuid } from '@/utils/helpers'
+import { createUUID } from '@/utils/helpers'
 import Content from '@/components/Content/Content.vue'
 import IconButton from '@/components/IconButton/IconButton.vue'
 
@@ -130,19 +130,18 @@ export default class AttachFilePopOver extends Vue {
 
   handleFileChange (files: any): void {
     ;[...files].forEach((file: any) => {
-      const typeIndex = file.name.lastIndexOf('.')
-      const extension = file.name.substring(typeIndex + 1)
+      const extension = file.name.split('.')[1]
       const blob = file.slice(0, file.size, file.type)
-      const customFile = new File([blob], createUuid(36) + '.' + extension, { type: file.type })
+      const customFile = new File([blob], createUUID(36) + '.' + extension, { type: file.type })
 
       const fileURL = URL.createObjectURL(customFile)
 
       if (file.size < 5000001) {
         this.$emit('file-upload', {
-          name: customFile.name.substring(0, typeIndex),
+          name: customFile.name.split('.')[0],
           size: customFile.size,
           type: customFile.type,
-          extension: customFile.name.substring(typeIndex + 1),
+          extension: customFile.name.split('.')[1],
           localUrl: fileURL,
           file: customFile
         })
@@ -153,13 +152,6 @@ export default class AttachFilePopOver extends Vue {
           position: 'bottom-left'
         })
       }
-    })
-  }
-
-  renameFile (file, newName): File {
-    return new File([file], newName, {
-      type: file.type,
-      lastModified: file.lastModified
     })
   }
 

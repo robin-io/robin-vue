@@ -29,6 +29,7 @@
 .robin-primary-chat-list-container .robin-card-container {
   width: 100%;
   overflow-y: auto;
+  height: 100%;
   gap: 0.2rem 0;
 }
 

@@ -24,13 +24,12 @@ export default defineConfig({
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled
       // into your library
-      external: ['vue', 'moment', 'mime', 'axios', 'v-lazy-image', 'v-emoji-picker', 'robin.io-js', 'vue-toast-notification', 'link-prevue', 'cypress', '@testing-library/user-event', 'lodash.debounce'],
+      external: ['vue', 'moment', 'mime', 'v-lazy-image', 'v-emoji-picker', 'robin.io-js', 'vue-toast-notification', 'link-prevue', 'cypress', '@testing-library/user-event', 'lodash.debounce'],
       output: {
         globals: {
           vue: 'Vue',
           moment: 'moment',
           mime: 'mime',
-          axios: 'axios',
           'v-lazy-image': 'v-lazy-image',
           'v-emoji-picker': 'v-emoji-picker',
           'robin.io-js': 'robin.io-js',

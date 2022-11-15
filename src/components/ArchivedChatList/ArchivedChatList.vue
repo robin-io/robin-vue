@@ -23,26 +23,19 @@
 
     <div
       class="robin-wrapper robin-card-container robin-flex robin-flex-column robin-mt-42"
-      @scroll="onScroll()"
+      @scroll="handleInfiniteScroll()"
     >
-      <recycle-scroller
-        :items="conversations"
-        :page-mode="true"
-        key-field="_id"
-        :item-size="83"
-        v-slot="{ item, index }"
-      >
-        <chat-list-card
-          :index="index"
-          :item="item"
-          :type="1"
-          conversation-type="archived"
-          @open-conversation="openConversation(item)"
-          @open-modal="openModal"
-          @close-modal="closeModal"
-        />
-      </recycle-scroller>
-
+      <chat-list-card
+        v-for="(item, index) in conversations"
+        :key="index"
+        :index="index"
+        :item="item"
+        :type="1"
+        conversation-type="archived"
+        @open-conversation="openConversation(item)"
+        @open-modal="openModal"
+        @close-modal="closeModal"
+      />
       <div
         v-show="conversations.length < 1"
         class="robin-flex robin-flex-justify-center robin-pt-15"
@@ -61,7 +54,7 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropType } from 'vue'
+import Vue from 'vue'
 import moment from 'moment'
 import store from '@/store/index'
 import Component from 'vue-class-component'
@@ -72,14 +65,13 @@ import Avatar from '../Avatar/Avatar.vue'
 import GroupAvatar from '../GroupAvatar/GroupAvatar.vue'
 import ChatListCard from '../ChatListCard/ChatListCard.vue'
 import ChatListPopUp from '../ChatListPopUp/ChatListPopUp.vue'
-import RecycleScroller from '../RecycleScroller/RecycleScroller.vue'
 
 const ComponentProps = Vue.extend({
   props: {
-    archivedConversations: {
-      type: Array as PropType<Array<ObjectType>>,
-      default: (): Array<any> => []
-    }
+    // archivedConversations: {
+    //   type: Array as PropType<Array<ObjectType>>,
+    //   default: (): Array<any> => []
+    // }
   }
 })
 
@@ -92,45 +84,30 @@ const ComponentProps = Vue.extend({
     ChatListCard,
     Avatar,
     GroupAvatar,
-    RecycleScroller,
     ChatListPopUp
   },
   watch: {
-    archivedConversations: {
-      handler (val: Array<any>): void {
-        this.conversations = [...val].sort((a, b) => {
-          const dateA = moment(a.last_message ? a.last_message.timestamp : a.updated_at).valueOf()
-          const dateB = moment(b.last_message ? b.last_message.timestamp : b.updated_at).valueOf()
-
-          if (dateA > dateB) {
-            return -1
-          }
-
-          if (dateB < dateA) {
-            return 1
-          }
-
-          return 0
-        })
-      },
-      immediate: true
-    },
-    $robin_users: {
+    allConversations: {
       handler (val) {
-        this.avatarKey += 1
+        this.getConversations()
       }
     }
   }
 })
 export default class ArchivedChatList extends ComponentProps {
   conversationIndex = 0
-  conversations: Array<ObjectType> = []
-  popUpStates: Array<ObjectType> = []
+  conversations = [] as Array<ObjectType>
+  paginatedConversations = [] as Array<ObjectType>
+  currentPage = 1
+  pageCount = 0
   scroll = false as boolean
-  avatarKey: number = 0
 
   get screenWidth () {
     return store.state.screenWidth
+  }
+
+  get allConversations () {
+    return store.state.allConversations
   }
 
   get currentConversation () {
@@ -139,6 +116,11 @@ export default class ArchivedChatList extends ComponentProps {
 
   get currentTheme () {
     return store.state.currentTheme
+  }
+
+  created () {
+    this.handleAddArchivedConversation()
+    this.handleRemoveArchivedConversation()
   }
 
   openConversation (conversation: object): void {
@@ -169,25 +151,29 @@ export default class ArchivedChatList extends ComponentProps {
 
     if (chatListPopupEl.style.display === 'block') chatListPopupEl.style.display = 'none'
 
-    console.log(chatEl.getBoundingClientRect())
-
     if (lastThreeInArray && this.scroll) {
       chatListPopupEl.style.top = `${chatEl.getBoundingClientRect().top - 40}px`
     } else {
-      chatListPopupEl.style.top = `${chatEl.getBoundingClientRect().top - 10}px`
+      chatListPopupEl.style.top = `${chatEl.getBoundingClientRect().top}px`
     }
 
     const leftSpacing = this.screenWidth > 1024 ? 120 : 172 - 16
 
-    chatListPopupEl.style.left = `${chatEl.getBoundingClientRect().right - leftSpacing}px`
+    if (this.screenWidth >= 1200) {
+      chatListPopupEl.style.left = `${chatEl.getBoundingClientRect().right - leftSpacing}px`
+    } else {
+      chatListPopupEl.style.left = 'initial'
+    }
 
     chatListPopupEl.style.display = 'block'
   }
 
   closeModal (index: number) {
-    const chatListPopupEl = this.$refs['chat-list-popup'].$el as HTMLElement
+    const chatListPopupEl = this.$refs['chat-list-popup']
+      ? this.$refs['chat-list-popup'].$el
+      : (undefined as HTMLElement | undefined)
 
-    if (this.conversationIndex === index) {
+    if (this.conversationIndex === index && this.chatListPopupEl) {
       chatListPopupEl.classList.remove('robin-zoomIn')
       chatListPopupEl.classList.add('robin-zoomOut')
 
@@ -216,10 +202,6 @@ export default class ArchivedChatList extends ComponentProps {
     })
   }
 
-  onScroll (): void {
-    this.scroll = true
-  }
-
   async unArchiveChat (id: string): Promise<void> {
     const res = await this.$robin.unarchiveConversation(id, this.$user_token)
 
@@ -237,6 +219,108 @@ export default class ArchivedChatList extends ComponentProps {
       })
       this.$emit('refresh')
     }
+  }
+
+  throttleConversations (callback, time) {
+    if (this.throttleTimer) return
+
+    this.throttleTimer = true
+
+    setTimeout(() => {
+      callback()
+      this.throttleTimer = false
+    }, time)
+  }
+
+  handleInfiniteScroll () {
+    this.scroll = true
+    const wrapper = this.$refs['conversations-wrapper'] as HTMLElement
+
+    this.throttleConversations(() => {
+      const scrollSpaceLeft = Math.floor(wrapper.scrollHeight - wrapper.clientHeight)
+      const endOfScroll = Math.floor(wrapper.scrollTop) >= scrollSpaceLeft
+
+      if (endOfScroll) {
+        this.paginateConversations(this.currentPage + 1)
+      }
+    }, 1500)
+  }
+
+  async getConversations () {
+    const res = await this.$robin.getUserToken(
+      {
+        user_token: this.$user_token
+      },
+      100,
+      this.currentPage
+    )
+    if (!res.error) {
+      const conversations = res.data.paginated_conversations.conversations == null
+        ? []
+        : res.data.paginated_conversations.conversations
+      const archivedConversations = this.getArchivedConversations(conversations)
+      this.pageCount = res.data.paginated_conversations.pagination.pagination.totalPage
+      store.setState('archivedConversations', [...archivedConversations])
+      this.conversations = [...archivedConversations]
+    }
+  }
+
+  async paginateConversations (page = 1) {
+    const res = await this.$robin.getUserToken(
+      {
+        user_token: this.$user_token
+      },
+      100,
+      page
+    )
+    if (!res.error) {
+      const conversations = res.data.paginated_conversations.conversations == null
+        ? []
+        : res.data.paginated_conversations.conversations
+      const archivedConversations = this.getArchivedConversations([...this.conversations, ...conversations])
+      store.setState('archivedConversations', [...archivedConversations])
+      this.conversations = [...archivedConversations]
+    }
+  }
+
+  handleAddArchivedConversation () {
+    EventBus.$on('archived-conversation.add', (conversation: any) => {
+      this.conversations.unshift(conversation)
+      store.setState('archivedConversations', [...this.conversations])
+    })
+  }
+
+  handleRemoveArchivedConversation () {
+    EventBus.$on('archived-conversation.delete', (conversation: any) => {
+      const index = this.conversations.findIndex((item) => item._id === conversation._id)
+
+      this.conversations.splice(index, 1)
+      store.setState('archivedConversations', [...this.conversations])
+    })
+  }
+
+  getArchivedConversations (conversations: Array<ObjectType>): Array<any> {
+    return this.sortConversations(conversations).filter((user: any) => {
+      if (!user.archived_for) return false
+      return user.archived_for.includes(this.$user_token)
+    })
+  }
+
+  sortConversations (conversations: Array<ObjectType>): Array<ObjectType> {
+    return [...conversations].sort((a, b) => {
+      const dateA = moment(a.last_message ? a.last_message.timestamp : a.updated_at).valueOf()
+      const dateB = moment(b.last_message ? b.last_message.timestamp : b.updated_at).valueOf()
+
+      if (dateA > dateB) {
+        return -1
+      }
+
+      if (dateB < dateA) {
+        return 1
+      }
+
+      return 0
+    })
   }
 }
 </script>

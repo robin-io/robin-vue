@@ -916,8 +916,8 @@
 .robin-spinner {
   animation: spinner 600ms linear infinite;
   -webkit-animation: spinner 600ms linear infinite;
-  height: 40px;
-  width: 40px;
+  min-height: 40px;
+  min-width: 40px;
   background: transparent;
   border-radius: 50%;
   border: 2px solid transparent;

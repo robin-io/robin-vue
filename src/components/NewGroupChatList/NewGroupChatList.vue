@@ -9,12 +9,12 @@
         :to-click-away="false"
       />
 
-      <content
+      <message-content
         font-weight="400"
         :color="currentTheme === 'light' ? '#000000' : '#F9F9F9'"
         :font-size="16"
         class="robin-ml-12"
-        >{{ !updatingParticipants ? 'New Group Chat' : 'Add Group Participants' }}</content
+        >{{ !updatingParticipants ? 'New Group Chat' : 'Add Group Participants' }}</message-content
       >
 
       <div class="robin-ml-auto">
@@ -36,7 +36,7 @@
     <div
       class="robin-select robin-flex robin-flex-align-center robin-flex-justify-end robin-w-100 robin-pl-16 robin-pr-16 robin-pt-24 robin-pb-23"
     >
-      <content :color="currentTheme === 'light' ? '#9999BC' : '#B6B6B6'"> Select All </content>
+      <message-content :color="currentTheme === 'light' ? '#9999BC' : '#B6B6B6'"> Select All </message-content>
       <check-box
         class="robin-ml-8"
         @clicked="toggleSelectAllCheckAction($event)"
@@ -115,10 +115,6 @@ const ComponentProps = Vue.extend({
     groupIcon: {
       type: Object,
       default: () => {}
-    },
-    robinUsers: {
-      type: Array,
-      default: () => []
     }
   }
 })
@@ -127,7 +123,7 @@ const ComponentProps = Vue.extend({
 @Component<NewGroupChatList>({
   name: 'NewGroupChatList',
   components: {
-    Content,
+    'message-content': Content,
     SearchBar,
     'custom-button': Button,
     Avatar,
@@ -137,7 +133,7 @@ const ComponentProps = Vue.extend({
     ChatListCard
   },
   watch: {
-    robinUsers: {
+    $robin_users: {
       handler (val) {
         this.getContacts('')
       }
@@ -181,14 +177,14 @@ export default class NewGroupChatList extends ComponentProps {
     this.contacts = {}
 
     if (searchText.trim() === '') {
-      this.robinUsers.forEach((user: any) => {
-        const data = this.robinUsers.filter(
-          (item: any) =>
+      this.$robin_users.forEach((user: any) => {
+        const data = this.$robin_users.filter(
+          (item: ObjectType) =>
             item.userToken !== this.$user_token &&
             this.validateContact(item.userName, user.userName)
         )
 
-        this.$set(this.contacts, this.contacts[this.getContactKey(user.userName)], data)
+        this.$set(this.contacts, this.getContactKey(user.userName), data)
       })
 
       for (const key in this.contacts) {
@@ -206,7 +202,7 @@ export default class NewGroupChatList extends ComponentProps {
             this.validateContact(item.userName, user.userName)
         )
 
-        this.$set(this.contacts, this.contacts[this.getContactKey(user.userName)], data)
+        this.$set(this.contacts, this.getContactKey(user.userName), data)
       })
     }
   }
@@ -223,7 +219,7 @@ export default class NewGroupChatList extends ComponentProps {
     const checkboxComponents = this.$refs['checkbox-comp'] as any
 
     if (!val) {
-      this.users = [...this.robinUsers] as Array<ObjectType>
+      this.users = [...this.$robin_users] as Array<ObjectType>
 
       for (let i = 0; i < checkboxComponents.length; i += 1) {
         checkboxComponents[i].checked = true
@@ -353,7 +349,7 @@ export default class NewGroupChatList extends ComponentProps {
   searchContacts (searchText: string): void {
     this.isLoading = true
     // eslint-disable-next-line array-callback-return
-    const data = this.robinUsers.filter((obj: any) => {
+    const data = this.$robin_users.filter((obj: any) => {
       let stopSearch = false
       Object.values(obj).forEach((val) => {
         const filter = String(val).toLowerCase().includes(searchText.toLowerCase())

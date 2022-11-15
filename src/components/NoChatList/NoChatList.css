@@ -1,4 +1,4 @@
-.robin-no-chat-list {
+.robin-no-chat-list-container {
   width: 100%;
   height: 100%;
   display: flex;
@@ -8,18 +8,18 @@
   overflow-y: auto;
 }
 
-.robin-no-chat-list .robin-header {
+.robin-no-chat-list-container .robin-header {
   width: 100%;
   justify-content: space-between;
   padding: clamp(6%, 2vh, 3.563rem) clamp(2%, 4vw, 1.563rem) 1.763rem;
 }
 
-.robin-no-chat-list .robin-header img.custom:first-child {
+.robin-no-chat-list-container .robin-header img.custom:first-child {
   width: 36px;
   height: 36px;
 }
 
-.robin-no-chat-list .robin-wrapper:last-child {
+.robin-no-chat-list-container .robin-wrapper:last-child {
   padding-top: 1.5rem;
   padding-bottom: 1.5rem;
 }

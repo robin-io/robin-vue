@@ -254,7 +254,7 @@ import AudioRecorder from 'audio-recorder-polyfill'
 import mpegEncoder from 'audio-recorder-polyfill/mpeg-encoder'
 import EventBus from '@/event-bus'
 import Component from 'vue-class-component'
-import { createUuid } from '@/utils/helpers'
+import { createUUID } from '@/utils/helpers'
 import store from '@/store/index'
 import IconButton from '@/components/IconButton/IconButton.vue'
 import { EmailRegex, WebsiteRegex, VideoRegex, ImageRegex, DocumentRegex } from '@/utils/constants'
@@ -442,7 +442,8 @@ export default class MessageInputBar extends ComponentProps {
       msg: message.content.msg,
       sender_token: message.sender_token,
       receiver_token: message.receiver_token,
-      timestamp: this.manualTimestamp
+      timestamp: this.manualTimestamp,
+      local_id: message.content.local_id
     }
 
     if (message.content.msg && !message.content.attachment && !message.is_reply) {
@@ -450,11 +451,11 @@ export default class MessageInputBar extends ComponentProps {
     }
 
     if (!message.content.msg && message.content.attachment && !message.is_reply) {
-      this.sendFileMessage({ file: message.content.attachment })
+      this.sendFileMessage({ file: message.content.attachment, local_id: message.content.local_id })
     }
 
     if (message.content.msg && message.content.attachment && !message.is_reply) {
-      this.sendMessageWithAttachment({ file: message.content.attachment }, this.text)
+      this.sendMessageWithAttachment({ file: message.content.attachment, local_id: message.content.local_id }, this.text)
     }
 
     if (message.content.msg && !message.content.attachment && message.is_reply) {
@@ -462,11 +463,11 @@ export default class MessageInputBar extends ComponentProps {
     }
 
     if (!message.content.msg && message.content.attachment && message.is_reply) {
-      this.replyFileMessage({ file: message.content.attachment })
+      this.replyFileMessage({ file: message.content.attachment, local_id: message.content.local_id })
     }
 
     if (message.content.msg && message.content.attachment && message.is_reply) {
-      this.replyMessageWithAttachment({ file: message.content.attachment }, this.text)
+      this.replyMessageWithAttachment({ file: message.content.attachment, local_id: message.content.local_id }, this.text)
     }
   }
 
@@ -497,6 +498,7 @@ export default class MessageInputBar extends ComponentProps {
   }
 
   sendMessage (): any {
+    const uuid = createUUID(24)
     const message = {
       msg: this.text,
       sender_token: this.$user_token,
@@ -504,24 +506,26 @@ export default class MessageInputBar extends ComponentProps {
           this.currentConversation.receiver_token === this.$user_token
             ? this.currentConversation.sender_token
             : this.currentConversation.receiver_token,
-      timestamp: new Date()
+      timestamp: new Date(),
+      local_id: uuid
     }
 
     this.toggleManualSend()
 
     if (this.files.length > 0 && this.text.trim().length === 0) {
-      this.files.forEach((file: ObjectType) => this.sendFileMessage(file))
+      this.files.forEach((file: ObjectType) => this.sendFileMessage({ file: file.file, local_id: uuid }))
     } else if (this.text.trim().length > 0 && this.files.length < 1) {
       this.sendTextMessage(message)
     } else if (this.text.trim().length > 0 && this.files.length > 1) {
       this.sendTextMessage(message)
-      this.files.forEach((file: ObjectType) => this.sendFileMessage(file))
+      this.files.forEach((file: ObjectType) => this.sendFileMessage({ file: file.file, local_id: uuid }))
     } else if (this.text.trim().length > 0 && this.files.length === 1) {
-      this.files.forEach((file: ObjectType) => this.sendMessageWithAttachment(file, this.text))
+      this.files.forEach((file: ObjectType) => this.sendMessageWithAttachment({ file: file.file, local_id: uuid }, this.text))
     }
   }
 
   async replyMessage () {
+    const uuid = createUUID(24)
     const message = {
       msg: this.text,
       sender_token: this.$user_token,
@@ -529,20 +533,21 @@ export default class MessageInputBar extends ComponentProps {
           this.currentConversation.receiver_token === this.$user_token
             ? this.currentConversation.sender_token
             : this.currentConversation.receiver_token,
-      timestamp: new Date()
+      timestamp: new Date(),
+      local_id: uuid
     }
 
     this.toggleManualSend()
 
     if (this.files.length > 0 && this.text.trim().length === 0) {
-      this.files.forEach((file: ObjectType) => this.replyFileMessage(file))
+      this.files.forEach((file: ObjectType) => this.replyFileMessage({ file: file.file, local_id: uuid }))
     } else if (this.text.trim().length > 0 && this.files.length < 1) {
       this.replyTextMessage(message)
     } else if (this.text.trim().length > 0 && this.files.length > 1) {
       this.replyTextMessage(message)
-      this.files.forEach((file: ObjectType) => this.replyFileMessage(file))
+      this.files.forEach((file: ObjectType) => this.replyFileMessage({ file: file.file, local_id: uuid }))
     } else if (this.text.trim().length > 0 && this.files.length === 1) {
-      this.files.forEach((file: ObjectType) => this.replyMessageWithAttachment(file, this.text))
+      this.files.forEach((file: ObjectType) => this.replyMessageWithAttachment({ file: file.file, local_id: uuid }, this.text))
     }
   }
 
@@ -552,7 +557,7 @@ export default class MessageInputBar extends ComponentProps {
         this.isUploading = true
 
         const offlineMessage = {
-          _id: createUuid(24),
+          _id: message.local_id,
           channel: this.$channel,
           created_at: message.timestamp,
           content: {
@@ -563,7 +568,8 @@ export default class MessageInputBar extends ComponentProps {
               this.currentConversation.receiver_token === this.$user_token
                 ? this.currentConversation.sender_token
                 : this.currentConversation.receiver_token,
-            timestamp: message.timestamp
+            timestamp: message.timestamp,
+            local_id: message.local_id
           },
           sender_token: this.$user_token,
           conversation_id: this.currentConversation._id,
@@ -630,7 +636,7 @@ export default class MessageInputBar extends ComponentProps {
         this.isUploading = true
 
         const offlineMessage = {
-          _id: file.name,
+          _id: file.local_id,
           channel: this.$channel,
           created_at: this.manualTimestamp !== '' ? this.manualTimestamp : new Date(),
           content: {
@@ -642,7 +648,8 @@ export default class MessageInputBar extends ComponentProps {
               this.currentConversation.receiver_token === this.$user_token
                 ? this.currentConversation.sender_token
                 : this.currentConversation.receiver_token,
-            timestamp: this.manualTimestamp !== '' ? this.manualTimestamp : new Date()
+            timestamp: this.manualTimestamp !== '' ? this.manualTimestamp : new Date(),
+            local_id: file.local_id
           },
           has_attachment: true,
           sender_token: this.$user_token,
@@ -659,7 +666,8 @@ export default class MessageInputBar extends ComponentProps {
         this.currentConversation._id,
         file.file,
         this.$senderName,
-        ''
+        '',
+        file.local_id
       )
 
       this.isUploading = false
@@ -709,7 +717,7 @@ export default class MessageInputBar extends ComponentProps {
         this.isUploading = true
 
         const offlineMessage = {
-          _id: file.name,
+          _id: file.local_id,
           channel: this.$channel,
           created_at: this.manualTimestamp !== '' ? this.manualTimestamp : new Date(),
           content: {
@@ -721,7 +729,8 @@ export default class MessageInputBar extends ComponentProps {
               this.currentConversation.receiver_token === this.$user_token
                 ? this.currentConversation.sender_token
                 : this.currentConversation.receiver_token,
-            timestamp: this.manualTimestamp !== '' ? this.manualTimestamp : new Date()
+            timestamp: this.manualTimestamp !== '' ? this.manualTimestamp : new Date(),
+            local_id: file.local_id
           },
           has_attachment: true,
           sender_token: this.$user_token,
@@ -738,7 +747,8 @@ export default class MessageInputBar extends ComponentProps {
         this.currentConversation._id,
         file.file,
         this.$senderName,
-        msg
+        msg,
+        file.local_id
       )
 
       this.isUploading = false
@@ -791,7 +801,7 @@ export default class MessageInputBar extends ComponentProps {
         this.isUploading = true
 
         const offlineMessage = {
-          _id: createUuid(24),
+          _id: message.local_id,
           channel: this.$channel,
           created_at: message.timestamp,
           content: {
@@ -802,7 +812,8 @@ export default class MessageInputBar extends ComponentProps {
               this.currentConversation.receiver_token === this.$user_token
                 ? this.currentConversation.sender_token
                 : this.currentConversation.receiver_token,
-            timestamp: message.timestamp
+            timestamp: message.timestamp,
+            local_id: message.local_id
           },
           sender_token: this.$user_token,
           conversation_id: this.currentConversation._id,
@@ -874,7 +885,7 @@ export default class MessageInputBar extends ComponentProps {
         this.isUploading = true
 
         const offlineMessage = {
-          _id: file.name,
+          _id: file.local_id,
           channel: this.$channel,
           created_at: this.manualTimestamp !== '' ? this.manualTimestamp : new Date(),
           content: {
@@ -886,7 +897,8 @@ export default class MessageInputBar extends ComponentProps {
               this.currentConversation.receiver_token === this.$user_token
                 ? this.currentConversation.sender_token
                 : this.currentConversation.receiver_token,
-            timestamp: this.manualTimestamp !== '' ? this.manualTimestamp : new Date()
+            timestamp: this.manualTimestamp !== '' ? this.manualTimestamp : new Date(),
+            local_id: file.local_id
           },
           has_attachment: true,
           sender_token: this.$user_token,
@@ -905,7 +917,9 @@ export default class MessageInputBar extends ComponentProps {
         this.currentConversation._id,
         this.messageReply._id,
         file.file,
-        this.$senderName
+        this.$senderName,
+        '',
+        file.local_id
       )
 
       this.isUploading = false
@@ -957,7 +971,7 @@ export default class MessageInputBar extends ComponentProps {
         this.isUploading = true
 
         const offlineMessage = {
-          _id: file.name,
+          _id: file.local_id,
           channel: this.$channel,
           content: {
             attachment: file.file,
@@ -968,7 +982,8 @@ export default class MessageInputBar extends ComponentProps {
               this.currentConversation.receiver_token === this.$user_token
                 ? this.currentConversation.sender_token
                 : this.currentConversation.receiver_token,
-            timestamp: this.manualTimestamp !== '' ? this.manualTimestamp : new Date()
+            timestamp: this.manualTimestamp !== '' ? this.manualTimestamp : new Date(),
+            local_id: file.local_id
           },
           created_at: this.manualTimestamp !== '' ? this.manualTimestamp : new Date(),
           has_attachment: true,
@@ -989,7 +1004,8 @@ export default class MessageInputBar extends ComponentProps {
         this.messageReply._id,
         file.file,
         this.$senderName,
-        msg
+        msg,
+        file.local_id
       )
 
       this.isUploading = false
@@ -1258,12 +1274,13 @@ export default class MessageInputBar extends ComponentProps {
 
       // Set record to <audio> when recording will be finished
       this.recorder.addEventListener('dataavailable', (event: { data: any }) => {
-        const file = new File([event.data], `${this.createUuid(30)}.mp3`, {
+        const uuid = createUUID(36)
+        const file = new File([event.data], `${uuid}.mp3`, {
           type: event.data.type
         })
 
         this.files.push({
-          name: `${this.createUuid(30)}`,
+          name: `${uuid}`,
           size: event.data.size,
           type: event.data.type,
           audio: true,

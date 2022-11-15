@@ -48,7 +48,7 @@ import EncryptionDetails from './components/EncrytionDetails/EncryptionDetails.v
 import debounce from 'lodash.debounce'
 import Component from 'vue-class-component'
 import store from './store/index'
-import { Robin } from 'robin.io-js'
+import { Robin } from '../robin'
 import EventBus from './event-bus'
 import assets from '@/utils/assets.json'
 
@@ -56,11 +56,11 @@ const ComponentProps = Vue.extend({
   props: {
     userToken: {
       type: String as PropType<string>,
-      default: 'OykUCsrYJddWcJsDfHDQKKop' // 'ArnPvXEXcxmsKbvOcGCMHyOZ' // 'clpYwBMnDGdynSarEBZOuPWZ' // 'jDifegUvGFCIqpTqznNElxlU'
+      default: 'VPZZIuRiHSlwwVXSsNuzhcHf' // 'OykUCsrYJddWcJsDfHDQKKop' // 'ArnPvXEXcxmsKbvOcGCMHyOZ' // 'clpYwBMnDGdynSarEBZOuPWZ' // 'jDifegUvGFCIqpTqznNElxlU'
     },
     apiKey: {
       type: String as PropType<string>,
-      default: 'NT-XmIzEmWUlsrQYypZOFRlogDFvQUsaEuxMfZf'
+      default: 'NT-UAzQwycFjXwvGfeciRyVumTWjfUFCImrRFQH' // 'NT-XmIzEmWUlsrQYypZOFRlogDFvQUsaEuxMfZf'
     },
     pageLoader: {
       type: Boolean as PropType<boolean>,
@@ -82,7 +82,7 @@ const ComponentProps = Vue.extend({
           created_at: '2022-02-22T01:02:32.517Z',
           updated_at: '2022-02-22T01:02:32.517Z',
           fullname: 'Testing Tester',
-          user_token: 'GmStKZeaAzsYzxsdIlFvoJSa',
+          user_token: 'dhkogzyIxbAQwFnKDNTfAKOU',
           password: '$2a$14$ynUAMEo0StZa7FnbipS6l.qgAObpZJL.SkvXXVKjRalPKTK0Y51ce',
           profile_image: '',
           email: 'testingtester@gmail.com'
@@ -313,7 +313,7 @@ export default class App extends ComponentProps {
   }
 
   initiateRobin () {
-    this.robin = new Robin(this.apiKey, true)
+    this.robin = new Robin(this.apiKey, true, 0, 'dev')
     this.deboucedConnect = debounce(() => this.connect(), 5000)
     this.deboucedConnect!()
     this.setPrototypes()
@@ -339,9 +339,6 @@ export default class App extends ComponentProps {
     Vue.prototype.$apiKey = this.apiKey
     Vue.prototype.$user_token = this.userToken
     Vue.prototype.$channel = this.channel
-    Vue.prototype.$conversations = []
-    Vue.prototype.$regularConversations = []
-    Vue.prototype.$archivedConversations = []
     Vue.prototype.$senderName = this.userName
     Vue.prototype.$logo = this.logo
   }
@@ -421,6 +418,7 @@ export default class App extends ComponentProps {
         EventBus.$emit('user.disconnect', message.value)
         break
       case 'new.conversation':
+        console.log('new.conversation')
         if (message.value.is_group) {
           EventBus.$emit('new-group.conversation', message.value)
         } else {

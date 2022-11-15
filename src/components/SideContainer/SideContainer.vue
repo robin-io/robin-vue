@@ -1,15 +1,10 @@
 <template>
   <div class="robin-chat-list-container">
     <PrimaryChatList
-      v-show="$conversations.length > 0 || isPageLoading"
-      :key="key"
-      @search="searchedData($event)"
-      :regular-conversations="regularConversations"
-      :archived-conversations="archivedConversations"
+      v-show="conversations.length > 0 || isPageLoading"
       @opennewchatmodal="openModal('slide-1', $event)"
       @openarchivedchatmodal="openModal('slide-3', $event)"
       @closemodal="closeModal('slide-1', $event)"
-      @refresh="refresh"
     >
       <template #chat-list-header>
         <slot name="chat-list-header"></slot>
@@ -25,7 +20,7 @@
     />
 
     <NoChatList
-      v-show="$conversations.length < 1 && !isPageLoading"
+      v-show="conversations.length < 1 && !isPageLoading"
       @opennewchatmodal="openModal('slide-1', $event)"
     >
       <template #chat-list-header>
@@ -60,9 +55,6 @@
       ref="slide-4"
       v-show="sideBarType == 'archivedchat'"
       @closemodal="closeModal('slide-4', $event)"
-      :archived-conversations="archivedConversations"
-      :key="key + 4"
-      @refresh="refresh"
     />
   </div>
 </template>
@@ -102,26 +94,16 @@ export default class SideContainer extends Vue {
   key = 0 as number
   searchText = '' as string
 
-  regularConversations = [] as Array<any>
-  archivedConversations = [] as Array<any>
   sideBarType = 'primary'
-  conversations = [] as Array<any>
   groupName = ''
   groupIcon = {}
 
   created () {
-    this.getUserToken()
-
-    this.onGroupConversationCreated()
-    this.onNewConversationCreated()
-    this.handleAddRegularConversation()
-    this.handleRemoveRegularConversation()
-    this.handleAddArchivedConversation()
-    this.handleRemoveArchivedConversation()
-    this.handleMarkAsRead()
-    this.handleMarkAsUnread()
     this.showNewGroupModal()
-    this.handleMessageForward()
+  }
+
+  get conversations () {
+    return store.state.allConversations
   }
 
   get isPageLoading () {
@@ -180,224 +162,8 @@ export default class SideContainer extends Vue {
     }
   }
 
-  onGroupConversationCreated () {
-    EventBus.$on('new-group.conversation', (conversation: any) => {
-      conversation.participants.every((participant: any) => {
-        if (participant.user_token === this.$user_token) {
-          this.$regularConversations.unshift(conversation)
-          this.regularConversations.unshift(conversation)
-
-          return false
-        }
-
-        return true
-      })
-    })
-  }
-
-  onNewConversationCreated () {
-    EventBus.$on('new.conversation', (conversation: any) => {
-      if (
-        conversation.sender_token === this.$user_token ||
-        conversation.receiver_token === this.$user_token
-      ) {
-        EventBus.$emit('regular-conversation.add', conversation)
-      }
-    })
-  }
-
-  handleAddRegularConversation () {
-    EventBus.$on('regular-conversation.add', (conversation: any) => {
-      const index = this.$regularConversations.findIndex((item) => item._id === conversation._id)
-
-      if (index === -1) {
-        this.$regularConversations.unshift(conversation)
-        this.regularConversations.unshift(conversation)
-      }
-    })
-  }
-
-  handleRemoveRegularConversation () {
-    EventBus.$on('regular-conversation.delete', (conversation: any) => {
-      const index = this.$regularConversations.findIndex((item) => item._id === conversation._id)
-      this.$regularConversations.splice(index, 1)
-      this.regularConversations.splice(index, 1)
-    })
-  }
-
-  handleRemoveArchivedConversation () {
-    EventBus.$on('archived-conversation.delete', (conversation: any) => {
-      const index = this.$archivedConversations.findIndex((item) => item._id === conversation._id)
-
-      this.archivedConversations.splice(index, 1)
-      this.$archivedConversations.splice(index, 1)
-    })
-  }
-
-  handleAddArchivedConversation () {
-    EventBus.$on('archived-conversation.add', (conversation: any) => {
-      this.archivedConversations.unshift(conversation)
-      this.$archivedConversations.unshift(conversation)
-    })
-  }
-
-  async getUserToken () {
-    const res = await this.$robin.getUserToken({
-      user_token: this.$user_token
-    })
-
-    if (!res.error) {
-      this.conversations = res.data.conversations == null ? [] : res.data.conversations
-      Vue.prototype.$conversations = res.data.conversations == null ? [] : res.data.conversations
-
-      const regularConversations = this.getRegularConversations() as Array<Record<string, any>>
-      const archivedConversations = this.getArchivedConversations() as Array<Record<string, any>>
-
-      Vue.prototype.$regularConversations = [...regularConversations]
-      Vue.prototype.$archivedConversations = [...archivedConversations]
-      this.regularConversations = [...regularConversations]
-      this.archivedConversations = [...archivedConversations]
-      store.setState('isPageLoading', false)
-      // this.$forceUpdate()
-    }
-  }
-
-  getArchivedConversations (): Array<any> {
-    return this.$conversations.filter((user: any) => {
-      if (!user.archived_for) return false
-      return user.archived_for.includes(this.$user_token)
-    })
-  }
-
-  getRegularConversations () {
-    const regularConversations = [
-      ...this.$conversations.filter((user: any) => {
-        if (!user.archived_for || user.archived_for.length === 0) return true
-        return !user.archived_for.includes(this.$user_token)
-      })
-    ]
-
-    return this.addUnreadMessagesToConversation(regularConversations)
-  }
-
-  addUnreadMessagesToConversation (conversations: any): Array<any> {
-    const data = conversations.map((conversation: any) => {
-      for (const key in conversation.unread_messages) {
-        if (key === this.$user_token) {
-          conversation.unread_messages = conversation.unread_messages[key].unread_count
-        } else {
-          conversation.unread_messages = 0
-        }
-      }
-
-      return conversation
-    })
-
-    return data
-  }
-
-  async getConversationMessages (id: string): Promise<Array<any>> {
-    const res = await this.$robin.getConversationMessages(id, this.$user_token)
-
-    if (res && !res.error) {
-      return res.data
-    } else {
-      this.$toast.open({
-        message: 'Check your connection.',
-        type: 'error',
-        position: 'bottom-left'
-      })
-    }
-
-    return []
-  }
-
-  handleMarkAsRead () {
-    EventBus.$on('mark-as-read', (conversation: any) => {
-      if (conversation) {
-        if (!conversation.archived_for || conversation.archived_for.length === 0) {
-          const index = this.$regularConversations.findIndex(
-            (item) => item._id === conversation._id
-          )
-
-          if (this.regularConversations[index]) {
-            const data = { ...this.regularConversations[index] }
-            data.unread_messages = 0
-            this.$set(this.regularConversations, this.regularConversations[index], data)
-            this.$set(this.$regularConversations, this.$regularConversations[index], data)
-          }
-        }
-      }
-    })
-  }
-
-  handleMarkAsUnread () {
-    EventBus.$on('mark-as-unread', (conversation: any) => {
-      if (conversation) {
-        if (!conversation.archived_for || conversation.archived_for.length === 0) {
-          const index = this.$regularConversations.findIndex(
-            (item) => item._id === conversation._id
-          )
-
-          if (this.regularConversations[index]) {
-            const data = { ...this.regularConversations[index] }
-            data.unread_messages += 1
-            this.$set(this.regularConversations, this.regularConversations[index], data)
-            this.$set(this.$regularConversations, this.$regularConversations[index], data)
-          }
-        }
-      }
-    })
-
-    EventBus.$on('mark-as-unread.modified', (conversation: any) => {
-      if (conversation) {
-        if (!conversation.archived_for || conversation.archived_for.length === 0) {
-          const index = this.$regularConversations.findIndex(
-            (item) => item._id === conversation._id
-          )
-
-          if (this.regularConversations[index]) {
-            const data = { ...this.regularConversations[index] }
-            data.unread_messages = 'marked'
-            this.$set(this.regularConversations, this.regularConversations[index], data)
-            this.$set(this.$regularConversations, this.$regularConversations[index], data)
-          }
-        }
-      }
-    })
-  }
-
-  handleMessageForward (): void {
-    EventBus.$on('message.forward', (messages: ObjectType) => {
-      messages.forEach((msg: ObjectType) => {
-        this.conversations.forEach((conversation: any, index: any) => {
-          if (conversation._id === msg.conversation_id) {
-            const data = { ...this.conversations[index] }
-            const msgData = { ...msg }
-            msgData.content.timestamp = new Date()
-            data.last_message = msgData.content
-            this.$set(this.conversations, this.conversations[index], data)
-            EventBus.$emit('regular-conversation.delete', this.conversations[index])
-            EventBus.$emit('regular-conversation.add', this.conversations[index])
-          }
-        })
-      })
-    })
-  }
-
   refresh (): void {
     this.key += 1
-  }
-
-  searchedData (event: ObjectType): void {
-    this.searchText = event.text.trim()
-
-    if (event.text.trim() !== '') {
-      this.regularConversations = event.data
-    } else {
-      this.regularConversations = this.getRegularConversations()
-      this.refresh()
-    }
   }
 }
 </script>

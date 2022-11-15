@@ -70,9 +70,9 @@
             v-if="item.last_message && !item.last_message.is_attachment"
           >
             {{
-              item.last_message && item.last_message.msg.length < 20
+              item.last_message && item.last_message.msg && item.last_message.msg.length < 20
                 ? item.last_message.msg
-                : item.last_message
+                : item.last_message && item.last_message.msg
                 ? item.last_message.msg.substring(0, 20) + ' ...'
                 : ''
             }}

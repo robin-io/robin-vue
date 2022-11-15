@@ -1,7 +1,11 @@
 <template>
   <div class="robin-no-chat-list-container">
     <header class="robin-header robin-flex robin-flex-align-center">
-      <img v-if="$logo === ''" :src="assets['logo']" alt="logo" />
+      <img
+        v-if="$logo === ''"
+        :src="assets[currentTheme === 'light' ? 'logo' : 'logo_dark']"
+        alt="logo"
+      />
       <img v-else class="custom" :src="$logo" alt="logo" />
 
       <div class="robin-buttons robin-flex robin-flex-align-center">
@@ -32,7 +36,9 @@
         <message-content fontWeight="normal" color="#535F89">No Messages Yet</message-content>
       </div>
 
-      <custom-button emit="newchat" @newchat="openEdit()" v-if="isCreateChatEnabled">Start a chat</custom-button>
+      <custom-button emit="newchat" @newchat="openEdit()" v-if="isCreateChatEnabled"
+        >Start a chat</custom-button
+      >
     </div>
   </div>
 </template>
@@ -67,6 +73,10 @@ export default class NoChatList extends Vue {
 
   get isCreateChatEnabled () {
     return store.state.createChatEnabled
+  }
+
+  get currentTheme () {
+    return store.state.currentTheme
   }
 
   openEdit (): void {

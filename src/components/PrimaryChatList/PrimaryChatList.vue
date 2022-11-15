@@ -53,52 +53,46 @@
         v-show="archivedConversations.length > 0"
         data-testid="archived-conversation-count"
       >
-        {{ archivedConversations.length }}
+        {{archivedConversations.length }}
       </message-content>
     </custom-button>
 
-    <div v-show="isPageLoading" class="robin-spinner"></div>
-
     <div
-      v-show="!isPageLoading"
       class="robin-wrapper robin-card-container robin-flex robin-flex-column"
-      @scroll="onScroll()"
+      ref="conversations-wrapper"
+      @scroll="handleInfiniteScroll"
       :class="{ 'robin-come-down': screenWidth > 1200 }"
     >
-      <recycle-scroller
-        :items="conversations"
-        key-field="_id"
-        :page-mode="true"
-        :item-size="83"
-        v-slot="{ item, index }"
-      >
-        <chat-list-card
-          :index="index"
-          :item="item"
-          :type="1"
-          conversation-type="primary"
-          @open-conversation="openConversation(item)"
-          @open-modal="openModal"
-          @close-modal="closeModal"
-        />
-      </recycle-scroller>
+      <chat-list-card
+        v-for="(item, index) in regularConversations"
+        :key="'conversation-' + index"
+        :index="index"
+        :item="item"
+        :type="1"
+        conversation-type="primary"
+        @open-conversation="openConversation(item)"
+        @open-modal="openModal"
+        @close-modal="closeModal"
+      />
+
+      <div v-show="isPageLoading" class="robin-spinner"></div>
     </div>
 
     <chat-list-pop-up
-      v-if="conversations[conversationIndex]"
-      :conversation="conversations[conversationIndex]"
+      v-if="regularConversations[conversationIndex]"
+      :conversation="regularConversations[conversationIndex]"
       :is-archived="false"
       ref="chat-list-popup"
-      @archive-chat="handleArchiveChat"
+      @archive-chat="archiveChat"
       @delete-conversation="handleDeleteConversation"
-      @mark-as-read="handleMarkAsRead"
-      @mark-as-unread="handleMarkAsUnread"
+      @mark-as-read="markReadManaully"
+      @mark-as-unread="markUnreadManually"
     />
   </div>
 </template>
 
 <script lang="ts">
-import Vue, { PropType } from 'vue'
+import Vue from 'vue'
 import moment from 'moment'
 import Component from 'vue-class-component'
 import store from '@/store/index'
@@ -111,21 +105,7 @@ import Button from '../Button/Button.vue'
 import Mention from '../Mention/Mention.vue'
 import ChatListPopUp from '../ChatListPopUp/ChatListPopUp.vue'
 import ChatListCard from '../ChatListCard/ChatListCard.vue'
-import RecycleScroller from '../RecycleScroller/RecycleScroller.vue'
 import assets from '@/utils/assets.json'
-
-const ComponentProps = Vue.extend({
-  props: {
-    regularConversations: {
-      type: Array as PropType<Array<ObjectType>>,
-      default: (): Array<ObjectType> => []
-    },
-    archivedConversations: {
-      type: Array,
-      default: (): Array<ObjectType> => []
-    }
-  }
-})
 
 // eslint-disable-next-line
 @Component<PrimaryChatList>({
@@ -138,52 +118,41 @@ const ComponentProps = Vue.extend({
     'custom-button': Button,
     Mention,
     ChatListPopUp,
-    ChatListCard,
-    RecycleScroller
-  },
-  watch: {
-    regularConversations: {
-      handler (val: Array<ObjectType>): void {
-        this.conversations = [...val].sort((a, b) => {
-          const dateA = moment(a.last_message ? a.last_message.timestamp : a.updated_at).valueOf()
-          const dateB = moment(b.last_message ? b.last_message.timestamp : b.updated_at).valueOf()
-
-          if (dateA > dateB) {
-            return -1
-          }
-
-          if (dateB < dateA) {
-            return 1
-          }
-
-          return 0
-        })
-      },
-      immediate: true
-    },
-    $robin_users: {
-      handler (val) {
-        this.avatarKey += 1
-      }
-    }
+    ChatListCard
   }
 })
-export default class PrimaryChatList extends ComponentProps {
-  popUpStates: Array<ObjectType> = []
+export default class PrimaryChatList extends Vue {
+  regularConversations = [] as Array<ObjectType>
+  allConversations = [] as Array<ObjectType>
+  popUpStates = [] as Array<ObjectType>
   conversationIndex = 0
-  avatarKey = 0
   scroll = false as boolean
   isLoading = false as boolean
-  conversations = [] as Array<ObjectType>
   key = 0 as number
   filterActive = false
+  throttleTimer = false
+  currentPage = 1
+  pageCount = 0
 
   created () {
+    this.getConversations()
     this.onGroupIconUpdate()
+    this.handleMarkAsRead()
+    this.handleMarkAsUnread()
+    this.handleAddRegularConversation()
+    this.handleRemoveRegularConversation()
+    this.onGroupConversationCreated()
+    this.handleMessageForward()
+    this.onNewConversationCreated()
+    this.onGroupConversationCreated()
   }
 
   get isPageLoading () {
     return store.state.isPageLoading
+  }
+
+  get archivedConversations () {
+    return store.state.archivedConversations
   }
 
   get currentConversation () {
@@ -198,7 +167,7 @@ export default class PrimaryChatList extends ComponentProps {
     return store.state.archiveChatEnabled
   }
 
-  get assets (): any {
+  get assets () {
     return assets
   }
 
@@ -214,33 +183,21 @@ export default class PrimaryChatList extends ComponentProps {
     this.filterActive = !this.filterActive
 
     if (this.filterActive) {
-      this.conversations = [...this.conversations.filter(
-        (conversation) =>
-          conversation.unread_messages > 0 || conversation.unread_messages === 'marked'
-      )]
+      this.regularConversations = [
+        ...this.regularConversations.filter(
+          (conversation) =>
+            conversation.unread_messages > 0 || conversation.unread_messages === 'marked'
+        )
+      ]
     } else {
-      this.conversations = [...this.regularConversations.sort((a, b) => {
-        const dateA = moment(a.last_message ? a.last_message.timestamp : a.updated_at).valueOf()
-        const dateB = moment(b.last_message ? b.last_message.timestamp : b.updated_at).valueOf()
-
-        if (dateA > dateB) {
-          return -1
-        }
-
-        if (dateB < dateA) {
-          return 1
-        }
-
-        return 0
-      })] as Array<ObjectType>
+      this.regularConversations = store.state.regularConversations as Array<ObjectType>
     }
   }
 
   onGroupIconUpdate (): void {
     EventBus.$on('group.icon.update', (conversation: ObjectType) => {
-      const index = this.conversations.findIndex((item) => item._id === conversation._id)
-      this.conversations.splice(index, 1, conversation)
-      // this.$forceUpdate()
+      const index = this.regularConversations.findIndex((item) => item._id === conversation._id)
+      this.regularConversations.splice(index, 1, conversation)
     })
   }
 
@@ -273,15 +230,11 @@ export default class PrimaryChatList extends ComponentProps {
     })
   }
 
-  onScroll (): void {
-    this.scroll = true
-  }
-
   openModal (index: number) {
     this.conversationIndex = index
     const chatEl = document.getElementById(`conversation-${this.conversationIndex}`) as HTMLElement
     const chatListPopupEl = this.$refs['chat-list-popup'].$el as HTMLElement
-    const lastThreeInArray = index >= this.conversations.length - 3
+    const lastThreeInArray = index >= this.regularConversations.length - 3
 
     if (chatListPopupEl.style.display === 'block') chatListPopupEl.style.display = 'none'
 
@@ -291,7 +244,11 @@ export default class PrimaryChatList extends ComponentProps {
       chatListPopupEl.style.top = `${chatEl.getBoundingClientRect().top + 50}px`
     }
 
-    chatListPopupEl.style.left = `${chatEl.getBoundingClientRect().right - 80}px`
+    if (this.screenWidth >= 1200) {
+      chatListPopupEl.style.left = `${chatEl.getBoundingClientRect().right - 80}px`
+    } else {
+      chatListPopupEl.style.left = 'initial'
+    }
 
     chatListPopupEl.style.display = 'block'
   }
@@ -311,8 +268,8 @@ export default class PrimaryChatList extends ComponentProps {
     }
   }
 
-  async handleArchiveChat (): Promise<void> {
-    const conversation = this.conversations[this.conversationIndex] as ObjectType
+  async archiveChat (): Promise<void> {
+    const conversation = this.regularConversations[this.conversationIndex] as ObjectType
     const res = await this.$robin.archiveConversation(conversation._id, this.$user_token)
 
     if (!res.error) {
@@ -330,8 +287,8 @@ export default class PrimaryChatList extends ComponentProps {
   searchConversation (searchText: string) {
     let searchData = [] as Array<ObjectType>
     this.isLoading = true
-    // eslint-disable-next-line array-callback-return
-    const data = this.$regularConversations.filter((obj) => {
+    // eslint-disable-next-line
+    const data = this.regularConversations.filter((obj) => {
       let stopSearch = false
       Object.values(obj).forEach((val) => {
         const filter = String(val).toLowerCase().includes(searchText.toLowerCase())
@@ -345,7 +302,7 @@ export default class PrimaryChatList extends ComponentProps {
     })
 
     searchData = [...data]
-    this.$emit('search', {
+    this.searchedData({
       text: searchText,
       data: searchData
     })
@@ -357,14 +314,14 @@ export default class PrimaryChatList extends ComponentProps {
   openEdit (): void {
     this.$emit('opennewchatmodal', 'newchat')
     setTimeout(() => {
-      this.refresh()
+      // this.refresh()
     }, 300)
   }
 
   openArchivedChat (): void {
     this.$emit('openarchivedchatmodal', 'archivedchat')
     setTimeout(() => {
-      this.refresh()
+      // this.refresh()
     }, 300)
   }
 
@@ -372,18 +329,147 @@ export default class PrimaryChatList extends ComponentProps {
     this.key += 1
   }
 
-  handleMarkAsRead () {
-    const conversation = this.conversations[this.conversationIndex] as ObjectType
-    EventBus.$emit('mark-as-read', conversation)
+  throttleConversations (callback, time) {
+    if (this.throttleTimer) return
+
+    this.throttleTimer = true
+
+    setTimeout(() => {
+      callback()
+      this.throttleTimer = false
+    }, time)
   }
 
-  handleMarkAsUnread () {
-    const conversation = this.conversations[this.conversationIndex] as ObjectType
-    EventBus.$emit('mark-as-unread.modified', conversation)
+  handleInfiniteScroll () {
+    this.scroll = true
+    const wrapper = this.$refs['conversations-wrapper'] as HTMLElement
+
+    this.throttleConversations(() => {
+      store.setState('isPageLoading', true)
+      const scrollSpaceLeft = Math.floor(wrapper.scrollHeight - wrapper.clientHeight)
+      const endOfScroll = Math.floor(wrapper.scrollTop) >= scrollSpaceLeft
+
+      if (endOfScroll) {
+        this.currentPage += 1
+        this.paginateConversations(this.currentPage)
+      }
+
+      if (this.currentPage === this.pageCount) {
+        store.setState('isPageLoading', false)
+      }
+    }, 1500)
+  }
+
+  async getConversations () {
+    const res = await this.$robin.getUserToken(
+      {
+        user_token: this.$user_token
+      },
+      10,
+      this.currentPage
+    )
+
+    console.log(res)
+
+    if (!res.error) {
+      const conversations = res.data.paginated_conversations.conversations == null
+        ? []
+        : res.data.paginated_conversations.conversations
+
+      this.pageCount = res.data.paginated_conversations.pagination.pagination.totalPage
+
+      this.allConversations = [...conversations]
+      console.log(this.allConversations)
+      store.setState('allConversations', this.allConversations)
+
+      const regularConversations = this.getRegularConversations(this.allConversations) as Array<
+        Record<string, any>
+      >
+
+      this.regularConversations = [...regularConversations]
+
+      console.log([...regularConversations])
+
+      store.setState('regularConversations', [...regularConversations])
+      store.setState('isPageLoading', false)
+    }
+  }
+
+  async paginateConversations (page = 1) {
+    const res = await this.$robin.getUserToken(
+      {
+        user_token: this.$user_token
+      },
+      10,
+      page
+    )
+
+    if (!res.error) {
+      const conversations = res.data.paginated_conversations.conversations == null
+        ? []
+        : res.data.paginated_conversations.conversations
+
+      this.allConversations = [...this.allConversations, ...conversations]
+      store.setState('allConversations', this.allConversations)
+
+      const regularConversations = this.getRegularConversations(this.allConversations) as Array<
+        Record<string, any>
+      >
+
+      this.regularConversations = [...regularConversations]
+
+      store.setState('regularConversations', [...regularConversations])
+      store.setState('isPageLoading', false)
+    }
+  }
+
+  handleAddRegularConversation () {
+    EventBus.$on('regular-conversation.add', (conversation: any) => {
+      const index = this.regularConversations.findIndex((item) => item._id === conversation._id)
+
+      if (index === -1) {
+        this.regularConversations.unshift(conversation)
+        store.setState('regularConversations', this.regularConversations)
+      }
+    })
+  }
+
+  handleRemoveRegularConversation () {
+    EventBus.$on('regular-conversation.delete', (conversation: any) => {
+      const index = this.regularConversations.findIndex((item) => item._id === conversation._id)
+      this.regularConversations.splice(index, 1)
+      store.setState('regularConversations', this.regularConversations)
+    })
+  }
+
+  getRegularConversations (conversations: Array<ObjectType>) {
+    const sortedConversations = [...conversations].sort((a, b) => {
+      const dateA = moment(a.last_message ? a.last_message.timestamp : a.updated_at).valueOf()
+      const dateB = moment(b.last_message ? b.last_message.timestamp : b.updated_at).valueOf()
+
+      if (dateA > dateB) {
+        return -1
+      }
+
+      if (dateB < dateA) {
+        return 1
+      }
+
+      return 0
+    })
+
+    const regularConversations = [
+      ...sortedConversations.filter((user: any) => {
+        if (!user.archived_for || user.archived_for.length === 0) return true
+        return !user.archived_for.includes(this.$user_token)
+      })
+    ]
+
+    return this.addUnreadMessagesToConversation(regularConversations)
   }
 
   async handleDeleteConversation () {
-    const conversation = this.conversations[this.conversationIndex]
+    const conversation = this.regularConversations[this.conversationIndex]
     const res = await this.$robin.deleteConversation(this.$user_token, conversation._id)
 
     if (res && !res.error) {
@@ -400,6 +486,137 @@ export default class PrimaryChatList extends ComponentProps {
         type: 'error',
         position: 'bottom-left'
       })
+    }
+  }
+
+  handleMessageForward (): void {
+    EventBus.$on('message.forward', (messages: ObjectType) => {
+      messages.forEach((msg: ObjectType) => {
+        this.allConversations.forEach((conversation: any, index: any) => {
+          if (conversation._id === msg.conversation_id) {
+            const data = { ...this.allConversations[index] }
+            const msgData = { ...msg }
+            msgData.content.timestamp = new Date()
+            data.last_message = msgData.content
+            this.$set(this.allConversations, this.allConversations[index], data)
+            EventBus.$emit('regular-conversation.delete', this.allConversations[index])
+            EventBus.$emit('regular-conversation.add', this.allConversations[index])
+          }
+        })
+      })
+    })
+  }
+
+  onNewConversationCreated () {
+    EventBus.$on('new.conversation', (conversation: any) => {
+      if (
+        conversation.sender_token === this.$user_token ||
+        conversation.receiver_token === this.$user_token
+      ) {
+        EventBus.$emit('regular-conversation.add', conversation)
+      }
+    })
+  }
+
+  addUnreadMessagesToConversation (conversations: Array<ObjectType>): Array<ObjectType> {
+    const data = conversations.map((conversation: Array<ObjectType>) => {
+      for (const key in conversation.unread_messages) {
+        if (key === this.$user_token) {
+          conversation.unread_messages = conversation.unread_messages[key].unread_count
+        } else {
+          conversation.unread_messages = 0
+        }
+      }
+
+      return conversation
+    })
+
+    return data
+  }
+
+  markReadManaully () {
+    const conversation = this.regularConversations[this.conversationIndex] as ObjectType
+    EventBus.$emit('mark-as-read', conversation)
+  }
+
+  markUnreadManually () {
+    const conversation = this.regularConversations[this.conversationIndex] as ObjectType
+
+    if (conversation) {
+      if (!conversation.archived_for || conversation.archived_for.length === 0) {
+        const index = this.regularConversations.findIndex((item) => item._id === conversation._id)
+
+        if (this.regularConversations[index]) {
+          const data = { ...this.regularConversations[index] }
+          data.unread_messages = 'marked'
+          this.regularConversations.splice(index, 1, data)
+          store.setState('regularConversations', this.regularConversations)
+        }
+      }
+    }
+  }
+
+  handleMarkAsRead () {
+    EventBus.$on('mark-as-read', (conversation: any) => {
+      if (conversation) {
+        if (!conversation.archived_for || conversation.archived_for.length === 0) {
+          const index = this.regularConversations.findIndex(
+            (item) => item._id === conversation._id
+          )
+
+          if (this.regularConversations[index]) {
+            const data = { ...this.regularConversations[index] }
+            data.unread_messages = 0
+            this.regularConversations.splice(index, 1, data)
+            store.setState('regularConversations', this.regularConversations)
+          }
+        }
+      }
+    })
+  }
+
+  handleMarkAsUnread () {
+    EventBus.$on('mark-as-unread', (conversation: ObjectType) => {
+      if (conversation) {
+        if (!conversation.archived_for || conversation.archived_for.length === 0) {
+          const index = this.regularConversations.findIndex(
+            (item) => item._id === conversation._id
+          )
+
+          if (this.regularConversations[index]) {
+            const data = { ...this.regularConversations[index] }
+            data.unread_messages += 1
+            this.$set(this.regularConversations, this.regularConversations[index], data)
+            store.setState('regularConversations', this.regularConversations)
+          }
+        }
+      }
+    })
+  }
+
+  onGroupConversationCreated () {
+    EventBus.$on('new-group.conversation', (conversation: ObjectType) => {
+      console.log(conversation)
+      conversation.participants.every((participant: any) => {
+        if (participant.user_token === this.$user_token) {
+          EventBus.$emit('regular-conversation.add', conversation)
+
+          return false
+        }
+
+        return true
+      })
+    })
+  }
+
+  searchedData (event: ObjectType): void {
+    this.searchText = event.text.trim()
+
+    if (event.text.trim() !== '') {
+      this.regularConversations = event.data
+    } else {
+      this.regularConversations = this.getRegularConversations(this.allConversations)
+      this.refresh()
     }
   }
 }

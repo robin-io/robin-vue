@@ -25,49 +25,15 @@
         <div class="robin-spinner"></div>
       </div>
       <div class="robin-inner-wrapper" v-if="offlineMessagesExist">
+        <div class="robin-conversation-date" v-if="!isMessagesLoading">
+          {{ conversationCreatedAt }}
+        </div>
         <div
           class="robin-flex robin-flex-column"
           v-for="(message, index) in offlineMessages.messages[currentConversation._id]"
           :key="`message-${String(index)}`"
           :class="validateMessages(message, index)"
         >
-          <div
-            class="robin-conversation-date"
-            v-if="
-              index == 0 && isDataEqual(message, messages[index]) && currentConversation.is_group
-            "
-          >
-            This group was created by
-            {{
-              $user_token == currentConversation.moderator.user_token
-                ? 'You'
-                : currentConversation.moderator.meta_data.display_name
-            }}
-            {{
-              formatDate(!Array.isArray(message) ? message.created_at : message[0].created_at) ==
-              'Today'
-                ? 'today.'
-                : `on ${formatDate(
-                    !Array.isArray(message) ? message.created_at : message[0].created_att
-                  )}.`
-            }}
-          </div>
-          <div
-            class="robin-conversation-date"
-            v-if="
-              index == 0 && isDataEqual(message, messages[index]) && !currentConversation.is_group
-            "
-          >
-            This conversation was created
-            {{
-              formatDate(!Array.isArray(message) ? message.created_at : message[0].created_at) ==
-              'Today'
-                ? 'today.'
-                : `on ${formatDate(
-                    !Array.isArray(message) ? message.created_at : message[0].created_at
-                  )}.`
-            }}
-          </div>
           <div class="robin-activity" v-if="showDate(index) && index != 0">
             {{ formatDate(!Array.isArray(message) ? message.created_at : message[0].created_at) }}
           </div>
@@ -356,6 +322,35 @@ export default class MessageContainer extends Vue {
     this.onFailedMessageSend()
   }
 
+  get conversationCreatedAt () {
+    if (this.messages.length < 1) return ''
+
+    const info = this.currentConversation.is_group
+      ? 'This group was created by'
+      : 'This conversation was created'
+    let message = ''
+
+    if (this.currentConversation.is_group) {
+      const moderator = currentConversation.moderator
+      const date = !Array.isArray(this.messages[0][0])
+        ? this.formatDate(this.messages[0].created_at)
+        : this.formatDate(this.messages[0][0].created_at)
+      message +=
+        this.$user_token === moderator.user_token ? ' You' : ' ' + moderator.meta_data.display_name
+      message += date === 'Today' ? ' today.' : ` on ${date}.`
+    } else {
+      if (!Array.isArray(this.messages[0])) {
+        const date = this.formatDate(this.messages[0].created_at)
+        message += date === 'Today' ? ' today.' : ` on ${date}.`
+      } else {
+        const date = this.formatDate(this.messages[0][0].created_at)
+        message += date === 'Today' ? ' today.' : ` on ${date}.`
+      }
+    }
+
+    return info + ' ' + message
+  }
+
   get screenWidth () {
     return store.state.screenWidth
   }
@@ -437,6 +432,7 @@ export default class MessageContainer extends Vue {
 
       this.isMessagesLoading = true
 
+      store.setState('currentConversation', conversation)
       EventBus.$emit('mark-as-read', conversation)
       store.setState('messageViewProfileOpen', false)
 
@@ -492,9 +488,8 @@ export default class MessageContainer extends Vue {
     const lastThreeInArray =
       index >= this.offlineMessages.messages[this.currentConversation._id].length - 3
     let isMessageReceiver = false
-    const offlineMessage = this.offlineMessages.messages[this.currentConversation._id][
-      this.messageIndex
-    ]
+    const offlineMessage =
+      this.offlineMessages.messages[this.currentConversation._id][this.messageIndex]
 
     if (Array.isArray(offlineMessage)) {
       isMessageReceiver = this.isReceiver(offlineMessage)
@@ -604,25 +599,15 @@ export default class MessageContainer extends Vue {
   onFailedMessageSend () {
     EventBus.$on('message-send-failed', (message: ObjectType) => {
       const offlineMessageIndex = this.offlineMessages.messages[message.conversation_id].findIndex(
-        (item: ObjectType) => {
-          if (item.pseudo && !item.failed) {
-            const isText = item.content.msg === message.content.msg
-            const isDocument = Object.is(
-              JSON.stringify(message.content.attachment),
-              JSON.stringify(item.content.attachment)
-            )
-            const isTextAndDocument =
-              Object.is(
-                JSON.stringify(message.content.attachment),
-                JSON.stringify(item.content.attachment)
-              ) && item.content.msg === message.content.msg
-
-            return (
-              isText ||
-              isDocument ||
-              isTextAndDocument ||
-              (isText && !isDocument && isTextAndDocument)
-            )
+        (item: Array<ObjectType> | ObjectType) => {
+          if (Array.isArray(item)) {
+            if (item[0].pseudo && !item[0].failed) {
+              return message.content.local_id === item[0].content.local_id
+            }
+          } else {
+            if (item.pseudo && !item.failed) {
+              return message.content.local_id === item.content.local_id
+            }
           }
 
           return false
@@ -653,6 +638,8 @@ export default class MessageContainer extends Vue {
           this.imageRegex.test(this.checkAttachmentType(message.content.attachment))
             ? [message]
             : message
+
+        console.log(newMessage)
 
         this.messages.push(newMessage)
 
@@ -691,28 +678,14 @@ export default class MessageContainer extends Vue {
   onNewMessage () {
     EventBus.$on('new-message', (message: ObjectType) => {
       if (message.conversation_id === this.currentConversation._id) {
+        console.log(message)
         const messageIndex = this.messages.findIndex((item: Array<ObjectType> | ObjectType) => {
-          const msgAttachment = message.content.attachment
-
-          if (message.has_attachment) {
-            if (Array.isArray(item)) {
-              return item.some((obj) => msgAttachment.includes(obj.content.attachment.name))
-            } else {
-              if (message.content.msg !== '') {
-                return (
-                  msgAttachment.includes(item.content.attachment.name) &&
-                  message.content.msg === item.content.msg
-                )
-              }
-
-              return msgAttachment.includes(item.content.attachment.name)
-            }
+          if (Array.isArray(item)) {
+            return item.some((obj) => message.content.local_id === obj.content.local_id)
           } else {
-            return message.content.msg === item.content.msg
+            return message.content.local_id === item.content.local_id
           }
         })
-
-        console.log(messageIndex, message)
 
         const newMessage =
           message.has_attachment &&
@@ -731,23 +704,10 @@ export default class MessageContainer extends Vue {
           const offlineMessageIndex = this.offlineMessages.messages[
             message.conversation_id
           ].findIndex((item: Array<ObjectType> | ObjectType) => {
-            const msgAttachment = message.content.attachment
-
-            if (message.has_attachment) {
-              if (Array.isArray(item)) {
-                return item.some((obj) => msgAttachment.includes(obj.content.attachment.name))
-              } else {
-                if (message.content.msg !== '') {
-                  return (
-                    msgAttachment.includes(item.content.attachment.name) &&
-                  message.content.msg === item.content.msg
-                  )
-                }
-
-                return msgAttachment.includes(item.content.attachment.name)
-              }
+            if (Array.isArray(item)) {
+              return item.some((obj) => message.content.local_id === obj.content.local_id)
             } else {
-              return message.content.msg === item.content.msg
+              return message.content.local_id === item.content.local_id
             }
           })
 
@@ -911,24 +871,26 @@ export default class MessageContainer extends Vue {
   async getConversationMessages (): Promise<void> {
     const res = await this.$robin.getConversationMessages(
       this.currentConversation._id,
-      this.$user_token
+      this.$user_token,
+      100,
+      1
     )
 
     if (res && !res.error) {
-      this.testMessages(res.data ? res.data : [])
+      this.testMessages(res.data.messages ? res.data.messages : [])
 
       this.messageError = false
 
       this.resetCurrentPage()
 
       const offlineMessages =
-        this.offlineMessages.messages[this.currentConversation._id] && res.data
+        this.offlineMessages.messages[this.currentConversation._id] && res.data.messages
           ? [...this.offlineMessages.messages[this.currentConversation._id]]
           : ([] as Array<ObjectType>)
 
       this.sortOfflineMessages(offlineMessages)
 
-      this.handleReadReceipts(res.data)
+      this.handleReadReceipts(res.data.messages)
     } else {
       this.messageError = true
       this.$toast.open({
@@ -1102,11 +1064,11 @@ export default class MessageContainer extends Vue {
   }
 
   handleScrollUp () {
+    const message = this.$refs.message as HTMLElement
     const messagesLen = this.messages.length
     const offlineMessagesLen = this.offlineMessages.messages[this.currentConversation._id]
       ? this.offlineMessages.messages[this.currentConversation._id].length
       : 0
-    const message = this.$refs.message as HTMLElement
     const scrollSpaceLeft = Math.floor(message.scrollHeight - message.clientHeight - 20)
     const endOfScroll = Math.floor(message.scrollTop) > scrollSpaceLeft
 
@@ -1162,9 +1124,8 @@ export default class MessageContainer extends Vue {
   }
 
   replyMessage (): void {
-    const offlineMessage = this.offlineMessages.messages[this.currentConversation._id][
-      this.messageIndex
-    ]
+    const offlineMessage =
+      this.offlineMessages.messages[this.currentConversation._id][this.messageIndex]
     const isArray = Array.isArray(offlineMessage)
     this.messageReply = !isArray ? { ...offlineMessage } : [...offlineMessage]
   }
@@ -1536,9 +1497,8 @@ export default class MessageContainer extends Vue {
 
   async addReaction (emoji: string): Promise<void> {
     const robin = this.$robin as any
-    const offlineMessage = this.offlineMessages.messages[this.currentConversation._id][
-      this.messageIndex
-    ]
+    const offlineMessage =
+      this.offlineMessages.messages[this.currentConversation._id][this.messageIndex]
     const message = Array.isArray(offlineMessage)
       ? offlineMessage[0]
       : (offlineMessage as ObjectType)

@@ -31,7 +31,6 @@
   },
   "dependencies": {
     "audio-recorder-polyfill": "^0.4.1",
-    "axios": "^0.21.1",
     "i": "^0.3.7",
     "link-prevue": "^1.2.0",
     "localforage": "^1.10.0",
@@ -39,12 +38,10 @@
     "mime": "^2.5.2",
     "moment": "^2.29.1",
     "npm": "^8.19.2",
-    "robin.io-js": "^0.3.8",
     "scrollparent": "^2.0.1",
     "v-emoji-picker": "^2.3.3",
     "v-lazy-image": "^2.0.1",
     "vue": "^2.6.14",
-    "vue-axios": "^3.2.5",
     "vue-class-component": "^7.2.6",
     "vue-observe-visibility": "^1.0.0",
     "vue-toast-notification": "^0.6.2"

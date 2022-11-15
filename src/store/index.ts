@@ -1,7 +1,9 @@
 import Vue from 'vue'
-import { MessageQueue } from '@/utils/messageQueue'
 
 interface State {
+  allConversations:Array<ObjectType>,
+  regularConversations: Array<ObjectType>,
+  archivedConversations: Array<ObjectType>,
   currentConversation: Record<string, any>,
   imagesToPreview: any[],
   imageSelected: number,
@@ -31,11 +33,13 @@ interface State {
   messageReactionDeleteEnabled: boolean,
   useDefaultProfileDetails: boolean,
   currentTheme: string,
-  messageQueue: MessageQueue,
   screenWidth: number,
 }
 
 const state: State = {
+  allConversations: [],
+  regularConversations: [],
+  archivedConversations: [],
   currentConversation: {},
   imagesToPreview: [],
   imageSelected: 0,
@@ -65,7 +69,6 @@ const state: State = {
   messageReactionDeleteEnabled: false,
   useDefaultProfileDetails: false,
   currentTheme: 'light',
-  messageQueue: new MessageQueue(),
   screenWidth: 0
 }
 
