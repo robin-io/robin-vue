@@ -322,6 +322,14 @@ export default class MessageContainer extends Vue {
     this.onFailedMessageSend()
   }
 
+  get allConversations () {
+    return store.state.allConversations
+  }
+
+  get regularConversations () {
+    return store.state.regularConversations
+  }
+
   get conversationCreatedAt () {
     if (this.messages.length < 1) return ''
 
@@ -331,7 +339,7 @@ export default class MessageContainer extends Vue {
     let message = ''
 
     if (this.currentConversation.is_group) {
-      const moderator = currentConversation.moderator
+      const moderator = this.currentConversation.moderator
       const date = !Array.isArray(this.messages[0][0])
         ? this.formatDate(this.messages[0].created_at)
         : this.formatDate(this.messages[0][0].created_at)
@@ -655,12 +663,12 @@ export default class MessageContainer extends Vue {
 
         this.scrollToBottom()
       }
-      this.$conversations.forEach((conversation, index) => {
+      this.allConversations.forEach((conversation, index) => {
         if (conversation._id === message.conversation_id) {
-          this.$conversations[index].updated_at = message.content.timestamp
-          this.$conversations[index].last_message = message.content
+          this.allConversations[index].updated_at = message.content.timestamp
+          this.allConversations[index].last_message = message.content
 
-          const newConv = this.$conversations[index]
+          const newConv = this.allConversations[index]
 
           if (!newConv.archived_for || newConv.archived_for.length === 0) {
             EventBus.$emit('search-text.reset')
@@ -745,12 +753,12 @@ export default class MessageContainer extends Vue {
 
         EventBus.$emit('mark-as-unread', this.$regularConversations[index])
       }
-      this.$conversations.forEach((conversation, index) => {
+      this.allConversations.forEach((conversation, index) => {
         if (conversation._id === message.conversation_id) {
-          this.$conversations[index].updated_at = message.content.timestamp
-          this.$conversations[index].last_message = message.content
+          this.allConversations[index].updated_at = message.content.timestamp
+          this.allConversations[index].last_message = message.content
 
-          const newConv = this.$conversations[index]
+          const newConv = this.allConversations[index]
 
           if (!newConv.archived_for || newConv.archived_for.length === 0) {
             EventBus.$emit('search-text.reset')
