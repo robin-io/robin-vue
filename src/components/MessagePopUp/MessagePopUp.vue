@@ -56,7 +56,7 @@
       class="robin-wrapper robin-w-100"
       @click="resendMessage"
       data-testid="delete-button"
-      v-if="message.failed"
+      v-if="!isMessageEmpty ? isMessageFailed : false"
     >
       <message-content :font-size="14" :color="currentTheme === 'light' ? '#51545C' : '#F9F9F9'"
         >Resend</message-content
@@ -92,13 +92,15 @@ import Vue from 'vue'
 import store from '@/store/index'
 import Component from 'vue-class-component'
 import EventBus from '@/event-bus'
+import mime from 'mime'
+import { arrayBufferToBlob, createUUID } from '@/utils/helpers'
 import Content from '@/components/Content/Content.vue'
 import SvgIcon from '@/components/SvgIcon/SvgIcon.vue'
 
 const ComponentProps = Vue.extend({
   props: {
     message: {
-      type: Object,
+      type: [Object, Array],
       default: () => {}
     }
   }
@@ -128,6 +130,22 @@ export default class MessagePopUp extends ComponentProps {
     return store.state.replyMessagesEnabled
   }
 
+  get isMessageEmpty () {
+    if (Array.isArray(this.message)) {
+      return this.message.length === 0
+    }
+
+    return Object.keys(this.message).length === 0
+  }
+
+  get isMessageFailed () {
+    if (Array.isArray(this.message)) {
+      return this.message[0].failed
+    }
+
+    return this.message.failed
+  }
+
   deleteMessage () {
     this.$emit('delete-message')
     this.$emit('close-modal')
@@ -144,8 +162,33 @@ export default class MessagePopUp extends ComponentProps {
     this.$emit('forward-message')
   }
 
-  resendMessage () {
-    EventBus.$emit('manual.send', this.message)
+  async convertArrayBufferToFile (buffer: Uint8Array): Promise<File> {
+    /*
+     If message fails, the message inside
+     the message array is always going to be 1
+    */
+    const isMessageArray = Array.isArray(this.message)
+    const type = isMessageArray ? this.message[0].content.mime_type : this.message.content.attachment
+    const blob = arrayBufferToBlob(buffer, type)
+    const file = new File([blob], createUUID(36) + '.' + mime.getExtension(type), { type }) as File
+
+    return file
+  }
+
+  async resendMessage () {
+    let message = null
+    const isMessageArray = Array.isArray(this.message)
+
+    if (isMessageArray) {
+      message = { ...this.message[0] }
+    } else {
+      message = { ...this.message }
+    }
+
+    if (message.has_attachment) {
+      message.content.attachment = await this.convertArrayBufferToFile(message.content.attachment)
+    }
+    EventBus.$emit('manual.send', message)
   }
 }
 </script>

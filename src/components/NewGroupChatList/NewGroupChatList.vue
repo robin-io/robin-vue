@@ -36,7 +36,9 @@
     <div
       class="robin-select robin-flex robin-flex-align-center robin-flex-justify-end robin-w-100 robin-pl-16 robin-pr-16 robin-pt-24 robin-pb-23"
     >
-      <message-content :color="currentTheme === 'light' ? '#9999BC' : '#B6B6B6'"> Select All </message-content>
+      <message-content :color="currentTheme === 'light' ? '#9999BC' : '#B6B6B6'">
+        Select All
+      </message-content>
       <check-box
         class="robin-ml-8"
         @clicked="toggleSelectAllCheckAction($event)"
@@ -44,50 +46,28 @@
       />
     </div>
 
-    <div class="robin-contact-container robin-overflow-y-auto">
-      <div v-for="(contact, key, index) in contacts" :key="`contact-${index}`">
-        <div class="robin-w-100" v-show="key.toString() != '*'">
-          <alphabet-block :text="key" />
-        </div>
+    <div class="robin-contact-container">
+      <virtual-scroller
+        :items="contacts"
+        :item-count="contacts.length"
+        :height="636"
+        :child-height="childHeight"
+        v-slot="slotProps"
+      >
+        <div :key="slotProps.index" :id="slotProps.index">
+          <alphabet-block v-if="typeof slotProps.item == 'string'" :text="slotProps.item" />
 
-        <div class="robin-card-container robin-flex robin-flex-column">
-          <!-- <div
-            class="robin-card robin-flex robin-flex-align-center"
-            v-for="(user, userIndex) in contact"
-            :key="user.userToken"
-          >
-            <div class="robin-card-info robin-mr-12">
-              <Avatar :img-url="user.profileImage" :sender-token="user.userToken" />
-            </div>
-
-            <div
-              class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4˝ robin-flex-1"
-            >
-              <div class="robin-flex">
-                <Content :font-size="14" :line-height="18" data-testid="content">{{
-                  user.userName
-                }}</Content>
-              </div>
-              <div class="robin-ml-auto">
-                <CheckBox
-                  :key="addIndexToCheckBoxState(userIndex, checkBoxKeyState)"
-                  @clicked="toggleCheckAction($event, user)"
-                  ref="checkbox-comp"
-                  data-testid="checkbox"
-                />
-              </div>
-            </div>
-          </div> -->
-          <chat-list-card
-            v-for="(user, userIndex) in contact"
-            :key="user.userToken"
-            :index="userIndex"
-            :item="user"
-            :type="3"
-            @toggle-check-action="toggleCheckAction"
-          />
+          <div v-else class="robin-card-container robin-flex robin-flex-column">
+            <chat-list-card
+              :index="slotProps.index"
+              :item="slotProps.item"
+              :type="3"
+              ref="chat-list"
+              @toggle-check-action="toggleCheckAction"
+            />
+          </div>
         </div>
-      </div>
+      </virtual-scroller>
     </div>
   </div>
 </template>
@@ -105,6 +85,7 @@ import CheckBox from '../CheckBox/CheckBox.vue'
 import AlphabetBlock from '../AlphabetBlock/AlphabetBlock.vue'
 import ChatListCard from '../ChatListCard/ChatListCard.vue'
 import EventBus from '@/event-bus'
+import VirtualScroller from '../VirtualScroller/VirtualScroller.vue'
 
 const ComponentProps = Vue.extend({
   props: {
@@ -130,19 +111,20 @@ const ComponentProps = Vue.extend({
     IconButton,
     CheckBox,
     AlphabetBlock,
-    ChatListCard
+    ChatListCard,
+    VirtualScroller
   },
   watch: {
     $robin_users: {
       handler (val) {
-        this.getContacts('')
+        this.getContacts('', 'create-group')
       }
     }
   }
 })
 export default class NewGroupChatList extends ComponentProps {
-  modalOpen = false as boolean
-  contacts = {} as any
+  childHeight = [] as Array<Number>
+  contacts = [] as Array<String | ObjectType>
   checkBoxKeyState = 0 as number
   users = [] as Array<ObjectType>
   isLoading = false as boolean
@@ -150,60 +132,111 @@ export default class NewGroupChatList extends ComponentProps {
   searchData = [] as Array<any>
   updatingParticipants = false
   conversationId = ''
-  key = 0 as number
 
   created () {
-    this.getContacts('')
     this.handleAddGroupParticipants()
+  }
+
+  mounted () {
+    this.getContacts('', 'create-group')
   }
 
   get currentTheme () {
     return store.state.currentTheme
   }
 
+  get currentConversation () {
+    return store.state.currentConversation
+  }
+
   closeModal (): void {
-    this.modalOpen = false
     this.users = []
     this.checkBoxKeyState += 1
   }
 
   openModal (): void {
-    this.modalOpen = true
-
     this.checkBoxKeyState += 1
   }
 
-  getContacts (searchText: string): void {
-    this.contacts = {}
+  getContacts (searchText: string, type: string): void {
+    const contactMap = new Map()
 
     if (searchText.trim() === '') {
-      this.$robin_users.forEach((user: any) => {
-        const data = this.$robin_users.filter(
-          (item: ObjectType) =>
-            item.userToken !== this.$user_token &&
-            this.validateContact(item.userName, user.userName)
-        )
+      this.$robin_users.forEach((user: ObjectType) => {
+        const filter = type !== 'create-group'
+          ? (item: ObjectType) =>
+              item.userToken !== this.$user_token &&
+              !this.isGroupParticipant(item) &&
+              this.validateContact(item.userName, user.userName)
+          : (item: ObjectType) =>
+              item.userToken !== this.$user_token &&
+              this.validateContact(item.userName, user.userName)
 
-        this.$set(this.contacts, this.getContactKey(user.userName), data)
+        contactMap.set(
+          this.getContactKey(user.userName),
+          this.$robin_users.filter(
+            filter
+          )
+        )
       })
 
-      for (const key in this.contacts) {
-        if (this.contacts[key].length === 0) {
-          delete this.contacts[key]
+      for (const key of contactMap.keys()) {
+        if (contactMap.get(key).length === 0) {
+          contactMap.delete(key)
         }
       }
 
-      this.sortContacts()
-    } else {
-      this.searchData.forEach((user: any) => {
-        const data = this.searchData.filter(
-          (item: any) =>
-            item.userToken !== this.$user_token &&
-            this.validateContact(item.userName, user.userName)
-        )
+      const sortedContactMap = this.sortContacts(contactMap)
+      let contactData = [] as Array<string | ObjectType>
 
-        this.$set(this.contacts, this.getContactKey(user.userName), data)
+      for (const key of sortedContactMap.keys()) {
+        contactData.push(key)
+        contactData = [...contactData, ...contactMap.get(key)]
+      }
+
+      const childHeight = []
+
+      for (const item of contactData) {
+        if (typeof item === 'string') {
+          // AlphabetBlock height
+          childHeight.push(42)
+        } else {
+          // Contact card height
+          childHeight.push(80)
+        }
+      }
+
+      this.childHeight = childHeight
+
+      this.contacts = contactData
+    } else {
+      const contactMap = new Map()
+
+      this.searchData.forEach((user: any) => {
+        const filter = type !== 'create-group'
+          ? (item: ObjectType) =>
+              item.userToken !== this.$user_token &&
+              !this.isGroupParticipant(item) &&
+              this.validateContact(item.userName, user.userName)
+          : (item: ObjectType) => item.userToken !== this.$user_token &&
+              this.validateContact(item.userName, user.userName)
+
+        contactMap.set(
+          this.getContactKey(user.userName),
+          this.searchData.filter(
+            filter
+          )
+        )
       })
+
+      let contactData = [] as Array<string | ObjectType>
+
+      for (const key of contactMap.keys()) {
+        contactData.push(key)
+        contactData = [...contactData, ...contactMap.get(key)]
+      }
+
+      this.contacts = contactData
     }
   }
 
@@ -216,19 +249,21 @@ export default class NewGroupChatList extends ComponentProps {
   }
 
   toggleSelectAllCheckAction (val: boolean) {
-    const checkboxComponents = this.$refs['checkbox-comp'] as any
+    const checkboxes = document.querySelectorAll('.robin-card-info #checkbox') as NodeListOf<HTMLElement>
 
-    if (!val) {
-      this.users = [...this.$robin_users] as Array<ObjectType>
+    if (checkboxes) {
+      if (!val) {
+        this.users = [...this.$robin_users] as Array<ObjectType>
 
-      for (let i = 0; i < checkboxComponents.length; i += 1) {
-        checkboxComponents[i].checked = true
-      }
-    } else {
-      this.users = []
+        for (let i = 0; i < checkboxes.length; i += 1) {
+          (checkboxes[i].childNodes[0] as HTMLInputElement).checked = true
+        }
+      } else {
+        this.users = []
 
-      for (let i = 0; i < checkboxComponents.length; i += 1) {
-        checkboxComponents[i].checked = false
+        for (let i = 0; i < checkboxes.length; i += 1) {
+          (checkboxes[i].childNodes[0] as HTMLInputElement).checked = false
+        }
       }
     }
   }
@@ -314,6 +349,7 @@ export default class NewGroupChatList extends ComponentProps {
 
   handleAddGroupParticipants () {
     EventBus.$on('edit.participants.group', (details: any) => {
+      this.getContacts('', 'update-participants')
       this.conversationId = details.conversation_id
 
       this.updatingParticipants = true
@@ -329,17 +365,32 @@ export default class NewGroupChatList extends ComponentProps {
     }
   }
 
-  addUser (user: Object): void {
-    this.users.push(user)
+  addUser (user: ObjectType): void {
+    const userIndex = this.users.findIndex((item) => item.userToken === user.userToken)
+
+    if (userIndex > -1) {
+      this.removeUser(user)
+    } else {
+      this.users.push(user)
+    }
   }
 
-  removeUser (user: any): void {
+  removeUser (user: ObjectType): void {
     const userIndex = this.users.findIndex((item) => item.userToken === user.userToken)
     this.users.splice(userIndex, 1)
 
     if (this.users.length < 1) {
       this.closeModal()
     }
+  }
+
+  isGroupParticipant (contact: ObjectType): boolean {
+    if (Object.keys(this.currentConversation).length > 0) {
+      console.log(this.currentConversation.participants.some((participant: ObjectType) => participant.user_token === contact.userToken))
+      return this.currentConversation.participants.some((participant: ObjectType) => participant.user_token === contact.userToken)
+    }
+
+    return false
   }
 
   addIndexToCheckBoxState (index: any, checkBoxKeyState: number): number {
@@ -363,19 +414,21 @@ export default class NewGroupChatList extends ComponentProps {
     })
 
     this.searchData = [...data]
-    this.getContacts(searchText)
+    this.getContacts(searchText, !this.updatingParticipants ? 'create-group' : 'update-participants')
     setTimeout(() => {
       this.isLoading = false
     }, 300)
   }
 
-  sortContacts (): void {
-    this.contacts = Object.keys(this.contacts)
-      .sort()
-      .reduce((result: any, key: string) => {
-        result[key] = this.contacts[key]
-        return result
-      }, {})
+  sortContacts (contacts: Map<string, any>): Map<string, any> {
+    const results = [...contacts.keys()].sort().reduce((result: any, key: string) => {
+      result[key] = contacts.get(key)
+      return result
+    }, {})
+
+    const contactMap = new Map(Object.entries(results))
+
+    return contactMap
   }
 
   getContactKey (username: any): string {
@@ -398,6 +451,9 @@ export default class NewGroupChatList extends ComponentProps {
     if (!this.updatingParticipants) {
       this.$emit('closemodal', 'newgroup')
     } else {
+      window.setTimeout(() => {
+        this.getContacts('', 'create-group')
+      }, 200)
       this.$emit('changesidebartype', 'primary')
       this.$emit('closemodal')
 

@@ -152,8 +152,10 @@
 
 .robin-view-profile .robin-card-container {
   width: 100%;
-  max-height: 500px;
-  overflow-y: auto;
+  flex: 1;
+  height: 100%;
+  max-height: 170px;
+  overflow-y: hidden;
 }
 
 .robin-view-profile .robin-card-container .robin-card {
@@ -168,7 +170,12 @@
 
 .robin-view-profile .robin-media-grids {
   width: 90%;
+  overflow-y: hidden;
+  max-height: 190px;
   margin: 0 auto 0.75rem;
+}
+
+.robin-media-grids .robin-virtual-scroller div .wrapper {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
   gap: 0.5rem;
@@ -188,10 +195,18 @@
 
 .robin-view-profile .robin-link-container {
   width: 90%;
+  max-height: 300px;
+  overflow-y: hidden;
   margin: 0 auto 0.75rem;
-  display: grid;
+  /* display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 0.5rem;
+  gap: 0.5rem; */
+}
+
+.robin-link-container .robin-virtual-scroller .wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem 0;
 }
 
 .robin-view-profile .robin-link-preview {
@@ -217,10 +232,18 @@
 
 .robin-view-profile .robin-document-grids {
   width: 90%;
+  max-height: 300px;
+  overflow-y: hidden;
   margin: 0 auto 0.75rem;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 0.5rem;
+  /* display: grid; */
+  /* grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); */
+  /* gap: 0.5rem; */
+}
+
+.robin-document-grids .robin-virtual-scroller div .wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem 0;
 }
 
 .robin-view-profile .robin-uploaded-documents {
@@ -256,7 +279,11 @@
 }
 
 @media (max-width: 1200px) {
-  .robin-view-profile .robin-view-profile {
+  .robin-view-profile {
     width: 100%;
+  }
+
+  .robin-view-profile .robin-media-grids {
+    max-height: 300px;
   }
 }

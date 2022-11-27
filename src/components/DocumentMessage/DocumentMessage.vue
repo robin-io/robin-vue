@@ -1,6 +1,6 @@
 <template>
   <div class="robin-message-bubble robin-flex robin-flex-align-center" v-clickaway="closeModal" :id="`message-bubble-${index}`">
-    <CheckBox v-show="selectMessagesOpen" @clicked="toggleCheckAction($event)" />
+    <CheckBox v-show="selectMessagesOpen" ref="checkbox" @clicked="toggleCheckAction($event)" />
 
     <div
       class="robin-bubble"
@@ -65,8 +65,8 @@
         <div
           class="robin-uploaded-document"
           v-if="
-            documentRegex.test(checkAttachmentType(message.content.attachment)) &&
-            !audioRegex.test(checkAttachmentType(message.content.attachment))
+            documentRegex.test(checkAttachmentType(message.content.attachment, message)) &&
+            !audioRegex.test(checkAttachmentType(message.content.attachment, message))
           "
         >
           <img v-if="extension.present" :src="extension.asset" alt="document" />
@@ -167,6 +167,7 @@ import Vue, { PropType } from 'vue'
 import store from '@/store/index'
 import Component from 'vue-class-component'
 import { DocumentRegex, EmailRegex, WebsiteRegex, AudioRegex } from '@/utils/constants'
+import { createUUID, checkAttachmentType, convertArrayBufferToFile, convertFileToURL } from '@/utils/helpers'
 import moment from 'moment'
 import mime from 'mime'
 import Assets from '@/utils/assets.json'
@@ -210,6 +211,16 @@ const ComponentProps = Vue.extend({
     IconButton,
     CheckBox,
     AudioPlayer
+  },
+  watch: {
+    selectMessagesOpen: {
+      handler (val) {
+        if (!val) {
+          const checkbox = (this.$refs.checkbox as Vue).$el as HTMLInputElement
+          checkbox.checked = false
+        }
+      }
+    }
   }
 })
 export default class DocumentMessage extends ComponentProps {
@@ -221,6 +232,9 @@ export default class DocumentMessage extends ComponentProps {
   emailRegex = EmailRegex
   websiteRegex = WebsiteRegex
   assets = Assets
+  checkAttachmentType = checkAttachmentType
+  convertArrayBufferToFile = convertArrayBufferToFile
+  convertFileToURL = convertFileToURL
 
   get isReplyMessagesEnabled () {
     return store.state.replyMessagesEnabled
@@ -323,12 +337,12 @@ export default class DocumentMessage extends ComponentProps {
       for (const word of message.split(' ')) {
         if (this.emailRegex.test(word)) {
           returnedMessage += String.raw` <a target="_blank" href="mailto:${word}">${word}<a/>`
+        } else if (this.websiteRegex.test(word) || word.includes('http://')) {
+          returnedMessage += String.raw` <a target="_blank" href="${word}">${word}<a/>`
+        } else if (this.websiteRegex.test(word) || word.includes('https://')) {
+          returnedMessage += String.raw` <a target="_blank" href="${word}">${word}<a/>`
         } else if (this.websiteRegex.test(word)) {
-          if (word.includes('http://') || word.includes('https://')) {
-            returnedMessage += String.raw` <a target="_blank" href="${word}">${word}<a/>`
-          } else {
-            returnedMessage += String.raw` <a target="_blank" href="http://${word}">${word}<a/>`
-          }
+          returnedMessage += String.raw` <a target="_blank" href="https://${word}">${word}<a/>`
         } else {
           returnedMessage += ` ${word}`
         }
@@ -350,7 +364,13 @@ export default class DocumentMessage extends ComponentProps {
   }
 
   toggleCheckAction (val: boolean): void {
-    this.$emit('toggle-check-action', val)
+    const checkbox = (this.$refs.checkbox as Vue).$el as HTMLElement
+
+    if ((checkbox.childNodes[0] as HTMLInputElement).checked) {
+      this.$emit('toggle-check-action', false)
+    } else {
+      this.$emit('toggle-check-action', true)
+    }
   }
 
   onMouseLeave () {
@@ -391,6 +411,7 @@ export default class DocumentMessage extends ComponentProps {
     }
 
     if (
+      !Array.isArray(message) &&
       message.content &&
       message.sender_token === this.$user_token &&
       Array.isArray(nextMessage) &&
@@ -403,7 +424,7 @@ export default class DocumentMessage extends ComponentProps {
       return 'robin-message-receiver robin-w-100 robin-flex-align-end' // true
     }
 
-    if (message.content && message.sender_token === this.$user_token) {
+    if (!Array.isArray(message) && message.content && message.sender_token === this.$user_token) {
       return 'robin-message-receiver robin-w-100 robin-flex-align-end' // true
     }
 
@@ -417,6 +438,7 @@ export default class DocumentMessage extends ComponentProps {
     }
 
     if (
+      !Array.isArray(message) &&
       message.content &&
       message.sender_token !== this.$user_token &&
       Array.isArray(nextMessage) &&
@@ -453,8 +475,14 @@ export default class DocumentMessage extends ComponentProps {
     const texts = this.message.content.msg.split(' ')
 
     return {
-      containsWebsite: texts.some((text: string) => WebsiteRegex.test(text)),
-      containsEmail: texts.some((text: string) => EmailRegex.test(text))
+      containsWebsite: texts.some((text: string) => {
+        if (this.websiteRegex.test(text)) return true
+        else if (text.includes('http://')) return true
+        else if (text.includes('https://')) return true
+
+        return false
+      }),
+      containsEmail: texts.some((text: string) => this.emailRegex.test(text))
     }
   }
 
@@ -468,18 +496,6 @@ export default class DocumentMessage extends ComponentProps {
     this.$emit('scroll-to-message', id)
   }
 
-  checkAttachmentType (attachment: any): string {
-    let strArr = [] as Array<string>
-
-    if (typeof attachment !== 'string') {
-      strArr = attachment.name.split('.')
-    } else {
-      strArr = attachment.split('.')
-    }
-
-    return `${mime.getType(strArr[strArr.length - 1])}`
-  }
-
   checkArrayReceiverUserToken (message: any) {
     return message.some((item: ObjectType) => item.sender_token === this.$user_token)
   }
@@ -489,7 +505,11 @@ export default class DocumentMessage extends ComponentProps {
     let strArr = [] as Array<string>
 
     if (typeof attachment !== 'string') {
-      strArr = attachment.name.split('.')
+      const name = createUUID(36)
+      const type = mime.getExtension(checkAttachmentType(attachment, this.message))
+
+      strArr.push(name)
+      strArr.push(type)
     } else {
       fileName = attachment.substring(attachment.lastIndexOf('/') + 1)
       strArr = fileName.split('.') as Array<string>
@@ -499,10 +519,6 @@ export default class DocumentMessage extends ComponentProps {
       name: strArr[strArr.length - 2],
       extension: strArr[strArr.length - 1]
     }
-  }
-
-  convertFileToURL (file: File): string {
-    return URL.createObjectURL(file)
   }
 
   async downloadFile (attachment: any): Promise<void> {

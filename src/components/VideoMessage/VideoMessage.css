@@ -11,7 +11,11 @@
   margin: 0.5rem auto 0.625rem;
 }
 
-video.video-reply {
+.robin-message-bubble-video video {
+  width: 100%;
+}
+
+.robin-message-bubble-video video.video-reply {
   width: 96%;
   margin: 0 auto;
 }

@@ -17,7 +17,6 @@ declare module 'base64-url'
 declare module 'link-prevue'
 declare module 'audio-recorder-polyfill/mpeg-encoder'
 declare module 'scrollparent'
-declare module 'vue-observe-visibility'
 declare module 'lodash.debounce'
 
 declare namespace JSX {

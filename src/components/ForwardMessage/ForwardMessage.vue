@@ -11,7 +11,7 @@
             :to-click-away="false"
           />
 
-          <content class="robin-ml-8">Forward Message</content>
+          <message-content class="robin-ml-8" :color="currentTheme === 'light' ? '#000000' : '#F9F9F9'">Forward Message</message-content>
         </header>
 
         <div class="robin-search">
@@ -25,36 +25,28 @@
         <div
           class="robin-select robin-flex robin-flex-align-center robin-flex-justify-end robin-w-100 robin-pl-16 robin-pr-16 robin-pt-17 robin-pb-17"
         >
-          <content color="#9999BC"> Select All </content>
+          <message-content :color="currentTheme == 'light' ? '#9999BC' : '#B6B6B6'"> Select All </message-content>
 
           <check-box class="robin-ml-8" @clicked="toggleSelectAllCheckAction($event)" />
         </div>
 
         <div class="robin-conversation-container">
-          <div
-            class="robin-contact-container"
-            v-for="(conversation, key, index) in conversations"
-            :key="`conversation-${index}`"
-          >
-            <div class="robin-w-100 robin-alphabet-block" v-show="key.toString() != '*'">
-              <alphabet-block :text="key" />
-            </div>
+          <div class="robin-contact-container">
+            <virtual-scroller
+              :items="conversations"
+              :item-count="conversations.length"
+              :height="636"
+              :child-height="childHeight"
+              v-slot="slotProps"
+            >
+             <div :key="slotProps.index" :id="slotProps.index">
+              <alphabet-block v-if="typeof slotProps.item == 'string'" :text="slotProps.item" />
 
-            <div class="robin-card-container robin-flex robin-flex-column">
-              <recycle-scroller
-                :items="conversation"
-                key-field="_id"
-                :page-mode="true"
-                :item-size="83"
-                v-slot="{ item }"
-              >
-                <chat-list-card
-                  :item="item"
-                  :type="2"
-                  @toggle-check-action="toggleCheckAction"
-                />
-              </recycle-scroller>
-            </div>
+              <div v-else class="robin-card-container robin-flex robin-flex-column">
+                <chat-list-card :item="slotProps.item" :type="2" @toggle-check-action="toggleCheckAction" />
+              </div>
+             </div>
+            </virtual-scroller>
           </div>
         </div>
 
@@ -76,13 +68,14 @@
 <script lang="ts">
 import Vue, { PropType } from 'vue'
 import Component from 'vue-class-component'
+import store from '@/store/index'
 import Content from '@/components/Content/Content.vue'
 import IconButton from '@/components/IconButton/IconButton.vue'
 import SearchBar from '@/components/SearchBar/SearchBar.vue'
 import AlphabetBlock from '@/components/AlphabetBlock/AlphabetBlock.vue'
 import CheckBox from '@/components/CheckBox/CheckBox.vue'
 import ChatListCard from '../ChatListCard/ChatListCard.vue'
-import RecycleScroller from '../RecycleScroller/RecycleScroller.vue'
+import VirtualScroller from '../VirtualScroller/VirtualScroller.vue'
 import EventBus from '@/event-bus'
 
 const ComponentProps = Vue.extend({
@@ -97,17 +90,18 @@ const ComponentProps = Vue.extend({
 @Component({
   name: 'ForwardMessage',
   components: {
-    Content,
+    'message-content': Content,
     IconButton,
     AlphabetBlock,
     SearchBar,
     CheckBox,
     ChatListCard,
-    RecycleScroller
+    VirtualScroller
   }
 })
 export default class ForwardMessage extends ComponentProps {
-  conversations = {} as any
+  childHeight = [] as Array<Number>
+  conversations = [] as Array<String | ObjectType>
   isLoading = false as boolean
   isSending = false as boolean
   selectedConversations = [] as Array<any>
@@ -126,77 +120,125 @@ export default class ForwardMessage extends ComponentProps {
     window.addEventListener('resize', this.onResize)
   }
 
-  getConversations (searchText: string): void {
-    this.conversations = {}
-
-    if (searchText.trim() === '') {
-      for (const conversation of this.getRegularConversations(this.$conversations)) {
-        this.conversations[
-          conversation.name[0]
-            ? this.getContactKey(conversation.name)
-            : this.getContactKey(
-              conversation.sender_token !== this.$user_token
-                ? conversation.sender_name
-                : conversation.receiver_name
-            )
-        ] = this.getRegularConversations(this.$conversations).filter((item) => {
-          const conversationName = conversation.is_group
-            ? conversation.name
-            : conversation.sender_token !== this.$user_token
-              ? conversation.sender_name
-              : conversation.receiver_name
-          const itemName = item.is_group
-            ? item.name
-            : item.sender_token !== this.$user_token
-              ? item.sender_name
-              : item.receiver_name
-
-          return this.validateContact(itemName, conversationName)
-        })
-      }
-
-      this.sortConversations()
-    } else {
-      for (const conversation of this.searchData) {
-        this.conversations[
-          conversation.name[0]
-            ? this.getContactKey(conversation.name)
-            : this.getContactKey(
-              conversation.sender_token !== this.$user_token
-                ? conversation.sender_name
-                : conversation.receiver_name
-            )
-        ] = this.searchData.filter((item) => {
-          const conversationName = conversation.is_group
-            ? conversation.name
-            : conversation.sender_token !== this.$user_token
-              ? conversation.sender_name
-              : conversation.receiver_name
-          const itemName = item.is_group
-            ? item.name
-            : item.sender_token !== this.$user_token
-              ? item.sender_name
-              : item.receiver_name
-
-          return this.validateContact(itemName, conversationName)
-        })
-      }
-
-      this.sortConversations()
-    }
+  get allConversations () {
+    return store.state.allConversations
   }
 
-  getRegularConversations (data: any): Array<any> {
-    return data.filter((user: any) => {
-      if (!user.archived_for || user.archived_for.length === 0) return true
-      return false
-    })
+  get regularConversations () {
+    return store.state.regularConversations
+  }
+
+  get currentTheme () {
+    return store.state.currentTheme
+  }
+
+  getConversations (searchText: string): void {
+    const conversationMap = new Map()
+
+    if (searchText.trim() === '') {
+      for (const conversation of this.regularConversations) {
+        conversationMap.set(conversation.name[0]
+          ? this.getContactKey(conversation.name)
+          : this.getContactKey(
+            conversation.sender_token !== this.$user_token
+              ? conversation.sender_name
+              : conversation.receiver_name
+          ), this.regularConversations.filter((item) => {
+          const conversationName = conversation.is_group
+            ? conversation.name
+            : conversation.sender_token !== this.$user_token
+              ? conversation.sender_name
+              : conversation.receiver_name
+          const itemName = item.is_group
+            ? item.name
+            : item.sender_token !== this.$user_token
+              ? item.sender_name
+              : item.receiver_name
+
+          return this.validateContact(itemName, conversationName)
+        }))
+      }
+
+      const sortedConversationMap = this.sortConversations(conversationMap)
+      let conversationData = [] as Array<string | ObjectType>
+
+      for (const key of sortedConversationMap.keys()) {
+        conversationData.push(key)
+        conversationData = [...conversationData, ...conversationMap.get(key)]
+      }
+
+      const childHeight = []
+
+      for (const item of conversationData) {
+        if (typeof item === 'string') {
+          // AlphabetBlock height
+          childHeight.push(42)
+        } else {
+          // Contact card height
+          childHeight.push(78)
+        }
+      }
+
+      this.childHeight = childHeight
+
+      this.conversations = conversationData
+    } else {
+      const conversationMap = new Map()
+
+      for (const conversation of this.searchData) {
+        conversationMap.set(
+          conversation.name[0]
+            ? this.getContactKey(conversation.name)
+            : this.getContactKey(
+              conversation.sender_token !== this.$user_token
+                ? conversation.sender_name
+                : conversation.receiver_name
+            ), this.searchData.filter((item) => {
+            const conversationName = conversation.is_group
+              ? conversation.name
+              : conversation.sender_token !== this.$user_token
+                ? conversation.sender_name
+                : conversation.receiver_name
+            const itemName = item.is_group
+              ? item.name
+              : item.sender_token !== this.$user_token
+                ? item.sender_name
+                : item.receiver_name
+
+            return this.validateContact(itemName, conversationName)
+          }))
+      }
+
+      const sortedConversationMap = this.sortConversations(conversationMap)
+      let conversationData = [] as Array<string | ObjectType>
+
+      for (const key of sortedConversationMap.keys()) {
+        conversationData.push(key)
+        conversationData = [...conversationData, ...conversationMap.get(key)]
+      }
+
+      const childHeight = []
+
+      for (const item of conversationData) {
+        if (typeof item === 'string') {
+          // AlphabetBlock height
+          childHeight.push(42)
+        } else {
+          // Contact card height
+          childHeight.push(78)
+        }
+      }
+
+      this.childHeight = childHeight
+
+      this.conversations = conversationData
+    }
   }
 
   searchConversation (searchText: string): void {
     this.isLoading = true
     // eslint-disable-next-line array-callback-return
-    const data = this.getRegularConversations(this.$conversations).filter((obj) => {
+    const data = this.regularConversations.filter((obj) => {
       let stopSearch = false
       Object.values(obj).forEach((val) => {
         const filter = String(val).toLowerCase().includes(searchText.toLowerCase())
@@ -220,7 +262,7 @@ export default class ForwardMessage extends ComponentProps {
     const checkboxComponents = this.$refs['checkbox-comp'] as any
 
     if (!val) {
-      this.selectedConversations = [...this.getRegularConversations(this.$conversations)]
+      this.selectedConversations = [...this.regularConversations]
 
       for (let i = 0; i < checkboxComponents.length; i += 1) {
         checkboxComponents[i].checked = true
@@ -278,7 +320,7 @@ export default class ForwardMessage extends ComponentProps {
     const res = await this.$robin.forwardMessages(this.$user_token, messageIds, conversationIds)
 
     if (res && !res.error) {
-      const conversation = this.$conversations.find(
+      const conversation = this.allConversations.find(
         (conversation: any) => conversation._id === conversationIds[0]
       )
 
@@ -316,13 +358,15 @@ export default class ForwardMessage extends ComponentProps {
     }, 100)
   }
 
-  sortConversations (): void {
-    this.conversations = Object.keys(this.conversations)
-      .sort()
-      .reduce((result: any, key: string) => {
-        result[key] = this.conversations[key]
-        return result
-      }, {})
+  sortConversations (conversations: Map<string, any>): Map<string, any> {
+    const results = [...conversations.keys()].sort().reduce((result: any, key: string) => {
+      result[key] = conversations.get(key)
+      return result
+    }, {})
+
+    const contactMap = new Map(Object.entries(results))
+
+    return contactMap
   }
 
   getContactKey (username: any): string {

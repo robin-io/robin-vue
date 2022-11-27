@@ -86,100 +86,129 @@
       </div>
 
       <!-- Media -->
-      <div v-show="nav === 'Media'" class="robin-media-grids">
-        <div
-          class="robin-media-grid"
-          v-for="(message, messageIndex) in media.slice(0, mediaStop)"
-          :key="messageIndex"
+      <div v-if="nav === 'Media'" class="robin-media-grids">
+        <virtual-scroller
+          :items="media.slice(0, linkStop)"
+          :item-count="media.slice(0, linkStop).length"
+          :max-content="true"
+          :child-height="mediaChildHeight"
+          v-slot="slotProps"
         >
-          <v-lazy-image
-            v-if="imageRegex.test(checkAttachmentType(message.content.attachment))"
-            class="robin-uploaded-image"
-            :src="message.content.attachment"
-            @click.native="openImagePreview([message])"
-          />
+          <div class="robin-media-grid" :key="slotProps.index">
+            <v-lazy-image
+              v-if="imageRegex.test(checkAttachmentType(slotProps.item.content.attachment))"
+              class="robin-uploaded-image"
+              :src="slotProps.item.content.attachment"
+              @click.native="openImagePreview([slotProps.item])"
+            />
 
-          <video v-if="videoRegex.test(checkAttachmentType(message.content.attachment))" controls>
-            <source :src="message.content.attachment" />
-            Your browser does not support the video tag.
-          </video>
-        </div>
+            <video
+              v-if="videoRegex.test(checkAttachmentType(slotProps.item.content.attachment))"
+              controls
+            >
+              <source :src="slotProps.item.content.attachment" />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+        </virtual-scroller>
       </div>
 
       <!-- Links -->
       <div v-show="nav === 'Links'" class="robin-link-container">
-        <a
-          class="robin-link-preview"
-          v-for="(message, messageIndex) in links.slice(0, linkStop)"
-          :key="messageIndex"
-          :href="
-            getTextsInMessage(message).texts[getTextsInMessage(message).length - 1].includes(
-              'http'
-            ) ||
-            getTextsInMessage(message).texts[getTextsInMessage(message).length - 1].includes(
-              'https'
-            )
-              ? getTextsInMessage(message).texts[getTextsInMessage(message).length - 1]
-              : `https://${getTextsInMessage(message).texts[getTextsInMessage(message).length - 1]}`
-          "
+        <virtual-scroller
+          :items="links.slice(0, linkStop)"
+          :item-count="links.slice(0, linkStop).length"
+          :child-height="linkChildHeight"
+          v-slot="slotProps"
         >
-          <div>
-            <i class="robin-material-icon"> link </i>
-          </div>
-          {{
-            getTextsInMessage(message).texts[getTextsInMessage(message).length - 1].includes(
-              'http'
-            ) ||
-            getTextsInMessage(message).texts[getTextsInMessage(message).length - 1].includes(
-              'https'
-            )
-              ? getTextsInMessage(message).texts[getTextsInMessage(message).length - 1]
-              : `https://${getTextsInMessage(message).texts[getTextsInMessage(message).length - 1]}`
-          }}
-        </a>
+          <a
+            class="robin-link-preview"
+            :key="slotProps.index"
+            :href="
+              getTextsInMessage(slotProps.item).texts[
+                getTextsInMessage(slotProps.item).length - 1
+              ].includes('http') ||
+              getTextsInMessage(slotProps.item).texts[
+                getTextsInMessage(slotProps.item).length - 1
+              ].includes('https')
+                ? getTextsInMessage(slotProps.item).texts[
+                    getTextsInMessage(slotProps.item).length - 1
+                  ]
+                : `https://${
+                    getTextsInMessage(slotProps.item).texts[
+                      getTextsInMessage(slotProps.item).length - 1
+                    ]
+                  }`
+            "
+          >
+            <div>
+              <i class="robin-material-icon"> link </i>
+            </div>
+            {{
+              getTextsInMessage(slotProps.item).texts[
+                getTextsInMessage(slotProps.item).length - 1
+              ].includes('http') ||
+              getTextsInMessage(slotProps.item).texts[
+                getTextsInMessage(slotProps.item).length - 1
+              ].includes('https')
+                ? getTextsInMessage(slotProps.item).texts[
+                    getTextsInMessage(slotProps.item).length - 1
+                  ]
+                : `https://${
+                    getTextsInMessage(slotProps.item).texts[
+                      getTextsInMessage(slotProps.item).length - 1
+                    ]
+                  }`
+            }}
+          </a>
+        </virtual-scroller>
       </div>
 
       <!-- Documents -->
 
       <div v-show="nav === 'Docs'" class="robin-document-grids">
-        <div
-          class="robin-uploaded-documents"
-          v-for="(message, messageIndex) in documents"
-          :key="messageIndex"
+        <virtual-scroller
+          :items="documents"
+          :item-count="documents.length"
+          :max-content="true"
+          :child-height="documentChildHeight"
+          v-slot="slotProps"
         >
-          <img
-            v-if="assets[getFileDetails(message.content.attachment).extension]"
-            :src="assets[getFileDetails(message.content.attachment).extension]"
-            alt="document"
-          />
+          <div class="robin-uploaded-documents" :key="slotProps.index">
+            <img
+              v-if="assets[getFileDetails(slotProps.item.content.attachment).extension]"
+              :src="assets[getFileDetails(slotProps.item.content.attachment).extension]"
+              alt="document"
+            />
 
-          <img v-else :src="assets['default']" />
+            <img v-else :src="assets['default']" />
 
-          <div class="detail robin-flex robin-h-100 robin-flex-align-center">
-            <message-content as="span" :fontSize="14">
-              {{
-                getFileDetails(message.content.attachment).name &&
-                getFileDetails(message.content.attachment).name.length > 9
-                  ? getFileDetails(message.content.attachment).name.substring(0, 9) +
-                    '...' +
-                    '.' +
-                    getFileDetails(message.content.attachment).extension
-                  : getFileDetails(message.content.attachment).name +
-                    '.' +
-                    getFileDetails(message.content.attachment).extension
-              }}
-            </message-content>
+            <div class="detail robin-flex robin-h-100 robin-flex-align-center">
+              <message-content as="span" :fontSize="14">
+                {{
+                  getFileDetails(slotProps.item.content.attachment).name &&
+                  getFileDetails(slotProps.item.content.attachment).name.length > 9
+                    ? getFileDetails(slotProps.item.content.attachment).name.substring(0, 9) +
+                      '...' +
+                      '.' +
+                      getFileDetails(slotProps.item.content.attachment).extension
+                    : getFileDetails(slotProps.item.content.attachment).name +
+                      '.' +
+                      getFileDetails(slotProps.item.content.attachment).extension
+                }}
+              </message-content>
+            </div>
+
+            <icon-button
+              name="download"
+              class="robin-ml-auto"
+              color="#15AE73"
+              @clicked="downloadFile(slotProps.item.content.attachment)"
+              :to-emit="true"
+              :to-click-away="false"
+            />
           </div>
-
-          <icon-button
-            name="download"
-            class="robin-ml-auto"
-            color="#15AE73"
-            @clicked="downloadFile(message.content.attachment)"
-            :to-emit="true"
-            :to-click-away="false"
-          />
-        </div>
+        </virtual-scroller>
       </div>
 
       <custom-button
@@ -253,19 +282,35 @@
         </custom-button>
 
         <div class="robin-card-container" v-if="!isSignedInUserModerator">
-          <view-profile-card v-for="(participant, participantIndex) in groupParticipants.slice(
-              0,
-              participantsToShow
-            )"
-            :key="participantIndex" :item="participant" :type="1" />
+          <virtual-scroller
+            :items="groupParticipants.slice(0, participantsToShow)"
+            :item-count="groupParticipants.slice(0, participantsToShow).length"
+            :max-content="true"
+            :child-height="participantChildHeight"
+            v-slot="slotProps"
+          >
+            <view-profile-card :key="slotProps.index" :item="slotProps.item" :type="1" />
+          </virtual-scroller>
         </div>
 
         <div class="robin-card-container" v-else>
-          <view-profile-card v-for="(participant, participantIndex) in groupParticipants.slice(
-              0,
-              participantsToShow
-            )"
-            :key="participantIndex" :item="participant" :type="2" @remove-participant="handleRemoveParticipant(participant.user_token)" @open-group-prompt="openGroupPrompt(participant.user_token, participant.is_moderator)" />
+          <virtual-scroller
+            :items="groupParticipants.slice(0, participantsToShow)"
+            :item-count="groupParticipants.slice(0, participantsToShow).length"
+            :max-content="true"
+            :child-height="participantChildHeight"
+            v-slot="slotProps"
+          >
+            <view-profile-card
+              :key="slotProps.index"
+              :item="slotProps.item"
+              :type="2"
+              @remove-participant="handleRemoveParticipant(slotProps.item.user_token)"
+              @open-group-prompt="
+                openGroupPrompt(slotProps.item.user_token, slotProps.item.is_moderator)
+              "
+            />
+          </virtual-scroller>
         </div>
 
         <div
@@ -321,13 +366,14 @@ import Vue from 'vue'
 import moment from 'moment'
 import VLazyImage from 'v-lazy-image/v2'
 import Component from 'vue-class-component'
-import Content from '@/components/Content/Content.vue'
-import Avatar from '@/components/Avatar/Avatar.vue'
-import GroupAvatar from '@/components/GroupAvatar/GroupAvatar.vue'
-import IconButton from '@/components/IconButton/IconButton.vue'
-import SvgIcon from '@/components/SvgIcon/SvgIcon.vue'
-import Button from '@/components/Button/Button.vue'
+import Content from '../Content/Content.vue'
+import Avatar from '../Avatar/Avatar.vue'
+import GroupAvatar from '../GroupAvatar/GroupAvatar.vue'
+import IconButton from '../IconButton/IconButton.vue'
+import SvgIcon from '../SvgIcon/SvgIcon.vue'
+import Button from '../Button/Button.vue'
 import ViewProfileCard from '../ViewProfileCard/ViewProfileCard.vue'
+import VirtualScroller from '../VirtualScroller/VirtualScroller.vue'
 import mime from 'mime'
 import assets from '@/utils/assets.json'
 import { DocumentRegex, EmailRegex, VideoRegex, ImageRegex, WebsiteRegex } from '@/utils/constants'
@@ -345,11 +391,20 @@ import EventBus from '@/event-bus'
     Avatar,
     GroupAvatar,
     VLazyImage,
-    ViewProfileCard
+    ViewProfileCard,
+    VirtualScroller
   },
   watch: {
     profileOpen () {
       this.getProfile()
+    },
+    groupParticipants () {
+      const participantChildHeight = [] as Array<number>
+      this.groupParticipants.forEach(() => {
+        participantChildHeight.push(40)
+      })
+
+      this.participantChildHeight = [...participantChildHeight]
     }
   }
 })
@@ -360,6 +415,10 @@ export default class ViewProfile extends Vue {
   media = [] as Array<ObjectType>
   links = [] as Array<ObjectType>
   documents = [] as Array<ObjectType>
+  mediaChildHeight = [] as Array<number>
+  linkChildHeight = [] as Array<number>
+  documentChildHeight = [] as Array<number>
+  participantChildHeight = [] as Array<number>
   participantsToShow = 4
   mediaStop = 6
   linkStop = 6
@@ -459,6 +518,27 @@ export default class ViewProfile extends Vue {
             )
           ]
         : []
+
+      const mediaChildHeight = [] as Array<number>
+      const linkChildHeight = [] as Array<number>
+      const documentChildHeight = [] as Array<number>
+
+      this.media.forEach(() => {
+        if (this.media.length < 2) mediaChildHeight.push(50)
+        else mediaChildHeight.push(40)
+      })
+
+      this.links.forEach(() => {
+        linkChildHeight.push(40)
+      })
+
+      this.documents.forEach(() => {
+        documentChildHeight.push(40)
+      })
+
+      this.mediaChildHeight = [...mediaChildHeight]
+      this.linkChildHeight = [...linkChildHeight]
+      this.documentChildHeight = [...documentChildHeight]
     }
   }
 
@@ -505,16 +585,22 @@ export default class ViewProfile extends Vue {
     return `${mime.getType(strArr[strArr.length - 1])}`
   }
 
-  validateLinkInMessage (message: any) {
+  validateLinkInMessage (message: ObjectType) {
     const texts = message.content.msg.split(' ')
 
     return {
-      containsWebsite: texts.some((text: string) => this.websiteRegex.test(text)),
+      containsWebsite: texts.some((text: string) => {
+        if (this.websiteRegex.test(text)) return true
+        else if (text.includes('http://')) return true
+        else if (text.includes('https://')) return true
+
+        return false
+      }),
       containsEmail: texts.some((text: string) => this.emailRegex.test(text))
     }
   }
 
-  getTextsInMessage (message: any) {
+  getTextsInMessage (message: ObjectType) {
     return {
       texts: message.content.msg.split(' '),
       length: message.content.msg.split(' ').length

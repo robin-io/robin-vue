@@ -46,6 +46,7 @@
     border-radius: 50%;
     background-color: var(--rb-color8);
     object-fit: cover;
+    display: flex;
   }
   
   .robin-new-group-chat-container .robin-wrapper {

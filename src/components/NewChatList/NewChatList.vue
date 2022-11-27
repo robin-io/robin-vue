@@ -45,20 +45,26 @@
       </custom-button>
     </div>
 
-    <div class="robin-contact-container robin-overflow-y-auto">
-      <div v-for="(contact, key, index) in contacts" :key="`contact-${index}`">
-        <alphabet-block :text="key" v-show="key.toString() != '*'" />
+    <div class="robin-contact-container" ref="contact-container">
+      <virtual-scroller
+        :items="contacts"
+        :item-count="contacts.length"
+        :height="636"
+        :child-height="childHeight"
+        v-slot="slotProps"
+      >
+        <div :key="slotProps.index" :id="slotProps.index">
+          <alphabet-block v-if="typeof slotProps.item == 'string'" :text="slotProps.item" />
 
-        <div class="robin-wrapper robin-card-container robin-flex robin-flex-column">
-          <chat-list-card
-            v-for="(item, index) in contact"
-            :key="index"
-            :item="item"
-            :type="4"
-            @create-conversation="createConversation(item)"
-          />
+          <div v-else class="robin-wrapper robin-card-container robin-flex robin-flex-column">
+            <chat-list-card
+              :item="slotProps.item"
+              :type="4"
+              @create-conversation="createConversation(slotProps.item)"
+            />
+          </div>
         </div>
-      </div>
+      </virtual-scroller>
     </div>
   </div>
 </template>
@@ -76,6 +82,7 @@ import AlphabetBlock from '../AlphabetBlock/AlphabetBlock.vue'
 import EventBus from '@/event-bus'
 import IconButton from '../IconButton/IconButton.vue'
 import ChatListCard from '../ChatListCard/ChatListCard.vue'
+import VirtualScroller from '../VirtualScroller/VirtualScroller.vue'
 
 // eslint-disable-next-line
 @Component<NewChatList>({
@@ -88,7 +95,8 @@ import ChatListCard from '../ChatListCard/ChatListCard.vue'
     IconButton,
     Avatar,
     AlphabetBlock,
-    ChatListCard
+    ChatListCard,
+    VirtualScroller
   },
   watch: {
     $robin_users: {
@@ -99,13 +107,19 @@ import ChatListCard from '../ChatListCard/ChatListCard.vue'
   }
 })
 export default class NewChatList extends Vue {
-  contacts = {} as any
+  childHeight = [] as Array<number>
+  contacts = [] as Array<String | ObjectType>
   isLoading = false as boolean
-  searchData = [] as Array<any>
+  searchData = [] as Array<ObjectType>
   key = 0 as number
 
   created () {
     this.getContacts('')
+  }
+
+  get contactHeight () {
+    const contactContainer = this.$refs['contact-container'] as HTMLElement
+    return contactContainer!.offsetHeight
   }
 
   get currentTheme () {
@@ -152,32 +166,71 @@ export default class NewChatList extends Vue {
   }
 
   getContacts (searchText: string): void {
-    this.contacts = {}
+    const contactMap = new Map()
 
     if (searchText.trim() === '') {
       this.$robin_users.forEach((user: any) => {
-        this.contacts[this.getContactKey(user.userName)] = this.$robin_users.filter(
-          (item: any) =>
-            item.userToken !== this.$user_token &&
-            this.validateContact(item.userName, user.userName)
+        contactMap.set(
+          this.getContactKey(user.userName.trim()),
+          this.$robin_users.filter(
+            (item: ObjectType) =>
+              item.userToken !== this.$user_token &&
+              this.validateContact(item.userName.trim(), user.userName.trim())
+          )
         )
       })
 
-      for (const key in this.contacts) {
-        if (this.contacts[key].length === 0) {
-          delete this.contacts[key]
+      for (const key of contactMap.keys()) {
+        if (contactMap.get(key).length === 0) {
+          contactMap.delete(key)
         }
       }
 
-      this.sortContacts()
+      const sortedContactMap = this.sortContacts(contactMap)
+      let contactData = [] as Array<string | ObjectType>
+
+      for (const key of sortedContactMap.keys()) {
+        contactData.push(key)
+        contactData = [...contactData, ...contactMap.get(key)]
+      }
+
+      const childHeight = []
+
+      for (const item of contactData) {
+        if (typeof item === 'string') {
+          // AlphabetBlock height
+          childHeight.push(42)
+        } else {
+          // Contact card height
+          childHeight.push(80)
+        }
+      }
+
+      this.childHeight = childHeight
+
+      this.contacts = contactData
     } else {
+      const contactMap = new Map()
+
       this.searchData.forEach((user: any) => {
-        this.contacts[this.getContactKey(user.userName)] = this.searchData.filter(
-          (item: any) =>
-            item.userToken !== this.$user_token &&
-            this.validateContact(item.userName, user.userName)
+        contactMap.set(
+          this.getContactKey(user.userName.trim()),
+          this.searchData.filter(
+            (item: ObjectType) =>
+              item.userToken !== this.$user_token &&
+              this.validateContact(item.userName.trim(), user.userName.trim())
+          )
         )
       })
+
+      let contactData = [] as Array<string | ObjectType>
+
+      for (const key of contactMap.keys()) {
+        contactData.push(key)
+        contactData = [...contactData, ...contactMap.get(key)]
+      }
+
+      this.contacts = contactData
     }
   }
 
@@ -204,13 +257,15 @@ export default class NewChatList extends Vue {
     }, 300)
   }
 
-  sortContacts (): void {
-    this.contacts = Object.keys(this.contacts)
-      .sort()
-      .reduce((result: any, key: string) => {
-        result[key] = this.contacts[key]
-        return result
-      }, {})
+  sortContacts (contacts: Map<string, any>): Map<string, any> {
+    const results = [...contacts.keys()].sort().reduce((result: any, key: string) => {
+      result[key] = contacts.get(key)
+      return result
+    }, {})
+
+    const contactMap = new Map(Object.entries(results))
+
+    return contactMap
   }
 
   openPreviousModal (): void {

@@ -91,7 +91,7 @@
             :key="index"
             :src="
               typeof image.content.attachment !== 'string'
-                ? convertFileToImageURL(image.content.attachment)
+                ? convertArrayBufferToFile(image.content.attachment, image)
                 : image.content.attachment
             "
             @click.native="onSelectChange(index)"
@@ -117,6 +117,8 @@ import Component from 'vue-class-component'
 import EventBus from '@/event-bus'
 import VLazyImage from 'v-lazy-image/v2'
 import store from '@/store/index'
+import mime from 'mime'
+import { arrayBufferToBlob, createUUID } from '@/utils/helpers'
 import IconButton from '@/components/IconButton/IconButton.vue'
 import GroupAvatar from '@/components/GroupAvatar/GroupAvatar.vue'
 import Avatar from '@/components/Avatar/Avatar.vue'
@@ -197,7 +199,7 @@ export default class MessageImagePreviewer extends ComponentProps {
       return attachment
     }
 
-    return this.convertFileToImageURL(attachment)
+    return this.convertArrayBufferToFile(attachment, this.images[this.imageSelected])
   }
 
   get isDeleteMessagesEnabled () {
@@ -237,7 +239,15 @@ export default class MessageImagePreviewer extends ComponentProps {
     this.$emit('close')
   }
 
-  convertFileToImageURL (file: File): string {
+  convertArrayBufferToFile (buffer: Uint8Array, message: ObjectType): string {
+    const type = message.content.mime_type
+    const blob = arrayBufferToBlob(buffer, type)
+    const file = new File([blob], createUUID(36) + '.' + mime.getExtension(type), { type }) as File
+
+    return this.convertFileToURL(file)
+  }
+
+  convertFileToURL (file: File): string {
     return URL.createObjectURL(file)
   }
 

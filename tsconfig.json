@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "ES2018", // esnext for vue3 auto-enables optional chaining in typescript
+    "target": "ESNext", // esnext for vue3 auto-enables optional chaining in typescript
     "module": "esnext",
     "outDir": "dist/types",
     "declaration": true,
@@ -18,7 +18,7 @@
     "experimentalDecorators": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "lib": ["dom", "esnext"],
+    "lib": ["dom", "DOM.Iterable", "esnext"],
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "src/types/*.d.ts"]
 }

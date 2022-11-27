@@ -124,7 +124,6 @@ import assets from '@/utils/assets.json'
 export default class PrimaryChatList extends Vue {
   regularConversations = [] as Array<ObjectType>
   allConversations = [] as Array<ObjectType>
-  popUpStates = [] as Array<ObjectType>
   conversationIndex = 0
   scroll = false as boolean
   isLoading = false as boolean
@@ -133,6 +132,7 @@ export default class PrimaryChatList extends Vue {
   throttleTimer = false
   currentPage = 1
   pageCount = 0
+  updateCnt = 0
 
   created () {
     this.getConversations()
@@ -197,14 +197,17 @@ export default class PrimaryChatList extends Vue {
   onGroupIconUpdate (): void {
     EventBus.$on('group.icon.update', (conversation: ObjectType) => {
       const index = this.regularConversations.findIndex((item) => item._id === conversation._id)
-      this.regularConversations.splice(index, 1, conversation)
+      const data = { ...this.regularConversations[index] }
+      data.group_icon = conversation.group_icon
+      this.regularConversations.splice(index, 1, data)
+      store.setState('regularConversations', [...this.regularConversations])
     })
   }
 
   openConversation (conversation: ObjectType): void {
     store.setState('imagePreviewOpen', false)
-    store.setState('currentConversation', [])
-    store.setState('conversationOpen', false)
+    store.setState('currentConversation', {})
+    // store.setState('conversationOpen', false)
     store.setState('currentConversation', conversation)
 
     this.$nextTick(() => {
@@ -233,7 +236,7 @@ export default class PrimaryChatList extends Vue {
   openModal (index: number) {
     this.conversationIndex = index
     const chatEl = document.getElementById(`conversation-${this.conversationIndex}`) as HTMLElement
-    const chatListPopupEl = this.$refs['chat-list-popup'].$el as HTMLElement
+    const chatListPopupEl = (this.$refs['chat-list-popup'] as Vue).$el as HTMLElement
     const lastThreeInArray = index >= this.regularConversations.length - 3
 
     if (chatListPopupEl.style.display === 'block') chatListPopupEl.style.display = 'none'
@@ -254,7 +257,7 @@ export default class PrimaryChatList extends Vue {
   }
 
   closeModal (index: number) {
-    const chatListPopupEl = this.$refs['chat-list-popup'].$el as HTMLElement
+    const chatListPopupEl = (this.$refs['chat-list-popup'] as Vue).$el as HTMLElement
 
     if (this.conversationIndex === index) {
       chatListPopupEl.classList.remove('robin-zoomIn')
@@ -329,7 +332,7 @@ export default class PrimaryChatList extends Vue {
     this.key += 1
   }
 
-  throttleConversations (callback, time) {
+  throttleConversations (callback: () => void, time: number) {
     if (this.throttleTimer) return
 
     this.throttleTimer = true
@@ -345,17 +348,15 @@ export default class PrimaryChatList extends Vue {
     const wrapper = this.$refs['conversations-wrapper'] as HTMLElement
 
     this.throttleConversations(() => {
-      store.setState('isPageLoading', true)
-      const scrollSpaceLeft = Math.floor(wrapper.scrollHeight - wrapper.clientHeight)
-      const endOfScroll = Math.floor(wrapper.scrollTop) >= scrollSpaceLeft
+      if (this.currentPage < this.pageCount) {
+        store.setState('isPageLoading', true)
+        const scrollSpaceLeft = Math.floor(wrapper.scrollHeight - wrapper.clientHeight)
+        const endOfScroll = Math.floor(wrapper.scrollTop) >= scrollSpaceLeft
 
-      if (endOfScroll) {
-        this.currentPage += 1
-        this.paginateConversations(this.currentPage)
-      }
-
-      if (this.currentPage === this.pageCount) {
-        store.setState('isPageLoading', false)
+        if (endOfScroll) {
+          this.currentPage += 1
+          this.paginateConversations(this.currentPage)
+        }
       }
     }, 1500)
   }
@@ -369,8 +370,6 @@ export default class PrimaryChatList extends Vue {
       this.currentPage
     )
 
-    console.log(res)
-
     if (!res.error) {
       const conversations = res.data.paginated_conversations.conversations == null
         ? []
@@ -379,7 +378,6 @@ export default class PrimaryChatList extends Vue {
       this.pageCount = res.data.paginated_conversations.pagination.pagination.totalPage
 
       this.allConversations = [...conversations]
-      console.log(this.allConversations)
       store.setState('allConversations', this.allConversations)
 
       const regularConversations = this.getRegularConversations(this.allConversations) as Array<
@@ -387,8 +385,6 @@ export default class PrimaryChatList extends Vue {
       >
 
       this.regularConversations = [...regularConversations]
-
-      console.log([...regularConversations])
 
       store.setState('regularConversations', [...regularConversations])
       store.setState('isPageLoading', false)
@@ -429,7 +425,7 @@ export default class PrimaryChatList extends Vue {
 
       if (index === -1) {
         this.regularConversations.unshift(conversation)
-        store.setState('regularConversations', this.regularConversations)
+        store.setState('regularConversations', [...this.regularConversations])
       }
     })
   }
@@ -438,7 +434,7 @@ export default class PrimaryChatList extends Vue {
     EventBus.$on('regular-conversation.delete', (conversation: any) => {
       const index = this.regularConversations.findIndex((item) => item._id === conversation._id)
       this.regularConversations.splice(index, 1)
-      store.setState('regularConversations', this.regularConversations)
+      store.setState('regularConversations', [...this.regularConversations])
     })
   }
 
@@ -492,13 +488,13 @@ export default class PrimaryChatList extends Vue {
   handleMessageForward (): void {
     EventBus.$on('message.forward', (messages: ObjectType) => {
       messages.forEach((msg: ObjectType) => {
-        this.allConversations.forEach((conversation: any, index: any) => {
+        this.allConversations.forEach((conversation: any, index: number) => {
           if (conversation._id === msg.conversation_id) {
             const data = { ...this.allConversations[index] }
             const msgData = { ...msg }
             msgData.content.timestamp = new Date()
             data.last_message = msgData.content
-            this.$set(this.allConversations, this.allConversations[index], data)
+            this.allConversations.splice(index, 1, data)
             EventBus.$emit('regular-conversation.delete', this.allConversations[index])
             EventBus.$emit('regular-conversation.add', this.allConversations[index])
           }
@@ -519,7 +515,7 @@ export default class PrimaryChatList extends Vue {
   }
 
   addUnreadMessagesToConversation (conversations: Array<ObjectType>): Array<ObjectType> {
-    const data = conversations.map((conversation: Array<ObjectType>) => {
+    const data = conversations.map((conversation: ObjectType) => {
       for (const key in conversation.unread_messages) {
         if (key === this.$user_token) {
           conversation.unread_messages = conversation.unread_messages[key].unread_count
@@ -586,7 +582,7 @@ export default class PrimaryChatList extends Vue {
           if (this.regularConversations[index]) {
             const data = { ...this.regularConversations[index] }
             data.unread_messages += 1
-            this.$set(this.regularConversations, this.regularConversations[index], data)
+            this.regularConversations.splice(index, 1, data)
             store.setState('regularConversations', this.regularConversations)
           }
         }
@@ -596,7 +592,6 @@ export default class PrimaryChatList extends Vue {
 
   onGroupConversationCreated () {
     EventBus.$on('new-group.conversation', (conversation: ObjectType) => {
-      console.log(conversation)
       conversation.participants.every((participant: any) => {
         if (participant.user_token === this.$user_token) {
           EventBus.$emit('regular-conversation.add', conversation)
@@ -610,8 +605,6 @@ export default class PrimaryChatList extends Vue {
   }
 
   searchedData (event: ObjectType): void {
-    this.searchText = event.text.trim()
-
     if (event.text.trim() !== '') {
       this.regularConversations = event.data
     } else {

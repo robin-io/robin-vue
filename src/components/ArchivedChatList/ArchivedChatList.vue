@@ -101,6 +101,7 @@ export default class ArchivedChatList extends ComponentProps {
   currentPage = 1
   pageCount = 0
   scroll = false as boolean
+  throttleTimer = false as boolean
 
   get screenWidth () {
     return store.state.screenWidth
@@ -126,7 +127,7 @@ export default class ArchivedChatList extends ComponentProps {
   openConversation (conversation: object): void {
     store.setState('imagePreviewOpen', false)
     store.setState('currentConversation', [])
-    store.setState('conversationOpen', false)
+    // store.setState('conversationOpen', false)
     store.setState('currentConversation', conversation)
 
     this.$nextTick(() => {
@@ -146,7 +147,7 @@ export default class ArchivedChatList extends ComponentProps {
   openModal (index: number) {
     this.conversationIndex = index
     const chatEl = document.getElementById(`conversation-${this.conversationIndex}`) as HTMLElement
-    const chatListPopupEl = this.$refs['chat-list-popup'].$el as HTMLElement
+    const chatListPopupEl = (this.$refs['chat-list-popup'] as Vue).$el as HTMLElement
     const lastThreeInArray = index >= this.conversations.length - 3
 
     if (chatListPopupEl.style.display === 'block') chatListPopupEl.style.display = 'none'
@@ -170,10 +171,10 @@ export default class ArchivedChatList extends ComponentProps {
 
   closeModal (index: number) {
     const chatListPopupEl = this.$refs['chat-list-popup']
-      ? this.$refs['chat-list-popup'].$el
+      ? (this.$refs['chat-list-popup'] as Vue).$el as HTMLElement
       : (undefined as HTMLElement | undefined)
 
-    if (this.conversationIndex === index && this.chatListPopupEl) {
+    if (this.conversationIndex === index && chatListPopupEl) {
       chatListPopupEl.classList.remove('robin-zoomIn')
       chatListPopupEl.classList.add('robin-zoomOut')
 
@@ -221,7 +222,7 @@ export default class ArchivedChatList extends ComponentProps {
     }
   }
 
-  throttleConversations (callback, time) {
+  throttleConversations (callback: () => void, time: number) {
     if (this.throttleTimer) return
 
     this.throttleTimer = true

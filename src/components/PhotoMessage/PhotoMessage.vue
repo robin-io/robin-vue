@@ -1,6 +1,6 @@
 <template>
   <div class="robin-message-bubble robin-flex robin-flex-align-center image" v-clickaway="closeModal" :id="`message-bubble-${index}`">
-    <CheckBox v-show="selectMessagesOpen" @clicked="toggleCheckAction($event)" />
+    <CheckBox v-show="selectMessagesOpen" ref="checkbox" @clicked="toggleCheckAction($event)" />
 
     <div
       class="robin-bubble image"
@@ -38,7 +38,7 @@
           :key="image._id"
           :class="validateImageClass(index)"
         >
-          <v-lazy-image class="robin-uploaded-image" :src="typeof image.content.attachment !== 'string' ? convertFileToURL(image.content.attachment) : image.content.attachment" />
+          <v-lazy-image class="robin-uploaded-image" :src="typeof image.content.attachment !== 'string' ? convertArrayBufferToFile(image.content.attachment, image) : image.content.attachment" />
         </div>
 
         <span
@@ -139,6 +139,7 @@ import Component from 'vue-class-component'
 import moment from 'moment'
 import VLazyImage from 'v-lazy-image/v2'
 import { EmailRegex, WebsiteRegex } from '@/utils/constants'
+import { convertArrayBufferToFile } from '@/utils/helpers'
 import IconButton from '@/components/IconButton/IconButton.vue'
 import CheckBox from '@/components/CheckBox/CheckBox.vue'
 import Content from '@/components/Content/Content.vue'
@@ -181,10 +182,18 @@ const ComponentProps = Vue.extend({
   },
   watch: {
     message: {
-      handler (val: any) {
+      handler (val: Array<ObjectType>) {
         this.images = [...val].filter((item) => !item.is_deleted).slice(0, 4) as Array<ObjectType>
       },
       immediate: true
+    },
+    selectMessagesOpen: {
+      handler (val) {
+        if (!val) {
+          const checkbox = (this.$refs.checkbox as Vue).$el as HTMLInputElement
+          checkbox.checked = false
+        }
+      }
     }
   }
 })
@@ -195,6 +204,7 @@ export default class PhotoMessage extends ComponentProps {
   reactions = { '❤️': [], '👍': [], '👎': [], '😂': [], '⁉️': [] } as ObjectType
   emailRegex = EmailRegex
   websiteRegex = WebsiteRegex
+  convertArrayBufferToFile = convertArrayBufferToFile
 
   get isReplyMessagesEnabled () {
     return store.state.replyMessagesEnabled
@@ -285,10 +295,6 @@ export default class PhotoMessage extends ComponentProps {
     }
   }
 
-  convertFileToURL (file: File): string {
-    return URL.createObjectURL(file)
-  }
-
   injectHtml (message: string): void {
     let returnedMessage = ''
 
@@ -296,12 +302,12 @@ export default class PhotoMessage extends ComponentProps {
       for (const word of message.split(' ')) {
         if (this.emailRegex.test(word)) {
           returnedMessage += String.raw` <a target="_blank" href="mailto:${word}">${word}<a/>`
+        } else if (this.websiteRegex.test(word) || word.includes('http://')) {
+          returnedMessage += String.raw` <a target="_blank" href="${word}">${word}<a/>`
+        } else if (this.websiteRegex.test(word) || word.includes('https://')) {
+          returnedMessage += String.raw` <a target="_blank" href="${word}">${word}<a/>`
         } else if (this.websiteRegex.test(word)) {
-          if (word.includes('http://') || word.includes('https://')) {
-            returnedMessage += String.raw` <a target="_blank" href="${word}">${word}<a/>`
-          } else {
-            returnedMessage += String.raw` <a target="_blank" href="http://${word}">${word}<a/>`
-          }
+          returnedMessage += String.raw` <a target="_blank" href="https://${word}">${word}<a/>`
         } else {
           returnedMessage += ` ${word}`
         }
@@ -323,7 +329,13 @@ export default class PhotoMessage extends ComponentProps {
   }
 
   toggleCheckAction (val: boolean): void {
-    this.$emit('toggle-check-action', val)
+    const checkbox = (this.$refs.checkbox as Vue).$el as HTMLElement
+
+    if ((checkbox.childNodes[0] as HTMLInputElement).checked) {
+      this.$emit('toggle-check-action', false)
+    } else {
+      this.$emit('toggle-check-action', true)
+    }
   }
 
   validateMessageClass (): boolean {
@@ -441,7 +453,13 @@ export default class PhotoMessage extends ComponentProps {
     const texts = this.message[0].content.msg.split(' ')
 
     return {
-      containsWebsite: texts.some((text: string) => this.websiteRegex.test(text)),
+      containsWebsite: texts.some((text: string) => {
+        if (this.websiteRegex.test(text)) return true
+        else if (text.includes('http://')) return true
+        else if (text.includes('https://')) return true
+
+        return false
+      }),
       containsEmail: texts.some((text: string) => this.emailRegex.test(text))
     }
   }

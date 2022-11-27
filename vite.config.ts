@@ -14,6 +14,9 @@ export default defineConfig({
     }
   },
   plugins: [createVuePlugin()],
+  optimizeDeps: {
+    disabled: false
+  },
   build: {
     lib: {
       entry: resolve(__dirname, 'src/main.ts'),
@@ -24,7 +27,7 @@ export default defineConfig({
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled
       // into your library
-      external: ['vue', 'moment', 'mime', 'v-lazy-image', 'v-emoji-picker', 'robin.io-js', 'vue-toast-notification', 'link-prevue', 'cypress', '@testing-library/user-event', 'lodash.debounce'],
+      external: ['vue', 'moment', 'mime', 'v-lazy-image', 'v-emoji-picker', 'robin.io-js', 'vue-toast-notification', 'link-prevue', 'cypress', '@testing-library/user-event', 'lodash.debounce', 'audio-recorder-polyfill'],
       output: {
         globals: {
           vue: 'Vue',
@@ -32,14 +35,15 @@ export default defineConfig({
           mime: 'mime',
           'v-lazy-image': 'v-lazy-image',
           'v-emoji-picker': 'v-emoji-picker',
-          'robin.io-js': 'robin.io-js',
           'vue-toast-notification': 'vue-toast-notification',
           'link-prevue': 'link-prevue',
           cypress: 'cypress',
           'lodash.debounce': 'lodash.debounce',
-          '@testing-library/user-event': '@testing-library/user-event'
+          '@testing-library/user-event': '@testing-library/user-event',
+          'audio-recorder-polyfill': 'audio-recorder-polyfill'
         }
-      }
+      },
+      treeshake: 'smallest'
     }
   }
 })

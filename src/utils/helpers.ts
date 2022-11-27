@@ -1,3 +1,5 @@
+import mime from 'mime'
+
 // Helper functions.
 function createUUID (length: number) {
   let result = ''
@@ -9,4 +11,43 @@ function createUUID (length: number) {
   return result
 }
 
-export { createUUID }
+function arrayBufferToBlob (buffer: Uint8Array, type: string) {
+  return new Blob([buffer], { type: type })
+}
+
+function blobToArrayBuffer (blob: Blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.addEventListener('loadend', () => {
+      resolve(new Uint8Array(reader.result as ArrayBuffer))
+    })
+    reader.addEventListener('error', reject)
+    reader.readAsArrayBuffer(blob)
+  })
+}
+
+function checkAttachmentType (attachment: any, message: ObjectType): string {
+  let strArr = [] as Array<string>
+
+  if (typeof attachment !== 'string') {
+    return message.content.mime_type
+  } else {
+    strArr = attachment.split('.')
+  }
+
+  return `${mime.getType(strArr[strArr.length - 1])}`
+}
+
+function convertArrayBufferToFile (buffer: Uint8Array, message: ObjectType): string {
+  const type = message.content.mime_type
+  const blob = arrayBufferToBlob(buffer, type)
+  const file = new File([blob], createUUID(36) + '.' + mime.getExtension(type), { type }) as File
+
+  return convertFileToURL(file)
+}
+
+function convertFileToURL (file: File): string {
+  return URL.createObjectURL(file)
+}
+
+export { createUUID, arrayBufferToBlob, blobToArrayBuffer, checkAttachmentType, convertArrayBufferToFile, convertFileToURL }
