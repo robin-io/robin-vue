@@ -1,7 +1,7 @@
 export const EmailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 export const WebsiteRegex = /[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/
-export const DocumentRegex = /^application\/(csv|pdf|json|msword|(vnd\.(ms-|openxmlformats-).*))$|^text\/plain$|^audio\/(mpeg|mp4|x-ogg|x-wav|x-flac|x-aac|x-ms-wma)$/i
-export const AudioRegex = /^audio\/(mpeg|mp4|x-ogg|x-wav|x-flac|x-aac|x-ms-wma)$/i
+export const DocumentRegex = /^application\/(csv|pdf|json|msword|(vnd\.(ms-|openxmlformats-).*))$|^text\/plain$|^audio\/(mpeg|x-ogg|x-wav|x-flac|x-aac|x-ms-wma)$/i
+export const AudioRegex = /^audio\/(mpeg|x-ogg|x-wav|x-flac|x-aac|x-ms-wma)$/i
 export const ImageRegex = /^image/
 export const VideoRegex = /^video/
 export const Colors = [

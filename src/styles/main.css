@@ -30,7 +30,6 @@
 @import url('../components/PageLoader/PageLoader.css');
 @import url('../components/ChatHeaderPopUp/ChatHeaderPopUp.css');
 @import url('../components/Prompt/Prompt.css');
-@import url('../components/RecycleScroller/RecycleScroller.css');
 @import url('../components/SearchBar/SearchBar.css');
 @import url('../components/SvgIcon/SvgIcon.css');
 @import url('../components/Button/Button.css');
@@ -38,3 +37,5 @@
 @import url('../components/UnreadMessageCount/UnreadMessageCount.css');
 @import url('../components/ViewProfile/ViewProfile.css');
 @import url('../components/EncrytionDetails/EncryptionDetails.css');
+@import url('../components/VirtualScroller/VirtualScroller.css');
+@import url('../components/ReplyMessageBubble/ReplyMessageBubble.css');

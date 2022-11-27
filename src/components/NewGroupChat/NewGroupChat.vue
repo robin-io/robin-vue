@@ -34,7 +34,7 @@
           type="file"
           :style="{ display: 'none' }"
           :accept="acceptedVisualFiles"
-          @change="handleFileChange($event.target.files)"
+          @change="handleFileChange($event)"
           @click="resetFileTarget($event)"
           id="group-icon-upload"
           data-testid="group-icon-upload"
@@ -147,25 +147,26 @@ export default class NewGroupChatList extends ComponentProps {
     })
   }
 
-  async handleFileChange (file: any): Promise<void> {
+  async handleFileChange (event: Event): Promise<void> {
+    const file = (event.target as HTMLInputElement).files![0]
     let fileURL
 
     try {
-      fileURL = await this.toBase64(file[0])
+      fileURL = await this.toBase64(file)
     } catch (e) {
       console.warn(e)
     }
 
-    const typeIndex = file[0].name.lastIndexOf('.')
+    const typeIndex = file.name.lastIndexOf('.')
 
-    if (file[0].size < 5000001) {
+    if (file.size < 5000001) {
       this.icon = {
-        name: file[0].name.substring(0, typeIndex),
-        size: file[0].size,
-        type: file[0].type,
-        extension: file[0].name.substring(typeIndex + 1),
+        name: file.name.substring(0, typeIndex),
+        size: file.size,
+        type: file.type,
+        extension: file.name.substring(typeIndex + 1),
         localUrl: fileURL,
-        file: file[0]
+        file: file
       }
     } else {
       this.$toast.open({

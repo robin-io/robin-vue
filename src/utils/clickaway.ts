@@ -11,7 +11,7 @@ const bind = (el: ObjectType, binding: ObjectType, vnode: ObjectType | null) => 
     initialMacrotaskEnded = true
   })
   el[HANDLER] = function (event: ObjectType) {
-    const path = event.path || (event.composedPath ? event.composedPath : undefined)
+    const path = event.path || (event.composedPath ? event.composedPath() : undefined)
 
     if (initialMacrotaskEnded && (path ? path.indexOf(el) < 0 : !el.contains(event.target))) {
       callback.call(vm, event)

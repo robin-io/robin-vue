@@ -1,6 +1,7 @@
 import Vue from 'vue'
 
 interface State {
+  connected: Boolean,
   allConversations:Array<ObjectType>,
   regularConversations: Array<ObjectType>,
   archivedConversations: Array<ObjectType>,
@@ -34,9 +35,11 @@ interface State {
   useDefaultProfileDetails: boolean,
   currentTheme: string,
   screenWidth: number,
+  sideBarType: string
 }
 
 const state: State = {
+  connected: false,
   allConversations: [],
   regularConversations: [],
   archivedConversations: [],
@@ -69,7 +72,8 @@ const state: State = {
   messageReactionDeleteEnabled: false,
   useDefaultProfileDetails: false,
   currentTheme: 'light',
-  screenWidth: 0
+  screenWidth: 0,
+  sideBarType: 'primary'
 }
 
 const store = {

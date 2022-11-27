@@ -12,6 +12,11 @@
   overflow-y: auto;
 }
 
+.robin-forward-message .robin-wrapper {
+  flex: none;
+  height: initial;
+}
+
 .robin-forward-message header {
   display: flex;
   align-items: center;

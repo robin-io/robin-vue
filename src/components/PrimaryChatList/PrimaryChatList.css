@@ -71,7 +71,7 @@
 .robin-primary-chat-list-container .robin-spinner {
   width: 30px;
   height: 30px;
-  margin: 0 auto;
+  margin: 20px auto 20px;
 }
 
 .robin-primary-chat-list-container .robin-flex .robin-svg {

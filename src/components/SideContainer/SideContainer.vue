@@ -43,6 +43,7 @@
       :key="key + 3"
       ref="slide-3"
       v-show="sideBarType == 'newgroupchat'"
+      :side-bar-type="sideBarType"
       :group-name="groupName"
       :group-icon="groupIcon"
       @openmodal="openModal('slide-0', $event)"
@@ -93,8 +94,6 @@ import ArchivedChatList from '@/components/ArchivedChatList/ArchivedChatList.vue
 export default class SideContainer extends Vue {
   key = 0 as number
   searchText = '' as string
-
-  sideBarType = 'primary'
   groupName = ''
   groupIcon = {}
 
@@ -104,6 +103,10 @@ export default class SideContainer extends Vue {
 
   get conversations () {
     return store.state.allConversations
+  }
+
+  get sideBarType () {
+    return store.state.sideBarType
   }
 
   get isPageLoading () {
@@ -134,21 +137,21 @@ export default class SideContainer extends Vue {
 
   openModal (refKey: string, type: string): void {
     if (type === 'primary') {
-      this.sideBarType = type
+      store.setState('sideBarType', type)
     } else {
       const popup = this.$refs[refKey] as any
 
       window.setTimeout(() => {
         popup.$refs['popup-body'].classList.add('robin-slideInLeft')
 
-        this.sideBarType = type
+        store.setState('sideBarType', type)
       }, 200)
     }
   }
 
   closeModal (refKey: string = 'slide-1', type: string): void {
     if (type === 'primary' && refKey === 'slide-0') {
-      this.sideBarType = type
+      store.setState('sideBarType', type)
       this.resetGroupName()
     } else {
       const popup = this.$refs[refKey] as any
@@ -157,7 +160,7 @@ export default class SideContainer extends Vue {
       window.setTimeout(() => {
         popup.$refs['popup-body'].classList.remove('robin-slideOutLeft')
 
-        this.sideBarType = type
+        store.setState('sideBarType', type)
       }, 200)
     }
   }

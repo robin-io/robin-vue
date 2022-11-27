@@ -27,7 +27,7 @@
         type="file"
         accept="image/*"
         capture="environment"
-        @change="handleFileChange($event.target.files)"
+        @change="handleFileChange($event)"
         @click="resetFileTarget($event)"
         id="camera-upload"
       />
@@ -49,7 +49,7 @@
         type="file"
         multiple
         :accept="acceptedVisualFiles"
-        @change="handleFileChange($event.target.files)"
+        @change="handleFileChange($event)"
         @click="resetFileTarget($event)"
         id="photo-upload"
       />
@@ -77,7 +77,7 @@
         :style="{ display: 'none' }"
         multiple
         :accept="acceptedDocFiles"
-        @change="handleFileChange($event.target.files)"
+        @change="handleFileChange($event)"
         @click="resetFileTarget($event)"
         id="document-upload"
       />
@@ -128,7 +128,8 @@ export default class AttachFilePopOver extends Vue {
     event.target.value = ''
   }
 
-  handleFileChange (files: any): void {
+  handleFileChange (event: Event): void {
+    const files = (event.target as HTMLInputElement).files!
     ;[...files].forEach((file: any) => {
       const extension = file.name.split('.')[1]
       const blob = file.slice(0, file.size, file.type)

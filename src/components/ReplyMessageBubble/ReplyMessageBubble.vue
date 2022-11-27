@@ -50,7 +50,7 @@
     class="robin-reply-message-bubble"
     v-else-if="
       getReplyMessage(message.reply_to) &&
-      imageRegex.test(checkAttachmentType(getReplyMessage(message.reply_to).content.attachment))
+      imageRegex.test(getType(getReplyMessage(message.reply_to).content.attachment))
     "
     @click="scrollToRepliedMessage(message.reply_to)"
   >
@@ -70,7 +70,7 @@
 
     <v-lazy-image
       class="robin-uploaded-image"
-      :src="getReplyMessage(message.reply_to).content.attachment"
+      :src="getImage(getReplyMessage(message.reply_to).content.attachment)"
     />
 
     <message-content
@@ -106,7 +106,7 @@
     class="robin-reply-message-bubble"
     v-else-if="
       getReplyMessage(message.reply_to) &&
-      videoRegex.test(checkAttachmentType(getReplyMessage(message.reply_to).content.attachment))
+      videoRegex.test(getType(getReplyMessage(message.reply_to).content.attachment))
     "
     @click="scrollToRepliedMessage(message.reply_to)"
   >
@@ -162,7 +162,7 @@
     class="robin-reply-message-bubble"
     v-else-if="
       getReplyMessage(message.reply_to) &&
-      documentRegex.test(checkAttachmentType(getReplyMessage(message.reply_to).content.attachment))
+      documentRegex.test(getType(getReplyMessage(message.reply_to).content.attachment))
     "
     @click="scrollToRepliedMessage(message.reply_to)"
   >
@@ -260,6 +260,7 @@ import store from '@/store/index'
 import Component from 'vue-class-component'
 import Content from '@/components/Content/Content.vue'
 import mime from 'mime'
+import { createUUID, checkAttachmentType, convertArrayBufferToFile } from '@/utils/helpers'
 import { EmailRegex, WebsiteRegex, VideoRegex, ImageRegex, DocumentRegex } from '@/utils/constants'
 import AudioPlayer from '@/components/AudioPlayer/AudioPlayer.vue'
 import assets from '@/utils/assets.json'
@@ -305,6 +306,8 @@ export default class ReplyMessageBubble extends ComponentProps {
   documentRegex = DocumentRegex
   emailRegex = EmailRegex
   websiteRegex = WebsiteRegex
+  checkAttachmentType = checkAttachmentType
+  convertArrayBufferToFile = convertArrayBufferToFile
 
   get imageSelected () {
     return store.state.imageSelected
@@ -314,28 +317,39 @@ export default class ReplyMessageBubble extends ComponentProps {
     return assets
   }
 
-  checkAttachmentType (attachmentUrl: String): string {
-    const strArr = attachmentUrl.split('.')
-
-    if (mime.getType(strArr[strArr.length - 1]) === 'application/msword') {
-      return 'doc'
-    }
-
-    if (mime.getType(strArr[strArr.length - 1]) === 'audio/mpeg') {
-      return 'mp3'
-    }
-
-    return `${mime.getType(strArr[strArr.length - 1])}`
+  getType (attachment: any): string {
+    return mime.getExtension(this.checkAttachmentType(attachment, this.getReplyMessage(this.message.reply_to)))
   }
 
-  getFileDetails (attachmentUrl: string): { name: any; extension: any } {
-    const fileName = attachmentUrl.substring(attachmentUrl.lastIndexOf('/') + 1)
-    const strArr = fileName.split('.')
+  getFileDetails (attachment: any): { name: any; extension: any } {
+    let fileName = ''
+    let strArr = [] as Array<string>
+
+    if (typeof attachment !== 'string') {
+      const name = createUUID(36)
+      const extension = this.getType(attachment)
+
+      return {
+        name,
+        extension
+      }
+    } else {
+      fileName = attachment.substring(attachment.lastIndexOf('/') + 1)
+      strArr = fileName.split('.')
+    }
 
     return {
       name: strArr[strArr.length - 2],
       extension: strArr[strArr.length - 1]
     }
+  }
+
+  getImage (attachment: any) {
+    if (typeof attachment !== 'string') {
+      return this.convertArrayBufferToFile(attachment, this.getReplyMessage(this.message.reply_to))
+    }
+
+    return attachment
   }
 
   checkArrayReceiverUserToken (message: any) {
@@ -376,7 +390,13 @@ export default class ReplyMessageBubble extends ComponentProps {
     const texts = this.getReplyMessage(this.message.reply_to).content.msg.split(' ')
 
     return {
-      containsWebsite: texts.some((text: string) => this.websiteRegex.test(text)),
+      containsWebsite: texts.some((text: string) => {
+        if (this.websiteRegex.test(text)) return true
+        else if (text.includes('http://')) return true
+        else if (text.includes('https://')) return true
+
+        return false
+      }),
       containsEmail: texts.some((text: string) => this.emailRegex.test(text))
     }
   }
@@ -388,18 +408,18 @@ export default class ReplyMessageBubble extends ComponentProps {
     }
   }
 
-  injectHtml (): String {
+  injectHtml (): string {
     let returnedMessage = ''
 
     for (const word of this.getReplyMessage(this.message.reply_to).content.msg.split(' ')) {
       if (this.emailRegex.test(word)) {
-        returnedMessage += String.raw` <a target="_blank" href="mailto:${word}" > ${word} <a/>`
+        returnedMessage += String.raw` <a target="_blank" href="mailto:${word}">${word}<a/>`
+      } else if (this.websiteRegex.test(word) || word.includes('http://')) {
+        returnedMessage += String.raw` <a target="_blank" href="${word}">${word}<a/>`
+      } else if (this.websiteRegex.test(word) || word.includes('https://')) {
+        returnedMessage += String.raw` <a target="_blank" href="${word}">${word}<a/>`
       } else if (this.websiteRegex.test(word)) {
-        if (word.includes('http://') || word.includes('https://')) {
-          returnedMessage += String.raw` <a target="_blank" href="${word}" > ${word} <a/>`
-        } else {
-          returnedMessage += String.raw` <a target="_blank" href="http://${word}"> ${word} <a/>`
-        }
+        returnedMessage += String.raw` <a target="_blank" href="https://${word}">${word}<a/>`
       } else {
         returnedMessage += ` ${word}`
       }
@@ -414,77 +434,3 @@ export default class ReplyMessageBubble extends ComponentProps {
   }
 }
 </script>
-
-<style scoped>
-.robin-reply-sender.robin-reply-message-bubble {
-  background-color: var(--rb-bg-color);
-  width: 100%;
-  padding: 0.4rem 0.625rem;
-  border-left: 3px solid var(--rb-color19);
-  position: relative;
-  margin-bottom: 0.625rem;
-}
-
-.robin-reply-receiver.robin-reply-message-bubble {
-  background-color: var(--rb-bg-color);
-  width: 100%;
-  position: relative;
-  padding: 0.4rem 0.625rem;
-  border-left: 3px solid var(--rb-color19);
-  margin-bottom: 0.625rem;
-}
-
-.robin-uploaded-image {
-  width: 100%;
-  height: 200px;
-}
-
-video {
-  width: 100%;
-  max-height: 100px;
-}
-
-.robin-reply-document img {
-  width: 20px;
-}
-
-.robin-link-container {
-  font-size: 0.825rem;
-  max-width: 120px;
-}
-
-.robin-link-container >>> a {
-  color: #4568d1;
-  max-width: 120px;
-}
-
-.robin-link-preview {
-  width: max-content;
-  height: 100%;
-  display: flex;
-  margin-left: auto;
-  position: absolute;
-  top: 0;
-  right: 0;
-}
-
-.robin-link-preview .robin-card {
-  width: 100%;
-  height: 100%;
-}
-
-.robin-link-preview .robin-card-img-top {
-  width: 40px;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* Website & Email */
-
-a {
-  display: block;
-  text-decoration: none;
-  color: #4568d1;
-  max-width: 220px;
-}
-</style>

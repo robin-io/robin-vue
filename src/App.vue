@@ -1,6 +1,6 @@
 <template>
   <div class="robin-container">
-    <transition name="robin-fadeIn" v-show="isSideContainerOpen">
+    <transition name="robin-fadeIn">
       <side-container v-show="isSideContainerOpen" :key="key">
         <template #chat-list-header>
           <slot name="chat-list-header"></slot>
@@ -20,7 +20,7 @@
     />
     <view-profile
       ref="popup-2"
-      v-show="profileOpen && showDefaultProfileDetails"
+      v-show="isProfileOpen && showDefaultProfileDetails"
       @close="closeMessageViewProfile()"
     />
     <slot
@@ -56,11 +56,11 @@ const ComponentProps = Vue.extend({
   props: {
     userToken: {
       type: String as PropType<string>,
-      default: 'VPZZIuRiHSlwwVXSsNuzhcHf' // 'OykUCsrYJddWcJsDfHDQKKop' // 'ArnPvXEXcxmsKbvOcGCMHyOZ' // 'clpYwBMnDGdynSarEBZOuPWZ' // 'jDifegUvGFCIqpTqznNElxlU'
+      default: '' // 'VPZZIuRiHSlwwVXSsNuzhcHf' // 'OykUCsrYJddWcJsDfHDQKKop' // 'ArnPvXEXcxmsKbvOcGCMHyOZ' // 'clpYwBMnDGdynSarEBZOuPWZ' // 'jDifegUvGFCIqpTqznNElxlU'
     },
     apiKey: {
       type: String as PropType<string>,
-      default: 'NT-UAzQwycFjXwvGfeciRyVumTWjfUFCImrRFQH' // 'NT-XmIzEmWUlsrQYypZOFRlogDFvQUsaEuxMfZf'
+      default: '' // 'NT-UAzQwycFjXwvGfeciRyVumTWjfUFCImrRFQH' // 'NT-XmIzEmWUlsrQYypZOFRlogDFvQUsaEuxMfZf'
     },
     pageLoader: {
       type: Boolean as PropType<boolean>,
@@ -72,21 +72,21 @@ const ComponentProps = Vue.extend({
     },
     userName: {
       type: String as PropType<string>,
-      default: 'Enoch Chejieh'
+      default: '' // 'Enoch Chejieh'
     },
     users: {
       type: Array as PropType<Array<any>>,
       default: (): Array<Record<any, any>> => [
-        {
-          _id: '621436282dc9a4e040d741bb',
-          created_at: '2022-02-22T01:02:32.517Z',
-          updated_at: '2022-02-22T01:02:32.517Z',
-          fullname: 'Testing Tester',
-          user_token: 'dhkogzyIxbAQwFnKDNTfAKOU',
-          password: '$2a$14$ynUAMEo0StZa7FnbipS6l.qgAObpZJL.SkvXXVKjRalPKTK0Y51ce',
-          profile_image: '',
-          email: 'testingtester@gmail.com'
-        }
+        // {
+        //   _id: '621436282dc9a4e040d741bb',
+        //   created_at: '2022-02-22T01:02:32.517Z',
+        //   updated_at: '2022-02-22T01:02:32.517Z',
+        //   fullname: 'Testing Tester',
+        //   user_token: 'dhkogzyIxbAQwFnKDNTfAKOU',
+        //   password: '$2a$14$ynUAMEo0StZa7FnbipS6l.qgAObpZJL.SkvXXVKjRalPKTK0Y51ce',
+        //   profile_image: '',
+        //   email: 'testingtester@gmail.com'
+        // }
       ]
     },
     logo: {
@@ -95,7 +95,7 @@ const ComponentProps = Vue.extend({
     },
     features: {
       type: Array as PropType<Array<string>>,
-      default: () => ['create-chat', 'voice-recorder', 'delete-messages', 'forward-messages', 'message-reaction.view', 'archive-chat']
+      default: () => ['create-chat', 'voice-recorder', 'reply-messages', 'delete-messages', 'forward-messages', 'message-reaction.view', 'archive-chat']
     },
     useDefaultProfileDetails: {
       type: Boolean,
@@ -163,7 +163,7 @@ export default class App extends ComponentProps {
   messageEvent = null as any
   time = 0 as number
   notification = null as HTMLElement | null
-  deboucedConnect = null as null | (() => void)
+  debouncedConnect = null as null | (() => void)
 
   created (): void {
     this.initiateRobin()
@@ -224,11 +224,25 @@ export default class App extends ComponentProps {
     matchMedia.removeEventListener('change', this.getCurrentTheme)
   }
 
+  get isProfileOpen () {
+    if (this.screenWidth > 1200) {
+      if (this.profileOpen) return true
+    } else {
+      if (this.profileOpen && this.sideBarType === 'newgroupchat') return false
+    }
+
+    return this.profileOpen
+  }
+
   get isSideContainerOpen () {
     if (this.screenWidth > 1200) {
       return true
     } else {
       if (!this.conversationOpen) {
+        return true
+      }
+
+      if (this.sideBarType === 'newgroupchat') {
         return true
       }
     }
@@ -238,18 +252,22 @@ export default class App extends ComponentProps {
 
   get isMessageContainerOpen () {
     if (this.screenWidth > 1200) {
-      if (!this.isPageLoading && this.conversationOpen) {
+      if (this.conversationOpen) {
         return true
       }
     } else {
       if (!this.profileOpen) {
-        if (!this.isPageLoading && this.conversationOpen) {
+        if (this.conversationOpen) {
           return true
         }
       }
     }
 
     return false
+  }
+
+  get sideBarType () {
+    return store.state.sideBarType
   }
 
   get screenWidth () {
@@ -314,8 +332,8 @@ export default class App extends ComponentProps {
 
   initiateRobin () {
     this.robin = new Robin(this.apiKey, true, 0, 'dev')
-    this.deboucedConnect = debounce(() => this.connect(), 5000)
-    this.deboucedConnect!()
+    this.debouncedConnect = debounce(() => this.connect(), 5000)
+    this.debouncedConnect!()
     this.setPrototypes()
   }
 
@@ -349,15 +367,17 @@ export default class App extends ComponentProps {
     this.conn.onopen = (event: ObjectType) => {
       if (event.target.readyState > 1) {
         this.$toast.open({ message: 'Connecting...', type: 'info', position: 'bottom-left' })
+        store.setState('connected', false)
       } else {
         this.$toast.open({ message: 'Connected', type: 'success', position: 'bottom-left' })
+        store.setState('connected', true)
       }
 
       this.robin?.subscribe(this.channel, this.conn)
     }
 
     this.conn.onclose = (event: ObjectType) => {
-      if (event.code === 1000) this.deboucedConnect!()
+      if (event.code === 1000) this.debouncedConnect!()
     }
 
     this.conn.onmessage = (evt: any) => {
@@ -429,7 +449,6 @@ export default class App extends ComponentProps {
         EventBus.$emit('message.forward', message.value)
         break
       case 'message.reaction':
-        console.log(messages.value)
         EventBus.$emit('message.reaction', message.value)
         break
       case 'message.remove.reaction':
@@ -468,6 +487,7 @@ export default class App extends ComponentProps {
     EventBus.$on('left.message', () => {
       store.setState('conversationOpen', false)
       store.setState('profileOpen', false)
+      store.setState('currentConversation', {})
     })
   }
 
@@ -552,6 +572,7 @@ export default class App extends ComponentProps {
   handleConnectionStatus () {
     window.addEventListener('offline', () => {
       this.$toast.open({ message: 'Connecting...', type: 'info', position: 'bottom-left' })
+      store.setState('connected', false)
     })
 
     window.addEventListener('online', () => {

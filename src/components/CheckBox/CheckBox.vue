@@ -1,5 +1,5 @@
 <template>
-  <label class="robin-checkbox-container">
+  <label class="robin-checkbox-container" id="checkbox">
     <input
       type="checkbox"
       name="checkbox"

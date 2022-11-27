@@ -1,6 +1,6 @@
 <template>
   <div class="robin-message-bubble robin-flex robin-flex-align-center"  v-clickaway="closeModal" :id="`message-bubble-${index}`">
-    <CheckBox v-show="selectMessagesOpen" @clicked="toggleCheckAction($event)" />
+    <CheckBox v-show="selectMessagesOpen" ref="checkbox" @clicked="toggleCheckAction($event)" />
 
     <div
       class="robin-bubble"
@@ -62,7 +62,7 @@
         />
 
         <video controls :class="message.is_reply ? 'video-reply' : ''" :id="`video-${index}`">
-          <source :src="message.content.attachment" />
+          <source :src="typeof message.content.attachment !== 'string' ? convertArrayBufferToFile(message.content.attachment, message) : message.content.attachment" />
           Your browser does not support the video tag.
         </video>
 
@@ -133,6 +133,7 @@ import Vue, { PropType } from 'vue'
 import store from '@/store/index'
 import Component from 'vue-class-component'
 import { EmailRegex, WebsiteRegex } from '@/utils/constants'
+import { convertArrayBufferToFile } from '@/utils/helpers'
 import moment from 'moment'
 import IconButton from '@/components/IconButton/IconButton.vue'
 import CheckBox from '@/components/CheckBox/CheckBox.vue'
@@ -172,6 +173,16 @@ const ComponentProps = Vue.extend({
     CheckBox,
     ReplyMessageBubble,
     IconButton
+  },
+  watch: {
+    selectMessagesOpen: {
+      handler (val) {
+        if (!val) {
+          const checkbox = (this.$refs.checkbox as Vue).$el as HTMLInputElement
+          checkbox.checked = false
+        }
+      }
+    }
   }
 })
 export default class VideoMessage extends ComponentProps {
@@ -180,6 +191,7 @@ export default class VideoMessage extends ComponentProps {
   reactions = { '❤️': [], '👍': [], '👎': [], '😂': [], '⁉️': [] } as ObjectType
   emailRegex = EmailRegex
   websiteRegex = WebsiteRegex
+  convertArrayBufferToFile = convertArrayBufferToFile
 
   get isReplyMessagesEnabled () {
     return store.state.replyMessagesEnabled
@@ -273,12 +285,12 @@ export default class VideoMessage extends ComponentProps {
       for (const word of message.split(' ')) {
         if (this.emailRegex.test(word)) {
           returnedMessage += String.raw` <a target="_blank" href="mailto:${word}">${word}<a/>`
+        } else if (this.websiteRegex.test(word) || word.includes('http://')) {
+          returnedMessage += String.raw` <a target="_blank" href="${word}">${word}<a/>`
+        } else if (this.websiteRegex.test(word) || word.includes('https://')) {
+          returnedMessage += String.raw` <a target="_blank" href="${word}">${word}<a/>`
         } else if (this.websiteRegex.test(word)) {
-          if (word.includes('http://') || word.includes('https://')) {
-            returnedMessage += String.raw` <a target="_blank" href="${word}">${word}<a/>`
-          } else {
-            returnedMessage += String.raw` <a target="_blank" href="http://${word}">${word}<a/>`
-          }
+          returnedMessage += String.raw` <a target="_blank" href="https://${word}">${word}<a/>`
         } else {
           returnedMessage += ` ${word}`
         }
@@ -292,7 +304,13 @@ export default class VideoMessage extends ComponentProps {
   }
 
   toggleCheckAction (val: boolean): void {
-    this.$emit('toggle-check-action', val)
+    const checkbox = (this.$refs.checkbox as Vue).$el as HTMLElement
+
+    if ((checkbox.childNodes[0] as HTMLInputElement).checked) {
+      this.$emit('toggle-check-action', false)
+    } else {
+      this.$emit('toggle-check-action', true)
+    }
   }
 
   onMouseLeave () {
@@ -395,7 +413,13 @@ export default class VideoMessage extends ComponentProps {
     const texts = this.message.content.msg.split(' ')
 
     return {
-      containsWebsite: texts.some((text: string) => this.websiteRegex.test(text)),
+      containsWebsite: texts.some((text: string) => {
+        if (this.websiteRegex.test(text)) return true
+        else if (text.includes('http://')) return true
+        else if (text.includes('https://')) return true
+
+        return false
+      }),
       containsEmail: texts.some((text: string) => this.emailRegex.test(text))
     }
   }

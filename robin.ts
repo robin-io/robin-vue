@@ -44,7 +44,7 @@ export class Robin {
     this.tls = tls === undefined ? true : tls
     this.retries = retries === undefined ? 0 : retries
     this.isConnected = false
-    this.env = env = undefined ? 'production' : env
+    this.env = env === undefined ? 'production' : env
 
     axios.defaults.headers.common['x-api-key'] = this.apiKey
 
@@ -150,7 +150,7 @@ export class Robin {
   async getConversationMessages (id: string, userToken: string, limit: number, page: number) {
     try {
       const response = await axios.get(
-        this.baseUrl + `/chat/conversation/messages/${id}/${userToken}?limit=${limit}&page${page}`
+        this.baseUrl + `/chat/conversation/messages/${id}/${userToken}?limit=${limit}&page=${page}`
       )
       return response.data
     } catch (error) {
@@ -310,7 +310,7 @@ export class Robin {
         return
       }
       const response = await axios.post(
-        this.baseUrl + '/conversation/forward_messages',
+        this.baseUrl + '/chat/conversation/forward_messages',
         {
           user_token: user_token,
           message_ids: message_ids,
@@ -546,7 +546,7 @@ export class Robin {
 
     try {
       const response = await axios.post(
-        this.baseUrl + '/conversation/group/upload/media/' + conversation_id,
+        this.baseUrl + '/chat/conversation/group/upload/media/' + conversation_id,
         fd
       )
       return response.data

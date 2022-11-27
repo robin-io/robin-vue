@@ -323,6 +323,12 @@ const ComponentProps = Vue.extend({
       handler (val) {
         if (val.length === 0) this.isManualSend = false
       }
+    },
+    currentConversation: {
+      handler (val) {
+        this.resetState()
+      },
+      deep: true
     }
   }
 })
@@ -376,6 +382,10 @@ export default class MessageInputBar extends ComponentProps {
 
   get currentConversation () {
     return store.state.currentConversation
+  }
+
+  get isWebSocketConnected () {
+    return store.state.connected
   }
 
   getElapsedTime (startTime: any) {
@@ -592,12 +602,12 @@ export default class MessageInputBar extends ComponentProps {
 
       this.isUploading = false
 
-      if (this.$conn.readyState > 1) {
+      if (!this.isWebSocketConnected) {
         this.retries += 1
         // Retry upload.
         if (this.retries < 3) {
           setTimeout(() => {
-            this.sendTextMessage()
+            this.sendTextMessage(message)
           }, 5000)
         } else {
           this.$toast.open({
@@ -608,7 +618,8 @@ export default class MessageInputBar extends ComponentProps {
 
           EventBus.$emit('message-send-failed', {
             content: {
-              msg: message.msg
+              msg: message.msg,
+              local_id: message.local_id
             },
             conversation_id: this.currentConversation._id
           })
@@ -641,6 +652,7 @@ export default class MessageInputBar extends ComponentProps {
           created_at: this.manualTimestamp !== '' ? this.manualTimestamp : new Date(),
           content: {
             attachment: file.file,
+            mime_type: file.file.type,
             is_attachment: true,
             msg: '',
             sender_token: this.$user_token,
@@ -672,7 +684,7 @@ export default class MessageInputBar extends ComponentProps {
 
       this.isUploading = false
 
-      if (this.$conn.readyState > 1) {
+      if (!this.isWebSocketConnected) {
         this.retries += 1
         // Retry upload.
         if (this.retries < 3) {
@@ -688,7 +700,8 @@ export default class MessageInputBar extends ComponentProps {
 
           EventBus.$emit('message-send-failed', {
             content: {
-              attachment: file.file
+              attachment: file.file,
+              local_id: file.local_id
             },
             conversation_id: this.currentConversation._id
           })
@@ -722,6 +735,7 @@ export default class MessageInputBar extends ComponentProps {
           created_at: this.manualTimestamp !== '' ? this.manualTimestamp : new Date(),
           content: {
             attachment: file.file,
+            mime_type: file.file.type,
             is_attachment: true,
             msg,
             sender_token: this.$user_token,
@@ -753,7 +767,7 @@ export default class MessageInputBar extends ComponentProps {
 
       this.isUploading = false
 
-      if (this.$conn.readyState > 1) {
+      if (!this.isWebSocketConnected) {
         this.retries += 1
         // Retry upload.
         if (this.retries < 3) {
@@ -770,7 +784,8 @@ export default class MessageInputBar extends ComponentProps {
           EventBus.$emit('message-send-failed', {
             content: {
               attachment: file.file,
-              msg: msg
+              msg: msg,
+              local_id: file.local_id
             },
             conversation_id: this.currentConversation._id
           })
@@ -838,12 +853,12 @@ export default class MessageInputBar extends ComponentProps {
 
       this.isUploading = false
 
-      if (this.$conn.readyState > 1) {
+      if (!this.isWebSocketConnected) {
         this.retries += 1
         // Retry upload.
         if (this.retries < 3) {
           setTimeout(() => {
-            this.replyTextMessage()
+            this.replyTextMessage(message)
           }, 5000)
         } else {
           this.$toast.open({
@@ -854,7 +869,8 @@ export default class MessageInputBar extends ComponentProps {
 
           EventBus.$emit('message-send-failed', {
             content: {
-              msg: message.msg
+              msg: message.msg,
+              local_id: message.local_id
             },
             conversation_id: this.currentConversation._id
           })
@@ -890,6 +906,7 @@ export default class MessageInputBar extends ComponentProps {
           created_at: this.manualTimestamp !== '' ? this.manualTimestamp : new Date(),
           content: {
             attachment: file.file,
+            mime_type: file.file.type,
             is_attachment: true,
             msg: '',
             sender_token: this.$user_token,
@@ -924,7 +941,7 @@ export default class MessageInputBar extends ComponentProps {
 
       this.isUploading = false
 
-      if (this.$conn.readyState > 1) {
+      if (!this.isWebSocketConnected) {
         this.retries += 1
         // Retry upload.
         if (this.retries < 3) {
@@ -940,7 +957,8 @@ export default class MessageInputBar extends ComponentProps {
 
           EventBus.$emit('message-send-failed', {
             content: {
-              attachment: file.file
+              attachment: file.file,
+              local_id: file.local_id
             },
             conversation_id: this.currentConversation._id
           })
@@ -975,6 +993,7 @@ export default class MessageInputBar extends ComponentProps {
           channel: this.$channel,
           content: {
             attachment: file.file,
+            mime_type: file.file.type,
             is_attachment: true,
             msg,
             sender_token: this.$user_token,
@@ -1010,7 +1029,7 @@ export default class MessageInputBar extends ComponentProps {
 
       this.isUploading = false
 
-      if (this.$conn.readyState > 1) {
+      if (!this.isWebSocketConnected) {
         this.retries += 1
         // Retry upload.
         if (this.retries < 3) {
@@ -1027,7 +1046,8 @@ export default class MessageInputBar extends ComponentProps {
           EventBus.$emit('message-send-failed', {
             content: {
               msg,
-              attachment: file.file
+              attachment: file.file,
+              local_id: file.local_id
             },
             conversation_id: this.currentConversation._id
           })

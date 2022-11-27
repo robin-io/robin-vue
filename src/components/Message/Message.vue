@@ -1,6 +1,6 @@
 <template>
   <div class="robin-message-bubble robin-flex robin-flex-align-center" v-clickaway="closeModal" :id="`message-bubble-${index}`">
-    <check-box v-show="selectMessagesOpen" @clicked="toggleCheckAction($event)" />
+    <check-box v-show="selectMessagesOpen" ref="checkbox" @clicked="toggleCheckAction($event)" />
 
     <div
       class="robin-bubble"
@@ -163,6 +163,17 @@ const ComponentProps = Vue.extend({
     SvgIcon,
     ReplyMessageBubble,
     IconButton
+  },
+  watch: {
+    selectMessagesOpen: {
+      handler (val) {
+        if (!val) {
+          const checkbox = (this.$refs.checkbox as Vue).$el as HTMLElement
+
+          (checkbox.childNodes[0] as HTMLInputElement).checked = false
+        }
+      }
+    }
   }
 })
 export default class Message extends ComponentProps {
@@ -264,12 +275,12 @@ export default class Message extends ComponentProps {
       for (const word of message.split(' ')) {
         if (this.emailRegex.test(word)) {
           returnedMessage += String.raw` <a target="_blank" href="mailto:${word}">${word}<a/>`
+        } else if (this.websiteRegex.test(word) || word.includes('http://')) {
+          returnedMessage += String.raw` <a target="_blank" href="${word}">${word}<a/>`
+        } else if (this.websiteRegex.test(word) || word.includes('https://')) {
+          returnedMessage += String.raw` <a target="_blank" href="${word}">${word}<a/>`
         } else if (this.websiteRegex.test(word)) {
-          if (word.includes('http://') || word.includes('https://')) {
-            returnedMessage += String.raw` <a target="_blank" href="${word}">${word}<a/>`
-          } else {
-            returnedMessage += String.raw` <a target="_blank" href="http://${word}">${word}<a/>`
-          }
+          returnedMessage += String.raw` <a target="_blank" href="https://${word}">${word}<a/>`
         } else {
           returnedMessage += ` ${word}`
         }
@@ -283,7 +294,13 @@ export default class Message extends ComponentProps {
   }
 
   toggleCheckAction (val: boolean): void {
-    this.$emit('toggle-check-action', val)
+    const checkbox = (this.$refs.checkbox as Vue).$el as HTMLElement
+
+    if ((checkbox.childNodes[0] as HTMLInputElement).checked) {
+      this.$emit('toggle-check-action', false)
+    } else {
+      this.$emit('toggle-check-action', true)
+    }
   }
 
   onMouseLeave () {
@@ -385,7 +402,13 @@ export default class Message extends ComponentProps {
     const texts = this.message.content.msg.split(' ')
 
     return {
-      containsWebsite: texts.some((text: string) => this.websiteRegex.test(text)),
+      containsWebsite: texts.some((text: string) => {
+        if (this.websiteRegex.test(text)) return true
+        else if (text.includes('http://')) return true
+        else if (text.includes('https://')) return true
+
+        return false
+      }),
       containsEmail: texts.some((text: string) => this.emailRegex.test(text))
     }
   }

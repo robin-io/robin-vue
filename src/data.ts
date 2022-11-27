@@ -45,7 +45,7 @@ export const audioMessage = {
   blocked_item_id: ''
 }
 
-export constarchivedConversations = [{
+export const archivedConversations = [{
   _id: '622f4032c4d773dd805e86ee',
   created_at: '2022-03-14T13:16:34.166Z',
   updated_at: '2022-04-19T07:21:38.748Z',

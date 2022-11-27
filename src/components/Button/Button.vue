@@ -45,7 +45,7 @@ export default class Button extends ComponentProps {
     this.root = document.documentElement
   }
 
-  get getStyles (): Object {
+  get getStyles (): ObjectType {
     let rootFontSize = 16 // default
     let fontSize = `${this.fontSize / rootFontSize + 'rem'}`
 

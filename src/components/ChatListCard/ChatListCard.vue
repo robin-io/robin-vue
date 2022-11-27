@@ -115,10 +115,11 @@
     :data-testid="`conversation-${item._id}`"
   >
     <div class="robin-card-info robin-mr-12">
-      <group-avatar v-if="item.is_group" />
+      <group-avatar v-if="item.is_group" :img-url="item.group_icon" />
 
       <avatar
         :sender-token="item.sender_token === $user_token ? item.receiver_token : item.sender_token"
+        :img-url="getProfileImage(item) || item.display_photo"
         v-else
       />
     </div>

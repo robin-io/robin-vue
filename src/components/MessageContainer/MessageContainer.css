@@ -29,6 +29,7 @@
   display: flex;
   flex-direction: column;
   flex: 1;
+  max-height: 60px;
   width: 100%;
   padding: 1rem clamp(3%, 5vw, 2.688rem) 1rem clamp(3%, 5vw, 3.125rem);
 }
@@ -359,7 +360,7 @@
   word-break: break-word;
 }
 
-.robin-message-container .robin-link-container >>> a:nth-child(odd) {
+.robin-message-container .robin-link-container a:nth-child(odd) {
   color: #4568d1;
   text-decoration: none;
 }
