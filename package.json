@@ -36,7 +36,7 @@
     "link-prevue": "^1.2.0",
     "localforage": "^1.10.0",
     "mime": "^2.5.2",
-    "moment": "^2.29.1",
+    "moment": "^2.29.4",
     "robin.io-js": "^0.3.8",
     "v-emoji-picker": "^2.3.3",
     "v-lazy-image": "^2.0.1",
