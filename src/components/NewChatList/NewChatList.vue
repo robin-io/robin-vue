@@ -60,7 +60,7 @@
             <chat-list-card
               :item="slotProps.item"
               :type="4"
-              @create-conversation="createConversation(slotProps.item)"
+              @create-conversation="debouncedGetConversations(slotProps.item)"
             />
           </div>
         </div>
@@ -83,6 +83,7 @@ import EventBus from '@/event-bus'
 import IconButton from '../IconButton/IconButton.vue'
 import ChatListCard from '../ChatListCard/ChatListCard.vue'
 import VirtualScroller from '../VirtualScroller/VirtualScroller.vue'
+import debounce from 'lodash.debounce'
 
 // eslint-disable-next-line
 @Component<NewChatList>({
@@ -112,9 +113,12 @@ export default class NewChatList extends Vue {
   isLoading = false as boolean
   searchData = [] as Array<ObjectType>
   key = 0 as number
+  debouncedGetConversations = null as any | ((user: ObjectType) => void)
 
   created () {
     this.getContacts('')
+    
+    this.debouncedGetConversations = debounce((user: ObjectType) => this.createConversation(user), 3000)
   }
 
   get contactHeight () {
@@ -130,7 +134,7 @@ export default class NewChatList extends Vue {
     return store.state.allConversations
   }
 
-  async createConversation (user: any) {
+  async createConversation (user: ObjectType) {
     const res = await this.$robin.createConversation({
       sender_name: this.$senderName,
       sender_token: this.$user_token,

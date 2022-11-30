@@ -47,13 +47,12 @@
         </div>
 
         <div class="robin-reply robin-w-100" v-else>
-          <div class="robin-file-upload">
+          <div class="robin-file-upload robin-flex">
             <img
               :src="messageReply.content.attachment"
               :alt="`${getFileDetails(messageReply.content.attachment).name}-image`"
               v-if="imageRegex.test(checkAttachmentType(messageReply.content.attachment))"
             />
-
             <div
               class="robin-video"
               v-if="videoRegex.test(checkAttachmentType(messageReply.content.attachment))"
@@ -305,7 +304,7 @@ const ComponentProps = Vue.extend({
       })
     },
     messageReply: {
-      handler (val) {
+      handler(val) {
         if (Object.keys(this.messageReply).length > 0) {
           this.replying = true
         } else {
@@ -315,17 +314,17 @@ const ComponentProps = Vue.extend({
       deep: true
     },
     text: {
-      handler (val) {
+      handler(val) {
         if (val === '') this.isManualSend = false
       }
     },
     files: {
-      handler (val) {
+      handler(val) {
         if (val.length === 0) this.isManualSend = false
       }
     },
     currentConversation: {
-      handler (val) {
+      handler(val) {
         this.resetState()
       },
       deep: true
@@ -358,13 +357,13 @@ export default class MessageInputBar extends ComponentProps {
     emojiOpened: false
   }
 
-  created () {
+  created() {
     EventBus.$on('manual.send', (message: ObjectType) => {
       this.manualSend(message)
     })
   }
 
-  mounted () {
+  mounted() {
     this.handleConversationOpen()
 
     this.$nextTick(() => {
@@ -376,19 +375,19 @@ export default class MessageInputBar extends ComponentProps {
     window.addEventListener('resize', this.onResize)
   }
 
-  get isVoiceRecorderEnabled () {
+  get isVoiceRecorderEnabled() {
     return store.state.voiceRecorderEnabled
   }
 
-  get currentConversation () {
+  get currentConversation() {
     return store.state.currentConversation
   }
 
-  get isWebSocketConnected () {
+  get isWebSocketConnected() {
     return store.state.connected
   }
 
-  getElapsedTime (startTime: any) {
+  getElapsedTime(startTime: any) {
     const endTime = new Date() as any
     let timeDiff = endTime - startTime
 
@@ -420,7 +419,7 @@ export default class MessageInputBar extends ComponentProps {
     }
   }
 
-  resetState () {
+  resetState() {
     const input = this.$refs.input as any
 
     input.value = ''
@@ -436,7 +435,7 @@ export default class MessageInputBar extends ComponentProps {
     this.manualTimestamp = ''
   }
 
-  toggleManualSend () {
+  toggleManualSend() {
     if (this.manualTimestamp !== '') {
       this.isManualSend = true
     } else {
@@ -444,7 +443,7 @@ export default class MessageInputBar extends ComponentProps {
     }
   }
 
-  manualSend (message: ObjectType) {
+  manualSend(message: ObjectType) {
     this.setInputState(message)
     this.toggleManualSend()
 
@@ -465,7 +464,10 @@ export default class MessageInputBar extends ComponentProps {
     }
 
     if (message.content.msg && message.content.attachment && !message.is_reply) {
-      this.sendMessageWithAttachment({ file: message.content.attachment, local_id: message.content.local_id }, this.text)
+      this.sendMessageWithAttachment(
+        { file: message.content.attachment, local_id: message.content.local_id },
+        this.text
+      )
     }
 
     if (message.content.msg && !message.content.attachment && message.is_reply) {
@@ -473,20 +475,26 @@ export default class MessageInputBar extends ComponentProps {
     }
 
     if (!message.content.msg && message.content.attachment && message.is_reply) {
-      this.replyFileMessage({ file: message.content.attachment, local_id: message.content.local_id })
+      this.replyFileMessage({
+        file: message.content.attachment,
+        local_id: message.content.local_id
+      })
     }
 
     if (message.content.msg && message.content.attachment && message.is_reply) {
-      this.replyMessageWithAttachment({ file: message.content.attachment, local_id: message.content.local_id }, this.text)
+      this.replyMessageWithAttachment(
+        { file: message.content.attachment, local_id: message.content.local_id },
+        this.text
+      )
     }
   }
 
-  setInputState (message: ObjectType): void {
+  setInputState(message: ObjectType): void {
     this.text = message.content.msg
     this.manualTimestamp = message.content.timestamp
   }
 
-  send (event: any) {
+  send(event: any) {
     if (this.screenWidth <= 1024 && event && event.keyCode === 13) {
       this.newLine()
       this.calculateTextareaHeight()
@@ -507,15 +515,15 @@ export default class MessageInputBar extends ComponentProps {
     }
   }
 
-  sendMessage (): any {
+  sendMessage(): any {
     const uuid = createUUID(24)
     const message = {
       msg: this.text,
       sender_token: this.$user_token,
       receiver_token:
-          this.currentConversation.receiver_token === this.$user_token
-            ? this.currentConversation.sender_token
-            : this.currentConversation.receiver_token,
+        this.currentConversation.receiver_token === this.$user_token
+          ? this.currentConversation.sender_token
+          : this.currentConversation.receiver_token,
       timestamp: new Date(),
       local_id: uuid
     }
@@ -523,26 +531,32 @@ export default class MessageInputBar extends ComponentProps {
     this.toggleManualSend()
 
     if (this.files.length > 0 && this.text.trim().length === 0) {
-      this.files.forEach((file: ObjectType) => this.sendFileMessage({ file: file.file, local_id: uuid }))
+      this.files.forEach((file: ObjectType) =>
+        this.sendFileMessage({ file: file.file, local_id: uuid })
+      )
     } else if (this.text.trim().length > 0 && this.files.length < 1) {
       this.sendTextMessage(message)
     } else if (this.text.trim().length > 0 && this.files.length > 1) {
       this.sendTextMessage(message)
-      this.files.forEach((file: ObjectType) => this.sendFileMessage({ file: file.file, local_id: uuid }))
+      this.files.forEach((file: ObjectType) =>
+        this.sendFileMessage({ file: file.file, local_id: uuid })
+      )
     } else if (this.text.trim().length > 0 && this.files.length === 1) {
-      this.files.forEach((file: ObjectType) => this.sendMessageWithAttachment({ file: file.file, local_id: uuid }, this.text))
+      this.files.forEach((file: ObjectType) =>
+        this.sendMessageWithAttachment({ file: file.file, local_id: uuid }, this.text)
+      )
     }
   }
 
-  async replyMessage () {
+  async replyMessage() {
     const uuid = createUUID(24)
     const message = {
       msg: this.text,
       sender_token: this.$user_token,
       receiver_token:
-          this.currentConversation.receiver_token === this.$user_token
-            ? this.currentConversation.sender_token
-            : this.currentConversation.receiver_token,
+        this.currentConversation.receiver_token === this.$user_token
+          ? this.currentConversation.sender_token
+          : this.currentConversation.receiver_token,
       timestamp: new Date(),
       local_id: uuid
     }
@@ -550,18 +564,24 @@ export default class MessageInputBar extends ComponentProps {
     this.toggleManualSend()
 
     if (this.files.length > 0 && this.text.trim().length === 0) {
-      this.files.forEach((file: ObjectType) => this.replyFileMessage({ file: file.file, local_id: uuid }))
+      this.files.forEach((file: ObjectType) =>
+        this.replyFileMessage({ file: file.file, local_id: uuid })
+      )
     } else if (this.text.trim().length > 0 && this.files.length < 1) {
       this.replyTextMessage(message)
     } else if (this.text.trim().length > 0 && this.files.length > 1) {
       this.replyTextMessage(message)
-      this.files.forEach((file: ObjectType) => this.replyFileMessage({ file: file.file, local_id: uuid }))
+      this.files.forEach((file: ObjectType) =>
+        this.replyFileMessage({ file: file.file, local_id: uuid })
+      )
     } else if (this.text.trim().length > 0 && this.files.length === 1) {
-      this.files.forEach((file: ObjectType) => this.replyMessageWithAttachment({ file: file.file, local_id: uuid }, this.text))
+      this.files.forEach((file: ObjectType) =>
+        this.replyMessageWithAttachment({ file: file.file, local_id: uuid }, this.text)
+      )
     }
   }
 
-  async sendTextMessage (message: ObjectType): Promise<void> {
+  async sendTextMessage(message: ObjectType): Promise<void> {
     try {
       if (this.retries === 0 && !this.isManualSend) {
         this.isUploading = true
@@ -641,7 +661,7 @@ export default class MessageInputBar extends ComponentProps {
     }
   }
 
-  async sendFileMessage (file: ObjectType): Promise<void> {
+  async sendFileMessage(file: ObjectType): Promise<void> {
     try {
       if (this.retries === 0 && !this.isManualSend) {
         this.isUploading = true
@@ -724,7 +744,7 @@ export default class MessageInputBar extends ComponentProps {
     }
   }
 
-  async sendMessageWithAttachment (file: ObjectType, msg: string): Promise<void> {
+  async sendMessageWithAttachment(file: ObjectType, msg: string): Promise<void> {
     try {
       if (this.retries === 0 && !this.isManualSend) {
         this.isUploading = true
@@ -808,7 +828,7 @@ export default class MessageInputBar extends ComponentProps {
     }
   }
 
-  async replyTextMessage (message: ObjectType): Promise<void> {
+  async replyTextMessage(message: ObjectType): Promise<void> {
     try {
       const robin = this.$robin as any
 
@@ -893,7 +913,7 @@ export default class MessageInputBar extends ComponentProps {
     }
   }
 
-  async replyFileMessage (file: ObjectType): Promise<void> {
+  async replyFileMessage(file: ObjectType): Promise<void> {
     try {
       const robin = this.$robin as any
 
@@ -981,7 +1001,7 @@ export default class MessageInputBar extends ComponentProps {
     }
   }
 
-  async replyMessageWithAttachment (file: ObjectType, msg: string): Promise<void> {
+  async replyMessageWithAttachment(file: ObjectType, msg: string): Promise<void> {
     try {
       const robin = this.$robin as any
 
@@ -1070,40 +1090,40 @@ export default class MessageInputBar extends ComponentProps {
     }
   }
 
-  enterText (event: any): void {
+  enterText(event: any): void {
     this.text = event.target.value
     this.calculateTextareaHeight()
   }
 
-  escapeText (): void {
+  escapeText(): void {
     const input = this.$refs.input as any
     input.value = ''
     this.text = ''
     input.style.height = 0
   }
 
-  selectEmoji (emoji: any): void {
+  selectEmoji(emoji: any): void {
     if (this.text.length > 0) this.text += ` ${emoji.data}`
     else this.text += `${emoji.data}`
 
     this.focusInput()
   }
 
-  focusInput () {
+  focusInput() {
     const input = this.$refs.input as HTMLInputElement
     if (input) {
       input.focus()
     }
   }
 
-  handleEmojiOpenPopUp (): void {
+  handleEmojiOpenPopUp(): void {
     const popup = this.$refs['popup-1'] as any
     popup.classList.remove('robin-squeezeIn')
 
     this.popUpState.emojiOpened = true
   }
 
-  handleEmojiClosePopUp (): void {
+  handleEmojiClosePopUp(): void {
     const popup = this.$refs['popup-1'] as any
     popup.classList.remove('robin-squeezeOut')
     popup.classList.add('robin-squeezeIn')
@@ -1116,11 +1136,11 @@ export default class MessageInputBar extends ComponentProps {
     }, 100)
   }
 
-  toggleAttachFilePopup (): void {
+  toggleAttachFilePopup(): void {
     this.popUpState.opened = !this.popUpState.opened
   }
 
-  handleClosePopUp (): void {
+  handleClosePopUp(): void {
     const popup = this.$refs['popup-4'] as any
     popup.$refs['popup-body'].classList.remove('robin-zoomIn')
     popup.$refs['popup-body'].classList.add('robin-zoomOut')
@@ -1133,13 +1153,13 @@ export default class MessageInputBar extends ComponentProps {
     }, 300)
   }
 
-  handleFileUpload (file: any) {
+  handleFileUpload(file: any) {
     this.files.push(file)
 
     this.recorder = null
   }
 
-  handleFileUploadClose (): void {
+  handleFileUploadClose(): void {
     const popup = this.$refs['popup-2'] as any
     popup.classList.remove('robin-squeezeOut')
     popup.classList.add('robin-squeezeIn')
@@ -1152,7 +1172,7 @@ export default class MessageInputBar extends ComponentProps {
     }, 100)
   }
 
-  removeFile (index: number): void {
+  removeFile(index: number): void {
     if (this.files.length > 1) {
       this.files.splice(index, 1)
     } else {
@@ -1169,7 +1189,7 @@ export default class MessageInputBar extends ComponentProps {
     }
   }
 
-  handleReplyMessageClose (): void {
+  handleReplyMessageClose(): void {
     const popup = this.$refs['popup-3'] as any
     popup.classList.remove('robin-squeezeOut')
     popup.classList.add('robin-squeezeIn')
@@ -1183,7 +1203,7 @@ export default class MessageInputBar extends ComponentProps {
     }, 100)
   }
 
-  checkAttachmentType (attachment: any): string {
+  checkAttachmentType(attachment: any): string {
     let strArr = [] as Array<string>
 
     if (typeof attachment !== 'string') {
@@ -1195,7 +1215,7 @@ export default class MessageInputBar extends ComponentProps {
     return `${mime.getType(strArr[strArr.length - 1])}`
   }
 
-  getFileDetails (attachmentUrl: string): { name: any; extension: any } {
+  getFileDetails(attachmentUrl: string): { name: any; extension: any } {
     const fileName = attachmentUrl.substring(attachmentUrl.lastIndexOf('/') + 1)
     const strArr = fileName.split('.')
 
@@ -1205,7 +1225,7 @@ export default class MessageInputBar extends ComponentProps {
     }
   }
 
-  validateLinkInMessage () {
+  validateLinkInMessage() {
     const messageReply = this.messageReply.content ? this.messageReply.content.msg : ''
     const texts = messageReply.split(' ')
 
@@ -1215,7 +1235,7 @@ export default class MessageInputBar extends ComponentProps {
     }
   }
 
-  injectHtml (): String {
+  injectHtml(): String {
     let returnedMessage = ''
     const messageReply = this.messageReply.content ? this.messageReply.content.msg : ''
 
@@ -1236,7 +1256,7 @@ export default class MessageInputBar extends ComponentProps {
     return returnedMessage
   }
 
-  handleConversationOpen (): void {
+  handleConversationOpen(): void {
     EventBus.$on('currentConversation-opened', (_: any) => {
       const input = this.$refs.input as any
       setTimeout(() => {
@@ -1247,16 +1267,16 @@ export default class MessageInputBar extends ComponentProps {
     })
   }
 
-  onResize () {
+  onResize() {
     this.screenWidth = window.innerWidth
   }
 
-  newLine () {
+  newLine() {
     const input = this.$refs.input as any
     input.value += '\n'
   }
 
-  calculateTextareaHeight (): void {
+  calculateTextareaHeight(): void {
     const input = this.$refs.input as any
 
     if (!input) return
@@ -1276,7 +1296,7 @@ export default class MessageInputBar extends ComponentProps {
     }
   }
 
-  toggleRecorder (record: boolean): void {
+  toggleRecorder(record: boolean): void {
     if (record) {
       this.startRecorder()
     } else {
@@ -1284,7 +1304,7 @@ export default class MessageInputBar extends ComponentProps {
     }
   }
 
-  startRecorder () {
+  startRecorder() {
     AudioRecorder.encoder = mpegEncoder
     AudioRecorder.prototype.mimeType = 'audio/mpeg'
     window.MediaRecorder = AudioRecorder
@@ -1328,7 +1348,7 @@ export default class MessageInputBar extends ComponentProps {
     })
   }
 
-  stopRecorder (): void {
+  stopRecorder(): void {
     this.recorder.stop()
     clearInterval(this.elapsedTimer)
     this.isRecording = false

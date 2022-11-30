@@ -259,7 +259,6 @@ import VLazyImage from 'v-lazy-image/v2'
 import store from '@/store/index'
 import Component from 'vue-class-component'
 import Content from '@/components/Content/Content.vue'
-import mime from 'mime'
 import { createUUID, checkAttachmentType, convertArrayBufferToFile } from '@/utils/helpers'
 import { EmailRegex, WebsiteRegex, VideoRegex, ImageRegex, DocumentRegex } from '@/utils/constants'
 import AudioPlayer from '@/components/AudioPlayer/AudioPlayer.vue'
@@ -318,7 +317,7 @@ export default class ReplyMessageBubble extends ComponentProps {
   }
 
   getType (attachment: any): string {
-    return mime.getExtension(this.checkAttachmentType(attachment, this.getReplyMessage(this.message.reply_to)))
+    return this.checkAttachmentType(attachment, this.getReplyMessage(this.message.reply_to))
   }
 
   getFileDetails (attachment: any): { name: any; extension: any } {
@@ -363,7 +362,7 @@ export default class ReplyMessageBubble extends ComponentProps {
   }
 
   getReplyMessage (id: string): ReplyMessage {
-    const message: any = this.messages.find((element: any) => {
+    const message = this.messages.find((element: ObjectType | Array<ObjectType>) => {
       if (Array.isArray(element)) {
         return element.find((item) => item._id === id)
       }
@@ -375,13 +374,11 @@ export default class ReplyMessageBubble extends ComponentProps {
       }
 
       return false
-    })
+    }) as ObjectType | Array<ObjectType>
 
     if (Array.isArray(message)) {
-      return message.find((element: any) => element._id === id)
+      return message.find((element: ObjectType) => element._id === id)!
     }
-
-    // (message)
 
     return message
   }

@@ -56,11 +56,11 @@ const ComponentProps = Vue.extend({
   props: {
     userToken: {
       type: String as PropType<string>,
-      default: '' // 'VPZZIuRiHSlwwVXSsNuzhcHf' // 'OykUCsrYJddWcJsDfHDQKKop' // 'ArnPvXEXcxmsKbvOcGCMHyOZ' // 'clpYwBMnDGdynSarEBZOuPWZ' // 'jDifegUvGFCIqpTqznNElxlU'
+      default: ''
     },
     apiKey: {
       type: String as PropType<string>,
-      default: '' // 'NT-UAzQwycFjXwvGfeciRyVumTWjfUFCImrRFQH' // 'NT-XmIzEmWUlsrQYypZOFRlogDFvQUsaEuxMfZf'
+      default: ''
     },
     pageLoader: {
       type: Boolean as PropType<boolean>,
@@ -72,22 +72,11 @@ const ComponentProps = Vue.extend({
     },
     userName: {
       type: String as PropType<string>,
-      default: '' // 'Enoch Chejieh'
+      default: ''
     },
     users: {
-      type: Array as PropType<Array<any>>,
-      default: (): Array<Record<any, any>> => [
-        // {
-        //   _id: '621436282dc9a4e040d741bb',
-        //   created_at: '2022-02-22T01:02:32.517Z',
-        //   updated_at: '2022-02-22T01:02:32.517Z',
-        //   fullname: 'Testing Tester',
-        //   user_token: 'dhkogzyIxbAQwFnKDNTfAKOU',
-        //   password: '$2a$14$ynUAMEo0StZa7FnbipS6l.qgAObpZJL.SkvXXVKjRalPKTK0Y51ce',
-        //   profile_image: '',
-        //   email: 'testingtester@gmail.com'
-        // }
-      ]
+      type: Array as PropType<Array<ObjectType>>,
+      default: (): Array<ObjectType> => []
     },
     logo: {
       type: String as PropType<string>,
@@ -95,7 +84,7 @@ const ComponentProps = Vue.extend({
     },
     features: {
       type: Array as PropType<Array<string>>,
-      default: () => ['create-chat', 'voice-recorder', 'reply-messages', 'delete-messages', 'forward-messages', 'message-reaction.view', 'archive-chat']
+      default: () => ['create-chat', 'voice-recorder', 'reply-messages', 'delete-messages', 'forward-messages', 'message-reaction.view', 'message-reaction.delete', 'archive-chat']
     },
     useDefaultProfileDetails: {
       type: Boolean,
@@ -419,6 +408,7 @@ export default class App extends ComponentProps {
   }
 
   handleEvents (message: any): void {
+    console.log(message)
     switch (message.name) {
       case 'user.connect':
         // set user status to online
@@ -438,7 +428,6 @@ export default class App extends ComponentProps {
         EventBus.$emit('user.disconnect', message.value)
         break
       case 'new.conversation':
-        console.log('new.conversation')
         if (message.value.is_group) {
           EventBus.$emit('new-group.conversation', message.value)
         } else {

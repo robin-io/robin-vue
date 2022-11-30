@@ -15,15 +15,16 @@
           message &&
           message.reactions &&
           message.reactions.length > 0 &&
-          isMessageReactionViewEnabled
+          isMessageReactionViewEnabled &&
+          !isMessagesLoading
         "
       >
         <div
           class="robin-reaction"
           :class="{ 'delete-enabled': isMessageReactionDeleteEnabled }"
-          v-for="(value, key, index) in reactions"
-          :key="index"
-          @click="removeReaction(value[value.length - 1])"
+          v-for="(value, key, reactionIndex) in reactions"
+          :key="reactionIndex"
+          @click="removeReaction(key)"
           v-show="value.length > 0"
         >
           {{ key + ' ' + value.length }}
@@ -160,13 +161,17 @@ const ComponentProps = Vue.extend({
     groupnameColors: {
       type: Object,
       default: () => {}
+    },
+    isMessagesLoading: {
+      type: Boolean,
+      default: false
     }
   }
 })
 
 // eslint-disable-next-line
 @Component<VideoMessage>({
-  name: 'Message',
+  name: 'VideoMessage',
   components: {
     Content,
     SvgIcon,
@@ -182,6 +187,14 @@ const ComponentProps = Vue.extend({
           checkbox.checked = false
         }
       }
+    },
+    message: {
+      handler () {
+        if (this.message.reactions) {
+          this.handleMessageReactions(this.message.reactions)
+        }
+      },
+      deep: true
     }
   }
 })
@@ -388,21 +401,21 @@ export default class VideoMessage extends ComponentProps {
     return 'robin-message-sender' // false
   }
 
-  async addReaction (emoji: string): Promise<void> {
-    const robin = this.$robin as any
-    const message = Array.isArray(this.message) ? this.message[0] : (this.message as any)
+  handleMessageReactions(reactions: Array<ObjectType>) {
+    const newReactions = { '❤️': [], '👍': [], '👎': [], '😂': [], '⁉️': [] } as ObjectType
 
-    await robin.reactToMessage(emoji, this.currentConversation._id, message._id, this.$user_token)
-    this.closeModal()
+    for (const reaction of reactions) {
+      newReactions[reaction.reaction].push(reaction.reaction)
+    }
+
+    this.reactions = newReactions
   }
 
-  async removeReaction (reaction: any): Promise<void> {
-    const robin = this.$robin as any
-    const message = Array.isArray(this.message) ? this.message[0] : (this.message as any)
-
-    if (this.isMessageReactionDeleteEnabled) {
-      await robin.RemoveReaction(reaction._id, message._id)
-    }
+  removeReaction(reaction: string): void {
+    const messageReaction = this.message.reactions.find(
+      (item: ObjectType) => item.reaction === reaction
+    ) as ObjectType
+    this.$emit('remove-reaction', messageReaction, this.index)
   }
 
   formatTimeStamp (value: any): string {
@@ -426,7 +439,7 @@ export default class VideoMessage extends ComponentProps {
 
   getContactName (sender_token: string): string {
     const index = this.$robin_users.findIndex((user) => user.userToken === sender_token) as number
-    const user = this.$robin_users[index] as any
+    const user = this.$robin_users[index] as ObjectType
     return user ? user.userName : ''
   }
 

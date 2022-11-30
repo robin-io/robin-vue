@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "ESNext", // esnext for vue3 auto-enables optional chaining in typescript
+    "target": "ES2021", // esnext for vue3 auto-enables optional chaining in typescript
     "module": "esnext",
     "outDir": "dist/types",
     "declaration": true,
