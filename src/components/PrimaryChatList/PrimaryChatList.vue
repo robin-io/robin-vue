@@ -422,10 +422,16 @@ export default class PrimaryChatList extends Vue {
   handleAddRegularConversation () {
     EventBus.$on('regular-conversation.add', (conversation: any) => {
       const index = this.regularConversations.findIndex((item) => item._id === conversation._id)
+      const conversationIndex = this.allConversations.findIndex((item) => item._id === conversation._id)
 
       if (index === -1) {
         this.regularConversations.unshift(conversation)
         store.setState('regularConversations', [...this.regularConversations])
+      }
+
+      if (conversationIndex === -1) {
+        this.allConversations.unshift(conversation)
+        store.setState('allConversations', [...this.allConversations])
       }
     })
   }
@@ -433,8 +439,12 @@ export default class PrimaryChatList extends Vue {
   handleRemoveRegularConversation () {
     EventBus.$on('regular-conversation.delete', (conversation: any) => {
       const index = this.regularConversations.findIndex((item) => item._id === conversation._id)
+      const conversationIndex = this.allConversations.findIndex((item) => item._id === conversation._id)
+
       this.regularConversations.splice(index, 1)
+      this.allConversations.splice(conversationIndex, 1)
       store.setState('regularConversations', [...this.regularConversations])
+      store.setState('allConversations', [...this.allConversations])
     })
   }
 

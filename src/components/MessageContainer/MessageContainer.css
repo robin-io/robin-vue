@@ -344,10 +344,17 @@
   font-size: 0.625rem;
   width: max-content;
   height: 14px;
-  cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.robin-message-container .robin-reaction:not(.delete-enabled) {
+  cursor: default;
+}
+
+.robin-message-container .robin-reaction.delete-enabled {
+  cursor: pointer;
 }
 
 .robin-message-container .robin-reaction.delete-enabled:active {

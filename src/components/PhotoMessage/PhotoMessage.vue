@@ -1,14 +1,44 @@
 <template>
-  <div class="robin-message-bubble robin-flex robin-flex-align-center image" v-clickaway="closeModal" :id="`message-bubble-${index}`">
+  <div
+    class="robin-message-bubble robin-flex robin-flex-align-center image"
+    v-clickaway="closeModal"
+    :id="`message-bubble-${index}`"
+  >
     <CheckBox v-show="selectMessagesOpen" ref="checkbox" @clicked="toggleCheckAction($event)" />
 
     <div
       class="robin-bubble image"
       @mouseover="onMouseOver()"
       @mouseleave="onMouseLeave()"
-      :class="validateMessages(message).includes('message-sender') ? 'robin-grid-sender robin-ml-5' : 'robin-grid-receiver robin-mr-5'"
+      :class="
+        validateMessages(message).includes('message-sender')
+          ? 'robin-grid-sender robin-ml-5'
+          : 'robin-grid-receiver robin-mr-5'
+      "
       data-testid="bubble"
     >
+      <div
+        class="robin-reactions"
+        v-if="
+          message &&
+          message[0].reactions &&
+          message[0].reactions.length > 0 &&
+          isMessageReactionViewEnabled &&
+          !isMessagesLoading
+        "
+      >
+        <div
+          class="robin-reaction"
+          :class="{ 'delete-enabled': isMessageReactionDeleteEnabled }"
+          v-for="(value, key, reactionIndex) in reactions"
+          :key="reactionIndex"
+          @click="removeReaction(key)"
+          v-show="value.length > 0"
+        >
+          {{ key + ' ' + value.length }}
+        </div>
+      </div>
+
       <Content
         v-if="currentConversation.is_group"
         :font-size="12"
@@ -38,7 +68,14 @@
           :key="image._id"
           :class="validateImageClass(index)"
         >
-          <v-lazy-image class="robin-uploaded-image" :src="typeof image.content.attachment !== 'string' ? convertArrayBufferToFile(image.content.attachment, image) : image.content.attachment" />
+          <v-lazy-image
+            class="robin-uploaded-image"
+            :src="
+              typeof image.content.attachment !== 'string'
+                ? convertArrayBufferToFile(image.content.attachment, image)
+                : image.content.attachment
+            "
+          />
         </div>
 
         <span
@@ -138,6 +175,7 @@ import store from '@/store/index'
 import Component from 'vue-class-component'
 import moment from 'moment'
 import VLazyImage from 'v-lazy-image/v2'
+import { Robin } from '../../../robin'
 import { EmailRegex, WebsiteRegex } from '@/utils/constants'
 import { convertArrayBufferToFile } from '@/utils/helpers'
 import IconButton from '@/components/IconButton/IconButton.vue'
@@ -165,6 +203,10 @@ const ComponentProps = Vue.extend({
     groupnameColors: {
       type: Object,
       default: () => {}
+    },
+    isMessagesLoading: {
+      type: Boolean,
+      default: false
     }
   }
 })
@@ -182,13 +224,16 @@ const ComponentProps = Vue.extend({
   },
   watch: {
     message: {
-      handler (val: Array<ObjectType>) {
+      handler(val: Array<ObjectType>) {
         this.images = [...val].filter((item) => !item.is_deleted).slice(0, 4) as Array<ObjectType>
+        if (this.message[0].reactions) {
+          this.handleMessageReactions(this.message[0].reactions)
+        }
       },
       immediate: true
     },
     selectMessagesOpen: {
-      handler (val) {
+      handler(val) {
         if (!val) {
           const checkbox = (this.$refs.checkbox as Vue).$el as HTMLInputElement
           checkbox.checked = false
@@ -206,39 +251,39 @@ export default class PhotoMessage extends ComponentProps {
   websiteRegex = WebsiteRegex
   convertArrayBufferToFile = convertArrayBufferToFile
 
-  get isReplyMessagesEnabled () {
+  get isReplyMessagesEnabled() {
     return store.state.replyMessagesEnabled
   }
 
-  get selectMessagesOpen () {
+  get selectMessagesOpen() {
     return store.state.selectMessagesOpen
   }
 
-  get currentConversation () {
+  get currentConversation() {
     return store.state.currentConversation
   }
 
-  get currentTheme () {
+  get currentTheme() {
     return store.state.currentTheme
   }
 
-  get isMessageReactionViewEnabled () {
+  get isMessageReactionViewEnabled() {
     return store.state.messageReactionViewEnabled
   }
 
-  get isForwardMessagesEnabled () {
+  get isForwardMessagesEnabled() {
     return store.state.forwardMessagesEnabled
   }
 
-  get isDeleteMessagesEnabled () {
+  get isDeleteMessagesEnabled() {
     return store.state.deleteMessagesEnabled
   }
 
-  get isMessageReactionDeleteEnabled () {
+  get isMessageReactionDeleteEnabled() {
     return store.state.messageReactionDeleteEnabled
   }
 
-  get getSizeOfGridClass () {
+  get getSizeOfGridClass() {
     if (this.message.length >= 4) {
       return 'robin-grid-4-by-4'
     } else if (this.message.length === 3) {
@@ -250,7 +295,7 @@ export default class PhotoMessage extends ComponentProps {
     }
   }
 
-  get isMessageClickable () {
+  get isMessageClickable() {
     if (
       (!this.isMessageReactionViewEnabled &&
         !this.isReplyMessagesEnabled &&
@@ -264,7 +309,7 @@ export default class PhotoMessage extends ComponentProps {
     return true
   }
 
-  get isLink () {
+  get isLink() {
     if (
       (this.validateLinkInMessage().containsEmail &&
         this.validateLinkInMessage().containsWebsite) ||
@@ -277,7 +322,7 @@ export default class PhotoMessage extends ComponentProps {
     return false
   }
 
-  mounted () {
+  mounted() {
     this.$nextTick(function () {
       this.onResize()
     })
@@ -285,7 +330,7 @@ export default class PhotoMessage extends ComponentProps {
     this.injectHtml(this.message[0].content ? this.message[0].content.msg : null)
   }
 
-  onResize () {
+  onResize() {
     this.screenWidth = window.innerWidth
 
     if (this.screenWidth <= 1024) {
@@ -295,7 +340,7 @@ export default class PhotoMessage extends ComponentProps {
     }
   }
 
-  injectHtml (message: string): void {
+  injectHtml(message: string): void {
     let returnedMessage = ''
 
     if (message) {
@@ -320,15 +365,15 @@ export default class PhotoMessage extends ComponentProps {
     }
   }
 
-  openModal (event: ObjectType) {
+  openModal(event: ObjectType) {
     this.$emit('open-modal', this.index)
   }
 
-  closeModal () {
+  closeModal() {
     this.$emit('close-modal', this.index)
   }
 
-  toggleCheckAction (val: boolean): void {
+  toggleCheckAction(val: boolean): void {
     const checkbox = (this.$refs.checkbox as Vue).$el as HTMLElement
 
     if ((checkbox.childNodes[0] as HTMLInputElement).checked) {
@@ -338,17 +383,17 @@ export default class PhotoMessage extends ComponentProps {
     }
   }
 
-  validateMessageClass (): boolean {
+  validateMessageClass(): boolean {
     return this.message.some((item: any) => item.content && item.sender_token === this.$user_token)
   }
 
-  onMouseLeave () {
+  onMouseLeave() {
     if (this.screenWidth > 1024) {
       this.caretOpen = false
     }
   }
 
-  onMouseOver () {
+  onMouseOver() {
     if (
       this.validateMessages(this.message) &&
       (this.isMessageReactionViewEnabled ||
@@ -367,18 +412,18 @@ export default class PhotoMessage extends ComponentProps {
     }
   }
 
-  validateImageClass (index: number): string {
+  validateImageClass(index: number): string {
     return this.message.some((item: any) => item.content && item.sender_token !== this.$user_token)
       ? `robin-image-sender robin-grid-${index}`
       : `robin-image-receiver robin-grid-${index}`
   }
 
-  openPreview (message: any): void {
+  openPreview(message: any): void {
     this.$emit('open-preview', message)
     this.closeModal()
   }
 
-  validateMessages (message: any): string {
+  validateMessages(message: any): string {
     const nextMessage = this.messages[this.index + 1] as any
 
     if (
@@ -428,28 +473,28 @@ export default class PhotoMessage extends ComponentProps {
     return 'robin-message-sender'
   }
 
-  async addReaction (emoji: string): Promise<void> {
-    const robin = this.$robin as any
-    const message = Array.isArray(this.message) ? this.message[0] : (this.message as any)
+  handleMessageReactions(reactions: Array<ObjectType>) {
+    const newReactions = { '❤️': [], '👍': [], '👎': [], '😂': [], '⁉️': [] } as ObjectType
 
-    await robin.reactToMessage(emoji, this.currentConversation._id, message._id, this.$user_token)
-    this.closeModal()
-  }
-
-  async removeReaction (reaction: any): Promise<void> {
-    const robin = this.$robin as any
-    const message = Array.isArray(this.message) ? this.message[0] : (this.message as any)
-
-    if (this.isMessageReactionDeleteEnabled) {
-      await robin.RemoveReaction(reaction._id, message._id)
+    for (const reaction of reactions) {
+      newReactions[reaction.reaction].push(reaction.reaction)
     }
+
+    this.reactions = newReactions
   }
 
-  formatTimeStamp (value: any): string {
+  removeReaction(reaction: string): void {
+    const messageReaction = this.message[0].reactions.find(
+      (item: ObjectType) => item.reaction === reaction
+    ) as ObjectType
+    this.$emit('remove-reaction', messageReaction, this.index)
+  }
+
+  formatTimeStamp(value: any): string {
     return moment(value).format('h:mma').toUpperCase()
   }
 
-  validateLinkInMessage () {
+  validateLinkInMessage() {
     const texts = this.message[0].content.msg.split(' ')
 
     return {
@@ -464,21 +509,21 @@ export default class PhotoMessage extends ComponentProps {
     }
   }
 
-  getContactName (sender_token: string): string {
+  getContactName(sender_token: string): string {
     const index = this.$robin_users.findIndex((user) => user.userToken === sender_token) as number
-    const user = this.$robin_users[index] as any
+    const user = this.$robin_users[index] as ObjectType
     return user ? user.userName : ''
   }
 
-  scrollToRepliedMessage (id: string) {
+  scrollToRepliedMessage(id: string) {
     this.$emit('scroll-to-message', id)
   }
 
-  checkArrayReceiverUserToken (message: any) {
+  checkArrayReceiverUserToken(message: any) {
     return message.some((item: ObjectType) => item.sender_token === this.$user_token)
   }
 
-  getFileDetails (attachment: any): Record<string, any> {
+  getFileDetails(attachment: any): Record<string, any> {
     let fileName = ''
     let strArr = [] as Array<string>
 
@@ -495,7 +540,7 @@ export default class PhotoMessage extends ComponentProps {
     }
   }
 
-  async downloadImages (messages: any) {
+  async downloadImages(messages: any) {
     let intervalLevel = 0
 
     const interval = setInterval(() => {

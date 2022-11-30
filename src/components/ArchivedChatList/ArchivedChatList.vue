@@ -68,10 +68,6 @@ import ChatListPopUp from '../ChatListPopUp/ChatListPopUp.vue'
 
 const ComponentProps = Vue.extend({
   props: {
-    // archivedConversations: {
-    //   type: Array as PropType<Array<ObjectType>>,
-    //   default: (): Array<any> => []
-    // }
   }
 })
 
@@ -85,13 +81,6 @@ const ComponentProps = Vue.extend({
     Avatar,
     GroupAvatar,
     ChatListPopUp
-  },
-  watch: {
-    allConversations: {
-      handler (val) {
-        this.getConversations()
-      }
-    }
   }
 })
 export default class ArchivedChatList extends ComponentProps {
@@ -120,6 +109,7 @@ export default class ArchivedChatList extends ComponentProps {
   }
 
   created () {
+    this.getConversations()
     this.handleAddArchivedConversation()
     this.handleRemoveArchivedConversation()
   }
@@ -248,7 +238,7 @@ export default class ArchivedChatList extends ComponentProps {
   }
 
   async getConversations () {
-    const res = await this.$robin.getUserToken(
+    const res = await this.$robin.getArchivedConversation(
       {
         user_token: this.$user_token
       },
@@ -256,11 +246,11 @@ export default class ArchivedChatList extends ComponentProps {
       this.currentPage
     )
     if (!res.error) {
-      const conversations = res.data.paginated_conversations.conversations == null
+      const conversations = res.data.conversations == null
         ? []
-        : res.data.paginated_conversations.conversations
+        : res.data.conversations
       const archivedConversations = this.getArchivedConversations(conversations)
-      this.pageCount = res.data.paginated_conversations.pagination.pagination.totalPage
+      this.pageCount = res.data.pagination.pagination.totalPage
       store.setState('archivedConversations', [...archivedConversations])
       this.conversations = [...archivedConversations]
     }

@@ -291,6 +291,19 @@ export class Robin {
     }
   }
 
+  async getArchivedConversation (data: UserToken, limit: number, page: number) {
+    try {
+      const response = await axios.get(
+        this.baseUrl + `/chat/conversation/archived/${data.user_token}?page=${page}&limit=${limit}`
+      )
+
+      return response.data
+    } catch (error) {
+      console.log(error)
+      return undefined
+    }
+  }
+
   async unarchiveConversation (id: string, userToken: string) {
     try {
       const response = await axios.put(
@@ -371,7 +384,7 @@ export class Robin {
     conn.send(JSON.stringify(message))
   }
 
-  replyToMessage (msg: Object, conn: WebSocket, channel: string, conversation_id: string, replyTo: string, senderToken?: string, senderName?: string) {
+  replyToMessage (msg: object, conn: WebSocket, channel: string, conversation_id: string, replyTo: string, senderToken?: string, senderName?: string) {
     const message :Message = {
       type: 1,
       channel: channel,
@@ -388,7 +401,7 @@ export class Robin {
 
   async reactToMessage (reaction: string, conversation_id: string, message_id: string, sender_token: string) {
     try {
-      const response = await axios.post(this.baseUrl + `/chat/message/reaction/${message_id}`, {
+      const response = await axios.post(this.baseUrl + `/chat/message/reaction/${message_id}/${sender_token}`, {
         user_token: sender_token,
         reaction: reaction,
         conversation_id: conversation_id,

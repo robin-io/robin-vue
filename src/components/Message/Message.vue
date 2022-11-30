@@ -1,5 +1,9 @@
 <template>
-  <div class="robin-message-bubble robin-flex robin-flex-align-center" v-clickaway="closeModal" :id="`message-bubble-${index}`">
+  <div
+    class="robin-message-bubble robin-flex robin-flex-align-center"
+    v-clickaway="closeModal"
+    :id="`message-bubble-${index}`"
+  >
     <check-box v-show="selectMessagesOpen" ref="checkbox" @clicked="toggleCheckAction($event)" />
 
     <div
@@ -15,15 +19,16 @@
           message &&
           message.reactions &&
           message.reactions.length > 0 &&
-          isMessageReactionViewEnabled
+          isMessageReactionViewEnabled &&
+          !isMessagesLoading
         "
       >
         <div
           class="robin-reaction"
           :class="{ 'delete-enabled': isMessageReactionDeleteEnabled }"
-          v-for="(value, key, index) in reactions"
-          :key="index"
-          @click="removeReaction(value[value.length - 1])"
+          v-for="(value, key, reactionIndex) in reactions"
+          :key="reactionIndex"
+          @click="removeReaction(key)"
           v-show="value.length > 0"
         >
           {{ key + ' ' + value.length }}
@@ -150,6 +155,10 @@ const ComponentProps = Vue.extend({
     groupnameColors: {
       type: Object,
       default: () => {}
+    },
+    isMessagesLoading: {
+      type: Boolean,
+      default: false
     }
   }
 })
@@ -166,13 +175,22 @@ const ComponentProps = Vue.extend({
   },
   watch: {
     selectMessagesOpen: {
-      handler (val) {
+      handler(val) {
         if (!val) {
           const checkbox = (this.$refs.checkbox as Vue).$el as HTMLElement
 
-          (checkbox.childNodes[0] as HTMLInputElement).checked = false
+          ;(checkbox.childNodes[0] as HTMLInputElement).checked = false
         }
       }
+    },
+    message: {
+      handler() {
+        if (this.message.reactions) {
+          console.log('called', this.message.reactions)
+          this.handleMessageReactions(this.message.reactions)
+        }
+      },
+      deep: true
     }
   }
 })
@@ -183,39 +201,39 @@ export default class Message extends ComponentProps {
   emailRegex = EmailRegex
   websiteRegex = WebsiteRegex
 
-  get isReplyMessagesEnabled () {
+  get isReplyMessagesEnabled() {
     return store.state.replyMessagesEnabled
   }
 
-  get selectMessagesOpen () {
+  get selectMessagesOpen() {
     return store.state.selectMessagesOpen
   }
 
-  get currentConversation () {
+  get currentConversation() {
     return store.state.currentConversation
   }
 
-  get currentTheme () {
+  get currentTheme() {
     return store.state.currentTheme
   }
 
-  get isMessageReactionViewEnabled () {
+  get isMessageReactionViewEnabled() {
     return store.state.messageReactionViewEnabled
   }
 
-  get isForwardMessagesEnabled () {
+  get isForwardMessagesEnabled() {
     return store.state.forwardMessagesEnabled
   }
 
-  get isDeleteMessagesEnabled () {
+  get isDeleteMessagesEnabled() {
     return store.state.deleteMessagesEnabled
   }
 
-  get isMessageReactionDeleteEnabled () {
+  get isMessageReactionDeleteEnabled() {
     return store.state.messageReactionDeleteEnabled
   }
 
-  get isMessageClickable () {
+  get isMessageClickable() {
     if (
       (!this.isMessageReactionViewEnabled &&
         !this.isReplyMessagesEnabled &&
@@ -229,7 +247,7 @@ export default class Message extends ComponentProps {
     return true
   }
 
-  get isLink () {
+  get isLink() {
     if (
       (this.validateLinkInMessage().containsEmail &&
         this.validateLinkInMessage().containsWebsite) ||
@@ -242,7 +260,7 @@ export default class Message extends ComponentProps {
     return false
   }
 
-  mounted () {
+  mounted() {
     this.$nextTick(function () {
       this.onResize()
     })
@@ -250,15 +268,15 @@ export default class Message extends ComponentProps {
     this.injectHtml(this.message.content ? this.message.content.msg : null)
   }
 
-  openModal () {
+  openModal() {
     this.$emit('open-modal', this.index)
   }
 
-  closeModal () {
+  closeModal() {
     this.$emit('close-modal', this.index)
   }
 
-  onResize () {
+  onResize() {
     this.screenWidth = window.innerWidth
 
     if (this.screenWidth <= 1024) {
@@ -268,7 +286,7 @@ export default class Message extends ComponentProps {
     }
   }
 
-  injectHtml (message: string): void {
+  injectHtml(message: string): void {
     let returnedMessage = ''
 
     if (message) {
@@ -293,7 +311,7 @@ export default class Message extends ComponentProps {
     }
   }
 
-  toggleCheckAction (val: boolean): void {
+  toggleCheckAction(val: boolean): void {
     const checkbox = (this.$refs.checkbox as Vue).$el as HTMLElement
 
     if ((checkbox.childNodes[0] as HTMLInputElement).checked) {
@@ -303,13 +321,13 @@ export default class Message extends ComponentProps {
     }
   }
 
-  onMouseLeave () {
+  onMouseLeave() {
     if (this.screenWidth > 1024) {
       this.caretOpen = false
     }
   }
 
-  onMouseOver () {
+  onMouseOver() {
     if (
       this.validateMessages(this.message) &&
       (this.isMessageReactionViewEnabled ||
@@ -328,7 +346,7 @@ export default class Message extends ComponentProps {
     }
   }
 
-  validateMessages (message: any): string {
+  validateMessages(message: any): string {
     const nextMessage = this.messages[this.index + 1] as any
 
     if (
@@ -378,27 +396,28 @@ export default class Message extends ComponentProps {
     return 'robin-message-sender' // false
   }
 
-  async addReaction (emoji: string): Promise<void> {
-    const robin = this.$robin as any
-    const message = Array.isArray(this.message) ? this.message[0] : (this.message as any)
+  handleMessageReactions(reactions: Array<ObjectType>) {
+    const newReactions = { '❤️': [], '👍': [], '👎': [], '😂': [], '⁉️': [] } as ObjectType
 
-    await robin.reactToMessage(emoji, this.currentConversation._id, message._id, this.$user_token)
-    // this.closeModal()
-  }
-
-  async removeReaction (reaction: any): Promise<void> {
-    const robin = this.$robin as any
-
-    if (this.isMessageReactionDeleteEnabled) {
-      await robin.RemoveReaction(reaction._id, this.message._id)
+    for (const reaction of reactions) {
+      newReactions[reaction.reaction].push(reaction.reaction)
     }
+
+    this.reactions = newReactions
   }
 
-  formatTimeStamp (value: any): string {
+  removeReaction(reaction: string): void {
+    const messageReaction = this.message.reactions.find(
+      (item: ObjectType) => item.reaction === reaction
+    ) as ObjectType
+    this.$emit('remove-reaction', messageReaction, this.index)
+  }
+
+  formatTimeStamp(value: any): string {
     return moment(value).format('h:mma').toUpperCase()
   }
 
-  validateLinkInMessage () {
+  validateLinkInMessage() {
     const texts = this.message.content.msg.split(' ')
 
     return {
@@ -413,17 +432,17 @@ export default class Message extends ComponentProps {
     }
   }
 
-  getContactName (sender_token: string): string {
+  getContactName(sender_token: string): string {
     const index = this.$robin_users.findIndex((user) => user.userToken === sender_token) as number
-    const user = this.$robin_users[index] as any
+    const user = this.$robin_users[index] as ObjectType
     return user ? user.userName : ''
   }
 
-  scrollToRepliedMessage (id: string) {
+  scrollToRepliedMessage(id: string) {
     this.$emit('scroll-to-message', id)
   }
 
-  checkArrayReceiverUserToken (message: any) {
+  checkArrayReceiverUserToken(message: any) {
     return message.some((item: ObjectType) => item.sender_token === this.$user_token)
   }
 }
