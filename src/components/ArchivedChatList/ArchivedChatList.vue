@@ -117,7 +117,6 @@ export default class ArchivedChatList extends ComponentProps {
   openConversation (conversation: object): void {
     store.setState('imagePreviewOpen', false)
     store.setState('currentConversation', [])
-    // store.setState('conversationOpen', false)
     store.setState('currentConversation', conversation)
 
     this.$nextTick(() => {
@@ -242,7 +241,7 @@ export default class ArchivedChatList extends ComponentProps {
       {
         user_token: this.$user_token
       },
-      100,
+      10,
       this.currentPage
     )
     if (!res.error) {
@@ -261,7 +260,7 @@ export default class ArchivedChatList extends ComponentProps {
       {
         user_token: this.$user_token
       },
-      100,
+      10,
       page
     )
     if (!res.error) {

@@ -56,11 +56,11 @@ const ComponentProps = Vue.extend({
   props: {
     userToken: {
       type: String as PropType<string>,
-      default: ''
+      default: 'VPZZIuRiHSlwwVXSsNuzhcHf'
     },
     apiKey: {
       type: String as PropType<string>,
-      default: ''
+      default: 'NT-UAzQwycFjXwvGfeciRyVumTWjfUFCImrRFQH'
     },
     pageLoader: {
       type: Boolean as PropType<boolean>,
@@ -72,11 +72,20 @@ const ComponentProps = Vue.extend({
     },
     userName: {
       type: String as PropType<string>,
-      default: ''
+      default: 'Enoch Chejieh'
     },
     users: {
       type: Array as PropType<Array<ObjectType>>,
-      default: (): Array<ObjectType> => []
+      default: (): Array<ObjectType> => [{
+        _id: '621436282dc9a4e040d741bb',
+        created_at: '2022-02-22T01:02:32.517Z',
+        updated_at: '2022-02-22T01:02:32.517Z',
+        fullname: 'Testing Tester',
+        user_token: 'dhkogzyIxbAQwFnKDNTfAKOU',
+        password: '$2a$14$ynUAMEo0StZa7FnbipS6l.qgAObpZJL.SkvXXVKjRalPKTK0Y51ce',
+        profile_image: '',
+        email: 'testingtester@gmail.com'
+}]
     },
     logo: {
       type: String as PropType<string>,
