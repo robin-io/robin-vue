@@ -101,7 +101,7 @@ import debounce from 'lodash.debounce'
   },
   watch: {
     $robin_users: {
-      handler (val) {
+      handler () {
         this.getContacts('')
       }
     }
@@ -109,7 +109,7 @@ import debounce from 'lodash.debounce'
 })
 export default class NewChatList extends Vue {
   childHeight = [] as Array<number>
-  contacts = [] as Array<String | ObjectType>
+  contacts = [] as Array<string | ObjectType>
   isLoading = false as boolean
   searchData = [] as Array<ObjectType>
   key = 0 as number
@@ -117,13 +117,13 @@ export default class NewChatList extends Vue {
 
   created () {
     this.getContacts('')
-    
+
     this.debouncedGetConversations = debounce((user: ObjectType) => this.createConversation(user), 3000)
   }
 
   get contactHeight () {
     const contactContainer = this.$refs['contact-container'] as HTMLElement
-    return contactContainer!.offsetHeight
+    return contactContainer?.offsetHeight
   }
 
   get currentTheme () {
@@ -159,7 +159,7 @@ export default class NewChatList extends Vue {
     }
   }
 
-  checkConversations (convo: ObjectType): Boolean {
+  checkConversations (convo: ObjectType): boolean {
     let res = false
     this.allConversations.forEach((conversation) => {
       if (conversation._id === convo._id) {

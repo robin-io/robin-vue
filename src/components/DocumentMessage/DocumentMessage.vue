@@ -4,7 +4,7 @@
     v-clickaway="closeModal"
     :id="`message-bubble-${index}`"
   >
-    <CheckBox v-show="selectMessagesOpen" ref="checkbox" @clicked="toggleCheckAction($event)" />
+    <CheckBox v-show="selectMessagesOpen" ref="checkbox" @clicked="toggleCheckAction()" />
 
     <div
       class="robin-bubble"
@@ -52,7 +52,7 @@
           {{ getContactName(message.sender_token) }}
         </message-content>
 
-        <div class="robin-caret-container" v-show="caretOpen" @click="openModal($event)">
+        <div class="robin-caret-container" v-show="caretOpen" @click="openModal()">
           <icon-button name="messagePopupCaret" :to-emit="false" :to-click-away="false" />
         </div>
 
@@ -207,7 +207,7 @@ const ComponentProps = Vue.extend({
     },
     groupnameColors: {
       type: Object,
-      default: () => {}
+      default: () => ({})
     },
     isMessagesLoading: {
       type: Boolean,
@@ -229,7 +229,7 @@ const ComponentProps = Vue.extend({
   },
   watch: {
     selectMessagesOpen: {
-      handler(val) {
+      handler (val) {
         if (!val) {
           const checkbox = (this.$refs.checkbox as Vue).$el as HTMLInputElement
           checkbox.checked = false
@@ -237,7 +237,7 @@ const ComponentProps = Vue.extend({
       }
     },
     message: {
-      handler() {
+      handler () {
         if (this.message.reactions) {
           this.handleMessageReactions(this.message.reactions)
         }
@@ -259,39 +259,39 @@ export default class DocumentMessage extends ComponentProps {
   convertArrayBufferToFile = convertArrayBufferToFile
   convertFileToURL = convertFileToURL
 
-  get isReplyMessagesEnabled() {
+  get isReplyMessagesEnabled () {
     return store.state.replyMessagesEnabled
   }
 
-  get selectMessagesOpen() {
+  get selectMessagesOpen () {
     return store.state.selectMessagesOpen
   }
 
-  get currentConversation() {
+  get currentConversation () {
     return store.state.currentConversation
   }
 
-  get currentTheme() {
+  get currentTheme () {
     return store.state.currentTheme
   }
 
-  get isMessageReactionViewEnabled() {
+  get isMessageReactionViewEnabled () {
     return store.state.messageReactionViewEnabled
   }
 
-  get isForwardMessagesEnabled() {
+  get isForwardMessagesEnabled () {
     return store.state.forwardMessagesEnabled
   }
 
-  get isDeleteMessagesEnabled() {
+  get isDeleteMessagesEnabled () {
     return store.state.deleteMessagesEnabled
   }
 
-  get isMessageReactionDeleteEnabled() {
+  get isMessageReactionDeleteEnabled () {
     return store.state.messageReactionDeleteEnabled
   }
 
-  get extension() {
+  get extension () {
     const asset =
       this.assets[
         this.getFileDetails(this.message.content.attachment).extension as keyof typeof this.assets
@@ -309,7 +309,7 @@ export default class DocumentMessage extends ComponentProps {
     }
   }
 
-  get isMessageClickable() {
+  get isMessageClickable () {
     if (
       (!this.isMessageReactionViewEnabled &&
         !this.isReplyMessagesEnabled &&
@@ -323,7 +323,7 @@ export default class DocumentMessage extends ComponentProps {
     return true
   }
 
-  get isLink() {
+  get isLink () {
     if (
       (this.validateLinkInMessage().containsEmail &&
         this.validateLinkInMessage().containsWebsite) ||
@@ -336,7 +336,7 @@ export default class DocumentMessage extends ComponentProps {
     return false
   }
 
-  mounted() {
+  mounted () {
     this.$nextTick(function () {
       this.onResize()
     })
@@ -344,7 +344,7 @@ export default class DocumentMessage extends ComponentProps {
     this.injectHtml(this.message.content ? this.message.content.msg : null)
   }
 
-  onResize() {
+  onResize () {
     this.screenWidth = window.innerWidth
 
     if (this.screenWidth <= 1024) {
@@ -354,7 +354,7 @@ export default class DocumentMessage extends ComponentProps {
     }
   }
 
-  injectHtml(message: string): void {
+  injectHtml (message: string): void {
     let returnedMessage = ''
 
     if (message) {
@@ -379,15 +379,15 @@ export default class DocumentMessage extends ComponentProps {
     }
   }
 
-  openModal(event: ObjectType) {
+  openModal () {
     this.$emit('open-modal', this.index)
   }
 
-  closeModal() {
+  closeModal () {
     this.$emit('close-modal', this.index)
   }
 
-  toggleCheckAction(val: boolean): void {
+  toggleCheckAction (): void {
     const checkbox = (this.$refs.checkbox as Vue).$el as HTMLElement
 
     if ((checkbox.childNodes[0] as HTMLInputElement).checked) {
@@ -397,13 +397,13 @@ export default class DocumentMessage extends ComponentProps {
     }
   }
 
-  onMouseLeave() {
+  onMouseLeave () {
     if (this.screenWidth > 1024) {
       this.caretOpen = false
     }
   }
 
-  onMouseOver() {
+  onMouseOver () {
     if (
       this.validateMessages(this.message) &&
       (this.isMessageReactionViewEnabled ||
@@ -422,7 +422,7 @@ export default class DocumentMessage extends ComponentProps {
     }
   }
 
-  validateMessages(message: Array<ObjectType> | ObjectType): string {
+  validateMessages (message: Array<ObjectType> | ObjectType): string {
     const nextMessage = this.messages[this.index + 1] as any
 
     if (
@@ -474,7 +474,7 @@ export default class DocumentMessage extends ComponentProps {
     return 'robin-message-sender' // false
   }
 
-  async addReaction(emoji: string): Promise<void> {
+  async addReaction (emoji: string): Promise<void> {
     const robin = this.$robin as Robin
 
     await robin.reactToMessage(
@@ -485,7 +485,7 @@ export default class DocumentMessage extends ComponentProps {
     )
   }
 
-  handleMessageReactions(reactions: Array<ObjectType>) {
+  handleMessageReactions (reactions: Array<ObjectType>) {
     const newReactions = { '❤️': [], '👍': [], '👎': [], '😂': [], '⁉️': [] } as ObjectType
 
     for (const reaction of reactions) {
@@ -495,18 +495,18 @@ export default class DocumentMessage extends ComponentProps {
     this.reactions = newReactions
   }
 
-  removeReaction(reaction: string): void {
+  removeReaction (reaction: string): void {
     const messageReaction = this.message.reactions.find(
       (item: ObjectType) => item.reaction === reaction
     ) as ObjectType
     this.$emit('remove-reaction', messageReaction, this.index)
   }
 
-  formatTimeStamp(value: string): string {
+  formatTimeStamp (value: string): string {
     return moment(value).format('h:mma').toUpperCase()
   }
 
-  validateLinkInMessage() {
+  validateLinkInMessage () {
     const texts = this.message.content.msg.split(' ')
 
     return {
@@ -521,21 +521,21 @@ export default class DocumentMessage extends ComponentProps {
     }
   }
 
-  getContactName(sender_token: string): string {
+  getContactName (sender_token: string): string {
     const index = this.$robin_users.findIndex((user) => user.userToken === sender_token) as number
     const user = this.$robin_users[index] as ObjectType
     return user ? user.userName : ''
   }
 
-  scrollToRepliedMessage(id: string) {
+  scrollToRepliedMessage (id: string) {
     this.$emit('scroll-to-message', id)
   }
 
-  checkArrayReceiverUserToken(message: any) {
+  checkArrayReceiverUserToken (message: any) {
     return message.some((item: ObjectType) => item.sender_token === this.$user_token)
   }
 
-  getFileDetails(attachment: any): Record<string, any> {
+  getFileDetails (attachment: any): Record<string, any> {
     let fileName = ''
     let strArr = [] as Array<string>
 
@@ -556,7 +556,7 @@ export default class DocumentMessage extends ComponentProps {
     }
   }
 
-  async downloadFile(attachment: any): Promise<void> {
+  async downloadFile (attachment: any): Promise<void> {
     const fileDetails = this.getFileDetails(attachment) as Record<string, any>
     const element = document.createElement('a')
 

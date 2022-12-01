@@ -48,7 +48,7 @@ const ComponentProps = Vue.extend({
   props: {
     message: {
       type: Object,
-      default: () => {}
+      default: () => ({})
     },
     index: {
       type: [Number, String],

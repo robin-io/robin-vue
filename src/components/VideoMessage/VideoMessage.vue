@@ -1,6 +1,6 @@
 <template>
   <div class="robin-message-bubble robin-flex robin-flex-align-center"  v-clickaway="closeModal" :id="`message-bubble-${index}`">
-    <CheckBox v-show="selectMessagesOpen" ref="checkbox" @clicked="toggleCheckAction($event)" />
+    <CheckBox v-show="selectMessagesOpen" ref="checkbox" @clicked="toggleCheckAction()" />
 
     <div
       class="robin-bubble"
@@ -48,7 +48,7 @@
           {{ getContactName(message.sender_token) }}
         </Content>
 
-        <div class="robin-caret-container" v-show="caretOpen" @click="openModal($event)">
+        <div class="robin-caret-container" v-show="caretOpen" @click="openModal()">
           <IconButton name="messagePopupCaret" :to-emit="false" :to-click-away="false" />
         </div>
 
@@ -160,7 +160,7 @@ const ComponentProps = Vue.extend({
     },
     groupnameColors: {
       type: Object,
-      default: () => {}
+      default: () => ({})
     },
     isMessagesLoading: {
       type: Boolean,
@@ -273,7 +273,7 @@ export default class VideoMessage extends ComponentProps {
     this.injectHtml(this.message.content ? this.message.content.msg : null)
   }
 
-  openModal (event: ObjectType) {
+  openModal () {
     this.$emit('open-modal', this.index)
   }
 
@@ -316,7 +316,7 @@ export default class VideoMessage extends ComponentProps {
     }
   }
 
-  toggleCheckAction (val: boolean): void {
+  toggleCheckAction (): void {
     const checkbox = (this.$refs.checkbox as Vue).$el as HTMLElement
 
     if ((checkbox.childNodes[0] as HTMLInputElement).checked) {
@@ -401,7 +401,7 @@ export default class VideoMessage extends ComponentProps {
     return 'robin-message-sender' // false
   }
 
-  handleMessageReactions(reactions: Array<ObjectType>) {
+  handleMessageReactions (reactions: Array<ObjectType>) {
     const newReactions = { '❤️': [], '👍': [], '👎': [], '😂': [], '⁉️': [] } as ObjectType
 
     for (const reaction of reactions) {
@@ -411,7 +411,7 @@ export default class VideoMessage extends ComponentProps {
     this.reactions = newReactions
   }
 
-  removeReaction(reaction: string): void {
+  removeReaction (reaction: string): void {
     const messageReaction = this.message.reactions.find(
       (item: ObjectType) => item.reaction === reaction
     ) as ObjectType

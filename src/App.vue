@@ -56,11 +56,11 @@ const ComponentProps = Vue.extend({
   props: {
     userToken: {
       type: String as PropType<string>,
-      default: 'VPZZIuRiHSlwwVXSsNuzhcHf'
+      default: ''
     },
     apiKey: {
       type: String as PropType<string>,
-      default: 'NT-UAzQwycFjXwvGfeciRyVumTWjfUFCImrRFQH'
+      default: ''
     },
     pageLoader: {
       type: Boolean as PropType<boolean>,
@@ -72,20 +72,11 @@ const ComponentProps = Vue.extend({
     },
     userName: {
       type: String as PropType<string>,
-      default: 'Enoch Chejieh'
+      default: ''
     },
     users: {
       type: Array as PropType<Array<ObjectType>>,
-      default: (): Array<ObjectType> => [{
-        _id: '621436282dc9a4e040d741bb',
-        created_at: '2022-02-22T01:02:32.517Z',
-        updated_at: '2022-02-22T01:02:32.517Z',
-        fullname: 'Testing Tester',
-        user_token: 'dhkogzyIxbAQwFnKDNTfAKOU',
-        password: '$2a$14$ynUAMEo0StZa7FnbipS6l.qgAObpZJL.SkvXXVKjRalPKTK0Y51ce',
-        profile_image: '',
-        email: 'testingtester@gmail.com'
-}]
+      default: (): Array<ObjectType> => []
     },
     logo: {
       type: String as PropType<string>,
@@ -130,7 +121,7 @@ const ComponentProps = Vue.extend({
   },
   watch: {
     users: {
-      handler (val) {
+      handler () {
         this.filterUsers()
       },
       immediate: true
@@ -331,7 +322,7 @@ export default class App extends ComponentProps {
   initiateRobin () {
     this.robin = new Robin(this.apiKey, true, 0, 'dev')
     this.debouncedConnect = debounce(() => this.connect(), 5000)
-    this.debouncedConnect!()
+    this.debouncedConnect?.()
     this.setPrototypes()
   }
 
@@ -375,7 +366,7 @@ export default class App extends ComponentProps {
     }
 
     this.conn.onclose = (event: ObjectType) => {
-      if (event.code === 1000) this.debouncedConnect!()
+      if (event.code === 1000) this.debouncedConnect?.()
     }
 
     this.conn.onmessage = (evt: any) => {
@@ -411,7 +402,7 @@ export default class App extends ComponentProps {
   }
 
   onGroupConversationCreated (): void {
-    EventBus.$on('new-group.conversation', (conversation: object) => {
+    EventBus.$on('new-group.conversation', () => {
       // this.conversationOpen = true
     })
   }
@@ -601,6 +592,10 @@ export default class App extends ComponentProps {
   overflow: hidden;
   transition: 100ms;
   background-color: var(--rb-bg-color);
+}
+
+.robin-container img {
+  max-width: 100%;
 }
 
 .robin-container *,
