@@ -52,16 +52,16 @@ export class Robin {
 
     switch (this.env) {
       case 'production':
-        url = 'api.robinapp.co/api/v1'
-        wsurl = 'api.robinapp.co/ws'
+        url = 'api.robinapp.io/api/v1'
+        wsurl = 'api.robinapp.io/ws'
         break
       case 'dev':
         url = 'dev.robinapp.io/api/v1'
         wsurl = 'dev.robinapp.io/ws'
         break
       default:
-        url = 'api.robinapp.co/api/v1'
-        wsurl = 'api.robinapp.co/ws'
+        url = 'api.robinapp.io/api/v1'
+        wsurl = 'api.robinapp.io/ws'
         break
     }
 

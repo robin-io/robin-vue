@@ -85,7 +85,7 @@ import ArchivedChatList from '@/components/ArchivedChatList/ArchivedChatList.vue
   },
   watch: {
     $robin_users: {
-      handler (val) {
+      handler () {
         this.refresh()
       }
     }
@@ -149,7 +149,7 @@ export default class SideContainer extends Vue {
     }
   }
 
-  closeModal (refKey: string = 'slide-1', type: string): void {
+  closeModal (refKey = 'slide-1', type: string): void {
     if (type === 'primary' && refKey === 'slide-0') {
       store.setState('sideBarType', type)
       this.resetGroupName()

@@ -180,7 +180,7 @@ import {
 } from '@/utils/helpers'
 import moment from 'moment'
 import mime from 'mime'
-import { Robin } from '../../../robin'
+import { Robin } from '../../utils/robin'
 import Assets from '@/utils/assets.json'
 import CheckBox from '@/components/CheckBox/CheckBox.vue'
 import IconButton from '@/components/IconButton/IconButton.vue'

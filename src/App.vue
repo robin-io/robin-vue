@@ -48,7 +48,7 @@ import EncryptionDetails from './components/EncrytionDetails/EncryptionDetails.v
 import debounce from 'lodash.debounce'
 import Component from 'vue-class-component'
 import store from './store/index'
-import { Robin } from '../robin'
+import { Robin } from './utils/robin'
 import EventBus from './event-bus'
 import assets from '@/utils/assets.json'
 
@@ -56,11 +56,11 @@ const ComponentProps = Vue.extend({
   props: {
     userToken: {
       type: String as PropType<string>,
-      default: ''
+      default: 'OykUCsrYJddWcJsDfHDQKKop'
     },
     apiKey: {
       type: String as PropType<string>,
-      default: ''
+      default: 'NT-XmIzEmWUlsrQYypZOFRlogDFvQUsaEuxMfZf'
     },
     pageLoader: {
       type: Boolean as PropType<boolean>,
@@ -72,11 +72,20 @@ const ComponentProps = Vue.extend({
     },
     userName: {
       type: String as PropType<string>,
-      default: ''
+      default: 'Enoch Chejieh'
     },
     users: {
       type: Array as PropType<Array<ObjectType>>,
-      default: (): Array<ObjectType> => []
+      default: (): Array<ObjectType> => [{
+        _id: '621436282dc9a4e040d741bb',
+        created_at: '2022-02-22T01:02:32.517Z',
+        updated_at: '2022-02-22T01:02:32.517Z',
+        fullname: 'Testing Tester',
+        user_token: 'dhkogzyIxbAQwFnKDNTfAKOU',
+        password: '$2a$14$ynUAMEo0StZa7FnbipS6l.qgAObpZJL.SkvXXVKjRalPKTK0Y51ce',
+        profile_image: '',
+        email: 'testingtester@gmail.com'
+      }]
     },
     logo: {
       type: String as PropType<string>,
@@ -181,6 +190,9 @@ export default class App extends ComponentProps {
 
   beforeDestroy () {
     EventBus.$off()
+    window.removeEventListener('offline', this.handleConnectionChange)
+    window.removeEventListener('online', this.handleConnectionChange)
+    window.removeEventListener('resize', this.onResize)
   }
 
   mounted () {
@@ -207,8 +219,6 @@ export default class App extends ComponentProps {
 
   beforeUnmount () {
     const matchMedia = window.matchMedia('(prefers-color-scheme: dark)')
-
-    window.removeEventListener('resize', this.onResize)
 
     matchMedia.removeEventListener('change', this.getCurrentTheme)
   }
@@ -320,7 +330,7 @@ export default class App extends ComponentProps {
   }
 
   initiateRobin () {
-    this.robin = new Robin(this.apiKey, true, 0, 'dev')
+    this.robin = new Robin(this.apiKey, true, 0, 'production')
     this.debouncedConnect = debounce(() => this.connect(), 5000)
     this.debouncedConnect?.()
     this.setPrototypes()
@@ -533,45 +543,36 @@ export default class App extends ComponentProps {
     this.time = 0
   }
 
-  checkCredentialAvailability () {
-    let centralPoint = ''
+  checkCredentialAvailability (): void {
+    const missingProperties = []
+    if (!this.userName) missingProperties.push('Username')
+    if (!this.userToken) missingProperties.push('UserToken')
+    if (!this.apiKey) missingProperties.push('ApiKey')
 
-    if (this.userName === '' && this.userToken !== '' && this.apiKey !== '') {
-      centralPoint = 'Username'
-    } else if (this.userName === '' && this.userToken === '' && this.apiKey !== '') {
-      centralPoint = 'Username and UserToken'
-    } else if (this.userName === '' && this.userToken !== '' && this.apiKey === '') {
-      centralPoint = 'ApiKey and Username'
-    } else if (this.userName !== '' && this.userToken === '' && this.apiKey !== '') {
-      centralPoint = 'UserToken'
-    } else if (this.userName !== '' && this.userToken === '' && this.apiKey === '') {
-      centralPoint = 'ApiKey and UserToken'
-    } else if (this.userName !== '' && this.userToken !== '' && this.apiKey === '') {
-      centralPoint = 'ApiKey'
-    } else if (this.userName === '' && this.userToken === '' && this.apiKey === '') {
-      centralPoint = 'ApiKey, UserToken and Username'
-    }
-
-    if (centralPoint !== '') {
-      const message = `Please make sure your ${centralPoint} is set.`
+    if (missingProperties.length) {
+      const message = `Please make sure your ${missingProperties.join(', ')} ${missingProperties.length > 1 ? 'are' : 'is'} set.`
       this.$toast.open({ message, type: 'error', position: 'bottom-left' })
     }
   }
 
   handleConnectionStatus () {
-    window.addEventListener('offline', () => {
+    window.addEventListener('offline', this.handleConnectionChange)
+    window.addEventListener('online', this.handleConnectionChange)
+  }
+
+  handleConnectionChange (event: Event) {
+    console.log(event)
+    if (event.type === 'offline') {
       this.$toast.open({ message: 'Connecting...', type: 'info', position: 'bottom-left' })
       store.setState('connected', false)
-    })
-
-    window.addEventListener('online', () => {
+    } else {
       this.$toast.open({
         message: 'Connected',
         type: 'success',
         position: 'bottom-left',
         duration: 6000
       })
-    })
+    }
   }
 }
 </script>
