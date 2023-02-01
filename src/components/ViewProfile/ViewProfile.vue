@@ -365,7 +365,7 @@
 import Vue from 'vue'
 import moment from 'moment'
 import VLazyImage from 'v-lazy-image/v2'
-import Component from 'vue-class-component'
+import Component, { mixins } from 'vue-class-component'
 import Content from '../Content/Content.vue'
 import Avatar from '../Avatar/Avatar.vue'
 import GroupAvatar from '../GroupAvatar/GroupAvatar.vue'
@@ -379,6 +379,7 @@ import assets from '@/utils/assets.json'
 import { DocumentRegex, EmailRegex, VideoRegex, ImageRegex, WebsiteRegex } from '@/utils/constants'
 import store from '@/store/index'
 import EventBus from '@/event-bus'
+import ConversationMixin from '@/mixins/conversation-mixins'
 
 // eslint-disable-next-line
 @Component<ViewProfile>({
@@ -408,7 +409,7 @@ import EventBus from '@/event-bus'
     }
   }
 })
-export default class ViewProfile extends Vue {
+export default class ViewProfile extends mixins(ConversationMixin) {
   nav = 'Media'
   isProfileLoading = false
   messages = [] as Array<ObjectType>
@@ -430,14 +431,6 @@ export default class ViewProfile extends Vue {
   emailRegex = EmailRegex
   websiteRegex = WebsiteRegex
 
-  get currentTheme () {
-    return store.state.currentTheme
-  }
-
-  get currentConversation () {
-    return store.state.currentConversation
-  }
-
   get groupParticipants () {
     if (Object.keys(this.currentConversation).length > 0 && this.currentConversation.is_group) {
       return this.currentConversation.participants
@@ -458,14 +451,6 @@ export default class ViewProfile extends Vue {
 
   get assets (): any {
     return assets
-  }
-
-  get profileOpen () {
-    return store.state.profileOpen
-  }
-
-  get isDeleteMessagesEnabled () {
-    return store.state.deleteMessagesEnabled
   }
 
   created () {
@@ -575,7 +560,7 @@ export default class ViewProfile extends Vue {
     element.click()
   }
 
-  checkAttachmentType (attachmentUrl: String): string {
+  checkAttachmentType (attachmentUrl: string): string {
     const strArr = attachmentUrl.split('.')
 
     if (mime.getType(strArr[strArr.length - 1]) === 'application/msword') {

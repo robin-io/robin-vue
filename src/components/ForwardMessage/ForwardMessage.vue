@@ -66,9 +66,9 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropType } from 'vue'
-import Component from 'vue-class-component'
-import store from '@/store/index'
+import { PropType } from 'vue'
+import Component, { mixins } from 'vue-class-component'
+import ConversationMixin from '@/mixins/conversation-mixins'
 import Content from '@/components/Content/Content.vue'
 import IconButton from '@/components/IconButton/IconButton.vue'
 import SearchBar from '@/components/SearchBar/SearchBar.vue'
@@ -78,7 +78,7 @@ import ChatListCard from '../ChatListCard/ChatListCard.vue'
 import VirtualScroller from '../VirtualScroller/VirtualScroller.vue'
 import EventBus from '@/event-bus'
 
-const ComponentProps = Vue.extend({
+const ComponentProps = mixins(ConversationMixin).extend({
   props: {
     selectedMessages: {
       type: Array as PropType<Array<any>>,
@@ -87,7 +87,8 @@ const ComponentProps = Vue.extend({
   }
 })
 
-@Component({
+// eslint-disable-next-line
+@Component<ForwardMessage>({
   name: 'ForwardMessage',
   components: {
     'message-content': Content,
@@ -100,36 +101,22 @@ const ComponentProps = Vue.extend({
   }
 })
 export default class ForwardMessage extends ComponentProps {
-  childHeight = [] as Array<Number>
-  conversations = [] as Array<String | ObjectType>
+  childHeight = [] as Array<number>
+  conversations = [] as Array<string | ObjectType>
   isLoading = false as boolean
   isSending = false as boolean
   selectedConversations = [] as Array<any>
   checkBoxKeyState = 0 as number
   searchData = [] as Array<any>
-  screenWidth = 0 as number
-
-  created () {
-    this.getConversations('')
-  }
+  regularConversations!: Array<ObjectType>
+  allConversations!: Array<ObjectType>
+  screenWidth!: number
+  currentConversation!: ObjectType
+  currentTheme!: string
+  showToast!: (message: string, info: string) => void
 
   mounted () {
-    this.$nextTick(function () {
-      this.onResize()
-    })
-    window.addEventListener('resize', this.onResize)
-  }
-
-  get allConversations () {
-    return store.state.allConversations
-  }
-
-  get regularConversations () {
-    return store.state.regularConversations
-  }
-
-  get currentTheme () {
-    return store.state.currentTheme
+    this.getConversations('')
   }
 
   getConversations (searchText: string): void {
@@ -276,7 +263,7 @@ export default class ForwardMessage extends ComponentProps {
     }
   }
 
-  toggleCheckAction (val: boolean, item: Object): void {
+  toggleCheckAction (val: boolean, item: ObjectType): void {
     if (!val) {
       this.addConversation(item)
     } else {
@@ -284,7 +271,7 @@ export default class ForwardMessage extends ComponentProps {
     }
   }
 
-  addConversation (item: Object): void {
+  addConversation (item: ObjectType): void {
     this.selectedConversations.push(item)
   }
 
@@ -325,21 +312,13 @@ export default class ForwardMessage extends ComponentProps {
       )
 
       this.isSending = false
-      this.$toast.open({
-        message: 'Forwarded messages.',
-        type: 'success',
-        position: 'bottom-left'
-      })
+      this.showToast('Forwarded messages.', 'success')
       EventBus.$emit('conversation-opened', conversation)
       this.closeModal()
       return new Promise((resolve) => resolve)
     } else {
       this.isSending = false
-      this.$toast.open({
-        message: 'Check your connection.',
-        type: 'error',
-        position: 'bottom-left'
-      })
+      this.showToast('Check your connection.', 'error')
       return new Promise((resolve, reject) => reject)
     }
   }
@@ -383,10 +362,6 @@ export default class ForwardMessage extends ComponentProps {
     }
 
     return false
-  }
-
-  onResize () {
-    this.screenWidth = window.innerWidth
   }
 }
 </script>

@@ -15,7 +15,7 @@
     >
       <div
         class="robin-reactions"
-        v-if="
+        v-show="
           message &&
           message.reactions &&
           message.reactions.length > 0 &&
@@ -51,7 +51,6 @@
         >
           {{ getContactName(message.sender_token) }}
         </message-content>
-        <!-- messagePopup.opened && (caretOpen || (validateMessages(message))) && (isMessageReactionViewEnabled || isReplyMessagesEnabled || isDeleteMessagesEnabled || isForwardMessagesEnabled || message.pseudo || (isMessageReactionViewEnabled && isReplyMessagesEnabled && isDeleteMessagesEnabled && isForwardMessagesEnabled) -->
         <div
           class="robin-caret-container robin-flex robin-flex-align-center robin-flex-justify-center"
           v-show="caretOpen"
@@ -95,11 +94,11 @@
               as="p"
               class="robin-flex"
             >
-              {{ !message.pseudo ? formatTimeStamp(message.content.timestamp) : '' }}
+              {{ !message.pseudo ? formatTimeStamp(message.created_at) : '' }}
 
               <SvgIcon
                 name="read"
-                v-if="
+                v-show="
                   !validateMessages(message).includes('message-sender') &&
                   message.is_read &&
                   !message.pseudo
@@ -108,7 +107,7 @@
 
               <svg-icon
                 name="not-read"
-                v-if="
+                v-show="
                   !validateMessages(message).includes('message-sender') &&
                   !message.is_read &&
                   !message.pseudo
@@ -126,8 +125,8 @@
 
 <script lang="ts">
 import Vue, { PropType } from 'vue'
-import store from '@/store/index'
-import Component from 'vue-class-component'
+import Component, { mixins } from 'vue-class-component'
+import ConversationMixin from '@/mixins/conversation-mixins'
 import { EmailRegex, WebsiteRegex } from '@/utils/constants'
 import moment from 'moment'
 import IconButton from '@/components/IconButton/IconButton.vue'
@@ -136,7 +135,7 @@ import CheckBox from '@/components/CheckBox/CheckBox.vue'
 import SvgIcon from '@/components/SvgIcon/SvgIcon.vue'
 import ReplyMessageBubble from '../ReplyMessageBubble/ReplyMessageBubble.vue'
 
-const ComponentProps = Vue.extend({
+const ComponentProps = mixins(ConversationMixin).extend({
   props: {
     message: {
       type: Object as PropType<ObjectType>,
@@ -151,10 +150,6 @@ const ComponentProps = Vue.extend({
     index: {
       type: Number,
       default: 0
-    },
-    groupnameColors: {
-      type: Object,
-      default: () => ({})
     },
     isMessagesLoading: {
       type: Boolean,
@@ -184,15 +179,14 @@ const ComponentProps = Vue.extend({
       }
     },
     message: {
-      handler () {
-        if (this.message.reactions) {
-          this.handleMessageReactions(this.message.reactions)
-        }
+      handler (_, newMessage) {
+        this.msgReactions = newMessage.reactions ?? []
       },
       deep: true
     },
     isMessagesLoading: {
       handler () {
+        this.msgReactions = this.message.reactions ?? []
         this.injectHtml(this.message.content ? this.message.content.msg : null)
       }
     }
@@ -200,42 +194,20 @@ const ComponentProps = Vue.extend({
 })
 export default class Message extends ComponentProps {
   caretOpen = false
-  screenWidth = 0 as number
-  reactions = { '❤️': [], '👍': [], '👎': [], '😂': [], '⁉️': [] } as ObjectType
+  msgReactions = [] as Array<ObjectType>
   emailRegex = EmailRegex
   websiteRegex = WebsiteRegex
-
-  get isReplyMessagesEnabled () {
-    return store.state.replyMessagesEnabled
-  }
-
-  get selectMessagesOpen () {
-    return store.state.selectMessagesOpen
-  }
-
-  get currentConversation () {
-    return store.state.currentConversation
-  }
-
-  get currentTheme () {
-    return store.state.currentTheme
-  }
-
-  get isMessageReactionViewEnabled () {
-    return store.state.messageReactionViewEnabled
-  }
-
-  get isForwardMessagesEnabled () {
-    return store.state.forwardMessagesEnabled
-  }
-
-  get isDeleteMessagesEnabled () {
-    return store.state.deleteMessagesEnabled
-  }
-
-  get isMessageReactionDeleteEnabled () {
-    return store.state.messageReactionDeleteEnabled
-  }
+  isMessageReactionViewEnabled!: boolean
+  isMessageReactionDeleteEnabled!: boolean
+  isReplyMessagesEnabled!: boolean
+  isDeleteMessagesEnabled!: boolean
+  isForwardMessagesEnabled!: boolean
+  selectMessagesOpen!: boolean
+  screenWidth!: number
+  currentTheme!: string
+  groupnameColors!: Array<string>
+  currentConversation!: ObjectType
+  getContactName!: (sender_token: string) => string
 
   get isMessageClickable () {
     if (
@@ -264,6 +236,16 @@ export default class Message extends ComponentProps {
     return false
   }
 
+  get reactions () {
+    const newReactions = { '❤️': [], '👍': [], '👎': [], '😂': [], '⁉️': [] } as ObjectType
+
+    for (const reaction of this.msgReactions) {
+      newReactions[reaction.reaction].push(reaction.reaction)
+    }
+
+    return newReactions
+  }
+
   mounted () {
     this.$nextTick(function () {
       this.onResize()
@@ -281,8 +263,6 @@ export default class Message extends ComponentProps {
   }
 
   onResize () {
-    this.screenWidth = window.innerWidth
-
     if (this.screenWidth <= 1024) {
       this.caretOpen = true
     } else {
@@ -294,7 +274,6 @@ export default class Message extends ComponentProps {
     let returnedMessage = ''
 
     if (message) {
-      console.log(message)
       for (const word of message.split(' ')) {
         if (this.emailRegex.test(word)) {
           returnedMessage += String.raw` <a target="_blank" href="mailto:${word}">${word}<a/>`
@@ -401,16 +380,6 @@ export default class Message extends ComponentProps {
     return 'robin-message-sender' // false
   }
 
-  handleMessageReactions (reactions: Array<ObjectType>) {
-    const newReactions = { '❤️': [], '👍': [], '👎': [], '😂': [], '⁉️': [] } as ObjectType
-
-    for (const reaction of reactions) {
-      newReactions[reaction.reaction].push(reaction.reaction)
-    }
-
-    this.reactions = newReactions
-  }
-
   removeReaction (reaction: string): void {
     const messageReaction = this.message.reactions.find(
       (item: ObjectType) => item.reaction === reaction
@@ -435,12 +404,6 @@ export default class Message extends ComponentProps {
       }),
       containsEmail: texts.some((text: string) => this.emailRegex.test(text))
     }
-  }
-
-  getContactName (sender_token: string): string {
-    const index = this.$robin_users.findIndex((user) => user.userToken === sender_token) as number
-    const user = this.$robin_users[index] as ObjectType
-    return user ? user.userName : ''
   }
 
   scrollToRepliedMessage (id: string) {

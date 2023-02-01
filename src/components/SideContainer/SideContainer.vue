@@ -12,7 +12,6 @@
     </PrimaryChatList>
 
     <NewChatList
-      :key="key + 1"
       ref="slide-1"
       v-show="sideBarType == 'newchat'"
       @openmodal="openModal('slide-2', $event)"
@@ -29,7 +28,6 @@
     </NoChatList>
 
     <NewGroupChat
-      :key="key + 2"
       ref="slide-2"
       v-show="sideBarType == 'newgroup'"
       @openmodal="openModal('slide-3', $event)"
@@ -40,7 +38,6 @@
     />
 
     <NewGroupChatList
-      :key="key + 3"
       ref="slide-3"
       v-show="sideBarType == 'newgroupchat'"
       :side-bar-type="sideBarType"
@@ -82,17 +79,9 @@ import ArchivedChatList from '@/components/ArchivedChatList/ArchivedChatList.vue
     NewGroupChat,
     NewGroupChatList,
     ArchivedChatList
-  },
-  watch: {
-    $robin_users: {
-      handler () {
-        this.refresh()
-      }
-    }
   }
 })
 export default class SideContainer extends Vue {
-  key = 0 as number
   searchText = '' as string
   groupName = ''
   groupIcon = {}
@@ -163,10 +152,6 @@ export default class SideContainer extends Vue {
         store.setState('sideBarType', type)
       }, 200)
     }
-  }
-
-  refresh (): void {
-    this.key += 1
   }
 }
 </script>

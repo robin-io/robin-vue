@@ -112,8 +112,8 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropType } from 'vue'
-import Component from 'vue-class-component'
+import { PropType } from 'vue'
+import Component, { mixins } from 'vue-class-component'
 import EventBus from '@/event-bus'
 import VLazyImage from 'v-lazy-image/v2'
 import store from '@/store/index'
@@ -125,17 +125,18 @@ import Avatar from '@/components/Avatar/Avatar.vue'
 import Content from '@/components/Content/Content.vue'
 import PhotoPreviewPopUp from '../PhotoPreviewPopUp/PhotoPreviewPopUp.vue'
 import ForwardMessage from '../ForwardMessage/ForwardMessage.vue'
+import ConversationMixin from '@/mixins/conversation-mixins'
 
 interface PopUpState {
   opened: boolean
 }
 
-const ComponentProps = Vue.extend({
+const ComponentProps = mixins(ConversationMixin).extend({
   props: {
-    imagesToPreview: {
-      type: Array as PropType<Array<ObjectType>>,
-      default: () => []
-    },
+    // imagesToPreview: {
+    //   type: Array as PropType<Array<ObjectType>>,
+    //   default: () => []
+    // },
     conversation: {
       type: Object,
       default: () => ({})
@@ -144,7 +145,7 @@ const ComponentProps = Vue.extend({
 })
 
 // eslint-disable-next-line
-@Component<MessageImagePreviewer>({
+@Component<PhotoPreviewer>({
   name: 'MessageImagePreviewer',
   components: {
     'message-content': Content,
@@ -164,27 +165,19 @@ const ComponentProps = Vue.extend({
     }
   }
 })
-export default class MessageImagePreviewer extends ComponentProps {
-  viewerOptions = {
-    toolbar: false,
-    title: false,
-    navbar: false
-  } as any
-
-  imageSelected = 0 as number
+export default class PhotoPreviewer extends ComponentProps {
   selectedMessages = [] as Array<any>
   forwardMessage = false as boolean
   pseudoAttachmentUrl = '' as string
 
   images = [] as Array<any>
   id = 0 as number
-
-  settings = {
-    dots: true,
-    infinite: true,
-    slidesToScroll: 1,
-    rtl: true
-  }
+  imageSelected!: number
+  isReplyMessagesEnabled!: boolean
+  isDeleteMessagesEnabled!: boolean
+  isForwardMessagesEnabled!: boolean
+  imagesToPreview!: Array<ObjectType>
+  showToast!: (message: string, info: string) => void
 
   popUpState: PopUpState = {
     opened: false
@@ -200,18 +193,6 @@ export default class MessageImagePreviewer extends ComponentProps {
     }
 
     return this.convertArrayBufferToFile(attachment, this.images[this.imageSelected])
-  }
-
-  get isDeleteMessagesEnabled () {
-    return store.state.deleteMessagesEnabled
-  }
-
-  get isForwardMessagesEnabled () {
-    return store.state.forwardMessagesEnabled
-  }
-
-  get isReplyMessagesEnabled () {
-    return store.state.replyMessagesEnabled
   }
 
   handleOpenPopUp (): void {
@@ -277,7 +258,8 @@ export default class MessageImagePreviewer extends ComponentProps {
   }
 
   onSelectChange (index: number): void {
-    this.imageSelected = index
+    // this.imageSelected = index
+    store.setState('imageSelected', index)
   }
 
   downloadImage (): void {
@@ -290,7 +272,6 @@ export default class MessageImagePreviewer extends ComponentProps {
   }
 
   async deleteImage (): Promise<void> {
-    console.log(this.images)
     const res = await this.$robin.deleteMessages(
       [this.images[this.imageSelected]._id],
       this.$user_token
@@ -305,11 +286,7 @@ export default class MessageImagePreviewer extends ComponentProps {
         this.images.splice(this.imageSelected, 1)
       }, 300)
     } else {
-      this.$toast.open({
-        message: 'Check your connection.',
-        type: 'error',
-        position: 'bottom-left'
-      })
+      this.showToast('Check your connection', 'error')
     }
   }
 

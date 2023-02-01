@@ -1,13 +1,9 @@
-import { defineConfig } from 'vitest/config'
+import { defineConfig } from 'vite'
 import { createVuePlugin } from 'vite-plugin-vue2'
 import { resolve } from 'path'
 
 // https://vitejs.dev/config /
 export default defineConfig({
-  test: {
-    globals: true,
-    setupFiles: 'src/setupTests.ts'
-  },
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src')
@@ -25,25 +21,21 @@ export default defineConfig({
     },
     // brotliSize: false,
     rollupOptions: {
-      // make sure to externalize deps that shouldn't be bundled
-      // into your library
-      external: ['vue', 'moment', 'mime', 'v-lazy-image', 'v-emoji-picker', 'robin.io-js', 'vue-toast-notification', 'link-prevue', 'cypress', '@testing-library/user-event', 'lodash.debounce', 'audio-recorder-polyfill'],
+      external: ['vue', 'moment', 'mime', 'v-lazy-image', 'v-emoji-picker', 'vue-toast-notification', 'cypress', 'lodash.debounce', 'audio-recorder-polyfill'],
       output: {
         globals: {
           vue: 'Vue',
           moment: 'moment',
           mime: 'mime',
+          cypress: 'cypress',
           'v-lazy-image': 'v-lazy-image',
           'v-emoji-picker': 'v-emoji-picker',
           'vue-toast-notification': 'vue-toast-notification',
-          'link-prevue': 'link-prevue',
-          cypress: 'cypress',
           'lodash.debounce': 'lodash.debounce',
-          '@testing-library/user-event': '@testing-library/user-event',
           'audio-recorder-polyfill': 'audio-recorder-polyfill'
         }
       },
-      treeshake: 'smallest'
+      treeshake: 'recommended'
     }
   }
 })

@@ -1,9 +1,9 @@
-export const EmailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-export const WebsiteRegex = /[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/
-export const DocumentRegex = /^application\/(csv|pdf|json|msword|(vnd\.(ms-|openxmlformats-).*))$|^text\/plain$|^audio\/(mpeg|x-ogg|x-wav|x-flac|x-aac|x-ms-wma)$/i
+export const EmailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/i
+export const WebsiteRegex = /[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/i
+export const DocumentRegex = /^application\/(csv|pdf|json|msword|(vnd\.(ms-|openxmlformats-).*))$|^text\/plain$|^audio\/(mpeg|x-ogg|x-wav|x-flac|x-aac|x-ms-wma)$|^(image\/svg\+xml)$/i
 export const AudioRegex = /^audio\/(mpeg|x-ogg|x-wav|x-flac|x-aac|x-ms-wma)$/i
-export const ImageRegex = /^image/
-export const VideoRegex = /^video/
+export const ImageRegex = /^image\/(?!svg\+xml)\S+$/i
+export const VideoRegex = /^video/i
 export const Colors = [
   '#F8863D',
   '#18C583',

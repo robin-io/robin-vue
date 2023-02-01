@@ -36,7 +36,7 @@ const ComponentProps = Vue.extend({
   props: {
     conversation: {
       type: Object,
-      default: () => {}
+      default: () => ({})
     },
     isArchived: {
       type: Boolean,

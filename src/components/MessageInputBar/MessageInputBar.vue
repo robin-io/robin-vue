@@ -246,13 +246,12 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
 import { VEmojiPicker } from 'v-emoji-picker'
 import mime from 'mime'
 import AudioRecorder from 'audio-recorder-polyfill'
 import mpegEncoder from 'audio-recorder-polyfill/mpeg-encoder'
 import EventBus from '@/event-bus'
-import Component from 'vue-class-component'
+import Component, { mixins } from 'vue-class-component'
 import { createUUID } from '@/utils/helpers'
 import store from '@/store/index'
 import IconButton from '@/components/IconButton/IconButton.vue'
@@ -260,13 +259,14 @@ import { EmailRegex, WebsiteRegex, VideoRegex, ImageRegex, DocumentRegex } from 
 import AttachFilePopUp from '../AttachFilePopUp/AttachFilePopUp.vue'
 import Content from '@/components/Content/Content.vue'
 import SvgIcon from '@/components/SvgIcon/SvgIcon.vue'
+import ConversationMixin from '@/mixins/conversation-mixins'
 
 interface PopUpState {
   opened: boolean
   emojiOpened: boolean
 }
 
-const ComponentProps = Vue.extend({
+const ComponentProps = mixins(ConversationMixin).extend({
   props: {
     capturedImage: {
       type: Object,
@@ -304,7 +304,7 @@ const ComponentProps = Vue.extend({
       })
     },
     messageReply: {
-      handler(val) {
+      handler () {
         if (Object.keys(this.messageReply).length > 0) {
           this.replying = true
         } else {
@@ -314,17 +314,17 @@ const ComponentProps = Vue.extend({
       deep: true
     },
     text: {
-      handler(val) {
+      handler (val) {
         if (val === '') this.isManualSend = false
       }
     },
     files: {
-      handler(val) {
+      handler (val) {
         if (val.length === 0) this.isManualSend = false
       }
     },
     currentConversation: {
-      handler(val) {
+      handler () {
         this.resetState()
       },
       deep: true
@@ -337,7 +337,6 @@ export default class MessageInputBar extends ComponentProps {
   documentRegex = DocumentRegex
   isUploading = false as boolean
   replying = false as boolean
-  screenWidth = 0 as number
   currentTime = '00:00' as string
   elapsedTimer = null as any
   recorder = null as any
@@ -357,69 +356,45 @@ export default class MessageInputBar extends ComponentProps {
     emojiOpened: false
   }
 
-  created() {
+  currentConversation!: ObjectType
+  isWebSocketConnected!: ObjectType
+  isVoiceRecorderEnabled!: boolean
+  screenWidth!: number
+  showToast!: (message: string, info: string) => void
+  secretKey: string | undefined
+  encryptionKey: string | undefined
+  iv: string | undefined
+  encrypt!: (message: ObjectType) => string
+
+  created () {
     EventBus.$on('manual.send', (message: ObjectType) => {
       this.manualSend(message)
     })
   }
 
-  mounted() {
+  mounted () {
     this.handleConversationOpen()
 
     this.$nextTick(() => {
       this.resetState()
       this.focusInput()
-      this.onResize()
     })
-
-    window.addEventListener('resize', this.onResize)
   }
 
-  get isVoiceRecorderEnabled() {
-    return store.state.voiceRecorderEnabled
-  }
-
-  get currentConversation() {
-    return store.state.currentConversation
-  }
-
-  get isWebSocketConnected() {
-    return store.state.connected
-  }
-
-  getElapsedTime(startTime: any) {
-    const endTime = new Date() as any
+  getElapsedTime (startTime: number) {
+    const endTime = Number(new Date())
     let timeDiff = endTime - startTime
 
     timeDiff = timeDiff / 1000
 
-    let seconds = Math.floor(timeDiff % 60) as any
-    seconds = seconds < 10 ? '0' + seconds : seconds
+    const seconds = `0${Math.floor(timeDiff % 60) % 60}`.slice(-2)
+    const minutes = `0${Math.floor(timeDiff / 60) % 60}`.slice(-2)
+    const hours = `0${Math.floor(timeDiff / 3600)}`.slice(-2)
 
-    timeDiff = Math.floor(timeDiff / 60)
-
-    let minutes = (timeDiff % 60) as any
-    minutes = minutes < 10 ? '0' + minutes : minutes
-
-    timeDiff = Math.floor(timeDiff / 60)
-
-    const hours = timeDiff % 24
-
-    timeDiff = Math.floor(timeDiff / 24)
-
-    const days = timeDiff
-
-    let totalHours = (hours + days * 24) as any
-    totalHours = totalHours < 10 ? '0' + totalHours : totalHours
-
-    if (totalHours === '00') {
-      this.currentTime = minutes + ':' + seconds
-    } else {
-      this.currentTime = totalHours + ':' + minutes + ':' + seconds
-    }
+    this.currentTime = `${hours}:${minutes}:${seconds}`
   }
 
-  resetState() {
+  resetState () {
     const input = this.$refs.input as any
 
     input.value = ''
@@ -435,7 +410,7 @@ export default class MessageInputBar extends ComponentProps {
     this.manualTimestamp = ''
   }
 
-  toggleManualSend() {
+  toggleManualSend () {
     if (this.manualTimestamp !== '') {
       this.isManualSend = true
     } else {
@@ -443,7 +418,7 @@ export default class MessageInputBar extends ComponentProps {
     }
   }
 
-  manualSend(message: ObjectType) {
+  manualSend (message: ObjectType) {
     this.setInputState(message)
     this.toggleManualSend()
 
@@ -455,46 +430,43 @@ export default class MessageInputBar extends ComponentProps {
       local_id: message.content.local_id
     }
 
-    if (message.content.msg && !message.content.attachment && !message.is_reply) {
-      this.sendTextMessage(textMessage)
+    // if message has a text
+    if (textMessage.msg) {
+      if (message.is_reply) {
+        this.replyTextMessage(textMessage)
+      } else {
+        this.sendTextMessage(textMessage)
+      }
     }
 
-    if (!message.content.msg && message.content.attachment && !message.is_reply) {
-      this.sendFileMessage({ file: message.content.attachment, local_id: message.content.local_id })
-    }
+    // if message has a attachment
+    if (message.content.attachment) {
+      if (message.is_reply) {
+        this.replyFileMessage({
+          file: message.content.attachment,
+          local_id: message.content.local_id
+        })
+      } else {
+        this.sendFileMessage({ file: message.content.attachment, local_id: message.content.local_id })
+      }
 
-    if (message.content.msg && message.content.attachment && !message.is_reply) {
-      this.sendMessageWithAttachment(
-        { file: message.content.attachment, local_id: message.content.local_id },
-        this.text
-      )
-    }
-
-    if (message.content.msg && !message.content.attachment && message.is_reply) {
-      this.replyTextMessage(textMessage)
-    }
-
-    if (!message.content.msg && message.content.attachment && message.is_reply) {
-      this.replyFileMessage({
-        file: message.content.attachment,
-        local_id: message.content.local_id
-      })
-    }
-
-    if (message.content.msg && message.content.attachment && message.is_reply) {
-      this.replyMessageWithAttachment(
-        { file: message.content.attachment, local_id: message.content.local_id },
-        this.text
-      )
+      // if message has both text and attachment
+      if (textMessage.msg) {
+        if (message.is_reply) {
+          this.replyMessageWithAttachment({ file: message.content.attachment, local_id: message.content.local_id }, textMessage.msg)
+        } else {
+          this.sendMessageWithAttachment({ file: message.content.attachment, local_id: message.content.local_id }, textMessage.msg)
+        }
+      }
     }
   }
 
-  setInputState(message: ObjectType): void {
+  setInputState (message: ObjectType): void {
     this.text = message.content.msg
     this.manualTimestamp = message.content.timestamp
   }
 
-  send(event: any) {
+  send (event: any) {
     if (this.screenWidth <= 1024 && event && event.keyCode === 13) {
       this.newLine()
       this.calculateTextareaHeight()
@@ -515,126 +487,146 @@ export default class MessageInputBar extends ComponentProps {
     }
   }
 
-  sendMessage(): any {
+  async sendMessage () {
+    // Create the message object
     const uuid = createUUID(24)
     const message = {
-      msg: this.text,
+      msg: this.text.trim(),
       sender_token: this.$user_token,
-      receiver_token:
-        this.currentConversation.receiver_token === this.$user_token
-          ? this.currentConversation.sender_token
-          : this.currentConversation.receiver_token,
+      receiver_token: this.currentConversation.receiver_token === this.$user_token
+        ? this.currentConversation.sender_token
+        : this.currentConversation.receiver_token,
       timestamp: new Date(),
       local_id: uuid
     }
 
     this.toggleManualSend()
 
-    if (this.files.length > 0 && this.text.trim().length === 0) {
-      this.files.forEach((file: ObjectType) =>
-        this.sendFileMessage({ file: file.file, local_id: uuid })
-      )
-    } else if (this.text.trim().length > 0 && this.files.length < 1) {
+    // Send the text message
+    if (message.msg.length > 0 && this.files.length < 1) {
       this.sendTextMessage(message)
-    } else if (this.text.trim().length > 0 && this.files.length > 1) {
-      this.sendTextMessage(message)
-      this.files.forEach((file: ObjectType) =>
-        this.sendFileMessage({ file: file.file, local_id: uuid })
-      )
-    } else if (this.text.trim().length > 0 && this.files.length === 1) {
-      this.files.forEach((file: ObjectType) =>
-        this.sendMessageWithAttachment({ file: file.file, local_id: uuid }, this.text)
-      )
     }
+
+    // Send the file messages
+    const messages = this.text.trim().length
+      ? this.files.map(file => ({
+        file: file.file,
+        local_id: createUUID(24)
+      }))
+      : this.files.map(file => ({ file: file.file, local_id: createUUID(24) }))
+
+    await Promise.all(messages.map(file =>
+      this.text.trim().length
+        ? this.sendMessageWithAttachment(file, message.msg)
+        : this.sendFileMessage(file)
+    ))
   }
 
-  async replyMessage() {
+  async replyMessage () {
+    // Create the message object
     const uuid = createUUID(24)
     const message = {
-      msg: this.text,
+      msg: this.text.trim(),
       sender_token: this.$user_token,
-      receiver_token:
-        this.currentConversation.receiver_token === this.$user_token
-          ? this.currentConversation.sender_token
-          : this.currentConversation.receiver_token,
+      receiver_token: this.currentConversation.receiver_token === this.$user_token
+        ? this.currentConversation.sender_token
+        : this.currentConversation.receiver_token,
       timestamp: new Date(),
       local_id: uuid
     }
 
     this.toggleManualSend()
 
-    if (this.files.length > 0 && this.text.trim().length === 0) {
-      this.files.forEach((file: ObjectType) =>
-        this.replyFileMessage({ file: file.file, local_id: uuid })
-      )
-    } else if (this.text.trim().length > 0 && this.files.length < 1) {
+    // Send the text message
+    if (message.msg.length > 0 && this.files.length < 1) {
       this.replyTextMessage(message)
-    } else if (this.text.trim().length > 0 && this.files.length > 1) {
-      this.replyTextMessage(message)
-      this.files.forEach((file: ObjectType) =>
-        this.replyFileMessage({ file: file.file, local_id: uuid })
-      )
-    } else if (this.text.trim().length > 0 && this.files.length === 1) {
-      this.files.forEach((file: ObjectType) =>
-        this.replyMessageWithAttachment({ file: file.file, local_id: uuid }, this.text)
-      )
     }
+
+    // Send the file messages
+    const messages = this.text.trim().length
+      ? this.files.map(file => ({
+        file: file.file,
+        local_id: createUUID(24)
+      }))
+      : this.files.map(file => ({ file: file.file, local_id: createUUID(24) }))
+
+    await Promise.all(messages.map(file =>
+      this.text.trim().length
+        ? this.replyMessageWithAttachment(file, message.msg)
+        : this.replyFileMessage(file)
+    ))
   }
 
-  async sendTextMessage(message: ObjectType): Promise<void> {
-    try {
-      if (this.retries === 0 && !this.isManualSend) {
-        this.isUploading = true
-
-        const offlineMessage = {
-          _id: message.local_id,
-          channel: this.$channel,
-          created_at: message.timestamp,
-          content: {
-            is_attachment: false,
-            msg: message.msg,
-            sender_token: this.$user_token,
-            receiver_token:
+  createOfflineMessage (type: string, data: ObjectType, attachment_msg: string, is_reply: boolean): ObjectType {
+    const content = type === 'normal-message'
+      ? {
+          is_attachment: false,
+          msg: data.msg,
+          sender_token: this.$user_token,
+          receiver_token:
               this.currentConversation.receiver_token === this.$user_token
                 ? this.currentConversation.sender_token
                 : this.currentConversation.receiver_token,
-            timestamp: message.timestamp,
-            local_id: message.local_id
-          },
+          timestamp: data.timestamp,
+          local_id: data.local_id
+        }
+      : {
+          attachment: data.file,
+          mime_type: data.file.type,
+          is_attachment: true,
+          msg: attachment_msg,
           sender_token: this.$user_token,
-          conversation_id: this.currentConversation._id,
-          sender_name: this.$senderName,
-          pseudo: true
+          receiver_token:
+              this.currentConversation.receiver_token === this.$user_token
+                ? this.currentConversation.sender_token
+                : this.currentConversation.receiver_token,
+          timestamp: this.manualTimestamp !== '' ? this.manualTimestamp : new Date(),
+          local_id: data.local_id
         }
 
+    const offlineMessage = {
+      _id: data.local_id,
+      channel: this.$channel,
+      created_at: content.timestamp,
+      content: content,
+      has_attachment: type !== 'normal-message',
+      sender_token: this.$user_token,
+      conversation_id: this.currentConversation._id,
+      sender_name: this.$senderName,
+      pseudo: true,
+      reply_to: this.messageReply._id || '',
+      is_reply
+    }
+
+    return offlineMessage
+  }
+
+  async sendTextMessage (message: ObjectType): Promise<void> {
+    try {
+      if (this.retries === 0 && !this.isManualSend) {
+        this.isUploading = true
         // Send pseudo message.
-        EventBus.$emit('new-pseudo-message', offlineMessage)
+        EventBus.$emit('new-pseudo-message', this.createOfflineMessage('normal-message', message, '', false))
       }
 
+      const WebSocketMessage = { type: 1, content: message, channel: this.$channel, conversation_id: this.currentConversation._id, sender_token: this.$user_token, sender_name: this.$senderName }
+
       await this.$robin.sendMessageToConversation(
-        message,
-        this.$conn,
-        this.$channel,
-        this.currentConversation._id,
-        this.$user_token,
-        this.$senderName
+        this.encrypt(WebSocketMessage),
+        this.$conn
       )
 
       this.isUploading = false
 
+      // if WebSocket is not connected retry sending message
       if (!this.isWebSocketConnected) {
-        this.retries += 1
-        // Retry upload.
         if (this.retries < 3) {
           setTimeout(() => {
+            this.retries++
             this.sendTextMessage(message)
           }, 5000)
         } else {
-          this.$toast.open({
-            message: 'Message failed to send.',
-            type: 'error',
-            position: 'bottom-left'
-          })
+          this.showToast('Message failed to send.', 'error')
 
           EventBus.$emit('message-send-failed', {
             content: {
@@ -652,45 +644,17 @@ export default class MessageInputBar extends ComponentProps {
     } catch (e: any) {
       this.isUploading = false
       if (e.message) {
-        this.$toast.open({
-          message: 'Opps, something went wrong.',
-          type: 'error',
-          position: 'bottom-left'
-        })
+        this.showToast('Opps, something went wrong.', 'error')
       }
     }
   }
 
-  async sendFileMessage(file: ObjectType): Promise<void> {
+  async sendFileMessage (file: ObjectType): Promise<void> {
     try {
       if (this.retries === 0 && !this.isManualSend) {
         this.isUploading = true
-
-        const offlineMessage = {
-          _id: file.local_id,
-          channel: this.$channel,
-          created_at: this.manualTimestamp !== '' ? this.manualTimestamp : new Date(),
-          content: {
-            attachment: file.file,
-            mime_type: file.file.type,
-            is_attachment: true,
-            msg: '',
-            sender_token: this.$user_token,
-            receiver_token:
-              this.currentConversation.receiver_token === this.$user_token
-                ? this.currentConversation.sender_token
-                : this.currentConversation.receiver_token,
-            timestamp: this.manualTimestamp !== '' ? this.manualTimestamp : new Date(),
-            local_id: file.local_id
-          },
-          has_attachment: true,
-          sender_token: this.$user_token,
-          conversation_id: this.currentConversation._id,
-          sender_name: this.$senderName,
-          pseudo: true
-        }
-
-        EventBus.$emit('new-pseudo-message', offlineMessage)
+        // Send pseudo message.
+        EventBus.$emit('new-pseudo-message', this.createOfflineMessage('file-message', file, '', false))
       }
 
       await this.$robin.sendMessageAttachment(
@@ -705,18 +669,14 @@ export default class MessageInputBar extends ComponentProps {
       this.isUploading = false
 
       if (!this.isWebSocketConnected) {
-        this.retries += 1
         // Retry upload.
         if (this.retries < 3) {
-          setTimeout(() => {
-            this.sendFileMessage(file)
+          setTimeout(async () => {
+            this.retries++
+            await this.sendFileMessage(file)
           }, 5000)
         } else {
-          this.$toast.open({
-            message: 'Message failed to send.',
-            type: 'error',
-            position: 'bottom-left'
-          })
+          this.showToast('Message failed to send.', 'error')
 
           EventBus.$emit('message-send-failed', {
             content: {
@@ -735,45 +695,17 @@ export default class MessageInputBar extends ComponentProps {
       this.isUploading = false
 
       if (e.message) {
-        this.$toast.open({
-          message: 'Opps, something went wrong.',
-          type: 'error',
-          position: 'bottom-left'
-        })
+        this.showToast('Opps, something went wrong.', 'error')
       }
     }
   }
 
-  async sendMessageWithAttachment(file: ObjectType, msg: string): Promise<void> {
+  async sendMessageWithAttachment (file: ObjectType, msg: string): Promise<void> {
     try {
       if (this.retries === 0 && !this.isManualSend) {
         this.isUploading = true
-
-        const offlineMessage = {
-          _id: file.local_id,
-          channel: this.$channel,
-          created_at: this.manualTimestamp !== '' ? this.manualTimestamp : new Date(),
-          content: {
-            attachment: file.file,
-            mime_type: file.file.type,
-            is_attachment: true,
-            msg,
-            sender_token: this.$user_token,
-            receiver_token:
-              this.currentConversation.receiver_token === this.$user_token
-                ? this.currentConversation.sender_token
-                : this.currentConversation.receiver_token,
-            timestamp: this.manualTimestamp !== '' ? this.manualTimestamp : new Date(),
-            local_id: file.local_id
-          },
-          has_attachment: true,
-          sender_token: this.$user_token,
-          conversation_id: this.currentConversation._id,
-          sender_name: this.$senderName,
-          pseudo: true
-        }
-
-        EventBus.$emit('new-pseudo-message', offlineMessage)
+        // Send pseudo message.
+        EventBus.$emit('new-pseudo-message', this.createOfflineMessage('file-message', file, msg, false))
       }
 
       await this.$robin.sendMessageAttachment(
@@ -788,18 +720,14 @@ export default class MessageInputBar extends ComponentProps {
       this.isUploading = false
 
       if (!this.isWebSocketConnected) {
-        this.retries += 1
         // Retry upload.
         if (this.retries < 3) {
-          setTimeout(() => {
-            this.sendMessageWithAttachment(file, msg)
+          setTimeout(async () => {
+            this.retries++
+            await this.sendMessageWithAttachment(file, msg)
           }, 5000)
         } else {
-          this.$toast.open({
-            message: 'Message failed to send.',
-            type: 'error',
-            position: 'bottom-left'
-          })
+          this.showToast('Message failed to send', 'error')
 
           EventBus.$emit('message-send-failed', {
             content: {
@@ -819,73 +747,39 @@ export default class MessageInputBar extends ComponentProps {
       this.isUploading = false
 
       if (e.message) {
-        this.$toast.open({
-          message: 'Opps, something went wrong.',
-          type: 'error',
-          position: 'bottom-left'
-        })
+        this.showToast('Opps, something went wrong.', 'error')
       }
     }
   }
 
-  async replyTextMessage(message: ObjectType): Promise<void> {
+  async replyTextMessage (message: ObjectType): Promise<void> {
     try {
       const robin = this.$robin as any
 
       if (this.retries === 0 && !this.isManualSend) {
         this.isUploading = true
 
-        const offlineMessage = {
-          _id: message.local_id,
-          channel: this.$channel,
-          created_at: message.timestamp,
-          content: {
-            is_attachment: false,
-            msg: this.text,
-            sender_token: this.$user_token,
-            receiver_token:
-              this.currentConversation.receiver_token === this.$user_token
-                ? this.currentConversation.sender_token
-                : this.currentConversation.receiver_token,
-            timestamp: message.timestamp,
-            local_id: message.local_id
-          },
-          sender_token: this.$user_token,
-          conversation_id: this.currentConversation._id,
-          sender_name: this.$senderName,
-          pseudo: true,
-          reply_to: this.messageReply._id,
-          is_reply: true
-        }
-
-        EventBus.$emit('new-pseudo-message', offlineMessage)
+        // Send pseudo message.
+        EventBus.$emit('new-pseudo-message', this.createOfflineMessage('normal-message', message, '', true))
       }
 
+      const WebSocketMessage = { type: 1, content: message, channel: this.$channel, conversation_id: this.currentConversation._id, replyTo: this.messageReply._id, senderToken: this.$user_token, senderName: this.$senderName }
       await robin.replyToMessage(
-        message,
-        this.$conn,
-        this.$channel,
-        this.currentConversation._id,
-        this.messageReply._id,
-        this.$user_token,
-        this.$senderName
+        this.encrypt(WebSocketMessage),
+        this.$conn
       )
 
       this.isUploading = false
 
       if (!this.isWebSocketConnected) {
-        this.retries += 1
         // Retry upload.
         if (this.retries < 3) {
           setTimeout(() => {
+            this.retries++
             this.replyTextMessage(message)
           }, 5000)
         } else {
-          this.$toast.open({
-            message: 'Message failed to send.',
-            type: 'error',
-            position: 'bottom-left'
-          })
+          this.showToast('Message failed to send.', 'error')
 
           EventBus.$emit('message-send-failed', {
             content: {
@@ -904,49 +798,20 @@ export default class MessageInputBar extends ComponentProps {
       this.isUploading = false
 
       if (e.message) {
-        this.$toast.open({
-          message: 'Opps, something went wrong.',
-          type: 'error',
-          position: 'bottom-left'
-        })
+        this.showToast('Opps, something went wrong.', 'error')
       }
     }
   }
 
-  async replyFileMessage(file: ObjectType): Promise<void> {
+  async replyFileMessage (file: ObjectType): Promise<void> {
     try {
       const robin = this.$robin as any
 
       if (this.retries === 0 && !this.isManualSend) {
         this.isUploading = true
 
-        const offlineMessage = {
-          _id: file.local_id,
-          channel: this.$channel,
-          created_at: this.manualTimestamp !== '' ? this.manualTimestamp : new Date(),
-          content: {
-            attachment: file.file,
-            mime_type: file.file.type,
-            is_attachment: true,
-            msg: '',
-            sender_token: this.$user_token,
-            receiver_token:
-              this.currentConversation.receiver_token === this.$user_token
-                ? this.currentConversation.sender_token
-                : this.currentConversation.receiver_token,
-            timestamp: this.manualTimestamp !== '' ? this.manualTimestamp : new Date(),
-            local_id: file.local_id
-          },
-          has_attachment: true,
-          sender_token: this.$user_token,
-          conversation_id: this.currentConversation._id,
-          sender_name: this.$senderName,
-          pseudo: true,
-          reply_to: this.messageReply._id,
-          is_reply: true
-        }
-
-        EventBus.$emit('new-pseudo-message', offlineMessage)
+        // Send pseudo message.
+        EventBus.$emit('new-pseudo-message', this.createOfflineMessage('file-message', file, '', true))
       }
 
       await robin.replyMessageWithAttachment(
@@ -965,15 +830,11 @@ export default class MessageInputBar extends ComponentProps {
         this.retries += 1
         // Retry upload.
         if (this.retries < 3) {
-          setTimeout(() => {
-            this.replyFileMessage(file)
+          setTimeout(async () => {
+            await this.replyFileMessage(file)
           }, 1000)
         } else {
-          this.$toast.open({
-            message: 'Message failed to send.',
-            type: 'error',
-            position: 'bottom-left'
-          })
+          this.showToast('Message failed to send.', 'error')
 
           EventBus.$emit('message-send-failed', {
             content: {
@@ -992,49 +853,20 @@ export default class MessageInputBar extends ComponentProps {
       this.isUploading = false
 
       if (e.message) {
-        this.$toast.open({
-          message: 'Opps, something went wrong.',
-          type: 'error',
-          position: 'bottom-left'
-        })
+        this.showToast('Opps, something went wrong.', 'error')
       }
     }
   }
 
-  async replyMessageWithAttachment(file: ObjectType, msg: string): Promise<void> {
+  async replyMessageWithAttachment (file: ObjectType, msg: string): Promise<void> {
     try {
       const robin = this.$robin as any
 
       if (this.retries === 0 && !this.isManualSend) {
         this.isUploading = true
 
-        const offlineMessage = {
-          _id: file.local_id,
-          channel: this.$channel,
-          content: {
-            attachment: file.file,
-            mime_type: file.file.type,
-            is_attachment: true,
-            msg,
-            sender_token: this.$user_token,
-            receiver_token:
-              this.currentConversation.receiver_token === this.$user_token
-                ? this.currentConversation.sender_token
-                : this.currentConversation.receiver_token,
-            timestamp: this.manualTimestamp !== '' ? this.manualTimestamp : new Date(),
-            local_id: file.local_id
-          },
-          created_at: this.manualTimestamp !== '' ? this.manualTimestamp : new Date(),
-          has_attachment: true,
-          sender_token: this.$user_token,
-          conversation_id: this.currentConversation._id,
-          sender_name: this.$senderName,
-          pseudo: true,
-          reply_to: this.messageReply._id,
-          is_reply: true
-        }
-
-        EventBus.$emit('new-pseudo-message', offlineMessage)
+        // Send pseudo message.
+        EventBus.$emit('new-pseudo-message', this.createOfflineMessage('file-message', file, msg, true))
       }
 
       await robin.replyMessageWithAttachment(
@@ -1053,15 +885,11 @@ export default class MessageInputBar extends ComponentProps {
         this.retries += 1
         // Retry upload.
         if (this.retries < 3) {
-          setTimeout(() => {
-            this.replyMessageWithAttachment(file, msg)
+          setTimeout(async () => {
+            await this.replyMessageWithAttachment(file, msg)
           }, 1000)
         } else {
-          this.$toast.open({
-            message: 'Message failed to send.',
-            type: 'error',
-            position: 'bottom-left'
-          })
+          this.showToast('Message failed to send.', 'error')
 
           EventBus.$emit('message-send-failed', {
             content: {
@@ -1081,49 +909,45 @@ export default class MessageInputBar extends ComponentProps {
       this.isUploading = false
 
       if (e.message) {
-        this.$toast.open({
-          message: 'Opps, something went wrong.',
-          type: 'error',
-          position: 'bottom-left'
-        })
+        this.showToast('Opps, something went wrong.', 'error')
       }
     }
   }
 
-  enterText(event: any): void {
+  enterText (event: any): void {
     this.text = event.target.value
     this.calculateTextareaHeight()
   }
 
-  escapeText(): void {
+  escapeText (): void {
     const input = this.$refs.input as any
     input.value = ''
     this.text = ''
     input.style.height = 0
   }
 
-  selectEmoji(emoji: any): void {
+  selectEmoji (emoji: any): void {
     if (this.text.length > 0) this.text += ` ${emoji.data}`
     else this.text += `${emoji.data}`
 
     this.focusInput()
   }
 
-  focusInput() {
+  focusInput () {
     const input = this.$refs.input as HTMLInputElement
     if (input) {
       input.focus()
     }
   }
 
-  handleEmojiOpenPopUp(): void {
+  handleEmojiOpenPopUp (): void {
     const popup = this.$refs['popup-1'] as any
     popup.classList.remove('robin-squeezeIn')
 
     this.popUpState.emojiOpened = true
   }
 
-  handleEmojiClosePopUp(): void {
+  handleEmojiClosePopUp (): void {
     const popup = this.$refs['popup-1'] as any
     popup.classList.remove('robin-squeezeOut')
     popup.classList.add('robin-squeezeIn')
@@ -1136,11 +960,11 @@ export default class MessageInputBar extends ComponentProps {
     }, 100)
   }
 
-  toggleAttachFilePopup(): void {
+  toggleAttachFilePopup (): void {
     this.popUpState.opened = !this.popUpState.opened
   }
 
-  handleClosePopUp(): void {
+  handleClosePopUp (): void {
     const popup = this.$refs['popup-4'] as any
     popup.$refs['popup-body'].classList.remove('robin-zoomIn')
     popup.$refs['popup-body'].classList.add('robin-zoomOut')
@@ -1153,13 +977,13 @@ export default class MessageInputBar extends ComponentProps {
     }, 300)
   }
 
-  handleFileUpload(file: any) {
+  handleFileUpload (file: any) {
     this.files.push(file)
 
     this.recorder = null
   }
 
-  handleFileUploadClose(): void {
+  handleFileUploadClose (): void {
     const popup = this.$refs['popup-2'] as any
     popup.classList.remove('robin-squeezeOut')
     popup.classList.add('robin-squeezeIn')
@@ -1172,7 +996,7 @@ export default class MessageInputBar extends ComponentProps {
     }, 100)
   }
 
-  removeFile(index: number): void {
+  removeFile (index: number): void {
     if (this.files.length > 1) {
       this.files.splice(index, 1)
     } else {
@@ -1189,7 +1013,7 @@ export default class MessageInputBar extends ComponentProps {
     }
   }
 
-  handleReplyMessageClose(): void {
+  handleReplyMessageClose (): void {
     const popup = this.$refs['popup-3'] as any
     popup.classList.remove('robin-squeezeOut')
     popup.classList.add('robin-squeezeIn')
@@ -1203,7 +1027,7 @@ export default class MessageInputBar extends ComponentProps {
     }, 100)
   }
 
-  checkAttachmentType(attachment: any): string {
+  checkAttachmentType (attachment: any): string {
     let strArr = [] as Array<string>
 
     if (typeof attachment !== 'string') {
@@ -1215,7 +1039,7 @@ export default class MessageInputBar extends ComponentProps {
     return `${mime.getType(strArr[strArr.length - 1])}`
   }
 
-  getFileDetails(attachmentUrl: string): { name: any; extension: any } {
+  getFileDetails (attachmentUrl: string): { name: any; extension: any } {
     const fileName = attachmentUrl.substring(attachmentUrl.lastIndexOf('/') + 1)
     const strArr = fileName.split('.')
 
@@ -1225,7 +1049,7 @@ export default class MessageInputBar extends ComponentProps {
     }
   }
 
-  validateLinkInMessage() {
+  validateLinkInMessage () {
     const messageReply = this.messageReply.content ? this.messageReply.content.msg : ''
     const texts = messageReply.split(' ')
 
@@ -1235,7 +1059,7 @@ export default class MessageInputBar extends ComponentProps {
     }
   }
 
-  injectHtml(): String {
+  injectHtml (): string {
     let returnedMessage = ''
     const messageReply = this.messageReply.content ? this.messageReply.content.msg : ''
 
@@ -1256,8 +1080,8 @@ export default class MessageInputBar extends ComponentProps {
     return returnedMessage
   }
 
-  handleConversationOpen(): void {
-    EventBus.$on('currentConversation-opened', (_: any) => {
+  handleConversationOpen (): void {
+    EventBus.$on('currentConversation-opened', () => {
       const input = this.$refs.input as any
       setTimeout(() => {
         if (input) {
@@ -1267,16 +1091,12 @@ export default class MessageInputBar extends ComponentProps {
     })
   }
 
-  onResize() {
-    this.screenWidth = window.innerWidth
-  }
-
-  newLine() {
+  newLine () {
     const input = this.$refs.input as any
     input.value += '\n'
   }
 
-  calculateTextareaHeight(): void {
+  calculateTextareaHeight (): void {
     const input = this.$refs.input as any
 
     if (!input) return
@@ -1296,7 +1116,7 @@ export default class MessageInputBar extends ComponentProps {
     }
   }
 
-  toggleRecorder(record: boolean): void {
+  toggleRecorder (record: boolean): void {
     if (record) {
       this.startRecorder()
     } else {
@@ -1304,7 +1124,7 @@ export default class MessageInputBar extends ComponentProps {
     }
   }
 
-  startRecorder() {
+  startRecorder () {
     AudioRecorder.encoder = mpegEncoder
     AudioRecorder.prototype.mimeType = 'audio/mpeg'
     window.MediaRecorder = AudioRecorder
@@ -1343,12 +1163,12 @@ export default class MessageInputBar extends ComponentProps {
       const startTime = new Date()
 
       this.elapsedTimer = setInterval(() => {
-        this.getElapsedTime(startTime)
+        this.getElapsedTime(Number(startTime))
       }, 1000)
     })
   }
 
-  stopRecorder(): void {
+  stopRecorder (): void {
     this.recorder.stop()
     clearInterval(this.elapsedTimer)
     this.isRecording = false

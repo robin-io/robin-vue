@@ -22,7 +22,7 @@
   flex-direction: column;
   flex: 1;
   width: 100%;
-  padding: 1rem clamp(3%, 5vw, 2.688rem) 1.25rem clamp(3%, 5vw, 3.125rem);
+  padding: 1.9rem clamp(3%, 5vw, 2.688rem) 1.25rem clamp(3%, 5vw, 3.125rem);
 }
 
 .robin-message-container .robin-loader {

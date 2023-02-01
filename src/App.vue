@@ -1,14 +1,14 @@
 <template>
   <div class="robin-container">
     <transition name="robin-fadeIn">
-      <side-container v-show="isSideContainerOpen" :key="key">
+      <side-container v-show="isSideContainerOpen">
         <template #chat-list-header>
           <slot name="chat-list-header"></slot>
         </template>
       </side-container>
     </transition>
     <transition name="robin-fadeIn">
-      <message-container v-show="isMessageContainerOpen" :key="key + 1" />
+      <message-container v-show="isMessageContainerOpen" />
     </transition>
     <PageLoader v-if="isPageLoading && pageLoader" />
     <photo-previewer
@@ -16,7 +16,6 @@
       :conversation="currentConversation"
       v-show="imagePreviewOpen"
       @close="closeImagePreview()"
-      :images-to-preview="imagesToPreview"
     />
     <view-profile
       ref="popup-2"
@@ -38,6 +37,10 @@
 
 <script lang="ts">
 import Vue, { PropType } from 'vue'
+import Component, { mixins } from 'vue-class-component'
+import store from './store/index'
+import { Robin } from './utils/robin'
+import EventBus from './event-bus'
 import SideContainer from './components/SideContainer/SideContainer.vue'
 import MessageContainer from './components/MessageContainer/MessageContainer.vue'
 import PageLoader from './components/PageLoader/PageLoader.vue'
@@ -46,13 +49,10 @@ import ViewProfile from './components/ViewProfile/ViewProfile.vue'
 import GroupPrompt from './components/GroupPrompt/GroupPrompt.vue'
 import EncryptionDetails from './components/EncrytionDetails/EncryptionDetails.vue'
 import debounce from 'lodash.debounce'
-import Component from 'vue-class-component'
-import store from './store/index'
-import { Robin } from './utils/robin'
-import EventBus from './event-bus'
 import assets from '@/utils/assets.json'
+import ConversationMixin from './mixins/conversation-mixins'
 
-const ComponentProps = Vue.extend({
+const ComponentProps = mixins(ConversationMixin).extend({
   props: {
     userToken: {
       type: String as PropType<string>,
@@ -68,9 +68,13 @@ const ComponentProps = Vue.extend({
     },
     channel: {
       type: String as PropType<string>,
-      default: 'private_chat'
+      default: ''
     },
     userName: {
+      type: String as PropType<string>,
+      default: ''
+    },
+    secretKey: {
       type: String as PropType<string>,
       default: ''
     },
@@ -84,7 +88,16 @@ const ComponentProps = Vue.extend({
     },
     features: {
       type: Array as PropType<Array<string>>,
-      default: () => ['create-chat', 'voice-recorder', 'reply-messages', 'delete-messages', 'forward-messages', 'message-reaction.view', 'message-reaction.delete', 'archive-chat']
+      default: () => [
+        'create-chat',
+        'voice-recorder',
+        'reply-messages',
+        'delete-messages',
+        'forward-messages',
+        'message-reaction.view',
+        'message-reaction.delete',
+        'archive-chat'
+      ]
     },
     useDefaultProfileDetails: {
       type: Boolean,
@@ -130,29 +143,33 @@ const ComponentProps = Vue.extend({
       handler () {
         this.closeMessageViewProfile()
       }
-    },
-    time: {
-      handler () {
-        if (this.time === 9) {
-          this.resetStopWatch()
-        }
-      }
-    },
-    conversationOpen: {
-      handler () {
-        // console.log(this.conversationOpen)
-      }
     }
   }
 })
 export default class App extends ComponentProps {
   robin = null as Robin | null
   conn = null as any
-  key = 0 as number
   messageEvent = null as any
-  time = 0 as number
   notification = null as HTMLElement | null
   debouncedConnect = null as null | (() => void)
+  sideBarType!: string
+  screenWidth!: number
+  conversationOpen!: boolean
+  profileOpen!: boolean
+  currentTheme!: string
+  showDefaultProfileDetails!: boolean
+  groupPromptOpen!: boolean
+  isMessageReactionDeleteEnabled!: boolean
+  currentConversation!: ObjectType
+  groupnameColors!: Array<string>
+  imagePreviewOpen!: boolean
+  showToast!: (message: string, info: string) => void
+  isPageLoading!: boolean
+  encryptionDetailsOpen!: boolean
+  encryptionKey: string | undefined
+  iv!: string
+  encrypt!: (message: ObjectType) => string
+  decrypt!: (message: string) => string
 
   created (): void {
     this.initiateRobin()
@@ -164,19 +181,6 @@ export default class App extends ComponentProps {
     this.onConversationDelete()
     this.openProfile()
     this.handleConnectionStatus()
-
-    store.setState('forwardMessagesEnabled', this.features.includes('forward-messages'))
-    store.setState('deleteMessagesEnabled', this.features.includes('delete-messages'))
-    store.setState('archiveChatEnabled', this.features.includes('archive-chat'))
-    store.setState('createChatEnabled', this.features.includes('create-chat'))
-    store.setState('replyMessagesEnabled', this.features.includes('reply-messages'))
-    store.setState('voiceRecorderEnabled', this.features.includes('voice-recorder'))
-    store.setState('messageReactionViewEnabled', this.features.includes('message-reaction.view'))
-    store.setState(
-      'messageReactionDeleteEnabled',
-      this.features.includes('message-reaction.delete')
-    )
-    store.setState('useDefaultProfileDetails', this.useDefaultProfileDetails)
   }
 
   beforeDestroy () {
@@ -195,11 +199,9 @@ export default class App extends ComponentProps {
 
     window.addEventListener('resize', this.onResize)
 
-    setInterval(() => {
-      this.time += 1
-    }, 60000)
-
     this.checkCredentialAvailability()
+
+    this.handleVisibilityChange()
 
     const matchMedia = window.matchMedia('(prefers-color-scheme: dark)')
 
@@ -256,56 +258,8 @@ export default class App extends ComponentProps {
     return false
   }
 
-  get sideBarType () {
-    return store.state.sideBarType
-  }
-
-  get screenWidth () {
-    return store.state.screenWidth
-  }
-
-  get conversationOpen () {
-    return store.state.conversationOpen
-  }
-
-  get isPageLoading () {
-    return store.state.isPageLoading
-  }
-
   get assets (): any {
     return assets
-  }
-
-  get currentConversation () {
-    return store.state.currentConversation
-  }
-
-  get encryptionDetailsOpen () {
-    return store.state.encryptionDetailsOpen
-  }
-
-  get imagesToPreview () {
-    return store.state.imagesToPreview
-  }
-
-  get imagePreviewOpen () {
-    return store.state.imagePreviewOpen
-  }
-
-  get profileOpen () {
-    return store.state.profileOpen
-  }
-
-  get groupPromptOpen () {
-    return store.state.groupPromptOpen
-  }
-
-  get showDefaultProfileDetails () {
-    return store.state.useDefaultProfileDetails
-  }
-
-  get currentTheme () {
-    return store.state.currentTheme
   }
 
   getCurrentTheme (event: Record<string, any>) {
@@ -320,13 +274,6 @@ export default class App extends ComponentProps {
     }
   }
 
-  initiateRobin () {
-    this.robin = new Robin(this.apiKey, true, 0, 'production')
-    this.debouncedConnect = debounce(() => this.connect(), 5000)
-    this.debouncedConnect?.()
-    this.setPrototypes()
-  }
-
   filterUsers (): void {
     const filteredUsers: Array<any> = []
     this.users.forEach((user) => {
@@ -339,7 +286,6 @@ export default class App extends ComponentProps {
     })
 
     Vue.prototype.$robin_users = [...filteredUsers]
-    this.refresh()
   }
 
   setPrototypes () {
@@ -349,6 +295,50 @@ export default class App extends ComponentProps {
     Vue.prototype.$channel = this.channel
     Vue.prototype.$senderName = this.userName
     Vue.prototype.$logo = this.logo
+    store.setState('forwardMessagesEnabled', this.features.includes('forward-messages'))
+    store.setState('deleteMessagesEnabled', this.features.includes('delete-messages'))
+    store.setState('archiveChatEnabled', this.features.includes('archive-chat'))
+    store.setState('createChatEnabled', this.features.includes('create-chat'))
+    store.setState('replyMessagesEnabled', this.features.includes('reply-messages'))
+    store.setState('voiceRecorderEnabled', this.features.includes('voice-recorder'))
+    store.setState('messageReactionViewEnabled', this.features.includes('message-reaction.view'))
+    store.setState(
+      'messageReactionDeleteEnabled',
+      this.features.includes('message-reaction.delete')
+    )
+    store.setState('useDefaultProfileDetails', this.useDefaultProfileDetails)
+    store.setState('secretKey', this.secretKey)
+  }
+
+  initiateRobin () {
+    this.robin = new Robin(this.apiKey, true, 0, 'production')
+    this.debouncedConnect = debounce(() => this.connect(), 3000)
+    this.debouncedConnect?.()
+    this.setPrototypes()
+  }
+
+  handleVisibilityChange () {
+    let hidden = 'hidden'
+    let visibilityChange = 'visibilitychange'
+    const documentElement = document as any
+
+    if (typeof documentElement.msHidden !== 'undefined') {
+      hidden = 'msHidden'
+      visibilityChange = 'msvisibilitychange'
+    } else if (typeof documentElement.webkitHidden !== 'undefined') {
+      hidden = 'webkitHidden'
+      visibilityChange = 'webkitvisibilitychange'
+    }
+
+    documentElement.addEventListener(
+      visibilityChange,
+      () => {
+        if (!documentElement[hidden]) {
+          this.connect()
+        }
+      },
+      false
+    )
   }
 
   connect () {
@@ -356,22 +346,34 @@ export default class App extends ComponentProps {
 
     this.conn.onopen = (event: ObjectType) => {
       if (event.target.readyState > 1) {
-        this.$toast.open({ message: 'Connecting...', type: 'info', position: 'bottom-left' })
+        this.showToast('Reconnecting', 'info')
         store.setState('connected', false)
       } else {
-        this.$toast.open({ message: 'Connected', type: 'success', position: 'bottom-left' })
+        this.showToast('Connected', 'success')
         store.setState('connected', true)
       }
 
-      this.robin?.subscribe(this.channel, this.conn)
+      const msg = this.encrypt({
+        type: 0,
+        channel: this.channel,
+        content: {},
+        conversation_id: ''
+      })
+
+      this.robin?.subscribe(msg, this.conn)
     }
 
     this.conn.onclose = (event: ObjectType) => {
-      if (event.code === 1000) this.debouncedConnect?.()
+      this.showToast('Disconnected', 'error')
+      // Websocket closed abnormally.
+      if (event.code !== 1000) {
+        this.showToast('Reconnecting', 'info')
+        this.debouncedConnect?.()
+      }
     }
 
     this.conn.onmessage = (evt: any) => {
-      const message = JSON.parse(evt.data)
+      const message = JSON.parse(this.decrypt(evt.data))
 
       if (message.is_event !== true) {
         EventBus.$emit('new-message', message)
@@ -383,15 +385,15 @@ export default class App extends ComponentProps {
       } else {
         this.handleEvents(message)
       }
-
-      this.resetStopWatch()
     }
 
     const WebSocket: WebSocket = this.conn
 
-    window.onbeforeunload = function () {
-      WebSocket.close()
-    }
+    window.addEventListener('beforeunload', () => {
+      if (this.conn.readyState === WebSocket.OPEN) {
+        this.conn.close(1000, 'Client closed connection')
+      }
+    })
 
     Vue.prototype.$conn = this.conn
   }
@@ -409,23 +411,11 @@ export default class App extends ComponentProps {
   }
 
   handleEvents (message: any): void {
-    console.log(message)
     switch (message.name) {
       case 'user.connect':
-        // set user status to online
-        // check conversations(dms)
-        // if this.$userToken != message.value
-        // check if reciever_token or sender_token == message.value
-        // set the conversation.status as online
         EventBus.$emit('user.connect', message.value)
         break
       case 'user.disconnect':
-        // set user status to offline
-
-        // check conversations(dms)
-        // if this.$userToken != message.value
-        // check if reciever_token or sender_token == message.value
-        // set the conversation.status as offline
         EventBus.$emit('user.disconnect', message.value)
         break
       case 'new.conversation':
@@ -460,7 +450,6 @@ export default class App extends ComponentProps {
 
   onExitGroup () {
     EventBus.$on('left.group', () => {
-      this.refresh()
       store.setState('conversationOpen', false)
       store.setState('profileOpen', false)
     })
@@ -526,23 +515,18 @@ export default class App extends ComponentProps {
     }
   }
 
-  refresh () {
-    this.key += 1
-  }
-
-  resetStopWatch (): void {
-    this.time = 0
-  }
-
   checkCredentialAvailability (): void {
     const missingProperties = []
-    if (!this.userName) missingProperties.push('Username')
-    if (!this.userToken) missingProperties.push('UserToken')
-    if (!this.apiKey) missingProperties.push('ApiKey')
+    if (this.userName === '') missingProperties.push('Username')
+    if (this.userToken === '') missingProperties.push('UserToken')
+    if (this.apiKey === '') missingProperties.push('ApiKey')
+    if (this.secretKey === '') missingProperties.push('SecretKey')
 
     if (missingProperties.length) {
-      const message = `Please make sure your ${missingProperties.join(', ')} ${missingProperties.length > 1 ? 'are' : 'is'} set.`
-      this.$toast.open({ message, type: 'error', position: 'bottom-left' })
+      const message = `Please make sure your ${missingProperties.join(', ')} ${
+        missingProperties.length > 1 ? 'are' : 'is'
+      } set.`
+      this.showToast(message, 'error')
     }
   }
 
@@ -552,17 +536,11 @@ export default class App extends ComponentProps {
   }
 
   handleConnectionChange (event: Event) {
-    console.log(event)
     if (event.type === 'offline') {
-      this.$toast.open({ message: 'Connecting...', type: 'info', position: 'bottom-left' })
+      this.showToast('Reconnecting', 'info')
       store.setState('connected', false)
     } else {
-      this.$toast.open({
-        message: 'Connected',
-        type: 'success',
-        position: 'bottom-left',
-        duration: 6000
-      })
+      this.showToast('Connected', 'success')
     }
   }
 }

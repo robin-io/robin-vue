@@ -79,16 +79,16 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropType } from 'vue'
-import Component from 'vue-class-component'
-import store from '@/store/index'
+import { PropType } from 'vue'
+import Component, { mixins } from 'vue-class-component'
 import IconButton from '../IconButton/IconButton.vue'
 import Content from '../Content/Content.vue'
 import Input from '../Input/Input.vue'
 import Button from '../Button/Button.vue'
 import GroupAvatar from '../GroupAvatar/GroupAvatar.vue'
+import ConversationMixin from '@/mixins/conversation-mixins'
 
-const ComponentProps = Vue.extend({
+const ComponentProps = mixins(ConversationMixin).extend({
   props: {
     groupName: {
       type: String as PropType<string>,
@@ -112,10 +112,8 @@ export default class NewGroupChatList extends ComponentProps {
   icon = {} as any
   resetInput = false
   acceptedVisualFiles = 'image/png, image/jpg, image/jpeg' as string
-
-  get currentTheme () {
-    return store.state.currentTheme
-  }
+  showToast!: (message: string, info: string) => void
+  currentTheme!: string
 
   userTyping (val: string): void {
     this.name = val
@@ -148,7 +146,8 @@ export default class NewGroupChatList extends ComponentProps {
   }
 
   async handleFileChange (event: Event): Promise<void> {
-    const file = (event.target as HTMLInputElement).files![0]
+    const input = event.target as HTMLInputElement
+    const file = input.files ? input.files[0] : {} as File
     let fileURL
 
     try {
@@ -169,11 +168,7 @@ export default class NewGroupChatList extends ComponentProps {
         file: file
       }
     } else {
-      this.$toast.open({
-        message: 'Image upload cannot be more than 5mb',
-        type: 'error',
-        position: 'bottom-left'
-      })
+      this.showToast('Image upload cannot be more than 5mb', 'error')
     }
   }
 }

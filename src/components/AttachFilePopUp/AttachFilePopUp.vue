@@ -94,12 +94,12 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
+import Component, { mixins } from 'vue-class-component'
 import store from '@/store/index'
 import { createUUID } from '@/utils/helpers'
 import Content from '@/components/Content/Content.vue'
 import IconButton from '@/components/IconButton/IconButton.vue'
+import ConversationMixin from '@/mixins/conversation-mixins'
 
 @Component({
   name: 'AttachFilePopOver',
@@ -108,17 +108,9 @@ import IconButton from '@/components/IconButton/IconButton.vue'
     IconButton
   }
 })
-export default class AttachFilePopOver extends Vue {
+export default class AttachFilePopOver extends mixins(ConversationMixin) {
   acceptedDocFiles = 'application/*, text/*' as string
   acceptedVisualFiles = 'image/*, video/*' as string
-  screenWidth = 0 as number
-
-  mounted () {
-    this.$nextTick(function () {
-      this.onResize()
-    })
-    window.addEventListener('resize', this.onResize)
-  }
 
   get currentTheme () {
     return store.state.currentTheme
@@ -129,35 +121,31 @@ export default class AttachFilePopOver extends Vue {
   }
 
   handleFileChange (event: Event): void {
-    const files = (event.target as HTMLInputElement).files!
-    ;[...files].forEach((file: any) => {
-      const extension = file.name.split('.')[1]
-      const blob = file.slice(0, file.size, file.type)
-      const customFile = new File([blob], createUUID(36) + '.' + extension, { type: file.type })
+    const input = event.target as HTMLInputElement
+    const files = input.files
 
-      const fileURL = URL.createObjectURL(customFile)
+    if (files) {
+      [...files].forEach((file: any) => {
+        const extension = file.name.split('.')[1]
+        const blob = file.slice(0, file.size, file.type)
+        const customFile = new File([blob], createUUID(36) + '.' + extension, { type: file.type })
 
-      if (file.size < 5000001) {
-        this.$emit('file-upload', {
-          name: customFile.name.split('.')[0],
-          size: customFile.size,
-          type: customFile.type,
-          extension: customFile.name.split('.')[1],
-          localUrl: fileURL,
-          file: customFile
-        })
-      } else {
-        this.$toast.open({
-          message: 'Image upload cannot be more than 5mb',
-          type: 'error',
-          position: 'bottom-left'
-        })
-      }
-    })
-  }
+        const fileURL = URL.createObjectURL(customFile)
 
-  onResize () {
-    this.screenWidth = window.innerWidth
+        if (file.size < 5000001) {
+          this.$emit('file-upload', {
+            name: customFile.name.split('.')[0],
+            size: customFile.size,
+            type: customFile.type,
+            extension: customFile.name.split('.')[1],
+            localUrl: fileURL,
+            file: customFile
+          })
+        } else {
+          this.showToast('Image upload cannot be more than 5mb.', 'error')
+        }
+      })
+    }
   }
 }
 </script>

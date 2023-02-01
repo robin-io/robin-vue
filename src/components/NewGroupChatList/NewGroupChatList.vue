@@ -73,9 +73,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import store from '@/store/index'
+import Component, { mixins } from 'vue-class-component'
 import IconButton from '../IconButton/IconButton.vue'
 import Content from '../Content/Content.vue'
 import SearchBar from '../SearchBar/SearchBar.vue'
@@ -86,8 +84,9 @@ import AlphabetBlock from '../AlphabetBlock/AlphabetBlock.vue'
 import ChatListCard from '../ChatListCard/ChatListCard.vue'
 import EventBus from '@/event-bus'
 import VirtualScroller from '../VirtualScroller/VirtualScroller.vue'
+import ConversationMixin from '@/mixins/conversation-mixins'
 
-const ComponentProps = Vue.extend({
+const ComponentProps = mixins(ConversationMixin).extend({
   props: {
     groupName: {
       type: String,
@@ -95,7 +94,7 @@ const ComponentProps = Vue.extend({
     },
     groupIcon: {
       type: Object,
-      default: () => {}
+      default: () => ({})
     }
   }
 })
@@ -116,15 +115,15 @@ const ComponentProps = Vue.extend({
   },
   watch: {
     $robin_users: {
-      handler (val) {
+      handler () {
         this.getContacts('', 'create-group')
       }
     }
   }
 })
 export default class NewGroupChatList extends ComponentProps {
-  childHeight = [] as Array<Number>
-  contacts = [] as Array<String | ObjectType>
+  childHeight = [] as Array<number>
+  contacts = [] as Array<string | ObjectType>
   checkBoxKeyState = 0 as number
   users = [] as Array<ObjectType>
   isLoading = false as boolean
@@ -132,6 +131,9 @@ export default class NewGroupChatList extends ComponentProps {
   searchData = [] as Array<any>
   updatingParticipants = false
   conversationId = ''
+  currentConversation!: ObjectType
+  showToast!: (message: string, info: string) => void
+  currentTheme!: string
 
   created () {
     this.handleAddGroupParticipants()
@@ -139,14 +141,6 @@ export default class NewGroupChatList extends ComponentProps {
 
   mounted () {
     this.getContacts('', 'create-group')
-  }
-
-  get currentTheme () {
-    return store.state.currentTheme
-  }
-
-  get currentConversation () {
-    return store.state.currentConversation
   }
 
   closeModal (): void {
@@ -240,7 +234,7 @@ export default class NewGroupChatList extends ComponentProps {
     }
   }
 
-  toggleCheckAction (val: boolean, user: Object): void {
+  toggleCheckAction (val: boolean, user: ObjectType): void {
     if (!val) {
       this.addUser(user)
     } else {
@@ -305,11 +299,7 @@ export default class NewGroupChatList extends ComponentProps {
         this.isUploading = false
       }
     } else {
-      this.$toast.open({
-        message: 'Check your connection.',
-        type: 'error',
-        position: 'bottom-left'
-      })
+      this.showToast('Check your connection', 'error')
       this.isUploading = false
     }
   }
@@ -338,11 +328,7 @@ export default class NewGroupChatList extends ComponentProps {
 
       EventBus.$emit('update.group.conversation', res.data)
     } else {
-      this.$toast.open({
-        message: 'Check your connection.',
-        type: 'error',
-        position: 'bottom-left'
-      })
+      this.showToast('Check your connection', 'error')
       this.isUploading = false
     }
   }
@@ -386,7 +372,6 @@ export default class NewGroupChatList extends ComponentProps {
 
   isGroupParticipant (contact: ObjectType): boolean {
     if (Object.keys(this.currentConversation).length > 0) {
-      console.log(this.currentConversation.participants.some((participant: ObjectType) => participant.user_token === contact.userToken))
       return this.currentConversation.participants.some((participant: ObjectType) => participant.user_token === contact.userToken)
     }
 

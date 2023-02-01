@@ -99,11 +99,7 @@
             <unread-message-count :unread="item.unread_messages" />
           </div>
           <div class="robin-hidden robin-ml-10" @click="openModal" v-clickaway="closeModal">
-            <icon-button
-              name="openModalDot"
-              :to-click-away="false"
-              :to-emit="false"
-            />
+            <icon-button name="openModalDot" :to-click-away="false" :to-emit="false" />
           </div>
         </div>
       </div>
@@ -128,13 +124,23 @@
       class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4 robin-flex-1"
     >
       <div class="robin-flex">
-        <message-content v-show="!item.is_group" :font-size="14" :line-height="18">{{
-          item.sender_token != $user_token ? item.sender_name : item.receiver_name
-        }}</message-content>
+        <message-content
+          v-show="!item.is_group"
+          :color="currentTheme == 'light' ? '#8D9091' : '#B6B6B6'"
+          :font-size="14"
+          :line-height="18"
+          >{{
+            item.sender_token != $user_token ? item.sender_name : item.receiver_name
+          }}</message-content
+        >
 
-        <message-content v-show="item.is_group" :font-size="14" :line-height="18">{{
-          item.name
-        }}</message-content>
+        <message-content
+          v-show="item.is_group"
+          :color="currentTheme == 'light' ? '#8D9091' : '#B6B6B6'"
+          :font-size="14"
+          :line-height="18"
+          >{{ item.name }}</message-content
+        >
       </div>
 
       <div class="robin-ml-auto">

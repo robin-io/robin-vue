@@ -14,9 +14,10 @@
 <script lang="ts">
 import Vue from 'vue'
 import store from '@/store/index'
-import Component from 'vue-class-component'
+import Component, { mixins } from 'vue-class-component'
 import Content from '@/components/Content/Content.vue'
 import EventBus from '@/event-bus'
+import ConversationMixin from '@/mixins/conversation-mixins'
 
 @Component({
   name: 'GroupPrompt',
@@ -24,19 +25,7 @@ import EventBus from '@/event-bus'
     Content
   }
 })
-export default class GroupPrompt extends Vue {
-  get currentConversation () {
-    return store.state.currentConversation
-  }
-
-  get currentParticipantToken () {
-    return store.state.currentParticipantToken
-  }
-
-  get isParticipantModerator () {
-    return store.state.isParticipantModerator
-  }
-
+export default class GroupPrompt extends mixins(ConversationMixin) {
   closeModal () {
     store.setState('groupPromptOpen', false)
   }
@@ -48,11 +37,7 @@ export default class GroupPrompt extends Vue {
       EventBus.$emit('participant.assigned.moderator', res.data)
       this.closeModal()
     } else {
-      this.$toast.open({
-        message: 'Check your connection.',
-        type: 'error',
-        position: 'bottom-left'
-      })
+      this.showToast('Check your connection.', 'error')
     }
   }
 
@@ -63,11 +48,7 @@ export default class GroupPrompt extends Vue {
       // EventBus.$emit('participant.left.group', { conversation_id: this.currentConversation._id, user_token: this.currentParticipantToken })
       this.closeModal()
     } else {
-      this.$toast.open({
-        message: 'Check your connection.',
-        type: 'error',
-        position: 'bottom-left'
-      })
+      this.showToast('Check your connection.', 'error')
     }
   }
 }

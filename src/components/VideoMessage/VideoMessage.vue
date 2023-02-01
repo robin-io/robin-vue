@@ -101,7 +101,7 @@
             :color="currentTheme === 'light' ? '#7a7a7a' : '#B6B6B6'"
             as="p"
           >
-            {{ !message.pseudo ? formatTimeStamp(message.content.timestamp) : '' }}
+            {{ !message.pseudo ? formatTimeStamp(message.created_at) : '' }}
 
             <SvgIcon
               name="read"
@@ -131,8 +131,8 @@
 
 <script lang="ts">
 import Vue, { PropType } from 'vue'
-import store from '@/store/index'
-import Component from 'vue-class-component'
+import Component, { mixins } from 'vue-class-component'
+import ConversationMixin from '@/mixins/conversation-mixins'
 import { EmailRegex, WebsiteRegex } from '@/utils/constants'
 import { convertArrayBufferToFile } from '@/utils/helpers'
 import moment from 'moment'
@@ -142,7 +142,7 @@ import Content from '@/components/Content/Content.vue'
 import SvgIcon from '@/components/SvgIcon/SvgIcon.vue'
 import ReplyMessageBubble from '../ReplyMessageBubble/ReplyMessageBubble.vue'
 
-const ComponentProps = Vue.extend({
+const ComponentProps = mixins(ConversationMixin).extend({
   props: {
     message: {
       type: Object as PropType<ObjectType>,
@@ -189,10 +189,8 @@ const ComponentProps = Vue.extend({
       }
     },
     message: {
-      handler () {
-        if (this.message.reactions) {
-          this.handleMessageReactions(this.message.reactions)
-        }
+      handler (_, newMessage) {
+        this.msgReactions = newMessage.reactions ?? []
       },
       deep: true
     }
@@ -200,43 +198,20 @@ const ComponentProps = Vue.extend({
 })
 export default class VideoMessage extends ComponentProps {
   caretOpen = false
-  screenWidth = 0 as number
-  reactions = { '❤️': [], '👍': [], '👎': [], '😂': [], '⁉️': [] } as ObjectType
+  msgReactions = [] as Array<ObjectType>
   emailRegex = EmailRegex
   websiteRegex = WebsiteRegex
   convertArrayBufferToFile = convertArrayBufferToFile
-
-  get isReplyMessagesEnabled () {
-    return store.state.replyMessagesEnabled
-  }
-
-  get selectMessagesOpen () {
-    return store.state.selectMessagesOpen
-  }
-
-  get currentConversation () {
-    return store.state.currentConversation
-  }
-
-  get currentTheme () {
-    return store.state.currentTheme
-  }
-
-  get isMessageReactionViewEnabled () {
-    return store.state.messageReactionViewEnabled
-  }
-
-  get isForwardMessagesEnabled () {
-    return store.state.forwardMessagesEnabled
-  }
-
-  get isDeleteMessagesEnabled () {
-    return store.state.deleteMessagesEnabled
-  }
-
-  get isMessageReactionDeleteEnabled () {
-    return store.state.messageReactionDeleteEnabled
-  }
+  isMessageReactionViewEnabled!: boolean
+  isMessageReactionDeleteEnabled!: boolean
+  isReplyMessagesEnabled!: boolean
+  isDeleteMessagesEnabled!: boolean
+  isForwardMessagesEnabled!: boolean
+  selectMessagesOpen!: boolean
+  screenWidth!: number
+  currentTheme!: string
+  currentConversation!: ObjectType
+  getContactName!: (sender_token: string) => string
 
   get isMessageClickable () {
     if (
@@ -265,6 +240,16 @@ export default class VideoMessage extends ComponentProps {
     return false
   }
 
+  get reactions () {
+    const newReactions = { '❤️': [], '👍': [], '👎': [], '😂': [], '⁉️': [] } as ObjectType
+
+    for (const reaction of this.msgReactions) {
+      newReactions[reaction.reaction].push(reaction.reaction)
+    }
+
+    return newReactions
+  }
+
   mounted () {
     this.$nextTick(function () {
       this.onResize()
@@ -282,8 +267,6 @@ export default class VideoMessage extends ComponentProps {
   }
 
   onResize () {
-    this.screenWidth = window.innerWidth
-
     if (this.screenWidth <= 1024) {
       this.caretOpen = true
     } else {
@@ -401,16 +384,6 @@ export default class VideoMessage extends ComponentProps {
     return 'robin-message-sender' // false
   }
 
-  handleMessageReactions (reactions: Array<ObjectType>) {
-    const newReactions = { '❤️': [], '👍': [], '👎': [], '😂': [], '⁉️': [] } as ObjectType
-
-    for (const reaction of reactions) {
-      newReactions[reaction.reaction].push(reaction.reaction)
-    }
-
-    this.reactions = newReactions
-  }
-
   removeReaction (reaction: string): void {
     const messageReaction = this.message.reactions.find(
       (item: ObjectType) => item.reaction === reaction
@@ -435,12 +408,6 @@ export default class VideoMessage extends ComponentProps {
       }),
       containsEmail: texts.some((text: string) => this.emailRegex.test(text))
     }
-  }
-
-  getContactName (sender_token: string): string {
-    const index = this.$robin_users.findIndex((user) => user.userToken === sender_token) as number
-    const user = this.$robin_users[index] as ObjectType
-    return user ? user.userName : ''
   }
 
   scrollToRepliedMessage (id: string) {

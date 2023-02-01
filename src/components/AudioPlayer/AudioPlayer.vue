@@ -63,7 +63,6 @@ const ComponentProps = Vue.extend({
   watch: {
     currentAudioPlaying: {
       handler (playingIndex) {
-        console.log(playingIndex, this.index)
         if (playingIndex !== this.index) {
           this.isPlaying = false
         }

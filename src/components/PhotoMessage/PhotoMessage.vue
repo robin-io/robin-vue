@@ -133,7 +133,7 @@
           as="p"
           class="robin-flex"
         >
-          {{ !message[0].pseudo ? formatTimeStamp(message[0].content.timestamp) : '' }}
+          {{ !message[0].pseudo ? formatTimeStamp(message[0].created_at) : '' }}
 
           <SvgIcon
             name="read"
@@ -171,10 +171,10 @@
 
 <script lang="ts">
 import Vue, { PropType } from 'vue'
-import store from '@/store/index'
-import Component from 'vue-class-component'
+import Component, { mixins } from 'vue-class-component'
 import moment from 'moment'
 import VLazyImage from 'v-lazy-image/v2'
+import ConversationMixin from '@/mixins/conversation-mixins'
 import { EmailRegex, WebsiteRegex } from '@/utils/constants'
 import { convertArrayBufferToFile } from '@/utils/helpers'
 import IconButton from '@/components/IconButton/IconButton.vue'
@@ -183,7 +183,7 @@ import Content from '@/components/Content/Content.vue'
 import SvgIcon from '@/components/SvgIcon/SvgIcon.vue'
 import ReplyMessageBubble from '../ReplyMessageBubble/ReplyMessageBubble.vue'
 
-const ComponentProps = Vue.extend({
+const ComponentProps = mixins(ConversationMixin).extend({
   props: {
     message: {
       type: Array as PropType<Array<ObjectType>>,
@@ -198,10 +198,6 @@ const ComponentProps = Vue.extend({
     index: {
       type: Number,
       default: 0
-    },
-    groupnameColors: {
-      type: Object,
-      default: () => ({})
     },
     isMessagesLoading: {
       type: Boolean,
@@ -223,11 +219,11 @@ const ComponentProps = Vue.extend({
   },
   watch: {
     message: {
-      handler (val: Array<ObjectType>) {
-        this.images = [...val].filter((item) => !item.is_deleted).slice(0, 4) as Array<ObjectType>
-        if (this.message[0].reactions) {
-          this.handleMessageReactions(this.message[0].reactions)
-        }
+      handler (oldMessages: Array<ObjectType>, newMessages: Array<ObjectType>) {
+        let val = newMessages || oldMessages
+        val = val.filter((item: ObjectType) => !item.is_deleted).slice(0, 4)
+        this.images = val as Array<ObjectType>
+        this.msgReactions = val[0]?.reactions ?? []
       },
       immediate: true
     },
@@ -244,43 +240,21 @@ const ComponentProps = Vue.extend({
 export default class PhotoMessage extends ComponentProps {
   images: Array<ObjectType> = []
   caretOpen = false
-  screenWidth = 0 as number
-  reactions = { '❤️': [], '👍': [], '👎': [], '😂': [], '⁉️': [] } as ObjectType
+  msgReactions = [] as Array<ObjectType>
   emailRegex = EmailRegex
   websiteRegex = WebsiteRegex
   convertArrayBufferToFile = convertArrayBufferToFile
-
-  get isReplyMessagesEnabled () {
-    return store.state.replyMessagesEnabled
-  }
-
-  get selectMessagesOpen () {
-    return store.state.selectMessagesOpen
-  }
-
-  get currentConversation () {
-    return store.state.currentConversation
-  }
-
-  get currentTheme () {
-    return store.state.currentTheme
-  }
-
-  get isMessageReactionViewEnabled () {
-    return store.state.messageReactionViewEnabled
-  }
-
-  get isForwardMessagesEnabled () {
-    return store.state.forwardMessagesEnabled
-  }
-
-  get isDeleteMessagesEnabled () {
-    return store.state.deleteMessagesEnabled
-  }
-
-  get isMessageReactionDeleteEnabled () {
-    return store.state.messageReactionDeleteEnabled
-  }
+  isMessageReactionViewEnabled!: boolean
+  isMessageReactionDeleteEnabled!: boolean
+  isReplyMessagesEnabled!: boolean
+  isDeleteMessagesEnabled!: boolean
+  selectMessagesOpen!: boolean
+  isForwardMessagesEnabled!: boolean
+  screenWidth!: number
+  currentTheme!: string
+  groupnameColors!: Array<string>
+  currentConversation!: ObjectType
+  getContactName!: (sender_token: string) => string
 
   get getSizeOfGridClass () {
     if (this.message.length >= 4) {
@@ -321,6 +295,16 @@ export default class PhotoMessage extends ComponentProps {
     return false
   }
 
+  get reactions () {
+    const newReactions = { '❤️': [], '👍': [], '👎': [], '😂': [], '⁉️': [] } as ObjectType
+
+    for (const reaction of this.msgReactions) {
+      newReactions[reaction.reaction].push(reaction.reaction)
+    }
+
+    return newReactions
+  }
+
   mounted () {
     this.$nextTick(function () {
       this.onResize()
@@ -330,8 +314,6 @@ export default class PhotoMessage extends ComponentProps {
   }
 
   onResize () {
-    this.screenWidth = window.innerWidth
-
     if (this.screenWidth <= 1024) {
       this.caretOpen = true
     } else {
@@ -472,16 +454,6 @@ export default class PhotoMessage extends ComponentProps {
     return 'robin-message-sender'
   }
 
-  handleMessageReactions (reactions: Array<ObjectType>) {
-    const newReactions = { '❤️': [], '👍': [], '👎': [], '😂': [], '⁉️': [] } as ObjectType
-
-    for (const reaction of reactions) {
-      newReactions[reaction.reaction].push(reaction.reaction)
-    }
-
-    this.reactions = newReactions
-  }
-
   removeReaction (reaction: string): void {
     const messageReaction = this.message[0].reactions.find(
       (item: ObjectType) => item.reaction === reaction
@@ -506,12 +478,6 @@ export default class PhotoMessage extends ComponentProps {
       }),
       containsEmail: texts.some((text: string) => this.emailRegex.test(text))
     }
-  }
-
-  getContactName (sender_token: string): string {
-    const index = this.$robin_users.findIndex((user) => user.userToken === sender_token) as number
-    const user = this.$robin_users[index] as ObjectType
-    return user ? user.userName : ''
   }
 
   scrollToRepliedMessage (id: string) {

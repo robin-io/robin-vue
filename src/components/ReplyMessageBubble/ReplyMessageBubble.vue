@@ -257,18 +257,19 @@
 import Vue, { PropType } from 'vue'
 import VLazyImage from 'v-lazy-image/v2'
 import store from '@/store/index'
-import Component from 'vue-class-component'
+import Component, { mixins } from 'vue-class-component'
 import Content from '@/components/Content/Content.vue'
 import { createUUID, checkAttachmentType, convertArrayBufferToFile } from '@/utils/helpers'
 import { EmailRegex, WebsiteRegex, VideoRegex, ImageRegex, DocumentRegex } from '@/utils/constants'
 import AudioPlayer from '@/components/AudioPlayer/AudioPlayer.vue'
 import assets from '@/utils/assets.json'
+import ConversationMixin from '@/mixins/conversation-mixins'
 
 interface ReplyMessage {
   [index: string]: any
 }
 
-const ComponentProps = Vue.extend({
+const ComponentProps = mixins(ConversationMixin).extend({
   props: {
     messages: {
       type: Array as PropType<Array<any>>,
@@ -276,7 +277,7 @@ const ComponentProps = Vue.extend({
     },
     message: {
       type: Object,
-      default: () => {}
+      default: () => ({})
     },
     sender: {
       type: Boolean as PropType<boolean>,
@@ -307,6 +308,7 @@ export default class ReplyMessageBubble extends ComponentProps {
   websiteRegex = WebsiteRegex
   checkAttachmentType = checkAttachmentType
   convertArrayBufferToFile = convertArrayBufferToFile
+  getContactName!: (sender_token: string) => string
 
   get imageSelected () {
     return store.state.imageSelected
@@ -355,29 +357,19 @@ export default class ReplyMessageBubble extends ComponentProps {
     return message.some((item: ObjectType) => item.sender_token === this.$user_token)
   }
 
-  getContactName (sender_token: string): string {
-    const index = this.$robin_users.findIndex((user) => user.userToken === sender_token) as number
-    const user = this.$robin_users[index] as any
-    return user ? user.userName : ''
-  }
-
   getReplyMessage (id: string): ReplyMessage {
     const message = this.messages.find((element: ObjectType | Array<ObjectType>) => {
       if (Array.isArray(element)) {
         return element.find((item) => item._id === id)
       }
-
-      if (!Array.isArray(element)) {
-        if (element._id === id) {
-          return element
-        }
-      }
-
-      return false
+      return element._id === id
     }) as ObjectType | Array<ObjectType>
 
     if (Array.isArray(message)) {
-      return message.find((element: ObjectType) => element._id === id)!
+      const found = message.find((element: ObjectType) => element._id === id)
+      if (found) {
+        return found
+      }
     }
 
     return message

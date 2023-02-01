@@ -8,7 +8,7 @@
     "strict": true,
     "jsx": "preserve",
     "sourceMap": true,
-    "types": ["vite/client", "vitest/globals", "cypress", "@testing-library/cypress"],
+    "types": ["vite/client", "cypress", "@testing-library/cypress", "node"],
     "baseUrl": "./src",
     "paths": {
       "@/*": ["./*"]

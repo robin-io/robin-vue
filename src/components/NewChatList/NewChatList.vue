@@ -60,7 +60,7 @@
             <chat-list-card
               :item="slotProps.item"
               :type="4"
-              @create-conversation="debouncedGetConversations(slotProps.item)"
+              @create-conversation="createConversation(slotProps.item)"
             />
           </div>
         </div>
@@ -70,9 +70,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import store from '@/store/index'
+import Component, { mixins } from 'vue-class-component'
 import Content from '../Content/Content.vue'
 import SearchBar from '../SearchBar/SearchBar.vue'
 import Button from '../Button/Button.vue'
@@ -83,7 +81,7 @@ import EventBus from '@/event-bus'
 import IconButton from '../IconButton/IconButton.vue'
 import ChatListCard from '../ChatListCard/ChatListCard.vue'
 import VirtualScroller from '../VirtualScroller/VirtualScroller.vue'
-import debounce from 'lodash.debounce'
+import ConversationMixin from '@/mixins/conversation-mixins'
 
 // eslint-disable-next-line
 @Component<NewChatList>({
@@ -107,31 +105,21 @@ import debounce from 'lodash.debounce'
     }
   }
 })
-export default class NewChatList extends Vue {
+export default class NewChatList extends mixins(ConversationMixin) {
   childHeight = [] as Array<number>
   contacts = [] as Array<string | ObjectType>
   isLoading = false as boolean
   searchData = [] as Array<ObjectType>
   key = 0 as number
-  debouncedGetConversations = null as any | ((user: ObjectType) => void)
+  debouncedGetConversations = null as null | ((user: ObjectType) => void)
 
   created () {
     this.getContacts('')
-
-    this.debouncedGetConversations = debounce((user: ObjectType) => this.createConversation(user), 3000)
   }
 
   get contactHeight () {
     const contactContainer = this.$refs['contact-container'] as HTMLElement
     return contactContainer?.offsetHeight
-  }
-
-  get currentTheme () {
-    return store.state.currentTheme
-  }
-
-  get allConversations () {
-    return store.state.allConversations
   }
 
   async createConversation (user: ObjectType) {
@@ -151,11 +139,7 @@ export default class NewChatList extends Vue {
       EventBus.$emit('open-conversation')
       this.openPreviousModal()
     } else {
-      this.$toast.open({
-        message: 'Check your connection.',
-        type: 'error',
-        position: 'bottom-left'
-      })
+      this.showToast('Check your connection.', 'error')
     }
   }
 
@@ -171,89 +155,42 @@ export default class NewChatList extends Vue {
 
   getContacts (searchText: string): void {
     const contactMap = new Map()
+    const data = searchText.trim() === '' ? this.$robin_users : this.searchData
 
-    if (searchText.trim() === '') {
-      this.$robin_users.forEach((user: any) => {
-        contactMap.set(
-          this.getContactKey(user.userName.trim()),
-          this.$robin_users.filter(
-            (item: ObjectType) =>
-              item.userToken !== this.$user_token &&
-              this.validateContact(item.userName.trim(), user.userName.trim())
-          )
-        )
-      })
+    data.forEach((user: any) => {
+      const filteredData = data.filter(
+        (item: ObjectType) =>
+          item.userToken !== this.$user_token &&
+          this.validateContact(item.userName.trim(), user.userName.trim())
+      )
 
-      for (const key of contactMap.keys()) {
-        if (contactMap.get(key).length === 0) {
-          contactMap.delete(key)
-        }
+      if (filteredData.length > 0) {
+        contactMap.set(this.getContactKey(user.userName.trim()), filteredData)
       }
+    })
 
-      const sortedContactMap = this.sortContacts(contactMap)
-      let contactData = [] as Array<string | ObjectType>
+    const sortedContactMap = this.sortContacts(contactMap)
+    let contactData = [] as Array<string | ObjectType>
 
-      for (const key of sortedContactMap.keys()) {
-        contactData.push(key)
-        contactData = [...contactData, ...contactMap.get(key)]
-      }
-
-      const childHeight = []
-
-      for (const item of contactData) {
-        if (typeof item === 'string') {
-          // AlphabetBlock height
-          childHeight.push(42)
-        } else {
-          // Contact card height
-          childHeight.push(80)
-        }
-      }
-
-      this.childHeight = childHeight
-
-      this.contacts = contactData
-    } else {
-      const contactMap = new Map()
-
-      this.searchData.forEach((user: any) => {
-        contactMap.set(
-          this.getContactKey(user.userName.trim()),
-          this.searchData.filter(
-            (item: ObjectType) =>
-              item.userToken !== this.$user_token &&
-              this.validateContact(item.userName.trim(), user.userName.trim())
-          )
-        )
-      })
-
-      let contactData = [] as Array<string | ObjectType>
-
-      for (const key of contactMap.keys()) {
-        contactData.push(key)
-        contactData = [...contactData, ...contactMap.get(key)]
-      }
-
-      this.contacts = contactData
+    for (const key of sortedContactMap.keys()) {
+      contactData.push(key)
+      contactData = [...contactData, ...contactMap.get(key)]
     }
+
+    const childHeight = contactData.map(
+      (item: any) => (typeof item === 'string' ? 42 : 80)
+    )
+
+    this.childHeight = childHeight
+    this.contacts = contactData
   }
 
   searchContacts (searchText: string): void {
     this.isLoading = true
-    // eslint-disable-next-line array-callback-return
+    const searchTextLower = searchText.toLowerCase()
     const data = this.$robin_users.filter((obj: any) => {
-      let stopSearch = false
-      Object.values(obj).forEach((val) => {
-        const filter = String(val).toLowerCase().includes(searchText.toLowerCase())
-        if (filter) {
-          stopSearch = true
-        }
-      })
-      if (stopSearch) {
-        return obj
-      }
+      return Object.values(obj).some((val) => String(val).toLowerCase().includes(searchTextLower))
     })
-
     this.searchData = [...data]
     this.getContacts(searchText)
     setTimeout(() => {

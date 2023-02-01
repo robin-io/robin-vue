@@ -6,9 +6,6 @@
   top: 0;
   left: 0;
   z-index: 101;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   overflow-y: auto;
 }
 
@@ -26,6 +23,10 @@
 .robin-forward-message .robin-modal-container {
   width: max-content;
   border-radius: 10px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .robin-forward-message .robin-inner-container {

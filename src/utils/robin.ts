@@ -359,44 +359,40 @@ export class Robin {
   }
 
   // subscribe to channel
-  subscribe (channel: string, conn: WebSocket) {
-    const msg :Message = {
-      type: 0,
-      channel: channel,
-      content: {},
-      conversation_id: ''
-    }
-    conn.send(JSON.stringify(msg))
+  subscribe (msg: string, conn: WebSocket) {
+    conn.send(msg)
   }
 
   // send message to conversation
 
-  sendMessageToConversation (msg: object, conn: WebSocket, channel:string, conversation_id: string, senderToken?: string, senderName?: string) {
-    const message :Message = {
-      type: 1,
-      channel: channel,
-      content: msg,
-      sender_token: senderToken,
-      conversation_id: conversation_id,
-      sender_name: senderName
-    }
+  sendMessageToConversation (message: string, conn: WebSocket) {
+    // msg: object, conn: WebSocket, channel:string, conversation_id: string, senderToken?: string, senderName?: string
+    // const message :Message = {
+    //   type: 1,
+    //   channel: channel,
+    //   content: msg,
+    //   sender_token: senderToken,
+    //   conversation_id: conversation_id,
+    //   sender_name: senderName
+    // }
 
-    conn.send(JSON.stringify(message))
+    conn.send(message)
   }
 
-  replyToMessage (msg: object, conn: WebSocket, channel: string, conversation_id: string, replyTo: string, senderToken?: string, senderName?: string) {
-    const message :Message = {
-      type: 1,
-      channel: channel,
-      content: msg,
-      sender_token: senderToken,
-      conversation_id: conversation_id,
-      reply_to: replyTo,
-      is_reply: true,
-      sender_name: senderName
-    }
+  replyToMessage (message: string, conn: WebSocket) {
+    // msg: object, conn: WebSocket, channel: string, conversation_id: string, replyTo: string, senderToken?: string, senderName?: string
+    // const message :Message = {
+    //   type: 1,
+    //   channel: channel,
+    //   content: msg,
+    //   sender_token: senderToken,
+    //   conversation_id: conversation_id,
+    //   reply_to: replyTo,
+    //   is_reply: true,
+    //   sender_name: senderName
+    // }
 
-    conn.send(JSON.stringify(message))
+    conn.send(message)
   }
 
   async reactToMessage (reaction: string, conversation_id: string, message_id: string, sender_token: string) {

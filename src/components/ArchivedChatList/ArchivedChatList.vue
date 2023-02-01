@@ -57,7 +57,7 @@
 import Vue from 'vue'
 import moment from 'moment'
 import store from '@/store/index'
-import Component from 'vue-class-component'
+import Component, { mixins } from 'vue-class-component'
 import EventBus from '@/event-bus'
 import Content from '../Content/Content.vue'
 import IconButton from '../IconButton/IconButton.vue'
@@ -65,11 +65,7 @@ import Avatar from '../Avatar/Avatar.vue'
 import GroupAvatar from '../GroupAvatar/GroupAvatar.vue'
 import ChatListCard from '../ChatListCard/ChatListCard.vue'
 import ChatListPopUp from '../ChatListPopUp/ChatListPopUp.vue'
-
-const ComponentProps = Vue.extend({
-  props: {
-  }
-})
+import ConversationMixin from '@/mixins/conversation-mixins'
 
 // eslint-disable-next-line
 @Component<ArchivedChatList>({
@@ -83,7 +79,7 @@ const ComponentProps = Vue.extend({
     ChatListPopUp
   }
 })
-export default class ArchivedChatList extends ComponentProps {
+export default class ArchivedChatList extends mixins(ConversationMixin) {
   conversationIndex = 0
   conversations = [] as Array<ObjectType>
   paginatedConversations = [] as Array<ObjectType>
@@ -91,22 +87,7 @@ export default class ArchivedChatList extends ComponentProps {
   pageCount = 0
   scroll = false as boolean
   throttleTimer = false as boolean
-
-  get screenWidth () {
-    return store.state.screenWidth
-  }
-
-  get allConversations () {
-    return store.state.allConversations
-  }
-
-  get currentConversation () {
-    return store.state.currentConversation
-  }
-
-  get currentTheme () {
-    return store.state.currentTheme
-  }
+  showToast!: (message: string, info: string) => void
 
   created () {
     this.getConversations()
@@ -202,11 +183,7 @@ export default class ArchivedChatList extends ComponentProps {
 
       EventBus.$emit('archived-conversation.delete', conversation)
       EventBus.$emit('regular-conversation.add', conversation)
-      this.$toast.open({
-        message: 'Conversation unarchived.',
-        type: 'success',
-        position: 'bottom-left'
-      })
+      this.showToast('Conversation unarchived.', 'success')
       this.$emit('refresh')
     }
   }
