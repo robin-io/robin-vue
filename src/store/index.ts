@@ -86,4 +86,17 @@ const store = {
   }
 }
 
+// add reactivity robin_users.
+const robinUsers = Vue.observable({ robin_users: {} })
+
+Object.defineProperty(Vue.prototype, '$robin_users', {
+  get () {
+    return robinUsers.robin_users
+  },
+
+  set (value) {
+    robinUsers.robin_users = value
+  }
+})
+
 export default store

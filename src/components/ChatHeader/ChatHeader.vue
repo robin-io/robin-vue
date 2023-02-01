@@ -124,7 +124,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import Component from 'vue-class-component'
+import Component, { mixins } from 'vue-class-component'
 import store from '@/store/index'
 import IconButton from '@/components/IconButton/IconButton.vue'
 import GroupAvatar from '@/components/GroupAvatar/GroupAvatar.vue'
@@ -133,12 +133,13 @@ import Content from '@/components/Content/Content.vue'
 import Button from '@/components/Button/Button.vue'
 import ChatHeaderPopUp from '../ChatHeaderPopUp/ChatHeaderPopUp.vue'
 import EventBus from '@/event-bus'
+import ConversationMixin from '@/mixins/conversation-mixins'
 
 interface PopUpState {
   opened: boolean
 }
 
-const ComponentProps = Vue.extend({
+const ComponentProps = mixins(ConversationMixin).extend({
   props: {
     selectedMessages: {
       type: Array,
@@ -159,16 +160,23 @@ const ComponentProps = Vue.extend({
     ChatHeaderPopUp
   },
   watch: {
-    $robin_users: {
-      handler (val) {
+    robinUsers: {
+      handler () {
         this.avatarKey += 1
       }
     }
   }
 })
 export default class ChatHeader extends ComponentProps {
-  screenWidth = 0 as number
   avatarKey = 0 as number
+  screenWidth!: number
+  profileOpen!: boolean
+  showDefaultProfileDetails!: boolean
+  selectMessagesOpen!: boolean
+  isForwardMessagesEnabled!: boolean
+  isDeleteMessagesEnabled!: boolean
+  currentConversation!: ObjectType
+  currentTheme!: string
 
   popUpState: PopUpState = {
     opened: false
@@ -177,41 +185,6 @@ export default class ChatHeader extends ComponentProps {
   created () {
     this.handleUserConnect()
     this.handleUserDisconnect()
-  }
-
-  mounted () {
-    this.$nextTick(function () {
-      this.onResize()
-    })
-    window.addEventListener('resize', this.onResize)
-  }
-
-  get currentConversation () {
-    return store.state.currentConversation
-  }
-
-  get currentTheme () {
-    return store.state.currentTheme
-  }
-
-  get profileOpen () {
-    return store.state.profileOpen
-  }
-
-  get selectMessagesOpen () {
-    return store.state.selectMessagesOpen
-  }
-
-  get isDeleteMessagesEnabled () {
-    return store.state.deleteMessagesEnabled
-  }
-
-  get isForwardMessagesEnabled () {
-    return store.state.forwardMessagesEnabled
-  }
-
-  get showDefaultProfileDetails () {
-    return store.state.useDefaultProfileDetails
   }
 
   handleOpenPopUp (event: ObjectType): void {
@@ -249,20 +222,20 @@ export default class ChatHeader extends ComponentProps {
     })
   }
 
-  getProfileImage (conversation: ObjectType) {
-    const index = this.$robin_users.findIndex(
-      (user: any) => user.userToken === conversation.sender_token
-    )
-
-    return this.$robin_users[index] ? this.$robin_users[index].profileImage : null
-  }
-
   handleUserDisconnect () {
     EventBus.$on('user.disconnect', (conversation: string) => {
       if (conversation !== this.$user_token) {
         this.currentConversation.status = 'offline'
       }
     })
+  }
+
+  getProfileImage (conversation: ObjectType) {
+    const index = this.$robin_users.findIndex(
+      (user: any) => user.userToken === conversation.sender_token
+    )
+
+    return this.$robin_users[index] ? this.$robin_users[index].profileImage : null
   }
 
   openProfile () {
@@ -280,10 +253,6 @@ export default class ChatHeader extends ComponentProps {
 
   deleteSelectedMessages () {
     this.$emit('delete-selected-messages')
-  }
-
-  onResize () {
-    this.screenWidth = window.innerWidth
   }
 
   back () {

@@ -355,12 +355,14 @@ export default class MessageContainer extends mixins(ConversationMixin) {
 
   readReceipts () {
     EventBus.$on('read.reciept', (message: ObjectType) => {
-      const messages = this.copyConversations(this.offlineMessages.messages[this.currentConversation._id])
-      const index = messages.findIndex((item: ObjectType) => item._id === message.message_ids[0])
-      messages[index].is_read = true
+      if (this.currentConversation._id) {
+        const messages = this.copyConversations(this.offlineMessages.messages[this.currentConversation._id])
+        const index = messages.findIndex((item: ObjectType) => item._id === message.message_ids[0])
+        messages[index].is_read = true
 
-      if (index !== -1) {
-        this.$set(this.offlineMessages.messages, this.currentConversation._id, messages)
+        if (index !== -1) {
+          this.$set(this.offlineMessages.messages, this.currentConversation._id, messages)
+        }
       }
     })
   }

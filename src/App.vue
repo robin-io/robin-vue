@@ -38,6 +38,7 @@
 <script lang="ts">
 import Vue, { PropType } from 'vue'
 import Component, { mixins } from 'vue-class-component'
+import axios from 'axios'
 import store from './store/index'
 import { Robin } from './utils/robin'
 import EventBus from './event-bus'
@@ -285,7 +286,7 @@ export default class App extends ComponentProps {
       filteredUsers.push(newUser)
     })
 
-    Vue.prototype.$robin_users = [...filteredUsers]
+    this.$robin_users = [...filteredUsers]
   }
 
   setPrototypes () {
