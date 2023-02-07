@@ -79,14 +79,13 @@
         class="robin-wrapper robin-w-100 robin-h-100 robin-flex robin-flex-column robin-flex-align-center robin-flex-space-between"
       >
         <div class="robin-image-preview">
-          <v-lazy-image class="robin-uploaded-image" :src="imagePreview" />
+          <img :src="imagePreview" class="robin-uploaded-image" loading="lazy" alt=".." />
         </div>
 
         <div
           class="robin-image-row robin-overflow-x-auto robin-flex robin-flex-align-center robin-mt-16"
         >
-          <v-lazy-image
-            class="robin-uploaded-image"
+          <img
             v-for="(image, index) in images"
             :key="index"
             :src="
@@ -94,11 +93,14 @@
                 ? convertArrayBufferToFile(image.content.attachment, image)
                 : image.content.attachment
             "
-            @click.native="onSelectChange(index)"
+            @click="onSelectChange(index)"
+            class="robin-uploaded-image"
             :class="[
               index === imageSelected && images.length > 1 ? 'selected' : '',
               images.length === 1 && 'not-selected'
             ]"
+            loading="lazy"
+            alt=".."
           />
         </div>
       </div>
@@ -112,10 +114,8 @@
 </template>
 
 <script lang="ts">
-import { PropType } from 'vue'
 import Component, { mixins } from 'vue-class-component'
 import EventBus from '@/event-bus'
-import VLazyImage from 'v-lazy-image/v2'
 import store from '@/store/index'
 import mime from 'mime'
 import { arrayBufferToBlob, createUUID } from '@/utils/helpers'
@@ -153,7 +153,6 @@ const ComponentProps = mixins(ConversationMixin).extend({
     GroupAvatar,
     Avatar,
     PhotoPreviewPopUp,
-    VLazyImage,
     ForwardMessage
   },
   watch: {

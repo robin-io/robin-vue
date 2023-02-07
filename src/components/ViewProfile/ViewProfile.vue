@@ -95,11 +95,13 @@
           v-slot="slotProps"
         >
           <div class="robin-media-grid" :key="slotProps.index">
-            <v-lazy-image
+            <img
               v-if="imageRegex.test(checkAttachmentType(slotProps.item.content.attachment))"
-              class="robin-uploaded-image"
               :src="slotProps.item.content.attachment"
-              @click.native="openImagePreview([slotProps.item])"
+              class="robin-uploaded-image"
+              loading="lazy"
+              @click="openImagePreview([slotProps.item])"
+              alt=".."
             />
 
             <video
@@ -362,9 +364,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
 import moment from 'moment'
-import VLazyImage from 'v-lazy-image/v2'
 import Component, { mixins } from 'vue-class-component'
 import Content from '../Content/Content.vue'
 import Avatar from '../Avatar/Avatar.vue'
@@ -391,7 +391,6 @@ import ConversationMixin from '@/mixins/conversation-mixins'
     'message-content': Content,
     Avatar,
     GroupAvatar,
-    VLazyImage,
     ViewProfileCard,
     VirtualScroller
   },

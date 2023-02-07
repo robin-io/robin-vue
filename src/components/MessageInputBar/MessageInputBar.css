@@ -157,6 +157,7 @@
 
 .robin-message-input-box .robin-file-upload,
 .robin-message-input-box .robin-reply {
+  display: flex;
   position: relative;
   word-break: break-word;
   /* font-size: 0.8rem; */

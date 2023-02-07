@@ -101,7 +101,7 @@ const ComponentProps = Vue.extend({
   props: {
     message: {
       type: [Object, Array],
-      default: () => {}
+      default: () => ({})
     }
   }
 })

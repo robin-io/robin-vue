@@ -68,13 +68,15 @@
           :key="image._id"
           :class="validateImageClass(index)"
         >
-          <v-lazy-image
-            class="robin-uploaded-image"
+          <img
             :src="
               typeof image.content.attachment !== 'string'
                 ? convertArrayBufferToFile(image.content.attachment, image)
                 : image.content.attachment
             "
+            class="robin-uploaded-image"
+            loading="lazy"
+            alt=".."
           />
         </div>
 
@@ -173,7 +175,6 @@
 import Vue, { PropType } from 'vue'
 import Component, { mixins } from 'vue-class-component'
 import moment from 'moment'
-import VLazyImage from 'v-lazy-image/v2'
 import ConversationMixin from '@/mixins/conversation-mixins'
 import { EmailRegex, WebsiteRegex } from '@/utils/constants'
 import { convertArrayBufferToFile } from '@/utils/helpers'
@@ -212,7 +213,6 @@ const ComponentProps = mixins(ConversationMixin).extend({
   components: {
     Content,
     SvgIcon,
-    VLazyImage,
     ReplyMessageBubble,
     CheckBox,
     IconButton

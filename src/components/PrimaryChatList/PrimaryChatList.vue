@@ -429,26 +429,30 @@ export default class PrimaryChatList extends mixins(ConversationMixin) {
 
   handleMarkAsRead () {
     EventBus.$on('mark-as-read', (conversation: ObjectType) => {
-      const index = this.allConversations.findIndex((item) => item._id === conversation._id)
+      if (conversation._id) {
+        const index = this.allConversations.findIndex((item) => item._id === conversation._id)
 
-      if (index !== -1) {
-        const conversations = this.copyConversations(this.allConversations)
-        conversations[index].unread_messages = 0
-        store.setState('allConversations', conversations)
+        if (index !== -1) {
+          const conversations = this.copyConversations(this.allConversations)
+          conversations[index].unread_messages = 0
+          store.setState('allConversations', conversations)
+        }
       }
     })
   }
 
   handleMarkAsUnread () {
     EventBus.$on('mark-as-unread', (conversation: ObjectType) => {
-      const index = this.allConversations.findIndex(
-        (item) => item._id === conversation._id
-      )
+      if (conversation._id) {
+        const index = this.allConversations.findIndex(
+          (item) => item._id === conversation._id
+        )
 
-      if (index !== -1) {
-        const conversations = this.copyConversations(this.allConversations)
-        conversations[index].unread_messages += 1
-        store.setState('allConversations', conversations)
+        if (index !== -1) {
+          const conversations = this.copyConversations(this.allConversations)
+          conversations[index].unread_messages += 1
+          store.setState('allConversations', conversations)
+        }
       }
     })
   }

@@ -68,9 +68,11 @@
       }}
     </message-content>
 
-    <v-lazy-image
-      class="robin-uploaded-image"
+    <img
       :src="getImage(getReplyMessage(message.reply_to).content.attachment)"
+      class="robin-uploaded-image"
+      loading="lazy"
+      alt=".."
     />
 
     <message-content
@@ -254,8 +256,7 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropType } from 'vue'
-import VLazyImage from 'v-lazy-image/v2'
+import { PropType } from 'vue'
 import store from '@/store/index'
 import Component, { mixins } from 'vue-class-component'
 import Content from '@/components/Content/Content.vue'
@@ -295,7 +296,6 @@ const ComponentProps = mixins(ConversationMixin).extend({
   name: 'ReplyMessageBubble',
   components: {
     'message-content': Content,
-    VLazyImage,
     AudioPlayer
   }
 })

@@ -5,7 +5,9 @@ import moment from 'moment'
 import CryptoJS from 'crypto-js'
 import { Colors } from '@/utils/constants'
 
-@Component
+@Component({
+  name: 'ConversationMixins'
+})
 export default class ConversationMixin extends Vue {
     toastMessages = new Map([['Connected', false], ['Reconnecting', false], ['Disconnected', false]])
     offlineMessages: ObjectType | undefined;
@@ -48,41 +50,6 @@ export default class ConversationMixin extends Vue {
 
     get currentTheme () {
       return store.state.currentTheme
-    }
-
-    get conversationCreatedAt () {
-      const messages = this.offlineMessages?.messages[this.currentConversation._id]
-
-      if (messages.length < 1) return ''
-
-      const info = this.currentConversation.is_group
-        ? 'This group was created by'
-        : 'This conversation was created'
-      let dateText = ''
-
-      if (this.currentConversation.is_group) {
-        const moderator = this.currentConversation.moderator
-        const date = !Array.isArray(messages[0][0])
-          ? this.formatDate?.(messages[0].created_at)
-          : this.formatDate?.((messages[0][0] as ObjectType).created_at)
-        dateText +=
-            this.$user_token === moderator.user_token ? ' You' : ' ' + moderator.meta_data.display_name
-        dateText += date === 'Today' ? ' today.' : ` on ${date}.`
-      } else {
-        if (!Array.isArray(messages[0])) {
-          const date = this.formatDate?.(messages[0].created_at)
-          dateText += date === 'Today' ? ' today.' : ` on ${date}.`
-        } else {
-          const date = this.formatDate?.(messages[0][0].created_at)
-          dateText += date === 'Today' ? ' today.' : ` on ${date}.`
-        }
-      }
-
-      if (info && dateText) {
-        return info + ' ' + dateText
-      }
-
-      return ''
     }
 
     get screenWidth () {
@@ -236,7 +203,12 @@ export default class ConversationMixin extends Vue {
     }
 
     copyConversations (conversations: Array<ObjectType>): Array<ObjectType> {
-      return conversations.map(conversation => ({ ...conversation }))
+      return conversations.map(conversation => {
+        if (Array.isArray(conversation)) {
+          return [...conversation]
+        }
+        return { ...conversation }
+      })
     }
 
     getContactName (sender_token: string): string {
@@ -246,12 +218,12 @@ export default class ConversationMixin extends Vue {
     }
 
     showToast (message: string, type: string): void {
-      if (this.toastMessages.get(message)) {
-        this.toastMessages.set(message, false)
-      } else {
+      if (!this.toastMessages.get(message)) {
         this.toastMessages.set(message, true)
         this.$toast.open({ message, type, position: 'bottom-left' })
       }
+
+      this.toastMessages.set(message, false)
     }
 
     encrypt (message: ObjectType): string {

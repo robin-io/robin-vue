@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import { createVuePlugin } from 'vite-plugin-vue2'
 import { resolve } from 'path'
+import { dependencies } from './package.json'
 
 // https://vitejs.dev/config /
 export default defineConfig({
@@ -21,20 +22,7 @@ export default defineConfig({
     },
     // brotliSize: false,
     rollupOptions: {
-      external: ['vue', 'moment', 'mime', 'v-lazy-image', 'v-emoji-picker', 'vue-toast-notification', 'cypress', 'lodash.debounce', 'audio-recorder-polyfill'],
-      output: {
-        globals: {
-          vue: 'Vue',
-          moment: 'moment',
-          mime: 'mime',
-          cypress: 'cypress',
-          'v-lazy-image': 'v-lazy-image',
-          'v-emoji-picker': 'v-emoji-picker',
-          'vue-toast-notification': 'vue-toast-notification',
-          'lodash.debounce': 'lodash.debounce',
-          'audio-recorder-polyfill': 'audio-recorder-polyfill'
-        }
-      },
+      external: [...Object.keys(dependencies)],
       treeshake: 'recommended'
     }
   }

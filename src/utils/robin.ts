@@ -212,6 +212,19 @@ export class Robin {
     }
   }
 
+  async deleteAllMessages (conversation_id: string, requesterToken: string) {
+    try {
+      const response = await axios.delete(this.baseUrl + `/chat/conversation/delete/messages/${conversation_id}/${requesterToken}`)
+      if (response.data.error) {
+        return undefined
+      }
+      return response.data
+    } catch (error) {
+      console.log(error)
+      return undefined
+    }
+  }
+
   async createGroupConversation (
     name: string,
     moderator: UserToken,
@@ -366,32 +379,10 @@ export class Robin {
   // send message to conversation
 
   sendMessageToConversation (message: string, conn: WebSocket) {
-    // msg: object, conn: WebSocket, channel:string, conversation_id: string, senderToken?: string, senderName?: string
-    // const message :Message = {
-    //   type: 1,
-    //   channel: channel,
-    //   content: msg,
-    //   sender_token: senderToken,
-    //   conversation_id: conversation_id,
-    //   sender_name: senderName
-    // }
-
     conn.send(message)
   }
 
   replyToMessage (message: string, conn: WebSocket) {
-    // msg: object, conn: WebSocket, channel: string, conversation_id: string, replyTo: string, senderToken?: string, senderName?: string
-    // const message :Message = {
-    //   type: 1,
-    //   channel: channel,
-    //   content: msg,
-    //   sender_token: senderToken,
-    //   conversation_id: conversation_id,
-    //   reply_to: replyTo,
-    //   is_reply: true,
-    //   sender_name: senderName
-    // }
-
     conn.send(message)
   }
 

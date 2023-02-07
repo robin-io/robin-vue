@@ -763,7 +763,7 @@ export default class MessageInputBar extends ComponentProps {
         EventBus.$emit('new-pseudo-message', this.createOfflineMessage('normal-message', message, '', true))
       }
 
-      const WebSocketMessage = { type: 1, content: message, channel: this.$channel, conversation_id: this.currentConversation._id, replyTo: this.messageReply._id, senderToken: this.$user_token, senderName: this.$senderName }
+      const WebSocketMessage = { type: 1, content: message, channel: this.$channel, conversation_id: this.currentConversation._id, reply_to: this.messageReply._id, sender_token: this.$user_token, is_reply: true, sender_name: this.$senderName }
       await robin.replyToMessage(
         this.encrypt(WebSocketMessage),
         this.$conn

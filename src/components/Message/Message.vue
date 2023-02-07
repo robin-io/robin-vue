@@ -65,7 +65,7 @@
         <reply-message-bubble
           :messages="messages"
           :message="message"
-          v-if="message.is_reply && isReplyMessagesEnabled"
+          v-show="message.is_reply && isReplyMessagesEnabled"
           :sender="validateMessages(message).includes('message-sender')"
           @scroll-replied-message="scrollToRepliedMessage"
         />

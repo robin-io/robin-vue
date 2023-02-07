@@ -12,7 +12,6 @@ declare module '*.vue' {
 }
 
 declare module 'mime'
-declare module 'v-lazy-image/v2'
 declare module 'audio-recorder-polyfill/mpeg-encoder'
 declare module 'lodash.debounce'
 

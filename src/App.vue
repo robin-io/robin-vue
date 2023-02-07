@@ -38,7 +38,6 @@
 <script lang="ts">
 import Vue, { PropType } from 'vue'
 import Component, { mixins } from 'vue-class-component'
-import axios from 'axios'
 import store from './store/index'
 import { Robin } from './utils/robin'
 import EventBus from './event-bus'
@@ -54,6 +53,7 @@ import assets from '@/utils/assets.json'
 import ConversationMixin from './mixins/conversation-mixins'
 
 const ComponentProps = mixins(ConversationMixin).extend({
+
   props: {
     userToken: {
       type: String as PropType<string>,
@@ -69,7 +69,7 @@ const ComponentProps = mixins(ConversationMixin).extend({
     },
     channel: {
       type: String as PropType<string>,
-      default: ''
+      default: 'private_channel'
     },
     userName: {
       type: String as PropType<string>,
@@ -335,7 +335,9 @@ export default class App extends ComponentProps {
       visibilityChange,
       () => {
         if (!documentElement[hidden]) {
-          this.connect()
+          if (this.conn.readyState === WebSocket.OPEN) {
+            this.conn.close(1000, 'Client closed connection')
+          }
         }
       },
       false
@@ -370,6 +372,8 @@ export default class App extends ComponentProps {
       if (event.code !== 1000) {
         this.showToast('Reconnecting', 'info')
         this.debouncedConnect?.()
+      } else {
+        this.connect()
       }
     }
 
@@ -411,7 +415,7 @@ export default class App extends ComponentProps {
     })
   }
 
-  handleEvents (message: any): void {
+  handleEvents (message: ObjectType): void {
     switch (message.name) {
       case 'user.connect':
         EventBus.$emit('user.connect', message.value)

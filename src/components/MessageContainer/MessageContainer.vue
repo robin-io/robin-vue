@@ -281,7 +281,7 @@ export default class MessageContainer extends mixins(ConversationMixin) {
   key = 0
   currentOfflinePage = 0
   currentPage = 1
-  pageCount = 0
+  pageCount = 1
   messageIndex = 0
 
   promptStatus = ''
@@ -314,6 +314,44 @@ export default class MessageContainer extends mixins(ConversationMixin) {
     this.onRemoveReaction()
   }
 
+  get conversationCreatedAt () {
+    const messages = this.offlineMessages.messages[this.currentConversation._id]
+
+    const info = this.currentConversation.is_group
+      ? 'This group was created by'
+      : 'This conversation was created'
+    let dateText = ''
+
+    if (messages.length > 0) {
+      if (this.currentConversation.is_group) {
+        const moderator = this.currentConversation.moderator
+        const date = !Array.isArray(messages[0][0])
+          ? this.formatDate?.(messages[0].created_at)
+          : this.formatDate?.((messages[0][0] as ObjectType).created_at)
+        dateText +=
+            this.$user_token === moderator.user_token ? ' You' : ' ' + moderator.meta_data.display_name
+        dateText += date === 'Today' ? ' today.' : ` on ${date}.`
+      } else {
+        if (!Array.isArray(messages[0])) {
+          const date = this.formatDate?.(messages[0].created_at)
+          dateText += date === 'Today' ? ' today.' : ` on ${date}.`
+        } else {
+          const date = this.formatDate?.(messages[0][0].created_at)
+          dateText += date === 'Today' ? ' today.' : ` on ${date}.`
+        }
+      }
+
+      if (info && dateText) {
+        return info + ' ' + dateText
+      }
+    }
+
+    const date = this.formatDate?.(this.currentConversation.created_at)
+    dateText += date === 'Today' ? ' today.' : ` on ${date}.`
+
+    return info + ' ' + dateText
+  }
+
   handleConversationOpen (): void {
     EventBus.$on('conversation-opened', async (conversation: ObjectType) => {
       this.closeModal(this.messageIndex)
@@ -321,7 +359,7 @@ export default class MessageContainer extends mixins(ConversationMixin) {
       this.messages = []
       this.messageReply = {}
       this.currentPage = 1
-      this.pageCount = 0
+      this.pageCount = 1
 
       this.scroll = false
       this.scrollUp = false
@@ -357,89 +395,28 @@ export default class MessageContainer extends mixins(ConversationMixin) {
     EventBus.$on('read.reciept', (message: ObjectType) => {
       if (this.currentConversation._id) {
         const messages = this.copyConversations(this.offlineMessages.messages[this.currentConversation._id])
-        const index = messages.findIndex((item: ObjectType) => item._id === message.message_ids[0])
-        messages[index].is_read = true
+        const index = messages.findIndex((item: ObjectType) => {
+          if (item._id) {
+            return item._id === message.message_ids[0]
+          }
+
+          return false
+        })
 
         if (index !== -1) {
+          messages[index].is_read = true
           this.$set(this.offlineMessages.messages, this.currentConversation._id, messages)
         }
       }
     })
   }
 
-  // openModal (index: number) {
-  //   this.messageIndex = index
-  //   const messageBubbleEl = document.getElementById(
-  //     `message-bubble-${this.messageIndex}`
-  //   ) as HTMLElement
-  //   const messagePopupEl = document.getElementById('message-popup') as HTMLElement
-  //   const reactionPopupEl = document.getElementById('reaction-pop-up') as HTMLElement
-  //   const lastThreeInArray =
-  //     index >= this.offlineMessages.messages[this.currentConversation._id].length - 3
-  //   let isMessageReceiver = false
-  //   const offlineMessage =
-  //     this.offlineMessages.messages[this.currentConversation._id][this.messageIndex]
-
-  //   if (Array.isArray(offlineMessage)) {
-  //     isMessageReceiver = this.isReceiver(offlineMessage)
-  //   } else {
-  //     isMessageReceiver = offlineMessage.sender_token === this.$user_token
-  //   }
-
-  //   /*
-  //     Message popup.
-  //   */
-
-  //   if (messagePopupEl.style.display === 'block') messagePopupEl.style.display = 'none'
-
-  //   if (lastThreeInArray && this.scroll) {
-  //     messagePopupEl.style.top = `${messageBubbleEl.getBoundingClientRect().top - 90}px`
-  //   } else {
-  //     messagePopupEl.style.top = `${messageBubbleEl.getBoundingClientRect().top + 20}px`
-  //   }
-
-  //   if (isMessageReceiver) {
-  //     messagePopupEl.style.left = 'initial'
-  //     messagePopupEl.style.right = '3.688rem'
-  //   } else {
-  //     messagePopupEl.style.right = 'initial'
-  //     messagePopupEl.style.left = `${this.getPopUpLeftPosition('message')}`
-  //   }
-
-  //   messagePopupEl.style.display = 'block'
-
-  //   /*
-  //     Reaction popup.
-  //   */
-
-  //   if (this.isMessageReactionViewEnabled) {
-  //     if (reactionPopupEl.style.display === 'block') reactionPopupEl.style.display = 'none'
-
-  //     if (lastThreeInArray && this.scroll) {
-  //       reactionPopupEl.style.top = `${messageBubbleEl.getBoundingClientRect().top - 143}px`
-  //     } else {
-  //       reactionPopupEl.style.top = `${messageBubbleEl.getBoundingClientRect().top - 55}px`
-  //     }
-
-  //     if (isMessageReceiver) {
-  //       reactionPopupEl.classList.add('receiver')
-  //       reactionPopupEl.style.left = 'initial'
-  //       reactionPopupEl.style.right = '3.688rem'
-  //     } else {
-  //       reactionPopupEl.classList.remove('receiver')
-  //       reactionPopupEl.style.right = 'initial'
-  //       reactionPopupEl.style.left = `${this.getPopUpLeftPosition('reaction')}`
-  //     }
-  //     reactionPopupEl.style.display = 'block'
-  //   }
-  // }
-
   openModal (index: number) {
     this.messageIndex = index
     const messageBubbleEl = document.getElementById(`message-bubble-${this.messageIndex}`) as HTMLElement
     const messagePopupEl = document.getElementById('message-popup') as HTMLElement
     const reactionPopupEl = document.getElementById('reaction-pop-up') as HTMLElement
-    const lastThreeInArray = index >= this.offlineMessages.messages[this.currentConversation._id].length - 3
+    const lastThreeInArray = index > this.offlineMessages.messages[this.currentConversation._id].length - 3
     const offlineMessage = this.offlineMessages.messages[this.currentConversation._id][this.messageIndex]
     const isMessageReceiver = Array.isArray(offlineMessage) ? this.isReceiver(offlineMessage) : offlineMessage.sender_token === this.$user_token
 
@@ -448,7 +425,7 @@ export default class MessageContainer extends mixins(ConversationMixin) {
     */
     if (messagePopupEl.style.display === 'block') messagePopupEl.style.display = 'none'
 
-    messagePopupEl.style.top = `${messageBubbleEl.getBoundingClientRect().top + (lastThreeInArray && this.scroll ? -70 : 20)}px`
+    messagePopupEl.style.top = `${messageBubbleEl.getBoundingClientRect().top + (lastThreeInArray ? -40 : 20)}px`
     messagePopupEl.style.left = isMessageReceiver ? 'initial' : `${this.getPopUpLeftPosition('message')}`
     messagePopupEl.style.right = isMessageReceiver ? '3.688rem' : 'initial'
     messagePopupEl.style.display = 'block'
@@ -459,7 +436,7 @@ export default class MessageContainer extends mixins(ConversationMixin) {
     if (this.isMessageReactionViewEnabled) {
       if (reactionPopupEl.style.display === 'block') reactionPopupEl.style.display = 'none'
 
-      reactionPopupEl.style.top = `${messageBubbleEl.getBoundingClientRect().top + (lastThreeInArray && this.scroll ? -143 : -55)}px`
+      reactionPopupEl.style.top = `${messageBubbleEl.getBoundingClientRect().top + (lastThreeInArray ? -100 : -55)}px`
 
       reactionPopupEl.style.left = isMessageReceiver ? 'initial' : `${this.getPopUpLeftPosition('reaction')}`
       reactionPopupEl.style.right = isMessageReceiver ? '3.688rem' : 'initial'
@@ -703,7 +680,7 @@ export default class MessageContainer extends mixins(ConversationMixin) {
 
     const offlineMessages = [...this.offlineMessages.messages[this.currentConversation._id]]
 
-    const currentPage = offlineMessages.length > 10 ? offlineMessages.length - 10 : 0
+    const currentPage = offlineMessages.length > 20 ? offlineMessages.length - 20 : 0
 
     this.setOfflineMessages(offlineMessages.slice(currentPage, offlineMessages.length))
   }
@@ -759,7 +736,7 @@ export default class MessageContainer extends mixins(ConversationMixin) {
           this.closeImagePreview()
         }
 
-        const currentPage = offlineMessages.length > 10 ? offlineMessages.length - 10 : 0
+        const currentPage = offlineMessages.length > 20 ? offlineMessages.length - 20 : 0
 
         this.setOfflineMessages(
           offlineMessages[this.currentConversation._id].slice(currentPage, offlineMessages.length)
@@ -820,7 +797,7 @@ export default class MessageContainer extends mixins(ConversationMixin) {
     const res = await this.$robin.getConversationMessages(
       this.currentConversation._id,
       this.$user_token,
-      10,
+      20,
       this.currentPage
     )
 
@@ -829,7 +806,7 @@ export default class MessageContainer extends mixins(ConversationMixin) {
       this.testMessages(messages)
 
       this.messageError = false
-      this.pageCount = res.data.pagination.pagination.totalPage
+      this.pageCount = res.data.pagination.pagination.totalPage ? res.data.pagination.pagination.totalPage : 1
 
       const offlineMessages =
         this.offlineMessages.messages[this.currentConversation._id] && messages.length > 0
@@ -838,9 +815,9 @@ export default class MessageContainer extends mixins(ConversationMixin) {
 
       this.sortOfflineMessages(offlineMessages)
 
-      this.setOfflineMessages(
-        [...this.offlineMessages.messages[this.currentConversation._id]]
-      )
+      // this.setOfflineMessages(
+      //   [...this.offlineMessagesmessages[this.currentConversation._id]]
+      // )
 
       this.handleReadReceipts(res.data.messages)
     } else {
@@ -853,7 +830,7 @@ export default class MessageContainer extends mixins(ConversationMixin) {
     const res = await this.$robin.getConversationMessages(
       this.currentConversation._id,
       this.$user_token,
-      10,
+      20,
       page
     )
 
@@ -973,22 +950,8 @@ export default class MessageContainer extends mixins(ConversationMixin) {
   }
 
   async clearAllMessages (): Promise<void> {
-    const id = [] as Array<string>
-
-    for (let i = 0; i < this.messages.length; i += 1) {
-      if (Array.isArray(this.messages[i])) {
-        this.messages[i].forEach((item: { _id: any }) => {
-          id.push(item._id)
-        })
-      }
-
-      if (!Array.isArray(this.messages[i])) {
-        id.push(this.messages[i]._id)
-      }
-    }
-
-    const res = await this.$robin.deleteMessages([...id], this.$user_token)
-    if (res && !res.error) {
+    const res = await this.$robin.deleteAllMessages(this.currentConversation._id, this.$user_token)
+    if (!res.error) {
       this.showToast('Messages Deleted', 'success')
       this.promptOpen = false
       await this.getConversationMessages()
