@@ -166,11 +166,11 @@ import MessageInputBar from '../MessageInputBar/MessageInputBar.vue'
 import Content from '@/components/Content/Content.vue'
 import Button from '@/components/Button/Button.vue'
 import Camera from '../Camera/Camera.vue'
-import moment from 'moment'
+import { formatTimestamp } from '@/utils/date'
 import localForage from 'localforage'
 import ConversationMixin from '@/mixins/conversation-mixins'
 import store from '@/store/index'
-import { Robin } from '../../utils/robin'
+import { Robin } from 'robin.io-js'
 import Message from '../Message/Message.vue'
 import PhotoMessage from '../PhotoMessage/PhotoMessage.vue'
 import VideoMessage from '../VideoMessage/VideoMessage.vue'
@@ -394,7 +394,7 @@ export default class MessageContainer extends mixins(ConversationMixin) {
   readReceipts () {
     EventBus.$on('read.reciept', (message: ObjectType) => {
       if (this.currentConversation._id) {
-        const messages = this.copyConversations(this.offlineMessages.messages[this.currentConversation._id])
+        const messages = this.copyConversations(this.offlineMessages.messages[this.currentConversation._id] ?? [])
         const index = messages.findIndex((item: ObjectType) => {
           if (item._id) {
             return item._id === message.message_ids[0]
@@ -647,7 +647,9 @@ export default class MessageContainer extends mixins(ConversationMixin) {
           (item) => item._id === message.conversation_id
         )
 
-        EventBus.$emit('mark-as-unread', this.regularConversations[index])
+        if (index !== -1) {
+          EventBus.$emit('mark-as-unread', this.regularConversations[index])
+        }
       }
       this.allConversations.forEach((conversation, index) => {
         if (conversation._id === message.conversation_id) {
@@ -1336,28 +1338,28 @@ export default class MessageContainer extends mixins(ConversationMixin) {
 
       if (Array.isArray(dateA) && !Array.isArray(dateB)) {
         return (
-          moment(dateA[0].created_at).format('YYYY-MM-DD') !==
-          moment(dateB.created_at).format('YYYY-MM-DD')
+          formatTimestamp(new Date(dateA[0].created_at), 'YYYY-MM-DD') !==
+          formatTimestamp(new Date(dateB.created_at), 'YYYY-MM-DD')
         )
       }
 
       if (!Array.isArray(dateA) && Array.isArray(dateB)) {
         return (
-          moment(dateA.created_at).format('YYYY-MM-DD') !==
-          moment(dateB[0].created_at).format('YYYY-MM-DD')
+          formatTimestamp(new Date(dateA.created_at), 'YYYY-MM-DD') !==
+          formatTimestamp(new Date(dateB[0].created_at), 'YYYY-MM-DD')
         )
       }
 
       if (Array.isArray(dateA) && Array.isArray(dateB)) {
         return (
-          moment(dateA[0].created_at).format('YYYY-MM-DD') !==
-          moment(dateB[0].created_at).format('YYYY-MM-DD')
+          formatTimestamp(new Date(dateA[0].created_at), 'YYYY-MM-DD') !==
+          formatTimestamp(new Date(dateB[0].created_at), 'YYYY-MM-DD')
         )
       }
 
       return (
-        moment((dateA as ObjectType).created_at).format('YYYY-MM-DD') !==
-        moment((dateB as ObjectType).created_at).format('YYYY-MM-DD')
+        formatTimestamp(new Date((dateA as ObjectType).created_at), 'YYYY-MM-DD') !==
+        formatTimestamp(new Date((dateB as ObjectType).created_at), 'YYYY-MM-DD')
       )
     }
 

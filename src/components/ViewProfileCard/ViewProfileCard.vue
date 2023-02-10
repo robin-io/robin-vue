@@ -62,7 +62,6 @@
 import Vue, { PropType } from 'vue'
 import Component from 'vue-class-component'
 import store from '@/store/index'
-import moment from 'moment'
 import Content from '../Content/Content.vue'
 import Avatar from '../Avatar/Avatar.vue'
 import IconButton from '../IconButton/IconButton.vue'
@@ -107,23 +106,6 @@ export default class ChatListCard extends ComponentProps {
 
   openConversation (): void {
     this.$emit('open-conversation')
-  }
-
-  formatRecentMessageTime (time: string): string {
-    const datetime = moment(time)
-
-    return datetime.calendar(null, {
-      sameDay: function () {
-        return '[' + datetime.fromNow() + ']'
-      },
-      lastDay: function () {
-        return '[' + datetime.fromNow() + ']'
-      },
-      lastWeek: function () {
-        return '[' + datetime.fromNow() + ']'
-      },
-      sameElse: 'DD/MM/YYYY'
-    })
   }
 
   getProfileImage (conversation: ObjectType) {

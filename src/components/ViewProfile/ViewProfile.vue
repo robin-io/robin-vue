@@ -56,7 +56,7 @@
           as="p"
           class="robin-flex"
           v-if="currentConversation.is_group"
-          >Created at {{ formatRecentMessageTime(currentConversation.created_at) }}, By
+          >Created at {{ getRecentMessageTime(currentConversation.created_at) }}, By
           <message-content :fontSize="12">{{
             currentConversation.moderator.meta_data.display_name
           }}</message-content></message-content
@@ -101,7 +101,7 @@
               class="robin-uploaded-image"
               loading="lazy"
               @click="openImagePreview([slotProps.item])"
-              alt=".."
+              alt="uploaded-image"
             />
 
             <video
@@ -181,9 +181,10 @@
               v-if="assets[getFileDetails(slotProps.item.content.attachment).extension]"
               :src="assets[getFileDetails(slotProps.item.content.attachment).extension]"
               alt="document"
+              loading="lazy"
             />
 
-            <img v-else :src="assets['default']" />
+            <img v-else :src="assets['default']" alt="document" loading="lazy" />
 
             <div class="detail robin-flex robin-h-100 robin-flex-align-center">
               <message-content as="span" :fontSize="14">
@@ -364,7 +365,6 @@
 </template>
 
 <script lang="ts">
-import moment from 'moment'
 import Component, { mixins } from 'vue-class-component'
 import Content from '../Content/Content.vue'
 import Avatar from '../Avatar/Avatar.vue'
@@ -465,16 +465,6 @@ export default class ViewProfile extends mixins(ConversationMixin) {
     this.linkStop = 6
     this.documentStop = 6
     this.$emit('close')
-  }
-
-  formatRecentMessageTime (time: string): string {
-    const datetime = moment(time)
-    return datetime.calendar(null, {
-      sameDay: 'hh:mm a',
-      lastDay: '[Yesterday]',
-      lastWeek: 'DD/MM/YYYY',
-      sameElse: 'DD/MM/YYYY'
-    })
   }
 
   openImagePreview (media: any): void {

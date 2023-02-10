@@ -5,8 +5,9 @@
         v-if="$logo === ''"
         :src="assets[currentTheme === 'light' ? 'logo' : 'logo_dark']"
         alt="logo"
+        loading="lazy"
       />
-      <img v-else class="custom" :src="$logo" alt="logo" />
+      <img v-else class="custom" :src="$logo" alt="logo" loading="lazy" />
 
       <div class="robin-buttons robin-flex robin-flex-align-center">
         <icon-button

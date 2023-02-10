@@ -139,7 +139,7 @@
             as="p"
             class="robin-flex"
           >
-            {{ !message.pseudo ? formatTimeStamp(message.created_at) : '' }}
+            {{ !message.pseudo ? getTimestamp(message.created_at) : '' }}
 
             <svg-icon
               name="read"
@@ -169,9 +169,9 @@
 
 <script lang="ts">
 import Vue, { PropType } from 'vue'
-import moment from 'moment'
+import { formatTimestamp } from '@/utils/date'
 import mime from 'mime'
-import { Robin } from '../../utils/robin'
+import { Robin } from 'robin.io-js'
 import Component, { mixins } from 'vue-class-component'
 import ConversationMixin from '@/mixins/conversation-mixins'
 import { DocumentRegex, EmailRegex, WebsiteRegex, AudioRegex } from '@/utils/constants'
@@ -472,8 +472,8 @@ export default class DocumentMessage extends ComponentProps {
     this.$emit('remove-reaction', messageReaction, this.index)
   }
 
-  formatTimeStamp (value: string): string {
-    return moment(value).format('h:mma').toUpperCase()
+  getTimestamp (value: string): string {
+    return formatTimestamp(new Date(value), 'h:mma')
   }
 
   validateLinkInMessage () {

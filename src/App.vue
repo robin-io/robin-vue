@@ -39,7 +39,7 @@
 import Vue, { PropType } from 'vue'
 import Component, { mixins } from 'vue-class-component'
 import store from './store/index'
-import { Robin } from './utils/robin'
+import { Robin } from 'robin.io-js'
 import EventBus from './event-bus'
 import SideContainer from './components/SideContainer/SideContainer.vue'
 import MessageContainer from './components/MessageContainer/MessageContainer.vue'
@@ -53,7 +53,6 @@ import assets from '@/utils/assets.json'
 import ConversationMixin from './mixins/conversation-mixins'
 
 const ComponentProps = mixins(ConversationMixin).extend({
-
   props: {
     userToken: {
       type: String as PropType<string>,
@@ -69,7 +68,7 @@ const ComponentProps = mixins(ConversationMixin).extend({
     },
     channel: {
       type: String as PropType<string>,
-      default: 'private_channel'
+      default: ''
     },
     userName: {
       type: String as PropType<string>,
@@ -367,10 +366,10 @@ export default class App extends ComponentProps {
     }
 
     this.conn.onclose = (event: ObjectType) => {
-      this.showToast('Disconnected', 'error')
+      // this.showToast('Disconnected', 'error')
       // Websocket closed abnormally.
       if (event.code !== 1000) {
-        this.showToast('Reconnecting', 'info')
+        // this.showToast('Reconnecting', 'info')
         this.debouncedConnect?.()
       } else {
         this.connect()

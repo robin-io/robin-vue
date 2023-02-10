@@ -195,10 +195,11 @@
         :src="
           assets[getFileDetails(getReplyMessage(message.reply_to).content.attachment).extension]
         "
+        loading="lazy"
         alt="document"
       />
 
-      <img v-else :src="assets['default']" />
+      <img v-else :src="assets['default']" loading="lazy" alt="document" />
 
       <div class="details robin-ml-5">
         <message-content as="span" :fontSize="14">

@@ -5,8 +5,9 @@
         v-if="$logo === ''"
         :src="assets[currentTheme === 'light' ? 'logo' : 'logo_dark']"
         alt="logo"
+        loading="lazy"
       />
-      <img v-else class="custom" :src="$logo" alt="logo" />
+      <img v-else class="custom" :src="$logo" alt="logo" loading="lazy" />
 
       <div class="robin-wrapper">
         <icon-button
@@ -27,7 +28,7 @@
       <icon-button
         class="robin-ml-4"
         name="filter"
-        @filter="filterUnreadConversations()"
+        @filter="filter()"
         color="#8696a0"
         :active="filterActive"
         emit="filter"
@@ -53,29 +54,38 @@
         v-show="archivedConversations.length > 0"
         data-testid="archived-conversation-count"
       >
-        {{archivedConversations.length }}
+        {{ archivedConversations.length }}
       </message-content>
     </custom-button>
 
     <div
       class="robin-wrapper robin-card-container robin-flex robin-flex-column"
-      ref="conversations-wrapper"
-      @scroll="handleInfiniteScroll"
       :class="{ 'robin-come-down': screenWidth > 1200 }"
     >
-      <chat-list-card
-        v-for="(item, index) in filteredConversations"
-        :key="'conversation-' + index"
-        :index="index"
-        :item="item"
-        :type="1"
-        conversation-type="primary"
-        @open-conversation="openConversation(item)"
-        @open-modal="openModal"
-        @close-modal="closeModal"
-      />
-
-      <div v-show="isPageLoading" class="robin-spinner"></div>
+    <div v-show="isPageLoading" class="robin-spinner"></div>
+      <virtual-scroller
+        :items="filteredConversations"
+        :item-count="filteredConversations.length"
+        :height="636"
+        :child-height="childHeight"
+        v-slot="slotProps"
+        ref="conversations-wrapper"
+        @scroll="handleInfiniteScroll"
+      >
+        <div :key="slotProps.index" :id="slotProps.index">
+          <chat-list-card
+            :item="slotProps.item"
+            :type="1"
+            :key="'conversation-' + slotProps.index"
+            :index="slotProps.index"
+            conversation-type="primary"
+            @open-conversation="openConversation(slotProps.item)"
+            @open-modal="openModal"
+            @close-modal="closeModal"
+          />
+        </div>
+      </virtual-scroller>
+      <div v-show="isPageLoading2" class="robin-spinner"></div>
     </div>
 
     <chat-list-pop-up
@@ -93,7 +103,6 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import moment from 'moment'
 import Component, { mixins } from 'vue-class-component'
 import ConversationMixin from '@/mixins/conversation-mixins'
 import store from '@/store/index'
@@ -106,6 +115,7 @@ import Button from '../Button/Button.vue'
 import Mention from '../Mention/Mention.vue'
 import ChatListPopUp from '../ChatListPopUp/ChatListPopUp.vue'
 import ChatListCard from '../ChatListCard/ChatListCard.vue'
+import VirtualScroller from '../VirtualScroller/VirtualScroller.vue'
 import assets from '@/utils/assets.json'
 
 // eslint-disable-next-line
@@ -118,21 +128,53 @@ import assets from '@/utils/assets.json'
     SearchBar,
     'custom-button': Button,
     Mention,
+    VirtualScroller,
     ChatListPopUp,
     ChatListCard
+  },
+  watch: {
+    status: {
+      handler () {
+        if (this.status === 'filterByUnread') {
+          this.filteredConversations = [...this.filterUnreadConversations()]
+        } else if (this.status === 'regular') {
+          this.filteredConversations = [...this.regularConversations]
+        }
+      }
+    },
+    searchData: {
+      handler () {
+        this.filteredConversations = [...this.searchData]
+      }
+    },
+    filteredConversations: {
+      handler () {
+        const childHeight = []
+
+        // eslint-disable-next-line
+        for (const _item of this.filteredConversations) {
+          childHeight.push(83)
+        }
+
+        this.childHeight = childHeight
+      }
+    }
   }
 })
 export default class PrimaryChatList extends mixins(ConversationMixin) {
   searchData = [] as Array<ObjectType>
+  filteredConversations = [] as Array<ObjectType>
+  childHeight = [] as Array<number>
   conversationIndex = 0
   scroll = false as boolean
   isLoading = false as boolean
   key = 0 as number
   filterActive = false
-  status = 'regular'
+  status = ''
   throttleTimer = false
   currentPage = 1
   pageCount = 0
+  isPageLoading2 = false
 
   created () {
     this.getConversations()
@@ -151,14 +193,14 @@ export default class PrimaryChatList extends mixins(ConversationMixin) {
     return assets
   }
 
-  get filteredConversations () {
-    if (this.status === 'search') {
-      return this.searchData
-    } else if (this.status === 'filterByUnread') {
-      return this.filterUnreadConversations()
-    }
+  filter () {
+    this.filterActive = !this.filterActive
 
-    return this.regularConversations
+    if (this.filterActive) {
+      this.status = 'filterByUnread'
+    } else {
+      this.status = 'regular'
+    }
   }
 
   filterUnreadConversations () {
@@ -183,29 +225,11 @@ export default class PrimaryChatList extends mixins(ConversationMixin) {
   openConversation (conversation: ObjectType): void {
     store.setState('imagePreviewOpen', false)
     store.setState('currentConversation', {})
-    // store.setState('conversationOpen', false)
     store.setState('currentConversation', conversation)
 
     this.$nextTick(() => {
       EventBus.$emit('open-conversation')
       EventBus.$emit('conversation-opened', conversation)
-    })
-  }
-
-  formatRecentMessageTime (time: string): string {
-    const datetime = moment(time)
-
-    return datetime.calendar(null, {
-      sameDay: function () {
-        return '[' + datetime.fromNow() + ']'
-      },
-      lastDay: function () {
-        return '[' + datetime.fromNow() + ']'
-      },
-      lastWeek: function () {
-        return '[' + datetime.fromNow() + ']'
-      },
-      sameElse: 'DD/MM/YYYY'
     })
   }
 
@@ -265,8 +289,8 @@ export default class PrimaryChatList extends mixins(ConversationMixin) {
     this.isLoading = true
 
     const searchTextLower = searchText.toLowerCase()
-    this.searchData = await this.filteredConversations.filter((obj) => {
-      return Object.values(obj).some(val => String(val).toLowerCase().includes(searchTextLower))
+    this.searchData = await this.regularConversations.filter((obj) => {
+      return Object.values(obj).some((val) => String(val).toLowerCase().includes(searchTextLower))
     })
 
     this.isLoading = false
@@ -303,30 +327,44 @@ export default class PrimaryChatList extends mixins(ConversationMixin) {
 
   handleInfiniteScroll () {
     this.scroll = true
-    const wrapper = this.$refs['conversations-wrapper'] as HTMLElement
+    const wrapper = (this.$refs['conversations-wrapper']as Vue).$el as HTMLElement
 
     this.throttleConversations(() => {
       if (this.currentPage < this.pageCount) {
-        store.setState('isPageLoading', true)
         const scrollSpaceLeft = Math.floor(wrapper.scrollHeight - wrapper.clientHeight)
         const endOfScroll = Math.floor(wrapper.scrollTop) >= scrollSpaceLeft
 
         if (endOfScroll) {
           this.currentPage += 1
+          this.isPageLoading2 = true
           this.paginateConversations(this.currentPage)
         }
       }
+
+      this.scroll = false
     }, 1500)
   }
 
   async getConversations () {
     try {
-      const res = await this.$robin.getUserToken({ user_token: this.$user_token }, 10, this.currentPage)
+      const res = await this.$robin.getUserToken(
+        { user_token: this.$user_token },
+        10,
+        this.currentPage
+      )
       if (!res.error) {
-        const { paginated_conversations: { conversations, pagination: { pagination: { totalPage } } } } = res.data
+        const {
+          paginated_conversations: {
+            conversations,
+            pagination: {
+              pagination: { totalPage }
+            }
+          }
+        } = res.data
         this.pageCount = totalPage
         store.setState('allConversations', conversations ?? [])
         store.setState('isPageLoading', false)
+        this.status = 'regular'
       }
     } catch (error) {
       console.error(error)
@@ -335,14 +373,16 @@ export default class PrimaryChatList extends mixins(ConversationMixin) {
 
   async paginateConversations (page = 1) {
     try {
-      const { data: { paginated_conversations: { conversations } } } = await this.$robin.getUserToken(
-        { user_token: this.$user_token },
-        10,
-        page
-      )
-
+      const {
+        data: {
+          paginated_conversations: { conversations }
+        }
+      } = await this.$robin.getUserToken({ user_token: this.$user_token }, 10, page)
+      this.status = 'regular'
+      const regularConv = this.getRegularConversations(conversations)
+      this.filteredConversations.push(...regularConv)
       store.setState('allConversations', [...this.allConversations, ...conversations])
-      store.setState('isPageLoading', false)
+      this.isPageLoading2 = false
     } catch (error) {
       console.error(error)
     }
@@ -355,6 +395,7 @@ export default class PrimaryChatList extends mixins(ConversationMixin) {
       )
 
       if (!allConversationsExists) {
+        this.filteredConversations = [conversation, ...this.allConversations]
         store.setState('allConversations', [conversation, ...this.allConversations])
       }
     })
@@ -362,7 +403,8 @@ export default class PrimaryChatList extends mixins(ConversationMixin) {
 
   handleRemoveRegularConversation () {
     EventBus.$on('regular-conversation.delete', (conversation: ObjectType) => {
-      const allConversations = this.allConversations.filter(item => item._id !== conversation._id)
+      const allConversations = this.allConversations.filter((item) => item._id !== conversation._id)
+      this.filteredConversations = [...this.filteredConversations.filter((item) => item._id !== conversation._id)]
       store.setState('allConversations', allConversations)
     })
   }
@@ -419,10 +461,14 @@ export default class PrimaryChatList extends mixins(ConversationMixin) {
 
     if (conversation) {
       const index = this.allConversations.findIndex((item) => item._id === conversation._id)
-      const allConversations = this.copyConversations(this.allConversations)
+      const convIndex = this.filteredConversations.findIndex(
+        (item) => item._id === conversation._id
+      )
+      const allConversations = this.copyConversations(this.allConversations ?? [])
 
       conversation.unread_messages = 'marked'
       allConversations.splice(index, 1, conversation)
+      this.filteredConversations.splice(convIndex, 1, conversation)
       store.setState('allConversations', [...allConversations])
     }
   }
@@ -431,10 +477,16 @@ export default class PrimaryChatList extends mixins(ConversationMixin) {
     EventBus.$on('mark-as-read', (conversation: ObjectType) => {
       if (conversation._id) {
         const index = this.allConversations.findIndex((item) => item._id === conversation._id)
+        const convIndex = this.filteredConversations.findIndex(
+          (item) => item._id === conversation._id
+        )
 
         if (index !== -1) {
-          const conversations = this.copyConversations(this.allConversations)
+          const conversations = this.copyConversations(this.allConversations ?? [])
+          conversation.unread_messages = 0
           conversations[index].unread_messages = 0
+          this.filteredConversations.splice(convIndex, 1, conversation)
+
           store.setState('allConversations', conversations)
         }
       }
@@ -444,13 +496,16 @@ export default class PrimaryChatList extends mixins(ConversationMixin) {
   handleMarkAsUnread () {
     EventBus.$on('mark-as-unread', (conversation: ObjectType) => {
       if (conversation._id) {
-        const index = this.allConversations.findIndex(
+        const index = this.allConversations.findIndex((item) => item._id === conversation._id)
+        const convIndex = this.filteredConversations.findIndex(
           (item) => item._id === conversation._id
         )
 
         if (index !== -1) {
-          const conversations = this.copyConversations(this.allConversations)
+          const conversations = this.copyConversations(this.allConversations ?? [])
           conversations[index].unread_messages += 1
+          conversation.unread_messages += 1
+          this.filteredConversations.splice(convIndex, 1, conversation)
           store.setState('allConversations', conversations)
         }
       }

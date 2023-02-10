@@ -55,17 +55,17 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import moment from 'moment'
 import store from '@/store/index'
 import Component, { mixins } from 'vue-class-component'
 import EventBus from '@/event-bus'
-import Content from '../Content/Content.vue'
 import IconButton from '../IconButton/IconButton.vue'
 import Avatar from '../Avatar/Avatar.vue'
 import GroupAvatar from '../GroupAvatar/GroupAvatar.vue'
 import ChatListCard from '../ChatListCard/ChatListCard.vue'
 import ChatListPopUp from '../ChatListPopUp/ChatListPopUp.vue'
 import ConversationMixin from '@/mixins/conversation-mixins'
+
+const Content = () => import('../Content/Content.vue')
 
 // eslint-disable-next-line
 @Component<ArchivedChatList>({
@@ -154,23 +154,6 @@ export default class ArchivedChatList extends mixins(ConversationMixin) {
         chatListPopupEl.classList.remove('robin-zoomOut')
       }, 300)
     }
-  }
-
-  formatRecentMessageTime (time: string): string {
-    const datetime = moment(time)
-
-    return datetime.calendar(null, {
-      sameDay: function () {
-        return '[' + datetime.fromNow() + ']'
-      },
-      lastDay: function () {
-        return '[' + datetime.fromNow() + ']'
-      },
-      lastWeek: function () {
-        return '[' + datetime.fromNow() + ']'
-      },
-      sameElse: 'DD/MM/YYYY'
-    })
   }
 
   async unArchiveChat (id: string): Promise<void> {
@@ -275,8 +258,8 @@ export default class ArchivedChatList extends mixins(ConversationMixin) {
 
   sortConversations (conversations: Array<ObjectType>): Array<ObjectType> {
     return [...conversations].sort((a, b) => {
-      const dateA = moment(a.last_message ? a.last_message.timestamp : a.updated_at).valueOf()
-      const dateB = moment(b.last_message ? b.last_message.timestamp : b.updated_at).valueOf()
+      const dateA = new Date(a.last_message ? a.last_message.timestamp : a.updated_at).getTime()
+      const dateB = new Date(b.last_message ? b.last_message.timestamp : b.updated_at).getTime()
 
       if (dateA > dateB) {
         return -1

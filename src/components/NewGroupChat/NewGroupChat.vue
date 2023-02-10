@@ -47,7 +47,7 @@
         :src="icon.localUrl"
         :alt="icon.name"
         v-show="icon.name"
-        data-testid="image"
+        loading="lazy"
       />
 
       <message-content

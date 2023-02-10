@@ -26,7 +26,7 @@
       :src="imgUrl"
       alt="profile"
       class="robin-image"
-      data-testid="profile-picture"
+      loading="lazy"
     />
   </div>
 </template>

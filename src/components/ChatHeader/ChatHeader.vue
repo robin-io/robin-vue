@@ -123,7 +123,6 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
 import Component, { mixins } from 'vue-class-component'
 import store from '@/store/index'
 import IconButton from '@/components/IconButton/IconButton.vue'

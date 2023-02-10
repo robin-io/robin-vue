@@ -53,8 +53,8 @@
           :lineHeight="18"
         >
           {{
-            formatRecentMessageTime(
-              item.last_message ? item.last_message.timestamp : item.updated_at
+            getRecentMessageTime(
+              item.last_message && item.last_message.timestamp ? item.last_message.timestamp : item.updated_at
             )
           }}
         </message-content>
@@ -192,18 +192,17 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropType } from 'vue'
-import Component from 'vue-class-component'
-import store from '@/store/index'
-import moment from 'moment'
+import { PropType } from 'vue'
+import Component, { mixins } from 'vue-class-component'
 import Content from '../Content/Content.vue'
 import Avatar from '../Avatar/Avatar.vue'
 import GroupAvatar from '../GroupAvatar/GroupAvatar.vue'
 import UnreadMessageCount from '../UnreadMessageCount/UnreadMessageCount.vue'
 import CheckBox from '../CheckBox/CheckBox.vue'
 import IconButton from '../IconButton/IconButton.vue'
+import ConversationMixin from '@/mixins/conversation-mixins'
 
-const ComponentProps = Vue.extend({
+const ComponentProps = mixins(ConversationMixin).extend({
   props: {
     index: {
       type: Number,
@@ -232,17 +231,10 @@ const ComponentProps = Vue.extend({
   }
 })
 export default class ChatListCard extends ComponentProps {
-  get currentTheme () {
-    return store.state.currentTheme
-  }
-
-  get screenWidth () {
-    return store.state.screenWidth
-  }
-
-  get currentConversation () {
-    return store.state.currentConversation
-  }
+  currentTheme!: string
+  screenWidth!: number
+  currentConversation!: ObjectType
+  getRecentMessageTime!: (time: string) => string
 
   openModal () {
     this.$emit('open-modal', this.index)
@@ -254,23 +246,6 @@ export default class ChatListCard extends ComponentProps {
 
   openConversation (): void {
     if (this.currentConversation._id !== this.item._id) this.$emit('open-conversation')
-  }
-
-  formatRecentMessageTime (time: string): string {
-    const datetime = moment(time)
-
-    return datetime.calendar(null, {
-      sameDay: function () {
-        return '[' + datetime.fromNow() + ']'
-      },
-      lastDay: function () {
-        return '[' + datetime.fromNow() + ']'
-      },
-      lastWeek: function () {
-        return '[' + datetime.fromNow() + ']'
-      },
-      sameElse: 'DD/MM/YYYY'
-    })
   }
 
   getProfileImage (conversation: ObjectType) {

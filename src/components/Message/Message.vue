@@ -94,7 +94,7 @@
               as="p"
               class="robin-flex"
             >
-              {{ !message.pseudo ? formatTimeStamp(message.created_at) : '' }}
+              {{ !message.pseudo ? getTimestamp(message.created_at) : '' }}
 
               <SvgIcon
                 name="read"
@@ -128,7 +128,7 @@ import Vue, { PropType } from 'vue'
 import Component, { mixins } from 'vue-class-component'
 import ConversationMixin from '@/mixins/conversation-mixins'
 import { EmailRegex, WebsiteRegex } from '@/utils/constants'
-import moment from 'moment'
+import { formatTimestamp } from '@/utils/date'
 import IconButton from '@/components/IconButton/IconButton.vue'
 import Content from '@/components/Content/Content.vue'
 import CheckBox from '@/components/CheckBox/CheckBox.vue'
@@ -387,8 +387,8 @@ export default class Message extends ComponentProps {
     this.$emit('remove-reaction', messageReaction, this.index)
   }
 
-  formatTimeStamp (value: any): string {
-    return moment(value).format('h:mma').toUpperCase()
+  getTimestamp (value: string): string {
+    return formatTimestamp(new Date(value), 'h:mma')
   }
 
   validateLinkInMessage () {

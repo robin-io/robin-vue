@@ -101,7 +101,7 @@
             :color="currentTheme === 'light' ? '#7a7a7a' : '#B6B6B6'"
             as="p"
           >
-            {{ !message.pseudo ? formatTimeStamp(message.created_at) : '' }}
+            {{ !message.pseudo ? getTimestamp(message.created_at) : '' }}
 
             <SvgIcon
               name="read"
@@ -135,7 +135,7 @@ import Component, { mixins } from 'vue-class-component'
 import ConversationMixin from '@/mixins/conversation-mixins'
 import { EmailRegex, WebsiteRegex } from '@/utils/constants'
 import { convertArrayBufferToFile } from '@/utils/helpers'
-import moment from 'moment'
+import { formatTimestamp } from '@/utils/date'
 import IconButton from '@/components/IconButton/IconButton.vue'
 import CheckBox from '@/components/CheckBox/CheckBox.vue'
 import Content from '@/components/Content/Content.vue'
@@ -157,10 +157,6 @@ const ComponentProps = mixins(ConversationMixin).extend({
     index: {
       type: Number,
       default: 0
-    },
-    groupnameColors: {
-      type: Object,
-      default: () => ({})
     },
     isMessagesLoading: {
       type: Boolean,
@@ -211,6 +207,7 @@ export default class VideoMessage extends ComponentProps {
   screenWidth!: number
   currentTheme!: string
   currentConversation!: ObjectType
+  groupnameColors!: Array<string>
   getContactName!: (sender_token: string) => string
 
   get isMessageClickable () {
@@ -391,8 +388,8 @@ export default class VideoMessage extends ComponentProps {
     this.$emit('remove-reaction', messageReaction, this.index)
   }
 
-  formatTimeStamp (value: any): string {
-    return moment(value).format('h:mma').toUpperCase()
+  getTimestamp (value: string): string {
+    return formatTimestamp(new Date(value), 'h:mma')
   }
 
   validateLinkInMessage () {

@@ -203,16 +203,18 @@ export default class PhotoPreviewer extends ComponentProps {
 
   handleClosePopUp (): void {
     const popup = this.$refs['popup-1'] as any
-    popup.$refs['popup-body'].classList.remove('robin-zoomIn')
-    popup.$refs['popup-body'].classList.add('robin-zoomOut')
+    if (popup) {
+      popup.$refs['popup-body'].classList.remove('robin-zoomIn')
+      popup.$refs['popup-body'].classList.add('robin-zoomOut')
 
-    window.setTimeout(() => {
-      const popup = this.$refs['popup-1'] as any
-      popup.$refs['popup-body'].classList.add('robin-zoomIn')
-      popup.$refs['popup-body'].classList.remove('robin-zoomOut')
+      window.setTimeout(() => {
+        const popup = this.$refs['popup-1'] as any
+        popup.$refs['popup-body'].classList.add('robin-zoomIn')
+        popup.$refs['popup-body'].classList.remove('robin-zoomOut')
 
-      this.popUpState.opened = false
-    }, 300)
+        this.popUpState.opened = false
+      }, 300)
+    }
   }
 
   closeImagePreview () {

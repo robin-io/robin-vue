@@ -12,17 +12,19 @@ export default defineConfig({
   },
   plugins: [createVuePlugin()],
   optimizeDeps: {
-    disabled: false
+    // disabled: false
   },
   build: {
     lib: {
       entry: resolve(__dirname, 'src/main.ts'),
       name: 'robin-vue',
-      fileName: (format) => `robin-vue.${format}.js`
+      formats: ['es']
     },
-    // brotliSize: false,
     rollupOptions: {
-      external: [...Object.keys(dependencies)],
+      external: ['vue', ...Object.keys(dependencies)],
+      output: {
+        exports: 'named'
+      },
       treeshake: 'recommended'
     }
   }

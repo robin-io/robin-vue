@@ -52,6 +52,7 @@
               :src="messageReply.content.attachment"
               :alt="`${getFileDetails(messageReply.content.attachment).name}-image`"
               v-if="imageRegex.test(checkAttachmentType(messageReply.content.attachment))"
+              loading="lazy"
             />
             <div
               class="robin-video"
@@ -111,6 +112,7 @@
             :src="file.localUrl"
             alt="image"
             v-if="imageRegex.test(checkAttachmentType(file.file))"
+            loading="lazy"
           />
 
           <div class="robin-video" v-if="videoRegex.test(checkAttachmentType(file.file))">
@@ -966,15 +968,17 @@ export default class MessageInputBar extends ComponentProps {
 
   handleClosePopUp (): void {
     const popup = this.$refs['popup-4'] as any
-    popup.$refs['popup-body'].classList.remove('robin-zoomIn')
-    popup.$refs['popup-body'].classList.add('robin-zoomOut')
+    if (popup) {
+      popup.$refs['popup-body'].classList.remove('robin-zoomIn')
+      popup.$refs['popup-body'].classList.add('robin-zoomOut')
 
-    window.setTimeout(() => {
-      popup.$refs['popup-body'].classList.add('robin-zoomIn')
-      popup.$refs['popup-body'].classList.remove('robin-zoomOut')
+      window.setTimeout(() => {
+        popup.$refs['popup-body'].classList.add('robin-zoomIn')
+        popup.$refs['popup-body'].classList.remove('robin-zoomOut')
 
-      this.popUpState.opened = false
-    }, 300)
+        this.popUpState.opened = false
+      }, 300)
+    }
   }
 
   handleFileUpload (file: any) {

@@ -23,7 +23,7 @@ import Component from 'vue-class-component'
 const ComponentProps = Vue.extend({
   props: {
     items: {
-      type: Array as PropType<(String | ObjectType)[]>,
+      type: Array as PropType<(string | ObjectType)[]>,
       default: () => ([])
     },
     itemCount: {
@@ -143,6 +143,8 @@ export default class VirtualScroller extends ComponentProps {
     this.animationFrame = requestAnimationFrame(() => {
       this.scrollTop = event.target.scrollTop
     })
+
+    this.$emit('scroll')
   }
 }
 </script>

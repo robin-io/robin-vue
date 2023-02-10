@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import store from '@/store/index'
-import moment from 'moment'
+import { formatTimestamp, isSameDay } from '@/utils/date'
 import CryptoJS from 'crypto-js'
 import { Colors } from '@/utils/constants'
 
@@ -18,16 +18,13 @@ export default class ConversationMixin extends Vue {
 
     get regularConversations () {
       const sortedConversations = this.allConversations.sort((a, b) => {
-        const dateA = moment(a.last_message?.timestamp ?? a.updated_at).valueOf()
-        const dateB = moment(b.last_message?.timestamp ?? b.updated_at).valueOf()
+        const dateA = new Date(a.last_message?.timestamp ?? a.updated_at).getTime()
+        const dateB = new Date(b.last_message?.timestamp ?? b.updated_at).getTime()
 
         return dateB - dateA
       })
 
-      const regularConversations = sortedConversations.filter((conversation: ObjectType) => {
-        if (!conversation.archived_for || conversation.archived_for.length === 0) return true
-        return !conversation.archived_for.includes(this.$user_token)
-      })
+      const regularConversations = this.getRegularConversations(sortedConversations)
 
       return this.addUnreadMessagesToConversation(regularConversations)
     }
@@ -183,13 +180,24 @@ export default class ConversationMixin extends Vue {
       return CryptoJS.enc.Utf8.parse(this.currentSecretKey.substring(0, 16))
     }
 
-    formatDate (value: any): string {
-      const today = moment().format('MMM DD YYYY')
-      const formattedValue = moment(value).format('MMM DD YYYY')
+    getRegularConversations (conversations: Array<ObjectType>) {
+      return conversations.filter((conversation: ObjectType) => {
+        if (!conversation.archived_for || conversation.archived_for.length === 0) return true
+        return !conversation.archived_for.includes(this.$user_token)
+      })
+    }
 
-      if (today === formattedValue) return 'Today'
+    formatDate (value: string): string {
+      const today = new Date()
+      const formattedValue = new Date(value)
 
-      return moment(value).format('MMM DD YYYY')
+      if (isSameDay(today, formattedValue)) return 'Today'
+
+      return formatTimestamp(new Date(value))
+    }
+
+    getRecentMessageTime (time: string): string {
+      return formatTimestamp(new Date(time), 'MMM DD YYYY')
     }
 
     addUnreadMessagesToConversation (conversations: Array<ObjectType>) {
@@ -197,6 +205,12 @@ export default class ConversationMixin extends Vue {
         if (typeof conversation.unread_messages === 'number' || typeof conversation.unread_messages === 'string') {
           return conversation
         }
+
+        if (!conversation.unread_messages) {
+          conversation.unread_messages = 0
+          return conversation
+        }
+
         conversation.unread_messages = conversation.unread_messages[this.$user_token]?.unread_count || 0
         return conversation
       })
