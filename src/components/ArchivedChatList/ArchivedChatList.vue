@@ -21,23 +21,32 @@
       </message-content>
     </header>
 
-    <div
-      class="robin-wrapper robin-card-container robin-flex robin-flex-column robin-mt-42"
-      @scroll="handleInfiniteScroll()"
-    >
-      <chat-list-card
-        v-for="(item, index) in conversations"
-        :key="index"
-        :index="index"
-        :item="item"
-        :type="1"
-        conversation-type="archived"
-        @open-conversation="openConversation(item)"
-        @open-modal="openModal"
-        @close-modal="closeModal"
-      />
+    <div class="robin-wrapper robin-card-container robin-flex robin-flex-column robin-mt-42">
+      <virtual-scroller
+        :items="conversations"
+        :item-count="conversations.length"
+        :height="conversations.length >= 10 ? childHeight.length * 87 - 1 : 0"
+        :child-height="childHeight"
+        v-slot="slotProps"
+        ref="conversations-wrapper"
+        v-show="conversations.length > 1"
+        @scroll="handleInfiniteScroll"
+      >
+        <div :key="slotProps.index" :id="slotProps.index">
+          <chat-list-card
+            :item="slotProps.item"
+            :type="1"
+            :key="'conversation-' + slotProps.index"
+            :index="slotProps.index"
+            conversation-type="archived"
+            @open-conversation="openConversation(slotProps.item)"
+            @open-modal="openModal"
+            @close-modal="closeModal"
+          />
+        </div>
+      </virtual-scroller>
       <div
-        v-show="conversations.length < 1"
+        v-show="conversations.length <  1"
         class="robin-flex robin-flex-justify-center robin-pt-15"
       >
         <message-content :font-size="18" color="#15AE73">No archived chat</message-content>
@@ -63,6 +72,7 @@ import Avatar from '../Avatar/Avatar.vue'
 import GroupAvatar from '../GroupAvatar/GroupAvatar.vue'
 import ChatListCard from '../ChatListCard/ChatListCard.vue'
 import ChatListPopUp from '../ChatListPopUp/ChatListPopUp.vue'
+import VirtualScroller from '../VirtualScroller/VirtualScroller.vue'
 import ConversationMixin from '@/mixins/conversation-mixins'
 
 const Content = () => import('../Content/Content.vue')
@@ -76,7 +86,29 @@ const Content = () => import('../Content/Content.vue')
     ChatListCard,
     Avatar,
     GroupAvatar,
-    ChatListPopUp
+    ChatListPopUp,
+    VirtualScroller
+  },
+  watch: {
+    conversations: {
+      handler () {
+        const childHeight = []
+
+        // eslint-disable-next-line
+        for (const _item of this.conversations) {
+          childHeight.push(87)
+        }
+
+        this.childHeight = childHeight
+      }
+    },
+    isWebSocketConnected: {
+      handler (val) {
+        if (val) {
+          this.getConversations()
+        }
+      }
+    }
   }
 })
 export default class ArchivedChatList extends mixins(ConversationMixin) {
@@ -85,12 +117,12 @@ export default class ArchivedChatList extends mixins(ConversationMixin) {
   paginatedConversations = [] as Array<ObjectType>
   currentPage = 1
   pageCount = 0
+  childHeight = [] as number[]
   scroll = false as boolean
   throttleTimer = false as boolean
-  showToast!: (message: string, info: string) => void
+  showToast!: (message: string, type: string) => void
 
   created () {
-    this.getConversations()
     this.handleAddArchivedConversation()
     this.handleRemoveArchivedConversation()
   }
@@ -141,7 +173,7 @@ export default class ArchivedChatList extends mixins(ConversationMixin) {
 
   closeModal (index: number) {
     const chatListPopupEl = this.$refs['chat-list-popup']
-      ? (this.$refs['chat-list-popup'] as Vue).$el as HTMLElement
+      ? ((this.$refs['chat-list-popup'] as Vue).$el as HTMLElement)
       : (undefined as HTMLElement | undefined)
 
     if (this.conversationIndex === index && chatListPopupEl) {
@@ -205,9 +237,7 @@ export default class ArchivedChatList extends mixins(ConversationMixin) {
       this.currentPage
     )
     if (!res.error) {
-      const conversations = res.data.conversations == null
-        ? []
-        : res.data.conversations
+      const conversations = res.data.conversations == null ? [] : res.data.conversations
       const archivedConversations = this.getArchivedConversations(conversations)
       this.pageCount = res.data.pagination.pagination.totalPage
       store.setState('archivedConversations', [...archivedConversations])
@@ -224,10 +254,14 @@ export default class ArchivedChatList extends mixins(ConversationMixin) {
       page
     )
     if (!res.error) {
-      const conversations = res.data.paginated_conversations.conversations == null
-        ? []
-        : res.data.paginated_conversations.conversations
-      const archivedConversations = this.getArchivedConversations([...this.conversations, ...conversations])
+      const conversations =
+        res.data.paginated_conversations.conversations == null
+          ? []
+          : res.data.paginated_conversations.conversations
+      const archivedConversations = this.getArchivedConversations([
+        ...this.conversations,
+        ...conversations
+      ])
       store.setState('archivedConversations', [...archivedConversations])
       this.conversations = [...archivedConversations]
     }
@@ -235,7 +269,8 @@ export default class ArchivedChatList extends mixins(ConversationMixin) {
 
   handleAddArchivedConversation () {
     EventBus.$on('archived-conversation.add', (conversation: any) => {
-      this.conversations.unshift(conversation)
+      const conversations = [conversation, ...this.conversations]
+      this.conversations = this.sortConversations(conversations)
       store.setState('archivedConversations', [...this.conversations])
     })
   }

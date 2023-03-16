@@ -2,13 +2,20 @@
   <div class="robin-primary-chat-list-container">
     <header class="robin-header">
       <img
-        v-if="$logo === ''"
-        :src="assets[currentTheme === 'light' ? 'logo' : 'logo_dark']"
+        v-if="$logo === '' && currentTheme === 'light'"
+        :src="assets.logo"
+        :data-src="assets.logo"
+        class="lazyload"
         alt="logo"
-        loading="lazy"
       />
-      <img v-else class="custom" :src="$logo" alt="logo" loading="lazy" />
-
+      <img
+        v-else-if="$logo === '' && currentTheme === 'dark'"
+        :src="assets.logo_dark"
+        :data-src="assets.logo_dark"
+        class="lazyload"
+        alt="logo"
+      />
+      <img v-else class="custom lazyload" :data-src="$logo" alt="logo" />
       <div class="robin-wrapper">
         <icon-button
           name="edit"
@@ -40,7 +47,7 @@
     <custom-button
       class="robin-wrapper robin-pl-16 robin-pr-16 robin-flex robin-flex-space-between robin-w-100 robin-pt-16 robin-pb-12"
       @archived="openArchivedChat()"
-      v-if="isArchiveChatEnabled"
+      v-if="isArchiveChatEnabled && archivedConversations.length > 0"
     >
       <div class="robin-flex robin-flex-align-center" v-show="archivedConversations.length > 0">
         <svg-icon name="mailbox" color="#15AE73" />
@@ -51,7 +58,6 @@
       <message-content
         font-weight="400"
         color="#15AE73"
-        v-show="archivedConversations.length > 0"
         data-testid="archived-conversation-count"
       >
         {{ archivedConversations.length }}
@@ -66,7 +72,7 @@
       <virtual-scroller
         :items="filteredConversations"
         :item-count="filteredConversations.length"
-        :height="636"
+        :height="filteredConversations.length >= 10 ? (childHeight.length * 83) - 1 : 0"
         :child-height="childHeight"
         v-slot="slotProps"
         ref="conversations-wrapper"
@@ -158,6 +164,13 @@ import assets from '@/utils/assets.json'
 
         this.childHeight = childHeight
       }
+    },
+    isWebSocketConnected: {
+      handler (val) {
+        if (val) {
+          this.getConversations()
+        }
+      }
     }
   }
 })
@@ -177,7 +190,6 @@ export default class PrimaryChatList extends mixins(ConversationMixin) {
   isPageLoading2 = false
 
   created () {
-    this.getConversations()
     this.onGroupIconUpdate()
     this.handleMarkAsRead()
     this.handleMarkAsUnread()
@@ -241,8 +253,8 @@ export default class PrimaryChatList extends mixins(ConversationMixin) {
 
     if (chatListPopupEl.style.display === 'block') chatListPopupEl.style.display = 'none'
 
-    if (lastThreeInArray && this.scroll) {
-      chatListPopupEl.style.top = `${chatEl.getBoundingClientRect().top - 40}px`
+    if (lastThreeInArray && this.filteredConversations.length > 5) {
+      chatListPopupEl.style.top = `${chatEl.getBoundingClientRect().top - 50}px`
     } else {
       chatListPopupEl.style.top = `${chatEl.getBoundingClientRect().top + 50}px`
     }
@@ -362,7 +374,7 @@ export default class PrimaryChatList extends mixins(ConversationMixin) {
           }
         } = res.data
         this.pageCount = totalPage
-        store.setState('allConversations', conversations ?? [])
+        store.setState('unsortedRegularConversations', conversations ?? [])
         store.setState('isPageLoading', false)
         this.status = 'regular'
       }
@@ -381,7 +393,7 @@ export default class PrimaryChatList extends mixins(ConversationMixin) {
       this.status = 'regular'
       const regularConv = this.getRegularConversations(conversations)
       this.filteredConversations.push(...regularConv)
-      store.setState('allConversations', [...this.allConversations, ...conversations])
+      store.setState('unsortedRegularConversations', [...this.unsortedRegularConversations, ...conversations])
       this.isPageLoading2 = false
     } catch (error) {
       console.error(error)
@@ -390,22 +402,27 @@ export default class PrimaryChatList extends mixins(ConversationMixin) {
 
   handleAddRegularConversation () {
     EventBus.$on('regular-conversation.add', (conversation: ObjectType) => {
-      const allConversationsExists = this.allConversations.find(
+      const unsortedRegularConversationsExists = this.unsortedRegularConversations.find(
         (item) => item._id === conversation._id
       )
 
-      if (!allConversationsExists) {
-        this.filteredConversations = [conversation, ...this.allConversations]
-        store.setState('allConversations', [conversation, ...this.allConversations])
+      if (!unsortedRegularConversationsExists) {
+        this.filteredConversations = [conversation, ...this.unsortedRegularConversations].sort((a, b) => {
+          const dateA = new Date(a.last_message?.timestamp ?? a.updated_at).getTime()
+          const dateB = new Date(b.last_message?.timestamp ?? b.updated_at).getTime()
+
+          return dateB - dateA
+        })
+        store.setState('unsortedRegularConversations', [conversation, ...this.unsortedRegularConversations])
       }
     })
   }
 
   handleRemoveRegularConversation () {
     EventBus.$on('regular-conversation.delete', (conversation: ObjectType) => {
-      const allConversations = this.allConversations.filter((item) => item._id !== conversation._id)
+      const unsortedRegularConversations = this.unsortedRegularConversations.filter((item) => item._id !== conversation._id)
       this.filteredConversations = [...this.filteredConversations.filter((item) => item._id !== conversation._id)]
-      store.setState('allConversations', allConversations)
+      store.setState('unsortedRegularConversations', unsortedRegularConversations)
     })
   }
 
@@ -425,9 +442,9 @@ export default class PrimaryChatList extends mixins(ConversationMixin) {
   handleMessageForward (): void {
     EventBus.$on('message.forward', (messages: ObjectType) => {
       messages.forEach((msg: ObjectType) => {
-        this.allConversations.forEach((conversation: ObjectType, index: number) => {
+        this.unsortedRegularConversations.forEach((conversation: ObjectType, index: number) => {
           if (conversation._id === msg.conversation_id) {
-            const data = { ...this.allConversations[index] }
+            const data = { ...this.unsortedRegularConversations[index] }
             const msgData = { ...msg }
             msgData.content.timestamp = new Date()
             data.last_message = msgData.content
@@ -452,7 +469,7 @@ export default class PrimaryChatList extends mixins(ConversationMixin) {
   }
 
   markReadManaully () {
-    const conversation = this.allConversations[this.conversationIndex] as ObjectType
+    const conversation = this.unsortedRegularConversations[this.conversationIndex] as ObjectType
     EventBus.$emit('mark-as-read', conversation)
   }
 
@@ -460,34 +477,34 @@ export default class PrimaryChatList extends mixins(ConversationMixin) {
     const conversation = { ...this.filteredConversations[this.conversationIndex] } as ObjectType
 
     if (conversation) {
-      const index = this.allConversations.findIndex((item) => item._id === conversation._id)
+      const index = this.unsortedRegularConversations.findIndex((item) => item._id === conversation._id)
       const convIndex = this.filteredConversations.findIndex(
         (item) => item._id === conversation._id
       )
-      const allConversations = this.copyConversations(this.allConversations ?? [])
+      const unsortedRegularConversations = this.copyConversations(this.unsortedRegularConversations ?? [])
 
       conversation.unread_messages = 'marked'
-      allConversations.splice(index, 1, conversation)
+      unsortedRegularConversations.splice(index, 1, conversation)
       this.filteredConversations.splice(convIndex, 1, conversation)
-      store.setState('allConversations', [...allConversations])
+      store.setState('unsortedRegularConversations', [...unsortedRegularConversations])
     }
   }
 
   handleMarkAsRead () {
     EventBus.$on('mark-as-read', (conversation: ObjectType) => {
       if (conversation._id) {
-        const index = this.allConversations.findIndex((item) => item._id === conversation._id)
+        const index = this.unsortedRegularConversations.findIndex((item) => item._id === conversation._id)
         const convIndex = this.filteredConversations.findIndex(
           (item) => item._id === conversation._id
         )
 
         if (index !== -1) {
-          const conversations = this.copyConversations(this.allConversations ?? [])
+          const conversations = this.copyConversations(this.unsortedRegularConversations ?? [])
           conversation.unread_messages = 0
           conversations[index].unread_messages = 0
           this.filteredConversations.splice(convIndex, 1, conversation)
 
-          store.setState('allConversations', conversations)
+          store.setState('unsortedRegularConversations', conversations)
         }
       }
     })
@@ -496,17 +513,17 @@ export default class PrimaryChatList extends mixins(ConversationMixin) {
   handleMarkAsUnread () {
     EventBus.$on('mark-as-unread', (conversation: ObjectType) => {
       if (conversation._id) {
-        const index = this.allConversations.findIndex((item) => item._id === conversation._id)
+        const index = this.unsortedRegularConversations.findIndex((item) => item._id === conversation._id)
         const convIndex = this.filteredConversations.findIndex(
           (item) => item._id === conversation._id
         )
 
         if (index !== -1) {
-          const conversations = this.copyConversations(this.allConversations ?? [])
+          const conversations = this.copyConversations(this.unsortedRegularConversations ?? [])
           conversations[index].unread_messages += 1
           conversation.unread_messages += 1
           this.filteredConversations.splice(convIndex, 1, conversation)
-          store.setState('allConversations', conversations)
+          store.setState('unsortedRegularConversations', conversations)
         }
       }
     })

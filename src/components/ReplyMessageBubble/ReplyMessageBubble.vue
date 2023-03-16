@@ -69,9 +69,8 @@
     </message-content>
 
     <img
-      :src="getImage(getReplyMessage(message.reply_to).content.attachment)"
-      class="robin-uploaded-image"
-      loading="lazy"
+      :data-src="getImage(getReplyMessage(message.reply_to).content.attachment)"
+      class="robin-uploaded-image lazyload blur-up"
       alt=".."
     />
 
@@ -192,14 +191,14 @@
         v-if="
           assets[getFileDetails(getReplyMessage(message.reply_to).content.attachment).extension]
         "
-        :src="
+        :data-src="
           assets[getFileDetails(getReplyMessage(message.reply_to).content.attachment).extension]
         "
-        loading="lazy"
+        class="lazyload blur-up"
         alt="document"
       />
 
-      <img v-else :src="assets['default']" loading="lazy" alt="document" />
+      <img v-else :data-src="assets['default']" class="lazyload blur-up" alt="document" />
 
       <div class="details robin-ml-5">
         <message-content as="span" :fontSize="14">

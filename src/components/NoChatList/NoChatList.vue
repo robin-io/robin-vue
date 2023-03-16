@@ -3,11 +3,11 @@
     <header class="robin-header robin-flex robin-flex-align-center">
       <img
         v-if="$logo === ''"
-        :src="assets[currentTheme === 'light' ? 'logo' : 'logo_dark']"
+        :data-src="assets[currentTheme === 'light' ? 'logo' : 'logo_dark']"
         alt="logo"
-        loading="lazy"
+        class="lazyload blur-up"
       />
-      <img v-else class="custom" :src="$logo" alt="logo" loading="lazy" />
+      <img v-else class="custom lazyload blur-up" :data-src="$logo" alt="logo" />
 
       <div class="robin-buttons robin-flex robin-flex-align-center">
         <icon-button

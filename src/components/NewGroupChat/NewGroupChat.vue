@@ -43,11 +43,10 @@
       </div>
 
       <img
-        class="robin-group-image robin-m-auto robin-mb-7"
-        :src="icon.localUrl"
+        class="robin-group-image robin-m-auto robin-mb-7 lazyload blur-up"
+        :data-src="icon.localUrl"
         :alt="icon.name"
         v-show="icon.name"
-        loading="lazy"
       />
 
       <message-content

@@ -91,7 +91,7 @@ export default class SideContainer extends Vue {
   }
 
   get conversations () {
-    return store.state.allConversations
+    return store.state.unsortedRegularConversations
   }
 
   get sideBarType () {

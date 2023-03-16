@@ -52,7 +52,7 @@
         :to-click-away="false"
       />
     </div>
-    <div
+    <!-- <div
       class="robin-wrapper robin-w-100"
       @click="resendMessage"
       data-testid="delete-button"
@@ -67,7 +67,7 @@
         :to-click-away="false"
         :color="currentTheme === 'light' ? '#D53120' : '#000'"
       />
-    </div>
+    </div> -->
     <div
       class="robin-wrapper robin-w-100"
       @click="deleteMessage"
@@ -92,8 +92,6 @@ import Vue from 'vue'
 import store from '@/store/index'
 import Component from 'vue-class-component'
 import EventBus from '@/event-bus'
-import mime from 'mime'
-import { arrayBufferToBlob, createUUID } from '@/utils/helpers'
 import Content from '@/components/Content/Content.vue'
 import SvgIcon from '@/components/SvgIcon/SvgIcon.vue'
 
@@ -162,19 +160,9 @@ export default class MessagePopUp extends ComponentProps {
     this.$emit('forward-message')
   }
 
-  async convertArrayBufferToFile (buffer: Uint8Array): Promise<File> {
-    /*
-     If message fails, the message inside
-     the message array is always going to be 1
-    */
-    const isMessageArray = Array.isArray(this.message)
-    const type = isMessageArray ? this.message[0].content.mime_type : this.message.content.attachment
-    const blob = arrayBufferToBlob(buffer, type)
-    const file = new File([blob], createUUID(36) + '.' + mime.getExtension(type), { type }) as File
-
-    return file
-  }
-
+  /*
+  * This function applies to only messages that have failed to send.
+  */
   async resendMessage () {
     let message = null
     const isMessageArray = Array.isArray(this.message)
@@ -185,9 +173,6 @@ export default class MessagePopUp extends ComponentProps {
       message = { ...this.message }
     }
 
-    if (message.has_attachment) {
-      message.content.attachment = await this.convertArrayBufferToFile(message.content.attachment)
-    }
     EventBus.$emit('manual.send', message)
   }
 }

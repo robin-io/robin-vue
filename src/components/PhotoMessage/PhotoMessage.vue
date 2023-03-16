@@ -69,13 +69,12 @@
           :class="validateImageClass(index)"
         >
           <img
-            :src="
+            :data-src="
               typeof image.content.attachment !== 'string'
-                ? convertArrayBufferToFile(image.content.attachment, image)
+                ? handleFileConversion(image.content.attachment, image)
                 : image.content.attachment
             "
-            class="robin-uploaded-image"
-            loading="lazy"
+            class="robin-uploaded-image lazyload blur-up"
             alt=".."
           />
         </div>
@@ -135,7 +134,11 @@
           as="p"
           class="robin-flex"
         >
-          {{ !message[0].pseudo ? getTimestamp(message[0].created_at) : '' }}
+          {{
+            !message[0].pseudo
+              ? getTimestamp(message[0].created_at || message[0].content.timestamp)
+              : ''
+          }}
 
           <SvgIcon
             name="read"
@@ -177,7 +180,7 @@ import Component, { mixins } from 'vue-class-component'
 import { formatTimestamp } from '@/utils/date'
 import ConversationMixin from '@/mixins/conversation-mixins'
 import { EmailRegex, WebsiteRegex } from '@/utils/constants'
-import { convertArrayBufferToFile } from '@/utils/helpers'
+import { convertFileToURL, convertArrayBufferToFile } from '@/utils/helpers'
 import IconButton from '@/components/IconButton/IconButton.vue'
 import CheckBox from '@/components/CheckBox/CheckBox.vue'
 import Content from '@/components/Content/Content.vue'
@@ -234,6 +237,15 @@ const ComponentProps = mixins(ConversationMixin).extend({
           checkbox.checked = false
         }
       }
+    },
+    screenWidth: {
+      handler () {
+        if (this.screenWidth <= 1024) {
+          this.caretOpen = true
+        } else {
+          this.caretOpen = false
+        }
+      }
     }
   }
 })
@@ -243,6 +255,7 @@ export default class PhotoMessage extends ComponentProps {
   msgReactions = [] as Array<ObjectType>
   emailRegex = EmailRegex
   websiteRegex = WebsiteRegex
+  convertFileToURL = convertFileToURL
   convertArrayBufferToFile = convertArrayBufferToFile
   isMessageReactionViewEnabled!: boolean
   isMessageReactionDeleteEnabled!: boolean
@@ -306,19 +319,7 @@ export default class PhotoMessage extends ComponentProps {
   }
 
   mounted () {
-    this.$nextTick(function () {
-      this.onResize()
-    })
-    window.addEventListener('resize', this.onResize)
     this.injectHtml(this.message[0].content ? this.message[0].content.msg : null)
-  }
-
-  onResize () {
-    if (this.screenWidth <= 1024) {
-      this.caretOpen = true
-    } else {
-      this.caretOpen = false
-    }
   }
 
   injectHtml (message: string): void {
@@ -355,13 +356,9 @@ export default class PhotoMessage extends ComponentProps {
   }
 
   toggleCheckAction (): void {
-    const checkbox = (this.$refs.checkbox as Vue).$el as HTMLElement
+    const checked = (this.$refs.checkbox as any).checked
 
-    if ((checkbox.childNodes[0] as HTMLInputElement).checked) {
-      this.$emit('toggle-check-action', false)
-    } else {
-      this.$emit('toggle-check-action', true)
-    }
+    this.$emit('toggle-check-action', checked)
   }
 
   validateMessageClass (): boolean {
@@ -503,6 +500,10 @@ export default class PhotoMessage extends ComponentProps {
       name: strArr[strArr.length - 2],
       extension: strArr[strArr.length - 1]
     }
+  }
+
+  handleFileConversion (attachment: Uint8Array, image: ObjectType): string {
+    return convertFileToURL(convertArrayBufferToFile(attachment, image))
   }
 
   async downloadImages (messages: any) {

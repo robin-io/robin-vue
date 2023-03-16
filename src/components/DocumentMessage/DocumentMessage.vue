@@ -70,8 +70,7 @@
         <div
           class="robin-uploaded-document"
           v-if="
-            documentRegex.test(checkAttachmentType(message.content.attachment, message)) &&
-            !audioRegex.test(checkAttachmentType(message.content.attachment, message))
+            documentRegex.test(checkAttachmentType(message.content.attachment, message)) && !message.content.is_voice_note
           "
         >
           <img v-if="extension.present" :src="extension.asset" alt="document" />
@@ -139,7 +138,7 @@
             as="p"
             class="robin-flex"
           >
-            {{ !message.pseudo ? getTimestamp(message.created_at) : '' }}
+            {{ !message.pseudo ? getTimestamp(message.created_at || message.content.timestamp) : '' }}
 
             <svg-icon
               name="read"
@@ -174,7 +173,7 @@ import mime from 'mime'
 import { Robin } from 'robin.io-js'
 import Component, { mixins } from 'vue-class-component'
 import ConversationMixin from '@/mixins/conversation-mixins'
-import { DocumentRegex, EmailRegex, WebsiteRegex, AudioRegex } from '@/utils/constants'
+import { DocumentRegex, EmailRegex, WebsiteRegex } from '@/utils/constants'
 import {
   createUUID,
   checkAttachmentType,
@@ -237,6 +236,15 @@ const ComponentProps = mixins(ConversationMixin).extend({
         this.msgReactions = newMessage.reactions ?? []
       },
       deep: true
+    },
+    screenWidth: {
+      handler () {
+        if (this.screenWidth <= 1024) {
+          this.caretOpen = true
+        } else {
+          this.caretOpen = false
+        }
+      }
     }
   }
 })
@@ -244,7 +252,6 @@ export default class DocumentMessage extends ComponentProps {
   caretOpen = false
   msgReactions = [] as Array<ObjectType>
   documentRegex = DocumentRegex
-  audioRegex = AudioRegex
   emailRegex = EmailRegex
   websiteRegex = WebsiteRegex
   assets = Assets
@@ -319,19 +326,7 @@ export default class DocumentMessage extends ComponentProps {
   }
 
   mounted () {
-    this.$nextTick(function () {
-      this.onResize()
-    })
-    window.addEventListener('resize', this.onResize)
     this.injectHtml(this.message.content ? this.message.content.msg : null)
-  }
-
-  onResize () {
-    if (this.screenWidth <= 1024) {
-      this.caretOpen = true
-    } else {
-      this.caretOpen = false
-    }
   }
 
   injectHtml (message: string): void {
@@ -368,13 +363,9 @@ export default class DocumentMessage extends ComponentProps {
   }
 
   toggleCheckAction (): void {
-    const checkbox = (this.$refs.checkbox as Vue).$el as HTMLElement
+    const checked = (this.$refs.checkbox as any).checked
 
-    if ((checkbox.childNodes[0] as HTMLInputElement).checked) {
-      this.$emit('toggle-check-action', false)
-    } else {
-      this.$emit('toggle-check-action', true)
-    }
+    this.$emit('toggle-check-action', checked)
   }
 
   onMouseLeave () {

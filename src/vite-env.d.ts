@@ -14,6 +14,7 @@ declare module '*.vue' {
 declare module 'mime'
 declare module 'audio-recorder-polyfill/mpeg-encoder'
 declare module 'lodash.debounce'
+declare module 'vue-zoom-on-hover'
 
 declare namespace JSX {
   interface IntrinsicElements {

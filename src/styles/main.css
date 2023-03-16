@@ -38,3 +38,5 @@
 @import url('../components/EncrytionDetails/EncryptionDetails.css');
 @import url('../components/VirtualScroller/VirtualScroller.css');
 @import url('../components/ReplyMessageBubble/ReplyMessageBubble.css');
+@import url('../components/ToastContainer/ToastContainer.css');
+@import url('../components/Toast/Toast.css');

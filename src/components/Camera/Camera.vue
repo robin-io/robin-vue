@@ -26,14 +26,15 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropType } from 'vue'
-import Component from 'vue-class-component'
+import { PropType } from 'vue'
+import Component, { mixins } from 'vue-class-component'
 import IconButton from '@/components/IconButton/IconButton.vue'
 import Content from '@/components/Content/Content.vue'
 import CameraButton from '../CameraButton/CameraButton.vue'
 import { createUUID } from '@/utils/helpers'
+import ConversationMixin from '@/mixins/conversation-mixins'
 
-const ComponentProps = Vue.extend({
+const ComponentProps = mixins(ConversationMixin).extend({
   props: {
     cameraOpened: {
       type: Boolean as PropType<boolean>,
@@ -66,14 +67,7 @@ export default class Camera extends ComponentProps {
   devices = [] as Array<any>
   isPhotoTaken = false as boolean
   isShotPhoto = false as boolean
-  screenWidth = 0 as number
-
-  mounted () {
-    this.$nextTick(function () {
-      this.onResize()
-    })
-    window.addEventListener('resize', this.onResize)
-  }
+  screenWidth!: number
 
   setupMedia () {
     const navigatorExtended = navigator as any
@@ -163,10 +157,6 @@ export default class Camera extends ComponentProps {
     const res: Response = await fetch(base64)
     const blob: Blob = await res.blob()
     return new File([blob], `${createUUID(30)}.jpeg`, { type: 'image/jpeg' })
-  }
-
-  onResize () {
-    this.screenWidth = window.innerWidth
   }
 }
 </script>

@@ -101,7 +101,7 @@
             :color="currentTheme === 'light' ? '#7a7a7a' : '#B6B6B6'"
             as="p"
           >
-            {{ !message.pseudo ? getTimestamp(message.created_at) : '' }}
+            {{ !message.pseudo ? getTimestamp(message.created_at || message.content.timestamp) : '' }}
 
             <SvgIcon
               name="read"
@@ -189,7 +189,17 @@ const ComponentProps = mixins(ConversationMixin).extend({
         this.msgReactions = newMessage.reactions ?? []
       },
       deep: true
+    },
+    screenWidth: {
+      handler () {
+        if (this.screenWidth <= 1024) {
+          this.caretOpen = true
+        } else {
+          this.caretOpen = false
+        }
+      }
     }
+
   }
 })
 export default class VideoMessage extends ComponentProps {
@@ -248,10 +258,6 @@ export default class VideoMessage extends ComponentProps {
   }
 
   mounted () {
-    this.$nextTick(function () {
-      this.onResize()
-    })
-    window.addEventListener('resize', this.onResize)
     this.injectHtml(this.message.content ? this.message.content.msg : null)
   }
 
@@ -261,14 +267,6 @@ export default class VideoMessage extends ComponentProps {
 
   closeModal () {
     this.$emit('close-modal', this.index)
-  }
-
-  onResize () {
-    if (this.screenWidth <= 1024) {
-      this.caretOpen = true
-    } else {
-      this.caretOpen = false
-    }
   }
 
   injectHtml (message: string): void {
@@ -297,13 +295,9 @@ export default class VideoMessage extends ComponentProps {
   }
 
   toggleCheckAction (): void {
-    const checkbox = (this.$refs.checkbox as Vue).$el as HTMLElement
+    const checked = (this.$refs.checkbox as any).checked
 
-    if ((checkbox.childNodes[0] as HTMLInputElement).checked) {
-      this.$emit('toggle-check-action', false)
-    } else {
-      this.$emit('toggle-check-action', true)
-    }
+    this.$emit('toggle-check-action', checked)
   }
 
   onMouseLeave () {

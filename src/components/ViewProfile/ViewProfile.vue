@@ -97,9 +97,8 @@
           <div class="robin-media-grid" :key="slotProps.index">
             <img
               v-if="imageRegex.test(checkAttachmentType(slotProps.item.content.attachment))"
-              :src="slotProps.item.content.attachment"
-              class="robin-uploaded-image"
-              loading="lazy"
+              :data-src="slotProps.item.content.attachment"
+              class="robin-uploaded-image lazyload blur-up"
               @click="openImagePreview([slotProps.item])"
               alt="uploaded-image"
             />
@@ -179,12 +178,12 @@
           <div class="robin-uploaded-documents" :key="slotProps.index">
             <img
               v-if="assets[getFileDetails(slotProps.item.content.attachment).extension]"
-              :src="assets[getFileDetails(slotProps.item.content.attachment).extension]"
+              :data-src="assets[getFileDetails(slotProps.item.content.attachment).extension]"
+              class="lazyload blur-up"
               alt="document"
-              loading="lazy"
             />
 
-            <img v-else :src="assets['default']" alt="document" loading="lazy" />
+            <img v-else :data-src="assets['default']" class="lazyload blur-up" alt="document" />
 
             <div class="detail robin-flex robin-h-100 robin-flex-align-center">
               <message-content as="span" :fontSize="14">

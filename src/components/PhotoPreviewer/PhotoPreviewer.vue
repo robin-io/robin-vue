@@ -78,8 +78,8 @@
       <div
         class="robin-wrapper robin-w-100 robin-h-100 robin-flex robin-flex-column robin-flex-align-center robin-flex-space-between"
       >
-        <div class="robin-image-preview">
-          <img :src="imagePreview" class="robin-uploaded-image" loading="lazy" alt=".." />
+        <div class="robin-image-preview" v-viewer="vOptions">
+          <img :src="imagePreview" alt="uploaded image">
         </div>
 
         <div
@@ -88,19 +88,18 @@
           <img
             v-for="(image, index) in images"
             :key="index"
-            :src="
+            :data-src="
               typeof image.content.attachment !== 'string'
                 ? convertArrayBufferToFile(image.content.attachment, image)
                 : image.content.attachment
             "
             @click="onSelectChange(index)"
-            class="robin-uploaded-image"
+            class="robin-uploaded-image lazyload blur-up"
             :class="[
               index === imageSelected && images.length > 1 ? 'selected' : '',
               images.length === 1 && 'not-selected'
             ]"
-            loading="lazy"
-            alt=".."
+            alt="uploaded-image"
           />
         </div>
       </div>
@@ -118,6 +117,7 @@ import Component, { mixins } from 'vue-class-component'
 import EventBus from '@/event-bus'
 import store from '@/store/index'
 import mime from 'mime'
+import { directive as viewer } from 'v-viewer'
 import { arrayBufferToBlob, createUUID } from '@/utils/helpers'
 import IconButton from '@/components/IconButton/IconButton.vue'
 import GroupAvatar from '@/components/GroupAvatar/GroupAvatar.vue'
@@ -133,10 +133,6 @@ interface PopUpState {
 
 const ComponentProps = mixins(ConversationMixin).extend({
   props: {
-    // imagesToPreview: {
-    //   type: Array as PropType<Array<ObjectType>>,
-    //   default: () => []
-    // },
     conversation: {
       type: Object,
       default: () => ({})
@@ -162,12 +158,18 @@ const ComponentProps = mixins(ConversationMixin).extend({
       },
       immediate: true
     }
+  },
+  directives: {
+    viewer: viewer({
+      debug: false
+    })
   }
 })
 export default class PhotoPreviewer extends ComponentProps {
   selectedMessages = [] as Array<any>
   forwardMessage = false as boolean
   pseudoAttachmentUrl = '' as string
+  vOptions = { inline: false, button: false, navbar: false, title: false, toolbar: false, tooltip: false, movable: false, zoomable: true, rotatable: false, scalable: false, transition: true, fullscreen: false, keyboard: false }
 
   images = [] as Array<any>
   id = 0 as number

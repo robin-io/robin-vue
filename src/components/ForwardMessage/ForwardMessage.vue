@@ -37,6 +37,7 @@
               :item-count="conversations.length"
               :height="636"
               :child-height="childHeight"
+              :render-after="0"
               v-slot="slotProps"
             >
              <div :key="slotProps.index" :id="slotProps.index">
@@ -108,8 +109,7 @@ export default class ForwardMessage extends ComponentProps {
   selectedConversations = [] as Array<any>
   checkBoxKeyState = 0 as number
   searchData = [] as Array<any>
-  regularConversations!: Array<ObjectType>
-  allConversations!: Array<ObjectType>
+  generalConversations!: Array<ObjectType>
   screenWidth!: number
   currentConversation!: ObjectType
   currentTheme!: string
@@ -123,14 +123,14 @@ export default class ForwardMessage extends ComponentProps {
     const conversationMap = new Map()
 
     if (searchText.trim() === '') {
-      for (const conversation of this.regularConversations) {
+      for (const conversation of this.generalConversations) {
         conversationMap.set(conversation.name[0]
           ? this.getContactKey(conversation.name)
           : this.getContactKey(
             conversation.sender_token !== this.$user_token
               ? conversation.sender_name
               : conversation.receiver_name
-          ), this.regularConversations.filter((item) => {
+          ), this.generalConversations.filter((item) => {
           const conversationName = conversation.is_group
             ? conversation.name
             : conversation.sender_token !== this.$user_token
@@ -158,11 +158,11 @@ export default class ForwardMessage extends ComponentProps {
 
       for (const item of conversationData) {
         if (typeof item === 'string') {
-          // AlphabetBlock height
-          childHeight.push(42)
+        // AlphabetBlock height
+          childHeight.push(45)
         } else {
           // Contact card height
-          childHeight.push(78)
+          childHeight.push(95)
         }
       }
 
@@ -225,7 +225,7 @@ export default class ForwardMessage extends ComponentProps {
   searchConversation (searchText: string): void {
     this.isLoading = true
     // eslint-disable-next-line array-callback-return
-    const data = this.regularConversations.filter((obj) => {
+    const data = this.generalConversations.filter((obj) => {
       let stopSearch = false
       Object.values(obj).forEach((val) => {
         const filter = String(val).toLowerCase().includes(searchText.toLowerCase())
@@ -249,7 +249,7 @@ export default class ForwardMessage extends ComponentProps {
     const checkboxComponents = this.$refs['checkbox-comp'] as any
 
     if (!val) {
-      this.selectedConversations = [...this.regularConversations]
+      this.selectedConversations = [...this.generalConversations]
 
       for (let i = 0; i < checkboxComponents.length; i += 1) {
         checkboxComponents[i].checked = true
@@ -291,8 +291,11 @@ export default class ForwardMessage extends ComponentProps {
     const conversationIds = []
 
     for (const message of this.selectedMessages) {
-      message.is_read = false
-      messageIds.push(message._id)
+      const data = Array.isArray(message) ? { ...message[0] } : { ...message }
+      data.is_read = false
+      data.created_at = new Date()
+      data.content.timestamp = new Date()
+      messageIds.push(data._id)
     }
 
     for (const conversation of this.selectedConversations) {
@@ -307,7 +310,7 @@ export default class ForwardMessage extends ComponentProps {
     const res = await this.$robin.forwardMessages(this.$user_token, messageIds, conversationIds)
 
     if (res && !res.error) {
-      const conversation = this.allConversations.find(
+      const conversation = this.generalConversations.find(
         (conversation: any) => conversation._id === conversationIds[0]
       )
 

@@ -37,12 +37,12 @@ function checkAttachmentType (attachment: any, message: ObjectType): string {
   return `${mime.getType(strArr[strArr.length - 1])}`
 }
 
-function convertArrayBufferToFile (buffer: Uint8Array, message: ObjectType): string {
+function convertArrayBufferToFile (buffer: Uint8Array, message: ObjectType): File {
   const type = message.content.mime_type
   const blob = arrayBufferToBlob(buffer, type)
   const file = new File([blob], createUUID(36) + '.' + mime.getExtension(type), { type }) as File
 
-  return convertFileToURL(file)
+  return file
 }
 
 function convertFileToURL (file: File): string {

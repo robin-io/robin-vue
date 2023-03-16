@@ -5,18 +5,19 @@
       name="checkbox"
       class="robin-checkbox-button"
       v-model="checked"
+      ref="checkbox"
       @click="$emit('clicked', checked)"
-      data-testid="checkbox"
     />
     <span class="robin-checkbox-control"></span>
   </label>
 </template>
 
 <script lang="ts">
-import Vue, { PropType } from 'vue'
-import Component from 'vue-class-component'
+import { PropType } from 'vue'
+import Component, { mixins } from 'vue-class-component'
+import conversationMixins from '@/mixins/conversation-mixins'
 
-const ComponentProps = Vue.extend({
+const ComponentProps = mixins(conversationMixins).extend({
   props: {
     color: {
       type: String as PropType<string>,
@@ -31,6 +32,13 @@ const ComponentProps = Vue.extend({
   watch: {
     color (): void {
       this.setRootVariables()
+    },
+    shouldResetCheckedState: {
+      handler (val) {
+        if (val) {
+          this.resetCheckState()
+        }
+      }
     }
   }
 })
@@ -41,6 +49,13 @@ export default class CheckBox extends ComponentProps {
   mounted (): void {
     this.root = document.documentElement
     this.setRootVariables()
+    this.resetCheckState()
+  }
+
+  resetCheckState () {
+    const el = this.$refs.checkbox as HTMLInputElement
+    el.checked = false
+    this.checked = false
   }
 
   setRootVariables (): void {

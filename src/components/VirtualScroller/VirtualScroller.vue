@@ -1,5 +1,5 @@
 <template>
-  <div class="robin-virtual-scroller" :style="{ overflow: 'auto' }" ref="scroller" @scroll="getScrollTop">
+  <div class="robin-virtual-scroller" :style="{ overflow: 'auto', height: height === 0 ? '100%' : height + 'px' }" ref="scroller" @scroll="getScrollTop">
     <div
       class="viewport"
       :style="{

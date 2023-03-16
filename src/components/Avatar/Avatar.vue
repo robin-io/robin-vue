@@ -23,10 +23,9 @@
 
     <img
       v-if="imgUrl != ''"
-      :src="imgUrl"
+      :data-src="imgUrl"
+      class="robin-image lazyload blur-up"
       alt="profile"
-      class="robin-image"
-      loading="lazy"
     />
   </div>
 </template>

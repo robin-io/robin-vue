@@ -94,7 +94,7 @@
               as="p"
               class="robin-flex"
             >
-              {{ !message.pseudo ? getTimestamp(message.created_at) : '' }}
+              {{ !message.pseudo ? getTimestamp(message.created_at || message.content.timestamp) : '' }}
 
               <SvgIcon
                 name="read"
@@ -189,6 +189,15 @@ const ComponentProps = mixins(ConversationMixin).extend({
         this.msgReactions = this.message.reactions ?? []
         this.injectHtml(this.message.content ? this.message.content.msg : null)
       }
+    },
+    screenWidth: {
+      handler () {
+        if (this.screenWidth <= 1024) {
+          this.caretOpen = true
+        } else {
+          this.caretOpen = false
+        }
+      }
     }
   }
 })
@@ -247,10 +256,6 @@ export default class Message extends ComponentProps {
   }
 
   mounted () {
-    this.$nextTick(function () {
-      this.onResize()
-    })
-    window.addEventListener('resize', this.onResize)
     this.injectHtml(this.message.content ? this.message.content.msg : null)
   }
 
@@ -260,14 +265,6 @@ export default class Message extends ComponentProps {
 
   closeModal () {
     this.$emit('close-modal', this.index)
-  }
-
-  onResize () {
-    if (this.screenWidth <= 1024) {
-      this.caretOpen = true
-    } else {
-      this.caretOpen = false
-    }
   }
 
   injectHtml (message: string): void {
@@ -296,13 +293,9 @@ export default class Message extends ComponentProps {
   }
 
   toggleCheckAction (): void {
-    const checkbox = (this.$refs.checkbox as Vue).$el as HTMLElement
+    const checked = (this.$refs.checkbox as any).checked
 
-    if ((checkbox.childNodes[0] as HTMLInputElement).checked) {
-      this.$emit('toggle-check-action', false)
-    } else {
-      this.$emit('toggle-check-action', true)
-    }
+    this.$emit('toggle-check-action', checked)
   }
 
   onMouseLeave () {

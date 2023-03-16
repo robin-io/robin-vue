@@ -30,7 +30,7 @@
   --rb-color17: var(--rb-color2);
   --rb-color18: rgba(187, 196, 223, 0.5);
   --rb-color19: var(--rb-bg-color2);
-  --rb-color20: rgba(49, 50, 51, 1)
+  --rb-color20: rgba(49, 50, 51, 1);
 }
 
 .robin-light {
@@ -287,8 +287,12 @@
 }
 
 .robin-non-clickable {
-  cursor: default !important;
+  cursor: default;
 }
+
+.robin-disabled {
+  cursor: not-allowed;
+} 
 
 .robin-mt-38 {
   margin-top: 2.375rem;
@@ -487,6 +491,14 @@
   font-style: normal;
 }
 
+.robin-material-symbols-outlined {
+  font-variation-settings:
+  'FILL' 0,
+  'wght' 400,
+  'GRAD' 0,
+  'opsz' 48
+}
+
 .robin-overflow-y-auto {
   overflow-y: auto;
 }
@@ -515,29 +527,15 @@
   flex-direction: row-reverse;
 }
 
-.v-toast {
-  z-index: 10000;
+.robin-container .blur-up {
+  -webkit-filter: blur(5px);
+  filter: blur(5px);
+  transition: filter 400ms, -webkit-filter 400ms;
 }
 
-.carousel-3d-container {
-  height: 400px !important;
-  margin: 2rem 0 1.5rem;
-}
-
-.carousel-3d-slider {
-  height: 100% !important;
-}
-
-.carousel-3d-slide {
-  height: 100% !important;
-  background-color: transparent !important;
-  border-width: 0 !important;
-}
-
-.carousel-3d-slide img {
-  height: 100%;
-  width: initial !important;
-  cursor: pointer;
+.robin-container .blur-up.lazyloaded {
+  -webkit-filter: blur(0);
+  filter: blur(0);
 }
 
 .robin-ml-4 {

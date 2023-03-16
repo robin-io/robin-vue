@@ -29,6 +29,7 @@
     ></slot>
     <group-prompt v-if="groupPromptOpen" />
     <encryption-details v-if="encryptionDetailsOpen" />
+    <toast-container v-if="isToastOpen" />
     <audio :src="assets['notification']" ref="notification" @click="playAudio($event)">
       Your browser does not support the audio feature
     </audio>
@@ -48,6 +49,7 @@ import PhotoPreviewer from './components/PhotoPreviewer/PhotoPreviewer.vue'
 import ViewProfile from './components/ViewProfile/ViewProfile.vue'
 import GroupPrompt from './components/GroupPrompt/GroupPrompt.vue'
 import EncryptionDetails from './components/EncrytionDetails/EncryptionDetails.vue'
+import ToastContainer from './components/ToastContainer/ToastContainer.vue'
 import debounce from 'lodash.debounce'
 import assets from '@/utils/assets.json'
 import ConversationMixin from './mixins/conversation-mixins'
@@ -130,7 +132,8 @@ const ComponentProps = mixins(ConversationMixin).extend({
     PhotoPreviewer,
     ViewProfile,
     GroupPrompt,
-    EncryptionDetails
+    EncryptionDetails,
+    ToastContainer
   },
   watch: {
     users: {
@@ -159,6 +162,7 @@ export default class App extends ComponentProps {
   currentTheme!: string
   showDefaultProfileDetails!: boolean
   groupPromptOpen!: boolean
+  isToastOpen!: boolean
   isMessageReactionDeleteEnabled!: boolean
   currentConversation!: ObjectType
   groupnameColors!: Array<string>
@@ -193,7 +197,7 @@ export default class App extends ComponentProps {
   mounted () {
     this.notification = this.$refs.notification as HTMLElement
 
-    this.$nextTick(function () {
+    this.$nextTick(() => {
       this.onResize()
     })
 
@@ -348,10 +352,10 @@ export default class App extends ComponentProps {
 
     this.conn.onopen = (event: ObjectType) => {
       if (event.target.readyState > 1) {
-        this.showToast('Reconnecting', 'info')
+        // this.showToast('Reconnecting', 'info')
         store.setState('connected', false)
       } else {
-        this.showToast('Connected', 'success')
+        // this.showToast('Connected', 'success')
         store.setState('connected', true)
       }
 
@@ -366,10 +370,8 @@ export default class App extends ComponentProps {
     }
 
     this.conn.onclose = (event: ObjectType) => {
-      // this.showToast('Disconnected', 'error')
       // Websocket closed abnormally.
       if (event.code !== 1000) {
-        // this.showToast('Reconnecting', 'info')
         this.debouncedConnect?.()
       } else {
         this.connect()
@@ -475,7 +477,9 @@ export default class App extends ComponentProps {
   }
 
   onResize () {
-    store.setState('screenWidth', window.innerWidth)
+    this.$nextTick(function () {
+      store.setState('screenWidth', window.innerWidth)
+    })
   }
 
   openProfile () {

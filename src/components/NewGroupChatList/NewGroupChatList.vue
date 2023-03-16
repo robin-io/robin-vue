@@ -442,6 +442,9 @@ export default class NewGroupChatList extends ComponentProps {
       this.$emit('changesidebartype', 'primary')
       this.$emit('closemodal')
 
+      // Reset search.
+      this.getContacts('', 'create-group')
+
       this.toggleSelectAllCheckAction(true)
     }
     this.updatingParticipants = false

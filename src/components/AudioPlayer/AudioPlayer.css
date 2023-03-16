@@ -2,6 +2,9 @@
   color: #9999bc;
   font-size: 1.5rem;
   user-select: none;
+}
+
+.robin-ap i:not(.robin-disabled) {
   cursor: pointer;
 }
 
@@ -46,14 +49,17 @@
   border-radius: 50%;
   background-color: var(--primary-color);
   transition: transform 0.25s;
+}
+
+.robin-ap .robin-ap-line-dot:not(.robin-disabled)  {
   cursor: grab;
 }
 
-.robin-ap .robin-ap-line-dot:active {
+.robin-ap .robin-ap-line-dot:not(.robin-disabled):active {
   cursor: grabbing;
 }
 
-.robin-ap .robin-ap-line-dot.active {
+.robin-ap .robin-ap-line-dot:not(.robin-disabled).active {
   transform: scale(1.2);
 }
 

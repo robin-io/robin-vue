@@ -1,9 +1,22 @@
 <template>
   <div class="robin-ap robin-flex robin-flex-align-start">
-    <i class="robin-material-icon" role="button" v-if="!isPlaying" @click="playback()"
+    <i class="robin-material-icon robin-material-symbols-outlined robin-disabled" v-if="message.pseudo"
+      >play_disabled</i
+    >
+    <i
+      class="robin-material-icon"
+      role="button"
+      v-if="!isPlaying && !message.pseudo"
+      @click="playback()"
       >play_arrow</i
     >
-    <i class="robin-material-icon" role="button" v-else @click="playback()">pause</i>
+    <i
+      class="robin-material-icon"
+      role="button"
+      v-if="isPlaying && !message.pseudo"
+      @click="playback()"
+      >pause</i
+    >
     <div class="robin-ap-bar-wrapper robin-flex robin-flex-column robin-flex-space-between">
       <div ref="progress" class="robin-ap-bar" @mousedown="onMouseDown">
         <div class="robin-ap-progress">
@@ -15,7 +28,7 @@
             <div
               role="progress-dot"
               class="robin-ap-line-dot"
-              :class="{ active: isMouseDown }"
+              :class="{ active: isMouseDown, 'robin-disabled': message.pseudo }"
               :style="{ left: `${percentage > 10 ? percentage - 7 : percentage}%` }"
             />
           </div>
@@ -31,7 +44,7 @@
       :src="
         typeof message.content.attachment === 'string'
           ? message.content.attachment
-          : pseudoAttachmentUrl
+          : convertFileToURL(convertArrayBufferToFile(message.content.attachment, message))
       "
     >
       Your browser does not support the
@@ -42,6 +55,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import Component from 'vue-class-component'
+import { convertFileToURL, convertArrayBufferToFile } from '@/utils/helpers'
 import store from '@/store/index'
 
 const ComponentProps = Vue.extend({
@@ -67,14 +81,6 @@ const ComponentProps = Vue.extend({
           this.isPlaying = false
         }
       }
-    },
-    message: {
-      handler (val) {
-        if (typeof val.content.attachment !== 'string') {
-          this.convertFileToURL(val.content.attachment)
-        }
-      },
-      deep: true
     }
   }
 })
@@ -87,7 +93,8 @@ export default class AudioPlayer extends ComponentProps {
   playedTime = this.convertTimeMMSS(0) as string
   player = null as any
   progressTime = '- : -' as string
-  pseudoAttachmentUrl = ''
+  convertFileToURL = convertFileToURL
+  convertArrayBufferToFile = convertArrayBufferToFile
 
   mounted () {
     this.player = document.getElementById(`audio-${this.index}`) as any
@@ -107,10 +114,6 @@ export default class AudioPlayer extends ComponentProps {
 
   get currentAudioPlaying () {
     return store.state.currentAudioPlaying
-  }
-
-  convertFileToURL (file: File): void {
-    this.pseudoAttachmentUrl = URL.createObjectURL(file)
   }
 
   convertTimeMMSS (seconds: number) {
@@ -157,11 +160,13 @@ export default class AudioPlayer extends ComponentProps {
   }
 
   onMouseDown (event: any) {
-    this.isMouseDown = true
-    this.pos = this.calculateLineHeadPosition(event, this.$refs.progress)
-    this.onUpdateProgress()
-    document.addEventListener('mousemove', this.onMouseMove)
-    document.addEventListener('mouseup', this.onMouseUp)
+    if (!this.message.pseudo) {
+      this.isMouseDown = true
+      this.pos = this.calculateLineHeadPosition(event, this.$refs.progress)
+      this.onUpdateProgress()
+      document.addEventListener('mousemove', this.onMouseMove)
+      document.addEventListener('mouseup', this.onMouseUp)
+    }
   }
 
   onMouseUp (event: any) {

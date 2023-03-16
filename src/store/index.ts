@@ -1,47 +1,49 @@
 import Vue from 'vue'
 
 interface State {
-  connected: boolean,
-  allConversations:Array<ObjectType>,
-  regularConversations: Array<ObjectType>,
-  archivedConversations: Array<ObjectType>,
-  currentConversation: Record<string, any>,
-  imagesToPreview: any[],
-  imageSelected: number,
-  isImageReplying: boolean,
-  isPageLoading: boolean,
-  isAuthenticated: boolean,
-  selectMessagesOpen: boolean,
-  conversationOpen: boolean,
-  clearMessages: boolean,
-  imagePreviewOpen: boolean,
-  profileOpen: boolean,
-  groupPromptOpen: boolean,
-  currentParticipantToken: string,
+  connected: boolean
+  unsortedRegularConversations: Array<ObjectType>
+  regularConversations: Array<ObjectType>
+  archivedConversations: Array<ObjectType>
+  currentConversation: Record<string, any>
+  imagesToPreview: any[]
+  imageSelected: number
+  isImageReplying: boolean
+  isPageLoading: boolean
+  isAuthenticated: boolean
+  selectMessagesOpen: boolean
+  conversationOpen: boolean
+  clearMessages: boolean
+  imagePreviewOpen: boolean
+  profileOpen: boolean
+  groupPromptOpen: boolean
+  currentParticipantToken: string
   encryptionDetailsOpen: boolean
-  exitGroup: boolean,
-  participantToken: string,
-  removeParticipant: boolean,
-  isParticipantModerator: boolean,
-  currentAudioPlaying: number,
-  forwardMessagesEnabled: boolean,
-  deleteMessagesEnabled: boolean,
-  archiveChatEnabled: boolean,
-  createChatEnabled: boolean,
-  replyMessagesEnabled: boolean,
-  voiceRecorderEnabled: boolean,
-  messageReactionViewEnabled: boolean,
-  messageReactionDeleteEnabled: boolean,
-  useDefaultProfileDetails: boolean,
-  currentTheme: string,
-  screenWidth: number,
-  sideBarType: string,
+  exitGroup: boolean
+  participantToken: string
+  removeParticipant: boolean
+  isParticipantModerator: boolean
+  currentAudioPlaying: number
+  forwardMessagesEnabled: boolean
+  deleteMessagesEnabled: boolean
+  archiveChatEnabled: boolean
+  createChatEnabled: boolean
+  replyMessagesEnabled: boolean
+  voiceRecorderEnabled: boolean
+  messageReactionViewEnabled: boolean
+  messageReactionDeleteEnabled: boolean
+  useDefaultProfileDetails: boolean
+  currentTheme: string
+  screenWidth: number
+  sideBarType: string
   secretKey: string
+  toastMessages: Map<any, any>,
+  resetCheckedState: boolean
 }
 
 const state: State = {
   connected: false,
-  allConversations: [],
+  unsortedRegularConversations: [],
   regularConversations: [],
   archivedConversations: [],
   currentConversation: {},
@@ -75,7 +77,9 @@ const state: State = {
   currentTheme: 'light',
   screenWidth: 0,
   sideBarType: 'primary',
-  secretKey: ''
+  secretKey: '',
+  toastMessages: new Map(),
+  resetCheckedState: false
 }
 
 const store = {

@@ -132,7 +132,7 @@ export default class NewChatList extends mixins(ConversationMixin) {
 
     if (res && !res.error) {
       if (!this.checkConversations(res.data)) {
-        this.allConversations.push(res.data)
+        this.unsortedRegularConversations.push(res.data)
       }
 
       EventBus.$emit('conversation-opened', res.data)
@@ -145,7 +145,7 @@ export default class NewChatList extends mixins(ConversationMixin) {
 
   checkConversations (convo: ObjectType): boolean {
     let res = false
-    this.allConversations.forEach((conversation) => {
+    this.unsortedRegularConversations.forEach((conversation) => {
       if (conversation._id === convo._id) {
         res = true
       }
@@ -214,6 +214,8 @@ export default class NewChatList extends mixins(ConversationMixin) {
     setTimeout(() => {
       this.refresh()
     }, 300)
+    // Reset search.
+    this.getContacts('')
   }
 
   openGroupChat (): void {

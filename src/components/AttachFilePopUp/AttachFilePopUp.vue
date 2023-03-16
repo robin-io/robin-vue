@@ -109,7 +109,7 @@ import ConversationMixin from '@/mixins/conversation-mixins'
   }
 })
 export default class AttachFilePopOver extends mixins(ConversationMixin) {
-  acceptedDocFiles = 'application/*, text/*' as string
+  acceptedDocFiles = 'application/*, text/*, audio/*' as string
   acceptedVisualFiles = 'image/*, video/*' as string
 
   get currentTheme () {
@@ -126,7 +126,8 @@ export default class AttachFilePopOver extends mixins(ConversationMixin) {
 
     if (files) {
       [...files].forEach((file: any) => {
-        const extension = file.name.split('.')[1]
+        const extArr = file.name.split('.')
+        const extension = extArr[extArr.length - 1]
         const blob = file.slice(0, file.size, file.type)
         const customFile = new File([blob], createUUID(36) + '.' + extension, { type: file.type })
 

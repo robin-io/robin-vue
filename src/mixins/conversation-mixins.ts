@@ -9,254 +9,285 @@ import { Colors } from '@/utils/constants'
   name: 'ConversationMixins'
 })
 export default class ConversationMixin extends Vue {
-    toastMessages = new Map([['Connected', false], ['Reconnecting', false], ['Disconnected', false]])
-    offlineMessages: ObjectType | undefined;
+  offlineMessages: ObjectType | undefined
 
-    get allConversations () {
-      return store.state.allConversations
+  get unsortedRegularConversations () {
+    return store.state.unsortedRegularConversations
+  }
+
+  get generalConversations () {
+    return [...this.regularConversations, ...this.archivedConversations]
+  }
+
+  get regularConversations () {
+    const sortedConversations = this.unsortedRegularConversations.sort((a, b) => {
+      const dateA = new Date(a.last_message?.timestamp ?? a.updated_at).getTime()
+      const dateB = new Date(b.last_message?.timestamp ?? b.updated_at).getTime()
+
+      return dateB - dateA
+    })
+
+    const regularConversations = this.getRegularConversations(sortedConversations)
+
+    return this.addUnreadMessagesToConversation(regularConversations)
+  }
+
+  get isPageLoading () {
+    return store.state.isPageLoading
+  }
+
+  get archivedConversations () {
+    return store.state.archivedConversations.sort((a, b) => {
+      const dateA = new Date(a.last_message?.timestamp ?? a.updated_at).getTime()
+      const dateB = new Date(b.last_message?.timestamp ?? b.updated_at).getTime()
+
+      return dateB - dateA
+    })
+  }
+
+  get isCreateChatEnabled () {
+    return store.state.createChatEnabled
+  }
+
+  get isArchiveChatEnabled () {
+    return store.state.archiveChatEnabled
+  }
+
+  get currentTheme () {
+    return store.state.currentTheme
+  }
+
+  get screenWidth () {
+    return store.state.screenWidth
+  }
+
+  get isMessageReactionViewEnabled () {
+    return store.state.messageReactionViewEnabled
+  }
+
+  get groupnameColors () {
+    const userColors = {} as ObjectType
+
+    for (const user of this.$robin_users) {
+      userColors[user.userToken] = Colors[Math.floor(Math.random() * Colors.length)]
     }
 
-    get regularConversations () {
-      const sortedConversations = this.allConversations.sort((a, b) => {
-        const dateA = new Date(a.last_message?.timestamp ?? a.updated_at).getTime()
-        const dateB = new Date(b.last_message?.timestamp ?? b.updated_at).getTime()
+    return userColors
+  }
 
-        return dateB - dateA
-      })
+  get offlineMessagesExist () {
+    const offlineMessages = this.offlineMessages?.messages[this.currentConversation._id]
+    return !!offlineMessages
+  }
 
-      const regularConversations = this.getRegularConversations(sortedConversations)
+  get currentConversation () {
+    return store.state.currentConversation
+  }
 
-      return this.addUnreadMessagesToConversation(regularConversations)
-    }
+  get selectMessagesOpen () {
+    return store.state.selectMessagesOpen
+  }
 
-    get isPageLoading () {
-      return store.state.isPageLoading
-    }
+  get isForwardMessagesEnabled () {
+    return store.state.forwardMessagesEnabled
+  }
 
-    get archivedConversations () {
-      return store.state.archivedConversations
-    }
+  get clearMessages () {
+    return store.state.clearMessages
+  }
 
-    get isCreateChatEnabled () {
-      return store.state.createChatEnabled
-    }
+  get exitGroup () {
+    return store.state.exitGroup
+  }
 
-    get isArchiveChatEnabled () {
-      return store.state.archiveChatEnabled
-    }
+  get shouldResetCheckedState () {
+    return store.state.resetCheckedState
+  }
 
-    get currentTheme () {
-      return store.state.currentTheme
-    }
+  get imagePreviewOpen () {
+    return store.state.imagePreviewOpen
+  }
 
-    get screenWidth () {
-      return store.state.screenWidth
-    }
+  get imagesToPreview () {
+    return store.state.imagesToPreview
+  }
 
-    get isMessageReactionViewEnabled () {
-      return store.state.messageReactionViewEnabled
-    }
+  get imageSelected () {
+    return store.state.imageSelected
+  }
 
-    get groupnameColors () {
-      const userColors = {} as ObjectType
+  get isImageReplying () {
+    return store.state.isImageReplying
+  }
 
-      for (const user of this.$robin_users) {
-        userColors[user.userToken] = Colors[Math.floor(Math.random() * Colors.length)]
-      }
+  get participantToken () {
+    return store.state.participantToken
+  }
 
-      return userColors
-    }
+  get removeParticipant () {
+    return store.state.removeParticipant
+  }
 
-    get offlineMessagesExist () {
-      const offlineMessages = this.offlineMessages?.messages[this.currentConversation._id]
-      return !!offlineMessages
-    }
+  get isMessageReactionDeleteEnabled () {
+    return store.state.messageReactionDeleteEnabled
+  }
 
-    get currentConversation () {
-      return store.state.currentConversation
-    }
+  get sideBarType () {
+    return store.state.sideBarType
+  }
 
-    get selectMessagesOpen () {
-      return store.state.selectMessagesOpen
-    }
+  get conversationOpen () {
+    return store.state.conversationOpen
+  }
 
-    get isForwardMessagesEnabled () {
-      return store.state.forwardMessagesEnabled
-    }
+  get encryptionDetailsOpen () {
+    return store.state.encryptionDetailsOpen
+  }
 
-    get clearMessages () {
-      return store.state.clearMessages
-    }
+  get profileOpen () {
+    return store.state.profileOpen
+  }
 
-    get exitGroup () {
-      return store.state.exitGroup
-    }
+  get groupPromptOpen () {
+    return store.state.groupPromptOpen
+  }
 
-    get imagePreviewOpen () {
-      return store.state.imagePreviewOpen
-    }
+  get showDefaultProfileDetails () {
+    return store.state.useDefaultProfileDetails
+  }
 
-    get imagesToPreview () {
-      return store.state.imagesToPreview
-    }
+  get isReplyMessagesEnabled () {
+    return store.state.replyMessagesEnabled
+  }
 
-    get imageSelected () {
-      return store.state.imageSelected
-    }
+  get isDeleteMessagesEnabled () {
+    return store.state.deleteMessagesEnabled
+  }
 
-    get isImageReplying () {
-      return store.state.isImageReplying
-    }
+  get isParticipantModerator () {
+    return store.state.isParticipantModerator
+  }
 
-    get participantToken () {
-      return store.state.participantToken
-    }
+  get currentParticipantToken () {
+    return store.state.currentParticipantToken
+  }
 
-    get removeParticipant () {
-      return store.state.removeParticipant
-    }
+  get isVoiceRecorderEnabled () {
+    return store.state.voiceRecorderEnabled
+  }
 
-    get isMessageReactionDeleteEnabled () {
-      return store.state.messageReactionDeleteEnabled
-    }
+  get isWebSocketConnected () {
+    return store.state.connected
+  }
 
-    get sideBarType () {
-      return store.state.sideBarType
-    }
+  get currentSecretKey () {
+    return store.state.secretKey
+  }
 
-    get conversationOpen () {
-      return store.state.conversationOpen
-    }
+  get encryptionKey () {
+    return CryptoJS.enc.Utf8.parse(this.currentSecretKey.substring(0, 32))
+  }
 
-    get encryptionDetailsOpen () {
-      return store.state.encryptionDetailsOpen
-    }
+  get iv () {
+    return CryptoJS.enc.Utf8.parse(this.currentSecretKey.substring(0, 16))
+  }
 
-    get profileOpen () {
-      return store.state.profileOpen
-    }
+  get isToastOpen () {
+    return this.toastMessages.size > 0
+  }
 
-    get groupPromptOpen () {
-      return store.state.groupPromptOpen
-    }
+  get toastMessages () {
+    return store.state.toastMessages
+  }
 
-    get showDefaultProfileDetails () {
-      return store.state.useDefaultProfileDetails
-    }
+  getRegularConversations (conversations: Array<ObjectType>) {
+    return conversations.filter((conversation: ObjectType) => {
+      if (!conversation.archived_for || conversation.archived_for.length === 0) return true
+      return !conversation.archived_for.includes(this.$user_token)
+    })
+  }
 
-    get isReplyMessagesEnabled () {
-      return store.state.replyMessagesEnabled
-    }
+  formatDate (value: string): string {
+    const today = new Date()
+    const formattedValue = new Date(value)
 
-    get isDeleteMessagesEnabled () {
-      return store.state.deleteMessagesEnabled
-    }
+    if (isSameDay(today, formattedValue)) return 'Today'
 
-    get isParticipantModerator () {
-      return store.state.isParticipantModerator
-    }
+    return formatTimestamp(new Date(value))
+  }
 
-    get currentParticipantToken () {
-      return store.state.currentParticipantToken
-    }
+  getRecentMessageTime (time: string): string {
+    return formatTimestamp(new Date(time))
+  }
 
-    get isVoiceRecorderEnabled () {
-      return store.state.voiceRecorderEnabled
-    }
-
-    get isWebSocketConnected () {
-      return store.state.connected
-    }
-
-    get currentSecretKey () {
-      return store.state.secretKey
-    }
-
-    get encryptionKey () {
-      return CryptoJS.enc.Utf8.parse(this.currentSecretKey.substring(0, 32))
-    }
-
-    get iv () {
-      return CryptoJS.enc.Utf8.parse(this.currentSecretKey.substring(0, 16))
-    }
-
-    getRegularConversations (conversations: Array<ObjectType>) {
-      return conversations.filter((conversation: ObjectType) => {
-        if (!conversation.archived_for || conversation.archived_for.length === 0) return true
-        return !conversation.archived_for.includes(this.$user_token)
-      })
-    }
-
-    formatDate (value: string): string {
-      const today = new Date()
-      const formattedValue = new Date(value)
-
-      if (isSameDay(today, formattedValue)) return 'Today'
-
-      return formatTimestamp(new Date(value))
-    }
-
-    getRecentMessageTime (time: string): string {
-      return formatTimestamp(new Date(time), 'MMM DD YYYY')
-    }
-
-    addUnreadMessagesToConversation (conversations: Array<ObjectType>) {
-      return conversations.map((conversation: ObjectType) => {
-        if (typeof conversation.unread_messages === 'number' || typeof conversation.unread_messages === 'string') {
-          return conversation
-        }
-
-        if (!conversation.unread_messages) {
-          conversation.unread_messages = 0
-          return conversation
-        }
-
-        conversation.unread_messages = conversation.unread_messages[this.$user_token]?.unread_count || 0
+  addUnreadMessagesToConversation (conversations: Array<ObjectType>) {
+    return conversations.map((conversation: ObjectType) => {
+      if (
+        typeof conversation.unread_messages === 'number' ||
+        typeof conversation.unread_messages === 'string'
+      ) {
         return conversation
-      })
-    }
-
-    copyConversations (conversations: Array<ObjectType>): Array<ObjectType> {
-      return conversations.map(conversation => {
-        if (Array.isArray(conversation)) {
-          return [...conversation]
-        }
-        return { ...conversation }
-      })
-    }
-
-    getContactName (sender_token: string): string {
-      const index = this.$robin_users.findIndex((user) => user.userToken === sender_token) as number
-      const user = this.$robin_users[index] as ObjectType
-      return user ? user.userName : ''
-    }
-
-    showToast (message: string, type: string): void {
-      if (!this.toastMessages.get(message)) {
-        this.toastMessages.set(message, true)
-        this.$toast.open({ message, type, position: 'bottom-left' })
       }
 
-      this.toastMessages.set(message, false)
+      if (!conversation.unread_messages) {
+        conversation.unread_messages = 0
+        return conversation
+      }
+
+      conversation.unread_messages =
+        conversation.unread_messages[this.$user_token]?.unread_count || 0
+      return conversation
+    })
+  }
+
+  copyConversations (conversations: Array<ObjectType>): Array<ObjectType> {
+    return conversations.map((conversation) => {
+      if (Array.isArray(conversation)) {
+        return [...conversation]
+      }
+      return { ...conversation }
+    })
+  }
+
+  getContactName (sender_token: string): string {
+    const index = this.$robin_users.findIndex((user) => user.userToken === sender_token) as number
+    const user = this.$robin_users[index] as ObjectType
+    return user ? user.userName : ''
+  }
+
+  showToast (message: string, type: string): void {
+    const toastMap = new Map(Array.from(this.toastMessages))
+    if (!toastMap.has(message)) {
+      toastMap.set(message, type)
+      store.setState('toastMessages', toastMap)
     }
+  }
 
-    encrypt (message: ObjectType): string {
-      const enc = CryptoJS.AES.encrypt(JSON.stringify(message), this.encryptionKey, {
-        iv: this.iv as any,
-        mode: CryptoJS.mode.CTR,
-        padding: CryptoJS.pad.NoPadding
-      })
-
-      return enc.toString()
+  closeToast (message: string): void {
+    const toastMap = new Map(this.toastMessages.entries())
+    if (toastMap.has(message)) {
+      toastMap.delete(message)
+      store.setState('toastMessages', toastMap)
     }
+  }
 
-    decrypt (message: string): string {
-      const enc = CryptoJS.AES.decrypt(message, this.encryptionKey, {
-        iv: this.iv as any,
-        mode: CryptoJS.mode.CTR,
-        padding: CryptoJS.pad.NoPadding
-      })
+  encrypt (message: ObjectType): string {
+    const enc = CryptoJS.AES.encrypt(JSON.stringify(message), this.encryptionKey, {
+      iv: this.iv as any,
+      mode: CryptoJS.mode.CTR,
+      padding: CryptoJS.pad.NoPadding
+    })
 
-      return enc.toString(CryptoJS.enc.Utf8)
-    }
+    return enc.toString()
+  }
+
+  decrypt (message: string): string {
+    const enc = CryptoJS.AES.decrypt(message, this.encryptionKey, {
+      iv: this.iv as any,
+      mode: CryptoJS.mode.CTR,
+      padding: CryptoJS.pad.NoPadding
+    })
+
+    return enc.toString(CryptoJS.enc.Utf8)
+  }
 }

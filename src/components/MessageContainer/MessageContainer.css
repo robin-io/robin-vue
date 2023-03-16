@@ -6,7 +6,7 @@
   justify-content: space-between;
   position: relative;
   z-index: 0;
-  overflow-y: hidden;
+  overflow: hidden;
   background-color: inherit;
 }
 
@@ -173,6 +173,14 @@
 .robin-message-bubble-inner .robin-text,
 .robin-link-container {
   text-align: left;
+}
+
+.robin-dark .robin-link-container{
+  color: #fff;
+}
+
+.robin-light .robin-link-container{
+  color: #000;
 }
 
 .robin-message-container .robin-grid-receiver .robin-side-text,
