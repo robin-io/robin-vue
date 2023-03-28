@@ -91,6 +91,7 @@
             @scroll-to-message="scrollToMessage"
             @remove-reaction="removeReaction"
           />
+          <failed-message-indicator v-if="message && message.is_blocked" />
         </div>
       </div>
 
@@ -177,6 +178,7 @@ import ForwardTab from '../ForwardTab/ForwardTab.vue'
 import Prompt from '../Prompt/Prompt.vue'
 import MessagePopUp from '../MessagePopUp/MessagePopUp.vue'
 import ReactionPopUp from '../ReactionPopUp/ReactionPopUp.vue'
+import FailedMessageIndicator from '../FailedMessageIndicator/FailedMessageIndicator.vue'
 
 // eslint-disable-next-line
 @Component<MessageContainer>({
@@ -189,6 +191,7 @@ import ReactionPopUp from '../ReactionPopUp/ReactionPopUp.vue'
     'message-content': Content,
     Message,
     DocumentMessage,
+    FailedMessageIndicator,
     ForwardMessage,
     ForwardTab,
     PhotoMessage,
@@ -554,11 +557,12 @@ export default class MessageContainer extends mixins(ConversationMixin) {
           ]
 
           // this.sortOfflineMessages(tempOfflineMessages)
-
           this.$set(this.offlineMessages.messages, this.currentConversation._id, [
             ...tempOfflineMessages
           ])
-          this.setOfflineMessages(tempOfflineMessages)
+          if (!newMessage.is_blocked) {
+            this.setOfflineMessages(tempOfflineMessages)
+          }
         }
 
         this.scrollToBottom()

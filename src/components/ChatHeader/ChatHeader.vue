@@ -129,7 +129,6 @@ import IconButton from '@/components/IconButton/IconButton.vue'
 import GroupAvatar from '@/components/GroupAvatar/GroupAvatar.vue'
 import Avatar from '@/components/Avatar/Avatar.vue'
 import Content from '@/components/Content/Content.vue'
-import Button from '@/components/Button/Button.vue'
 import ChatHeaderPopUp from '../ChatHeaderPopUp/ChatHeaderPopUp.vue'
 import EventBus from '@/event-bus'
 import ConversationMixin from '@/mixins/conversation-mixins'
@@ -154,7 +153,6 @@ const ComponentProps = mixins(ConversationMixin).extend({
     IconButton,
     GroupAvatar,
     'message-content': Content,
-    'custom-button': Button,
     Avatar,
     ChatHeaderPopUp
   },

@@ -37,7 +37,7 @@
 
       <div
         class="robin-message-bubble-inner"
-        :class="{ 'robin-non-clickable': isMessageClickable }"
+        :class="{ 'robin-non-clickable': isMessageClickable, 'robin-message-blocked': message.is_blocked }"
       >
         <message-content
           v-if="
@@ -86,7 +86,7 @@
 
           <div class="robin-link-container" ref="message" v-if="isLink"></div>
 
-          <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
+          <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto" v-if="!message.is_blocked">
             <message-content
               :font-weight="'300'"
               :font-size="10"
@@ -94,9 +94,11 @@
               as="p"
               class="robin-flex"
             >
-              {{ !message.pseudo ? getTimestamp(message.created_at || message.content.timestamp) : '' }}
+              {{
+                !message.pseudo ? getTimestamp(message.created_at || message.content.timestamp) : ''
+              }}
 
-              <SvgIcon
+              <svg-icon
                 name="read"
                 v-show="
                   !validateMessages(message).includes('message-sender') &&
@@ -114,7 +116,9 @@
                 "
               />
 
-              <i class="robin-material-icon" v-if="message.pseudo"> schedule </i>
+              <i class="robin-material-icon" v-if="message.pseudo">
+                schedule
+              </i>
             </message-content>
           </span>
         </div>
@@ -224,7 +228,8 @@ export default class Message extends ComponentProps {
         !this.isReplyMessagesEnabled &&
         !this.isDeleteMessagesEnabled &&
         !this.isForwardMessagesEnabled) ||
-      this.selectMessagesOpen
+      this.selectMessagesOpen ||
+      this.message.is_blocked
     ) {
       return false
     }
@@ -317,7 +322,7 @@ export default class Message extends ComponentProps {
           this.isDeleteMessagesEnabled &&
           this.isForwardMessagesEnabled))
     ) {
-      if (!this.selectMessagesOpen) this.caretOpen = true
+      if (!this.selectMessagesOpen && !this.message.is_blocked) this.caretOpen = true
     } else {
       this.caretOpen = false
     }

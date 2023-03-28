@@ -1,21 +1,14 @@
 <template>
-  <div class="robin-encryption-details robin-shim robin-fadeIn" @click.self="closeModal()">
+  <div class="robin-moderated-word robin-shim robin-fadeIn" @click.self="closeModal()">
     <div class="robin-card">
       <div class="robin-head">
-        <icon-button
-          name="remove"
-          @close="closeModal()"
-          emit="close"
-          :to-emit="true"
-          :to-click-away="false"
-        />
-        <message-content class="robin-ml-12"> Encryption Details</message-content>
+        <message-content :font-size="20">Moderated Word</message-content>
       </div>
 
       <div class="robin-details">
         <svg-icon name="largeEncryption" />
-        <message-content class="robin-mt-27" text-align="center" as="span">
-          Your chat is fully encrypted
+        <message-content :font-size="18" class="robin-mt-24" text-align="center" text-wrap="normal" as="span">
+          You’ve used a blocked word in your conversation, which won’t be sent.
         </message-content>
       </div>
     </div>
@@ -31,16 +24,16 @@ import SvgIcon from '@/components/SvgIcon/SvgIcon.vue'
 import Content from '@/components/Content/Content.vue'
 
 @Component({
-  name: 'EncryptionDetails',
   components: {
+    name: 'ModeratedWord',
     'message-content': Content,
     IconButton,
     SvgIcon
   }
 })
-export default class EncryptionDetails extends Vue {
+export default class ModeratedWord extends Vue {
   closeModal () {
-    store.setState('encryptionDetailsOpen', false)
+    store.setState('moderatedWordFound', false)
   }
 }
 </script>

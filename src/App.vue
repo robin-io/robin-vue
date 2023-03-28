@@ -29,6 +29,7 @@
     ></slot>
     <group-prompt v-if="groupPromptOpen" />
     <encryption-details v-if="encryptionDetailsOpen" />
+    <moderated-word v-if="moderatedWordFound" />
     <toast-container v-if="isToastOpen" />
     <audio :src="assets['notification']" ref="notification" @click="playAudio($event)">
       Your browser does not support the audio feature
@@ -41,6 +42,7 @@ import Vue, { PropType } from 'vue'
 import Component, { mixins } from 'vue-class-component'
 import store from './store/index'
 import { Robin } from 'robin.io-js'
+import axios from 'axios'
 import EventBus from './event-bus'
 import SideContainer from './components/SideContainer/SideContainer.vue'
 import MessageContainer from './components/MessageContainer/MessageContainer.vue'
@@ -49,6 +51,7 @@ import PhotoPreviewer from './components/PhotoPreviewer/PhotoPreviewer.vue'
 import ViewProfile from './components/ViewProfile/ViewProfile.vue'
 import GroupPrompt from './components/GroupPrompt/GroupPrompt.vue'
 import EncryptionDetails from './components/EncrytionDetails/EncryptionDetails.vue'
+import ModeratedWord from './components/ModeratedWord/ModeratedWord.vue'
 import ToastContainer from './components/ToastContainer/ToastContainer.vue'
 import debounce from 'lodash.debounce'
 import assets from '@/utils/assets.json'
@@ -58,11 +61,11 @@ const ComponentProps = mixins(ConversationMixin).extend({
   props: {
     userToken: {
       type: String as PropType<string>,
-      default: ''
+      default: 'OykUCsrYJddWcJsDfHDQKKop'
     },
     apiKey: {
       type: String as PropType<string>,
-      default: ''
+      default: 'NT-XmIzEmWUlsrQYypZOFRlogDFvQUsaEuxMfZf'
     },
     pageLoader: {
       type: Boolean as PropType<boolean>,
@@ -70,19 +73,48 @@ const ComponentProps = mixins(ConversationMixin).extend({
     },
     channel: {
       type: String as PropType<string>,
-      default: ''
+      default: 'private_channel'
     },
     userName: {
       type: String as PropType<string>,
-      default: ''
+      default: 'Enoch Chejieh'
     },
     secretKey: {
       type: String as PropType<string>,
-      default: ''
+      default: 'NT-ENC-ScauRDacGPzhLJsoprwpVPMBaEXFWcUDSonb'
     },
     users: {
       type: Array as PropType<Array<ObjectType>>,
-      default: (): Array<ObjectType> => []
+      default: (): Array<ObjectType> => [{
+        _id: '6200d11a9efb65bddc0124ee',
+        created_at: '2022-02-07T07:58:18.13Z',
+        updated_at: '2022-02-07T07:58:18.13Z',
+        fullname: 'Elvis Chuks',
+        user_token: 'FefXITDgAeTVrghcOHiimDVB',
+        password: '$2a$14$b9wbYBQIZX30BTRJ/C8WROClya42EIUwimkkFh40S2ASISwJwzFZG',
+        profile_image: '',
+        email: 'elvis@acumen.com.ng'
+      },
+      {
+        _id: '62d90ae988cc48b2e8fa64f5',
+        created_at: '2022-07-21T08:14:33.784Z',
+        updated_at: '2022-07-21T08:14:33.784Z',
+        fullname: 'Gloria',
+        user_token: 'xxuCjaUVTPsZgrtuzMghoklu',
+        password: '$2a$14$cFQ5S1l727mNqevoOa8XmuceBtDO3cXIBTcnnbekWu2MamxuHLGfe',
+        profile_image: '',
+        email: 'gloria@acumen.digital '
+      },
+      {
+        _id: '621436282dc9a4e040d741bb',
+        created_at: '2022-02-22T01:02:32.517Z',
+        updated_at: '2022-02-22T01:02:32.517Z',
+        fullname: 'Testing Tester',
+        user_token: 'GmStKZeaAzsYzxsdIlFvoJSa',
+        password: '$2a$14$ynUAMEo0StZa7FnbipS6l.qgAObpZJL.SkvXXVKjRalPKTK0Y51ce',
+        profile_image: '',
+        email: 'testingtester@gmail.com'
+      }]
     },
     logo: {
       type: String as PropType<string>,
@@ -133,7 +165,8 @@ const ComponentProps = mixins(ConversationMixin).extend({
     ViewProfile,
     GroupPrompt,
     EncryptionDetails,
-    ToastContainer
+    ToastContainer,
+    ModeratedWord
   },
   watch: {
     users: {
@@ -167,6 +200,7 @@ export default class App extends ComponentProps {
   currentConversation!: ObjectType
   groupnameColors!: Array<string>
   imagePreviewOpen!: boolean
+  moderatedWordFound!: boolean
   showToast!: (message: string, info: string) => void
   isPageLoading!: boolean
   encryptionDetailsOpen!: boolean
@@ -179,12 +213,14 @@ export default class App extends ComponentProps {
     this.initiateRobin()
     this.filterUsers()
     this.openConversation()
+    this.handleConnectionStatus()
     this.onGroupConversationCreated()
     this.onExitGroup()
     this.onExitMessage()
     this.onConversationDelete()
     this.openProfile()
-    this.handleConnectionStatus()
+    this.onModeratedWordFound()
+    this.getBlockedList()
   }
 
   beforeDestroy () {
@@ -551,6 +587,20 @@ export default class App extends ComponentProps {
       this.showToast('Connected', 'success')
     }
   }
+
+  async getBlockedList () {
+    const response = await axios.get('https://api.robinapp.io/api/v1/chat/blocked_words', {
+      headers: { 'x-api-key': this.apiKey }
+    })
+
+    console.log(response)
+  }
+
+  onModeratedWordFound () {
+    EventBus.$on('moderated-word-found', () => {
+      store.setState('moderatedWordFound', true)
+    })
+  }
 }
 </script>
 
@@ -559,7 +609,6 @@ export default class App extends ComponentProps {
   margin: 0;
   padding: 0;
   width: 100vw;
-  /* height: 100vh; */
   display: flex;
   position: absolute;
   top: 0;

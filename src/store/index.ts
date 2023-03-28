@@ -38,7 +38,9 @@ interface State {
   sideBarType: string
   secretKey: string
   toastMessages: Map<any, any>,
-  resetCheckedState: boolean
+  resetCheckedState: boolean,
+  moderatedWordFound: boolean
+  blockedWords: string[]
 }
 
 const state: State = {
@@ -79,7 +81,9 @@ const state: State = {
   sideBarType: 'primary',
   secretKey: '',
   toastMessages: new Map(),
-  resetCheckedState: false
+  resetCheckedState: false,
+  moderatedWordFound: false,
+  blockedWords: []
 }
 
 const store = {

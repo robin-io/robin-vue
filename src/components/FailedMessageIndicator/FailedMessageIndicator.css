@@ -1,0 +1,7 @@
+.robin-failed-message-indicator {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  margin-top: 5px;
+  gap: 0 6px;
+}

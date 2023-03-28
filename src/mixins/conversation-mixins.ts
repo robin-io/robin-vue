@@ -57,6 +57,14 @@ export default class ConversationMixin extends Vue {
     return store.state.currentTheme
   }
 
+  get moderatedWordFound () {
+    return store.state.moderatedWordFound
+  }
+
+  get blockedWords () {
+    return store.state.blockedWords
+  }
+
   get screenWidth () {
     return store.state.screenWidth
   }
