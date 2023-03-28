@@ -129,6 +129,9 @@ export default class SvgIcon extends ComponentProps {
       },
       downward: {
         innerHTML: `<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="${this.color}"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z"/></svg>`
+      },
+      failedToSend: {
+        innerHTML: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M16 8C16 12.4183 12.4183 16 8 16C3.58172 16 0 12.4183 0 8C0 3.58172 3.58172 0 8 0C12.4183 0 16 3.58172 16 8ZM9 4C9 4.55228 8.55228 5 8 5C7.44771 5 7 4.55228 7 4C7 3.44772 7.44771 3 8 3C8.55228 3 9 3.44772 9 4ZM7 7C6.58579 7 6.25 7.33579 6.25 7.75C6.25 8.16421 6.58579 8.5 7 8.5H7.25338C7.41332 8.5 7.53213 8.6481 7.49743 8.80423L7.03829 10.8704C6.79542 11.9633 7.62706 13 8.74662 13H9C9.41421 13 9.75 12.6642 9.75 12.25C9.75 11.8358 9.41421 11.5 9 11.5H8.74662C8.58668 11.5 8.46787 11.3519 8.50257 11.1958L8.96171 9.12963C9.20458 8.03673 8.37294 7 7.25338 7H7Z" fill="#F05A28"/></svg>'
       }
     }
 

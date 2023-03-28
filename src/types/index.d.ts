@@ -9,9 +9,6 @@ declare module 'vue/types/vue' {
     $logo: string
     $channel: string
     $robin_users: Array<Record<string, any>>
-    $conversations: Array<Record<string, any>>
-    $regularConversations: Array<Record<string, any>>
-    $archivedConversations: Array<Record<string, any>>,
     $senderName: string,
     $apiKey: string,
   }

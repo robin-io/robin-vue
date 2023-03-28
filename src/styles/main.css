@@ -40,3 +40,5 @@
 @import url('../components/ReplyMessageBubble/ReplyMessageBubble.css');
 @import url('../components/ToastContainer/ToastContainer.css');
 @import url('../components/Toast/Toast.css');
+@import url('../components/ModeratedWord/ModeratedWord.css');
+@import url('../components/FailedMessageIndicator/FailedMessageIndicator.css');

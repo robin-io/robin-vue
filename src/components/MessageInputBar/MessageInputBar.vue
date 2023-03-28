@@ -349,6 +349,7 @@ export default class MessageInputBar extends ComponentProps {
 
   currentConversation!: ObjectType
   isWebSocketConnected!: ObjectType
+  blockedWords!: string[]
   isVoiceRecorderEnabled!: boolean
   screenWidth!: number
   showToast!: (message: string, info: string) => void
@@ -607,35 +608,58 @@ export default class MessageInputBar extends ComponentProps {
       sender_name: this.$senderName,
       pseudo: true,
       reply_to: this.messageReply._id || '',
-      is_reply
+      is_reply,
+      is_blocked: false
     }
 
     return offlineMessage
   }
 
+  isMessageBlocked (message: ObjectType, message_type: string): boolean {
+    const blockList = new Set([...this.blockedWords])
+
+    if (message_type === 'text') {
+      const words = message.content.msg.toLowerCase().split(/\s+/)
+      for (const word of words) {
+        if (blockList.has(word)) {
+          return true
+        }
+      }
+    }
+
+    return false
+  }
+
   async sendTextMessage (message: ObjectType, is_manual_send = false, send_pseudo = true): Promise<void> {
     try {
       const tempMessage = this.createOfflineMessage('normal-message', message, '', false, false)
+      const isBlocked = this.isMessageBlocked(tempMessage, 'text')
 
       if (send_pseudo && !is_manual_send) {
         this.isUploading = true
+        tempMessage.is_blocked = isBlocked
         // Send pseudo message.
         EventBus.$emit(
           'new-pseudo-message',
           tempMessage
         )
+        if (isBlocked) {
+          EventBus.$emit('moderated-word-found')
+        }
       }
 
-      const WebSocketMessage = {
-        type: 1,
-        content: message,
-        channel: this.$channel,
-        conversation_id: this.currentConversation._id,
-        sender_token: this.$user_token,
-        sender_name: this.$senderName
-      }
+      if (!isBlocked) {
+        const WebSocketMessage = {
+          type: 1,
+          content: message,
+          channel: this.$channel,
+          conversation_id: this.currentConversation._id,
+          sender_token: this.$user_token,
+          sender_name: this.$senderName
+        }
 
-      await this.$robin.sendMessageToConversation(this.encrypt(WebSocketMessage), this.$conn)
+        await this.$robin.sendMessageToConversation(this.encrypt(WebSocketMessage), this.$conn)
+      }
 
       this.isUploading = false
 
@@ -724,9 +748,11 @@ export default class MessageInputBar extends ComponentProps {
   async sendMessageWithAttachment (file: ObjectType, msg: string, is_manual_send = false, send_pseudo = true): Promise<void> {
     try {
       const tempMessage = this.createOfflineMessage('file-message', file, msg, false, false)
+      const isBlocked = this.isMessageBlocked(tempMessage, 'text')
 
       if (send_pseudo && !is_manual_send) {
         this.isUploading = true
+        tempMessage.is_blocked = isBlocked
         // Send pseudo message.
         EventBus.$emit(
           'new-pseudo-message',
@@ -734,16 +760,21 @@ export default class MessageInputBar extends ComponentProps {
         )
         // Close File Modal
         this.handleFileUploadClose()
+        if (isBlocked) {
+          EventBus.$emit('moderated-word-found')
+        }
       }
 
-      await this.$robin.sendMessageAttachment(
-        this.$user_token,
-        this.currentConversation._id,
-        file.file,
-        this.$senderName,
-        msg,
-        file.local_id
-      )
+      if (!isBlocked) {
+        await this.$robin.sendMessageAttachment(
+          this.$user_token,
+          this.currentConversation._id,
+          file.file,
+          this.$senderName,
+          msg,
+          file.local_id
+        )
+      }
 
       this.isUploading = false
 
@@ -779,28 +810,34 @@ export default class MessageInputBar extends ComponentProps {
     try {
       const robin = this.$robin as any
       const tempMessage = this.createOfflineMessage('normal-message', message, '', true, false)
+      const isBlocked = this.isMessageBlocked(tempMessage, 'text')
 
       if (send_pseudo && !is_manual_send) {
         this.isUploading = true
-
+        tempMessage.is_blocked = isBlocked
         // Send pseudo message.
         EventBus.$emit(
           'new-pseudo-message',
           tempMessage
         )
+        if (isBlocked) {
+          EventBus.$emit('moderated-word-found')
+        }
       }
 
-      const WebSocketMessage = {
-        type: 1,
-        content: message,
-        channel: this.$channel,
-        conversation_id: this.currentConversation._id,
-        reply_to: this.messageReply._id,
-        sender_token: this.$user_token,
-        is_reply: true,
-        sender_name: this.$senderName
+      if (!isBlocked) {
+        const WebSocketMessage = {
+          type: 1,
+          content: message,
+          channel: this.$channel,
+          conversation_id: this.currentConversation._id,
+          reply_to: this.messageReply._id,
+          sender_token: this.$user_token,
+          is_reply: true,
+          sender_name: this.$senderName
+        }
+        await robin.replyToMessage(this.encrypt(WebSocketMessage), this.$conn)
       }
-      await robin.replyToMessage(this.encrypt(WebSocketMessage), this.$conn)
 
       this.isUploading = false
 
@@ -892,9 +929,11 @@ export default class MessageInputBar extends ComponentProps {
     try {
       const robin = this.$robin as any
       const tempMessage = this.createOfflineMessage('file-message', file, msg, true, false)
+      const isBlocked = this.isMessageBlocked(tempMessage, 'text')
 
       if (send_pseudo && !is_manual_send) {
         this.isUploading = true
+        tempMessage.is_blocked = isBlocked
         // Send pseudo message.
         EventBus.$emit(
           'new-pseudo-message',
@@ -902,17 +941,22 @@ export default class MessageInputBar extends ComponentProps {
         )
         // Close File Modal
         this.handleReplyMessageClose()
+        if (isBlocked) {
+          EventBus.$emit('moderated-word-found')
+        }
       }
 
-      await robin.replyMessageWithAttachment(
-        this.$user_token,
-        this.currentConversation._id,
-        this.messageReply._id,
-        file.file,
-        this.$senderName,
-        msg,
-        file.local_id
-      )
+      if (!isBlocked) {
+        await robin.replyMessageWithAttachment(
+          this.$user_token,
+          this.currentConversation._id,
+          this.messageReply._id,
+          file.file,
+          this.$senderName,
+          msg,
+          file.local_id
+        )
+      }
 
       this.isUploading = false
 

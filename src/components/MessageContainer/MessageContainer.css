@@ -357,6 +357,10 @@
   transition: transform 100ms ease-in;
 }
 
+.robin-message-container .robin-message-sender .robin-failed-message-indicator {
+  flex-direction: row-reverse;
+}
+
 .robin-message-container .robin-reaction {
   font-size: 0.625rem;
   width: max-content;

@@ -154,8 +154,8 @@ export default class ArchivedChatList extends mixins(ConversationMixin) {
 
     if (chatListPopupEl.style.display === 'block') chatListPopupEl.style.display = 'none'
 
-    if (lastThreeInArray && this.scroll) {
-      chatListPopupEl.style.top = `${chatEl.getBoundingClientRect().top - 40}px`
+    if (lastThreeInArray && this.conversations.length > 5) {
+      chatListPopupEl.style.top = `${chatEl.getBoundingClientRect().top - 100}px`
     } else {
       chatListPopupEl.style.top = `${chatEl.getBoundingClientRect().top}px`
     }
