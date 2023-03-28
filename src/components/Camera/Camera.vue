@@ -4,7 +4,7 @@
       <div class="robin-wrapper robin-mr-12" @click="closeCamera()" data-testid="close-camera">
         <icon-button name="remove" :to-emit="false" :to-click-away="false" />
       </div>
-      <content as="h3" :font-size="18"> Take photo </content>
+      <message-content as="h3" :font-size="18"> Take photo </message-content>
     </header>
     <div class="robin-body">
       <video
@@ -47,7 +47,7 @@ const ComponentProps = mixins(ConversationMixin).extend({
 @Component<Camera>({
   name: 'Camera',
   components: {
-    Content,
+    'message-content': Content,
     IconButton,
     CameraButton
   },

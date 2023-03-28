@@ -94,9 +94,11 @@
               as="p"
               class="robin-flex"
             >
-              {{ !message.pseudo ? getTimestamp(message.created_at || message.content.timestamp) : '' }}
+              {{
+                !message.pseudo ? getTimestamp(message.created_at || message.content.timestamp) : ''
+              }}
 
-              <SvgIcon
+              <svg-icon
                 name="read"
                 v-show="
                   !validateMessages(message).includes('message-sender') &&
@@ -114,7 +116,7 @@
                 "
               />
 
-              <i class="robin-material-icon" v-if="message.pseudo"> schedule </i>
+              <svg-icon name="scheduled" v-if="message.pseudo" />
             </message-content>
           </span>
         </div>

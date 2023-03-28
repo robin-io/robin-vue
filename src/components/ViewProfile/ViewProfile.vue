@@ -267,7 +267,7 @@
           :emit="'clicked'"
           @clicked="showEncriptionDetails()"
         >
-          <SvgIcon name="encryption" class="robin-mr-8" />
+          <svg-icon name="encryption" class="robin-mr-8" />
           Encryption Details
         </custom-button>
       </div>

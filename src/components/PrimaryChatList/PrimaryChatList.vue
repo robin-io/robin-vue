@@ -52,7 +52,7 @@
       <div class="robin-flex robin-flex-align-center" v-show="archivedConversations.length > 0">
         <svg-icon name="mailbox" color="#15AE73" />
 
-        <content class="robin-ml-6" font-weight="400" color="#15AE73"> Archived Chats </content>
+        <message-content class="robin-ml-6" font-weight="400" color="#15AE73"> Archived Chats </message-content>
       </div>
 
       <message-content

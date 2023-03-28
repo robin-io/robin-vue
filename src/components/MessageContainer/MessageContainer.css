@@ -269,6 +269,12 @@
   height: 14px;
 }
 
+.robin-scroll-to-bottom .robin-svg {
+  height: 100%;
+  display: grid;
+  place-items: center;
+}
+
 .robin-message-container .robin-message-receiver .robin-reactions {
   display: flex;
   align-items: center;

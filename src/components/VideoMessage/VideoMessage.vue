@@ -35,7 +35,7 @@
         class="robin-message-bubble-video"
         :class="{ 'robin-non-clickable': isMessageClickable }"
       >
-        <Content
+        <message-content
           v-if="
             validateMessages(message).includes('message-sender') && currentConversation.is_group
           "
@@ -46,15 +46,15 @@
           class="robin-messager-name robin-mb-4"
         >
           {{ getContactName(message.sender_token) }}
-        </Content>
+        </message-content>
 
         <div class="robin-caret-container" v-show="caretOpen" @click="openModal()">
           <IconButton name="messagePopupCaret" :to-emit="false" :to-click-away="false" />
         </div>
 
-        <SvgIcon class="robin-forwarded" name="forwarded" v-show="message.is_forwarded" />
+        <svg-icon class="robin-forwarded" name="forwarded" v-show="message.is_forwarded" />
 
-        <ReplyMessageBubble
+        <reply-message-bubble
           :messages="messages"
           :message="message"
           v-if="message.is_reply && isReplyMessagesEnabled"
@@ -67,7 +67,7 @@
           Your browser does not support the video tag.
         </video>
 
-        <Content
+        <message-content
           :max-width="message.content.msg.length < 120 ? '217' : '270'"
           textWrap="pre-line"
           wordBreak="break-word"
@@ -80,7 +80,7 @@
           "
         >
           {{ message.content.msg }}
-        </Content>
+        </message-content>
 
         <div
           class="robin-link-container"
@@ -95,7 +95,7 @@
         ></div>
 
         <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
-          <Content
+          <message-content
             :font-weight="'300'"
             :font-size="10"
             :color="currentTheme === 'light' ? '#7a7a7a' : '#B6B6B6'"
@@ -103,7 +103,7 @@
           >
             {{ !message.pseudo ? getTimestamp(message.created_at || message.content.timestamp) : '' }}
 
-            <SvgIcon
+            <svg-icon
               name="read"
               v-if="
                 !validateMessages(message).includes('message-sender') &&
@@ -112,7 +112,7 @@
               "
             />
 
-            <SvgIcon
+            <svg-icon
               name="not-read"
               v-if="
                 !validateMessages(message).includes('message-sender') &&
@@ -121,8 +121,8 @@
               "
             />
 
-            <i class="robin-material-icon" v-if="message.pseudo"> schedule </i>
-          </Content>
+            <svg-icon name="scheduled" v-if="message.pseudo" />
+          </message-Content>
         </span>
       </div>
     </div>
@@ -169,7 +169,7 @@ const ComponentProps = mixins(ConversationMixin).extend({
 @Component<VideoMessage>({
   name: 'VideoMessage',
   components: {
-    Content,
+    'message-content': Content,
     SvgIcon,
     CheckBox,
     ReplyMessageBubble,

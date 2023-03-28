@@ -2,17 +2,16 @@
   <div class="robin-shim robin-fadeIn" @click.self="closeModal()">
     <div class="robin-card">
       <div class="robin-wrapper robin-clickable" @click="assignModerator()" v-if="!isParticipantModerator">
-        <Content :font-size="18" color="#15AE73">{{ !isParticipantModerator ? 'Assign moderator' : 'Dismiss as moderator' }}</Content>
+        <message-content :font-size="18" color="#15AE73">{{ !isParticipantModerator ? 'Assign moderator' : 'Dismiss as moderator' }}</message-content>
       </div>
       <div class="robin-wrapper robin-clickable" @click="removeGroupParticipant()">
-        <Content :font-size="18" color="#D53120">Remove participant</Content>
+        <message-content :font-size="18" color="#D53120">Remove participant</message-content>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
 import store from '@/store/index'
 import Component, { mixins } from 'vue-class-component'
 import Content from '@/components/Content/Content.vue'
@@ -22,7 +21,7 @@ import ConversationMixin from '@/mixins/conversation-mixins'
 @Component({
   name: 'GroupPrompt',
   components: {
-    Content
+    'message-content': Content
   }
 })
 export default class GroupPrompt extends mixins(ConversationMixin) {

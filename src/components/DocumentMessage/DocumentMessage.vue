@@ -158,7 +158,7 @@
               "
             />
 
-            <i class="robin-material-icon" v-if="message.pseudo"> schedule </i>
+            <svg-icon name="scheduled" v-if="message.pseudo" />
           </message-content>
         </span>
       </div>

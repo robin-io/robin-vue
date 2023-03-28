@@ -39,7 +39,7 @@
         </div>
       </div>
 
-      <Content
+      <message-content
         v-if="currentConversation.is_group"
         :font-size="12"
         as="span"
@@ -48,13 +48,13 @@
         class="robin-messager-name robin-mb-4"
       >
         {{ getContactName(message[0].sender_token) }}
-      </Content>
+      </message-content>
 
       <div class="robin-caret-container" v-show="caretOpen" @click="openModal()">
         <IconButton name="messagePopupCaret" :to-emit="false" :to-click-away="false" />
       </div>
 
-      <SvgIcon class="robin-forwarded" name="forwarded" v-show="message[0].is_forwarded" />
+      <svg-icon class="robin-forwarded" name="forwarded" v-show="message[0].is_forwarded" />
 
       <div
         class="robin-bubble-inner robin-grid-container"
@@ -87,7 +87,7 @@
           "
           class="robin-drop-shadow robin-flex"
         >
-          <Content
+          <message-content
             v-show="images.length > 4"
             :font-size="26"
             color="#fff"
@@ -95,11 +95,11 @@
             class="robin-message-count"
           >
             {{ images.length - 4 }}+
-          </Content>
+          </message-content>
         </span>
       </div>
 
-      <Content
+      <message-content
         :max-width="message[0].content.msg.length < 120 ? '217' : '270'"
         textWrap="pre-line"
         wordBreak="break-word"
@@ -112,7 +112,7 @@
         "
       >
         {{ message[0].content.msg }}
-      </Content>
+      </message-content>
 
       <div
         class="robin-link-container"
@@ -127,7 +127,7 @@
       ></div>
 
       <span class="robin-side-text robin-flex robin-flex-align-end robin-ml-auto">
-        <Content
+        <message-content
           :font-weight="'300'"
           :font-size="10"
           :color="currentTheme === 'light' ? '#7a7a7a' : '#B6B6B6'"
@@ -140,7 +140,7 @@
               : ''
           }}
 
-          <SvgIcon
+          <svg-icon
             name="read"
             v-if="
               !validateMessages(message).includes('message-sender') &&
@@ -149,7 +149,7 @@
             "
           />
 
-          <SvgIcon
+          <svg-icon
             name="not-read"
             v-if="
               !validateMessages(message).includes('message-sender') &&
@@ -158,11 +158,11 @@
             "
           />
 
-          <i class="robin-material-icon" v-if="message[0].pseudo"> schedule </i>
-        </Content>
+          <svg-icon name="scheduled" v-if="message[0].pseudo" />
+        </message-content>
       </span>
 
-      <IconButton
+      <icon-button
         class="download-btn"
         v-if="message.length > 1"
         @clicked="downloadImages(message)"
@@ -214,7 +214,7 @@ const ComponentProps = mixins(ConversationMixin).extend({
 @Component<PhotoMessage>({
   name: 'PhotoMessage',
   components: {
-    Content,
+    'message-content': Content,
     SvgIcon,
     ReplyMessageBubble,
     CheckBox,

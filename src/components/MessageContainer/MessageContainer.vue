@@ -100,7 +100,7 @@
         @click="scrollToBottom()"
         data-testid="scroll-bottom-button"
       >
-        <i class="robin-material-icon"> arrow_downward </i>
+        <svg-icon name="downward" />
       </div>
     </div>
     <message-input-bar
@@ -160,7 +160,6 @@ import { DocumentRegex, EmailRegex, WebsiteRegex, ImageRegex, VideoRegex } from 
 import { blobToArrayBuffer, checkAttachmentType } from '@/utils/helpers'
 import ChatHeader from '../ChatHeader/ChatHeader.vue'
 import MessageInputBar from '../MessageInputBar/MessageInputBar.vue'
-import Content from '@/components/Content/Content.vue'
 import Button from '@/components/Button/Button.vue'
 import Camera from '../Camera/Camera.vue'
 import { formatTimestamp } from '@/utils/date'
@@ -177,16 +176,15 @@ import ForwardTab from '../ForwardTab/ForwardTab.vue'
 import Prompt from '../Prompt/Prompt.vue'
 import MessagePopUp from '../MessagePopUp/MessagePopUp.vue'
 import ReactionPopUp from '../ReactionPopUp/ReactionPopUp.vue'
+import SvgIcon from '../SvgIcon/SvgIcon.vue'
 
 // eslint-disable-next-line
 @Component<MessageContainer>({
   name: 'MessageContainer',
   components: {
     ChatHeader,
-    Content,
     MessageInputBar,
     Camera,
-    'message-content': Content,
     Message,
     DocumentMessage,
     ForwardMessage,
@@ -196,7 +194,8 @@ import ReactionPopUp from '../ReactionPopUp/ReactionPopUp.vue'
     Button,
     Prompt,
     MessagePopUp,
-    ReactionPopUp
+    ReactionPopUp,
+    SvgIcon
   },
   watch: {
     messages: {
