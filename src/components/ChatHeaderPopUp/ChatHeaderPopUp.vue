@@ -39,21 +39,30 @@
       @click="$emit('view-profile')"
       data-testid="view-group-profile"
     >
-      <message-content :font-size="14" as="span" :color="currentTheme === 'light' ? '#51545C' : '#F9F9F9'"
+      <message-content
+        :font-size="14"
+        as="span"
+        :color="currentTheme === 'light' ? '#51545C' : '#F9F9F9'"
         >Group Info</message-content
       >
 
       <svg-icon name="user-circle" :color="currentTheme === 'light' ? '#51545C' : '#F9F9F9'" />
     </div>
     <div class="robin-wrapper robin-w-100" @click="handleSelectMessages()">
-      <message-content :font-size="14" as="span" :color="currentTheme === 'light' ? '#51545C' : '#F9F9F9'"
+      <message-content
+        :font-size="14"
+        as="span"
+        :color="currentTheme === 'light' ? '#51545C' : '#F9F9F9'"
         >Select Messages</message-content
       >
 
       <svg-icon name="check-circle" :color="currentTheme === 'light' ? '#51545C' : '#F9F9F9'" />
     </div>
     <div class="robin-wrapper robin-w-100" @click="handleLeaveGroup()">
-      <message-content :font-size="14" as="span" :color="currentTheme === 'light' ? '#51545C' : '#F9F9F9'"
+      <message-content
+        :font-size="14"
+        as="span"
+        :color="currentTheme === 'light' ? '#51545C' : '#F9F9F9'"
         >Leave Group</message-content
       >
 

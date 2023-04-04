@@ -59,7 +59,7 @@ import store from '@/store/index'
 import Component from 'vue-class-component'
 
 interface IconItem {
-  [item: string]: any
+  [item: string]: any;
 }
 
 const ComponentProps = Vue.extend({
@@ -123,10 +123,10 @@ const ComponentProps = Vue.extend({
   }
 })
 export default class IconButton extends ComponentProps {
-  root = null as any
-  focused = false as boolean
+  root = null as any;
+  focused = false as boolean;
 
-  iconItem = {} as IconItem
+  iconItem = {} as IconItem;
 
   get focusType (): string {
     if (this.focused && this.styleStroke && this.hasFocus) {

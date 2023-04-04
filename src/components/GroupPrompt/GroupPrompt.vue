@@ -1,8 +1,14 @@
 <template>
   <div class="robin-shim robin-fadeIn" @click.self="closeModal()">
     <div class="robin-card">
-      <div class="robin-wrapper robin-clickable" @click="assignModerator()" v-if="!isParticipantModerator">
-        <message-content :font-size="18" color="#15AE73">{{ !isParticipantModerator ? 'Assign moderator' : 'Dismiss as moderator' }}</message-content>
+      <div
+        class="robin-wrapper robin-clickable"
+        @click="assignModerator()"
+        v-if="!isParticipantModerator"
+      >
+        <message-content :font-size="18" color="#15AE73">{{
+          !isParticipantModerator ? 'Assign moderator' : 'Dismiss as moderator'
+        }}</message-content>
       </div>
       <div class="robin-wrapper robin-clickable" @click="removeGroupParticipant()">
         <message-content :font-size="18" color="#D53120">Remove participant</message-content>
@@ -30,24 +36,30 @@ export default class GroupPrompt extends mixins(ConversationMixin) {
   }
 
   async assignModerator () {
-    const res = await this.$robin.assignGroupModerator(this.currentConversation._id, this.currentParticipantToken)
+    const res = await this.$robin.assignGroupModerator(
+      this.currentConversation._id,
+      this.currentParticipantToken
+    )
 
     if (res && !res.error) {
       EventBus.$emit('participant.assigned.moderator', res.data)
       this.closeModal()
     } else {
-      this.showToast('Check your connection.', 'error')
+      this.showToast('Failed to assign moderator.', 'error')
     }
   }
 
   async removeGroupParticipant () {
-    const res = await this.$robin.removeGroupParticipant(this.currentConversation._id, this.currentParticipantToken)
+    const res = await this.$robin.removeGroupParticipant(
+      this.currentConversation._id,
+      this.currentParticipantToken
+    )
 
     if (res && !res.error) {
       // EventBus.$emit('participant.left.group', { conversation_id: this.currentConversation._id, user_token: this.currentParticipantToken })
       this.closeModal()
     } else {
-      this.showToast('Check your connection.', 'error')
+      this.showToast('Failed to remove group participant.', 'error')
     }
   }
 }
@@ -85,11 +97,11 @@ export default class GroupPrompt extends mixins(ConversationMixin) {
 }
 
 .robin-wrapper:first-child {
-    border-radius: 8px 8px 0 0;
+  border-radius: 8px 8px 0 0;
 }
 
 .robin-wrapper:last-child {
-    border-radius: 0 0 8px 8px;
+  border-radius: 0 0 8px 8px;
 }
 
 .robin-wrapper:hover {

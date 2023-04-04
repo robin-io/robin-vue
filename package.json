@@ -1,6 +1,6 @@
 {
   "name": "robin-vue",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "files": [
     "dist"
   ],
@@ -20,7 +20,7 @@
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build && vue-tsc --emitDeclarationOnly",
     "serve": "vite preview --port 8080",
-    "lint": "prettier --write *.{js,ts,vue} --no-error-on-unmatched-pattern . && eslint --fix --ext .js,.ts,.vue --no-error-on-unmatched-pattern .",
+    "lint": "npx prettier --write *.{js,ts,vue} --no-error-on-unmatched-pattern . && npx eslint --fix --ext .js,.ts,.vue --no-error-on-unmatched-pattern .",
     "test:unit": "vitest --environment jsdom",
     "cypress:open": "cypress open"
   },
@@ -60,6 +60,7 @@
     "eslint-plugin-promise": "^5.1.0",
     "eslint-plugin-vue": "^9.8.0",
     "jsdom": "^19.0.0",
+    "prettier": "2.8.7",
     "typescript": "^4.3.2",
     "vite": "^2.5.1",
     "vite-plugin-vue2": "^1.8.1",

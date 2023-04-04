@@ -51,7 +51,7 @@
   transition: transform 0.25s;
 }
 
-.robin-ap .robin-ap-line-dot:not(.robin-disabled)  {
+.robin-ap .robin-ap-line-dot:not(.robin-disabled) {
   cursor: grab;
 }
 

@@ -1,5 +1,9 @@
 <template>
-  <div class="robin-message-bubble robin-flex robin-flex-align-center"  v-clickaway="closeModal" :id="`message-bubble-${index}`">
+  <div
+    class="robin-message-bubble robin-flex robin-flex-align-center"
+    v-clickaway="closeModal"
+    :id="`message-bubble-${index}`"
+  >
     <CheckBox v-show="selectMessagesOpen" ref="checkbox" @clicked="toggleCheckAction()" />
 
     <div
@@ -12,17 +16,15 @@
       <div
         class="robin-reactions"
         v-if="
-          message &&
-          message.reactions &&
-          message.reactions.length > 0 &&
-          isMessageReactionViewEnabled &&
-          !isMessagesLoading
+          message && msgReactions.length > 0 && isMessageReactionViewEnabled && !isMessagesLoading
         "
       >
         <div
-          class="robin-reaction"
-          :class="{ 'delete-enabled': isMessageReactionDeleteEnabled }"
           v-for="(value, key, reactionIndex) in reactions"
+          class="robin-reaction"
+          :class="{
+            'delete-enabled': isMessageReactionDeleteEnabled && isCurrentUserReaction(key)
+          }"
           :key="reactionIndex"
           @click="removeReaction(key)"
           v-show="value.length > 0"
@@ -63,7 +65,13 @@
         />
 
         <video controls :class="message.is_reply ? 'video-reply' : ''" :id="`video-${index}`">
-          <source :src="typeof message.content.attachment !== 'string' ? convertArrayBufferToFile(message.content.attachment, message) : message.content.attachment" />
+          <source
+            :src="
+              typeof message.content.attachment !== 'string'
+                ? convertArrayBufferToFile(message.content.attachment, message)
+                : message.content.attachment
+            "
+          />
           Your browser does not support the video tag.
         </video>
 
@@ -101,11 +109,13 @@
             :color="currentTheme === 'light' ? '#7a7a7a' : '#B6B6B6'"
             as="p"
           >
-            {{ !message.pseudo ? getTimestamp(message.created_at || message.content.timestamp) : '' }}
+            {{
+              !message.pseudo ? getTimestamp(message.created_at || message.content.timestamp) : ''
+            }}
 
             <svg-icon
               name="read"
-              v-if="
+              v-show="
                 !validateMessages(message).includes('message-sender') &&
                 message.is_read &&
                 !message.pseudo
@@ -114,15 +124,15 @@
 
             <svg-icon
               name="not-read"
-              v-if="
+              v-show="
                 !validateMessages(message).includes('message-sender') &&
                 !message.is_read &&
                 !message.pseudo
               "
             />
 
-            <svg-icon name="scheduled" v-if="message.pseudo" />
-          </message-Content>
+            <svg-icon name="scheduled" v-show="message.pseudo" />
+          </message-content>
         </span>
       </div>
     </div>
@@ -147,7 +157,7 @@ const ComponentProps = mixins(ConversationMixin).extend({
     message: {
       type: Object as PropType<ObjectType>,
       default: () => {
-        return {}
+        return {} as ObjectType
       }
     },
     messages: {
@@ -184,12 +194,6 @@ const ComponentProps = mixins(ConversationMixin).extend({
         }
       }
     },
-    message: {
-      handler (_, newMessage) {
-        this.msgReactions = newMessage.reactions ?? []
-      },
-      deep: true
-    },
     screenWidth: {
       handler () {
         if (this.screenWidth <= 1024) {
@@ -199,26 +203,24 @@ const ComponentProps = mixins(ConversationMixin).extend({
         }
       }
     }
-
   }
 })
 export default class VideoMessage extends ComponentProps {
-  caretOpen = false
-  msgReactions = [] as Array<ObjectType>
-  emailRegex = EmailRegex
-  websiteRegex = WebsiteRegex
-  convertArrayBufferToFile = convertArrayBufferToFile
-  isMessageReactionViewEnabled!: boolean
-  isMessageReactionDeleteEnabled!: boolean
-  isReplyMessagesEnabled!: boolean
-  isDeleteMessagesEnabled!: boolean
-  isForwardMessagesEnabled!: boolean
-  selectMessagesOpen!: boolean
-  screenWidth!: number
-  currentTheme!: string
-  currentConversation!: ObjectType
-  groupnameColors!: Array<string>
-  getContactName!: (sender_token: string) => string
+  caretOpen = false;
+  emailRegex = EmailRegex;
+  websiteRegex = WebsiteRegex;
+  convertArrayBufferToFile = convertArrayBufferToFile;
+  isMessageReactionViewEnabled!: boolean;
+  isMessageReactionDeleteEnabled!: boolean;
+  isReplyMessagesEnabled!: boolean;
+  isDeleteMessagesEnabled!: boolean;
+  isForwardMessagesEnabled!: boolean;
+  selectMessagesOpen!: boolean;
+  screenWidth!: number;
+  currentTheme!: string;
+  currentConversation!: ObjectType;
+  groupnameColors!: Array<string>;
+  getContactName!: (sender_token: string) => string;
 
   get isMessageClickable () {
     if (
@@ -247,11 +249,15 @@ export default class VideoMessage extends ComponentProps {
     return false
   }
 
+  get msgReactions () {
+    return this.message.reactions ?? []
+  }
+
   get reactions () {
     const newReactions = { '❤️': [], '👍': [], '👎': [], '😂': [], '⁉️': [] } as ObjectType
 
     for (const reaction of this.msgReactions) {
-      newReactions[reaction.reaction].push(reaction.reaction)
+      newReactions[reaction.reaction].push(reaction)
     }
 
     return newReactions
@@ -259,6 +265,18 @@ export default class VideoMessage extends ComponentProps {
 
   mounted () {
     this.injectHtml(this.message.content ? this.message.content.msg : null)
+  }
+
+  isCurrentUserReaction (reaction: string) {
+    const user = this.reactions[reaction].find(
+      (user: ObjectType) => user.user_token === this.$user_token
+    )
+
+    if (user) {
+      return true
+    }
+
+    return false
   }
 
   openModal () {
@@ -273,7 +291,7 @@ export default class VideoMessage extends ComponentProps {
     let returnedMessage = ''
 
     if (message) {
-      for (const word of message.split(' ')) {
+      for (const word of message.replace('\n', ' ').split(' ')) {
         if (this.emailRegex.test(word)) {
           returnedMessage += String.raw` <a target="_blank" href="mailto:${word}">${word}<a/>`
         } else if (this.websiteRegex.test(word) || word.includes('http://')) {
@@ -376,14 +394,16 @@ export default class VideoMessage extends ComponentProps {
   }
 
   removeReaction (reaction: string): void {
-    const messageReaction = this.message.reactions.find(
-      (item: ObjectType) => item.reaction === reaction
-    ) as ObjectType
-    this.$emit('remove-reaction', messageReaction, this.index)
+    if (this.isCurrentUserReaction(reaction)) {
+      const messageReaction = this.message.reactions.find((item: ObjectType) => {
+        return item.reaction === reaction && item.user_token === this.$user_token
+      }) as ObjectType
+      this.$emit('remove-reaction', messageReaction, this.index)
+    }
   }
 
   getTimestamp (value: string): string {
-    return formatTimestamp(new Date(value), 'h:mma')
+    return formatTimestamp(new Date(value.replace('T', ' ').replace('Z', '')), 'h:mma')
   }
 
   validateLinkInMessage () {

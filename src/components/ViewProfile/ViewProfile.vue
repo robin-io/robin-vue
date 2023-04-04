@@ -408,26 +408,26 @@ import ConversationMixin from '@/mixins/conversation-mixins'
   }
 })
 export default class ViewProfile extends mixins(ConversationMixin) {
-  nav = 'Media'
-  isProfileLoading = false
-  messages = [] as Array<ObjectType>
-  media = [] as Array<ObjectType>
-  links = [] as Array<ObjectType>
-  documents = [] as Array<ObjectType>
-  mediaChildHeight = [] as Array<number>
-  linkChildHeight = [] as Array<number>
-  documentChildHeight = [] as Array<number>
-  participantChildHeight = [] as Array<number>
-  participantsToShow = 4
-  mediaStop = 6
-  linkStop = 6
-  documentStop = 6
+  nav = 'Media';
+  isProfileLoading = false;
+  messages = [] as Array<ObjectType>;
+  media = [] as Array<ObjectType>;
+  links = [] as Array<ObjectType>;
+  documents = [] as Array<ObjectType>;
+  mediaChildHeight = [] as Array<number>;
+  linkChildHeight = [] as Array<number>;
+  documentChildHeight = [] as Array<number>;
+  participantChildHeight = [] as Array<number>;
+  participantsToShow = 4;
+  mediaStop = 6;
+  linkStop = 6;
+  documentStop = 6;
 
-  imageRegex = ImageRegex
-  videoRegex = VideoRegex
-  documentRegex = DocumentRegex
-  emailRegex = EmailRegex
-  websiteRegex = WebsiteRegex
+  imageRegex = ImageRegex;
+  videoRegex = VideoRegex;
+  documentRegex = DocumentRegex;
+  emailRegex = EmailRegex;
+  websiteRegex = WebsiteRegex;
 
   get groupParticipants () {
     if (Object.keys(this.currentConversation).length > 0 && this.currentConversation.is_group) {

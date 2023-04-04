@@ -264,8 +264,8 @@ import SvgIcon from '@/components/SvgIcon/SvgIcon.vue'
 import ConversationMixin from '@/mixins/conversation-mixins'
 
 interface PopUpState {
-  opened: boolean
-  emojiOpened: boolean
+  opened: boolean;
+  emojiOpened: boolean;
 }
 
 const ComponentProps = mixins(ConversationMixin).extend({
@@ -324,38 +324,38 @@ const ComponentProps = mixins(ConversationMixin).extend({
   }
 })
 export default class MessageInputBar extends ComponentProps {
-  text = '' as string
-  files = [] as Array<ObjectType>
-  documentRegex = DocumentRegex
-  isUploading = false as boolean
-  replying = false as boolean
-  currentTime = '00:00' as string
-  elapsedTimer = null as any
-  recorder = null as any
-  isRecording = false as boolean
-  sendRecording = false as boolean
+  text = '' as string;
+  files = [] as Array<ObjectType>;
+  documentRegex = DocumentRegex;
+  isUploading = false as boolean;
+  replying = false as boolean;
+  currentTime = '00:00' as string;
+  elapsedTimer = null as any;
+  recorder = null as any;
+  isRecording = false as boolean;
+  sendRecording = false as boolean;
 
-  imageRegex = ImageRegex
-  emailRegex = EmailRegex
-  websiteRegex = WebsiteRegex
-  videoRegex = VideoRegex
-  retries = 0
-  manualTimestamp = '' as string
+  imageRegex = ImageRegex;
+  emailRegex = EmailRegex;
+  websiteRegex = WebsiteRegex;
+  videoRegex = VideoRegex;
+  retries = 0;
+  manualTimestamp = '' as string;
 
   popUpState: PopUpState = {
     opened: false,
     emojiOpened: false
-  }
+  };
 
-  currentConversation!: ObjectType
-  isWebSocketConnected!: ObjectType
-  isVoiceRecorderEnabled!: boolean
-  screenWidth!: number
-  showToast!: (message: string, info: string) => void
-  secretKey: string | undefined
-  encryptionKey: string | undefined
-  iv: string | undefined
-  encrypt!: (message: ObjectType) => string
+  currentConversation!: ObjectType;
+  isWebSocketConnected!: ObjectType;
+  isVoiceRecorderEnabled!: boolean;
+  screenWidth!: number;
+  showToast!: (message: string, info: string) => void;
+  secretKey: string | undefined;
+  encryptionKey: string | undefined;
+  iv: string | undefined;
+  encrypt!: (message: ObjectType) => string;
 
   created () {
     this.onManualSend()
@@ -403,7 +403,10 @@ export default class MessageInputBar extends ComponentProps {
     EventBus.$on('manual.send', async (data: ObjectType) => {
       const message = { ...data }
       if (message.has_attachment) {
-        message.content.attachment = await convertArrayBufferToFile(message.content.attachment, message)
+        message.content.attachment = await convertArrayBufferToFile(
+          message.content.attachment,
+          message
+        )
       }
 
       this.handleManualSend(message)
@@ -447,19 +450,9 @@ export default class MessageInputBar extends ComponentProps {
       // if message has both text and attachment
       if (textMessage.msg) {
         if (message.is_reply) {
-          this.replyMessageWithAttachment(
-            file,
-            textMessage.msg,
-            is_manual_send,
-            send_pseudo
-          )
+          this.replyMessageWithAttachment(file, textMessage.msg, is_manual_send, send_pseudo)
         } else {
-          this.sendMessageWithAttachment(
-            file,
-            textMessage.msg,
-            is_manual_send,
-            send_pseudo
-          )
+          this.sendMessageWithAttachment(file, textMessage.msg, is_manual_send, send_pseudo)
         }
       }
     }
@@ -613,17 +606,18 @@ export default class MessageInputBar extends ComponentProps {
     return offlineMessage
   }
 
-  async sendTextMessage (message: ObjectType, is_manual_send = false, send_pseudo = true): Promise<void> {
+  async sendTextMessage (
+    message: ObjectType,
+    is_manual_send = false,
+    send_pseudo = true
+  ): Promise<void> {
     try {
       const tempMessage = this.createOfflineMessage('normal-message', message, '', false, false)
 
       if (send_pseudo && !is_manual_send) {
         this.isUploading = true
         // Send pseudo message.
-        EventBus.$emit(
-          'new-pseudo-message',
-          tempMessage
-        )
+        EventBus.$emit('new-pseudo-message', tempMessage)
       }
 
       const WebSocketMessage = {
@@ -666,17 +660,19 @@ export default class MessageInputBar extends ComponentProps {
     }
   }
 
-  async sendFileMessage (file: ObjectType, is_voice_note = false, is_manual_send = false, send_pseudo = true): Promise<void> {
+  async sendFileMessage (
+    file: ObjectType,
+    is_voice_note = false,
+    is_manual_send = false,
+    send_pseudo = true
+  ): Promise<void> {
     try {
       const tempMessage = this.createOfflineMessage('file-message', file, '', false, is_voice_note)
 
       if (send_pseudo && !is_manual_send) {
         this.isUploading = true
         // Send pseudo message.
-        EventBus.$emit(
-          'new-pseudo-message',
-          tempMessage
-        )
+        EventBus.$emit('new-pseudo-message', tempMessage)
         // Close File Modal
         this.handleFileUploadClose()
       }
@@ -721,17 +717,19 @@ export default class MessageInputBar extends ComponentProps {
     }
   }
 
-  async sendMessageWithAttachment (file: ObjectType, msg: string, is_manual_send = false, send_pseudo = true): Promise<void> {
+  async sendMessageWithAttachment (
+    file: ObjectType,
+    msg: string,
+    is_manual_send = false,
+    send_pseudo = true
+  ): Promise<void> {
     try {
       const tempMessage = this.createOfflineMessage('file-message', file, msg, false, false)
 
       if (send_pseudo && !is_manual_send) {
         this.isUploading = true
         // Send pseudo message.
-        EventBus.$emit(
-          'new-pseudo-message',
-          tempMessage
-        )
+        EventBus.$emit('new-pseudo-message', tempMessage)
         // Close File Modal
         this.handleFileUploadClose()
       }
@@ -775,7 +773,11 @@ export default class MessageInputBar extends ComponentProps {
     }
   }
 
-  async replyTextMessage (message: ObjectType, is_manual_send = false, send_pseudo = true): Promise<void> {
+  async replyTextMessage (
+    message: ObjectType,
+    is_manual_send = false,
+    send_pseudo = true
+  ): Promise<void> {
     try {
       const robin = this.$robin as any
       const tempMessage = this.createOfflineMessage('normal-message', message, '', true, false)
@@ -784,10 +786,7 @@ export default class MessageInputBar extends ComponentProps {
         this.isUploading = true
 
         // Send pseudo message.
-        EventBus.$emit(
-          'new-pseudo-message',
-          tempMessage
-        )
+        EventBus.$emit('new-pseudo-message', tempMessage)
       }
 
       const WebSocketMessage = {
@@ -832,7 +831,12 @@ export default class MessageInputBar extends ComponentProps {
     }
   }
 
-  async replyFileMessage (file: ObjectType, is_voice_note = false, is_manual_send = false, send_pseudo = true): Promise<void> {
+  async replyFileMessage (
+    file: ObjectType,
+    is_voice_note = false,
+    is_manual_send = false,
+    send_pseudo = true
+  ): Promise<void> {
     try {
       const robin = this.$robin as any
       const tempMessage = this.createOfflineMessage('file-message', file, '', true, is_voice_note)
@@ -840,10 +844,7 @@ export default class MessageInputBar extends ComponentProps {
       if (send_pseudo && !is_manual_send) {
         this.isUploading = true
         // Send pseudo message.
-        EventBus.$emit(
-          'new-pseudo-message',
-          tempMessage
-        )
+        EventBus.$emit('new-pseudo-message', tempMessage)
         // Close File Modal
         this.handleReplyMessageClose()
       }
@@ -888,7 +889,12 @@ export default class MessageInputBar extends ComponentProps {
     }
   }
 
-  async replyMessageWithAttachment (file: ObjectType, msg: string, is_manual_send = false, send_pseudo = true): Promise<void> {
+  async replyMessageWithAttachment (
+    file: ObjectType,
+    msg: string,
+    is_manual_send = false,
+    send_pseudo = true
+  ): Promise<void> {
     try {
       const robin = this.$robin as any
       const tempMessage = this.createOfflineMessage('file-message', file, msg, true, false)
@@ -896,10 +902,7 @@ export default class MessageInputBar extends ComponentProps {
       if (send_pseudo && !is_manual_send) {
         this.isUploading = true
         // Send pseudo message.
-        EventBus.$emit(
-          'new-pseudo-message',
-          tempMessage
-        )
+        EventBus.$emit('new-pseudo-message', tempMessage)
         // Close File Modal
         this.handleReplyMessageClose()
       }
@@ -1060,6 +1063,8 @@ export default class MessageInputBar extends ComponentProps {
   }
 
   checkAttachmentType (attachment: any): string {
+    if (!attachment) return ''
+
     let strArr = [] as Array<string>
 
     if (typeof attachment !== 'string') {
@@ -1095,7 +1100,7 @@ export default class MessageInputBar extends ComponentProps {
     let returnedMessage = ''
     const messageReply = this.messageReply.content ? this.messageReply.content.msg : ''
 
-    for (const word of messageReply.split(' ')) {
+    for (const word of messageReply.replace('\n', ' ').split(' ')) {
       if (this.emailRegex.test(word)) {
         returnedMessage += String.raw` <a target="_blank" href="mailto:${word}" > ${word} <a/>`
       } else if (this.websiteRegex.test(word)) {

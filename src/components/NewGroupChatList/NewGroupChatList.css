@@ -11,7 +11,7 @@
   overflow-y: hidden;
 }
 
-.robin-new-groupchat-list-container  header {
+.robin-new-groupchat-list-container header {
   width: 100%;
   display: flex;
   align-items: center;
@@ -25,19 +25,19 @@
   min-height: 0;
 }
 
-.robin-new-groupchat-list-container  .robin-select {
+.robin-new-groupchat-list-container .robin-select {
   border-bottom: 1px solid var(--rb-color5);
 }
 
-.robin-new-groupchat-list-container  .robin-card-container {
+.robin-new-groupchat-list-container .robin-card-container {
   width: 100%;
 }
 
-.robin-new-groupchat-list-container  .robin-contact-container:nth-child(3) {
+.robin-new-groupchat-list-container .robin-contact-container:nth-child(3) {
   margin-top: 2.375rem;
 }
 
-.robin-new-groupchat-list-container  .robin-card-container .robin-card {
+.robin-new-groupchat-list-container .robin-card-container .robin-card {
   padding: 0.875rem 1rem 1rem;
   transition: all 0.15s;
   background-color: var(--rb-color2);

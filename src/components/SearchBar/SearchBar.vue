@@ -42,7 +42,7 @@ const ComponentProps = Vue.extend({
   }
 })
 export default class RSeachBar extends ComponentProps {
-  text = ''
+  text = '';
 
   userTyping (): void {
     this.$emit('user-typing', this.text)

@@ -266,41 +266,41 @@ import SvgIcon from '../SvgIcon/SvgIcon.vue'
   }
 })
 export default class MessageContainer extends mixins(ConversationMixin) {
-  promptOpen = false
-  forwardMessage = false
-  scroll = false
-  scrollUp = false
-  messageDeleteFailed = false
-  cameraOpened = false
-  messageError = false
-  isMessagesLoading = true
+  promptOpen = false;
+  forwardMessage = false;
+  scroll = false;
+  scrollUp = false;
+  messageDeleteFailed = false;
+  cameraOpened = false;
+  messageError = false;
+  isMessagesLoading = true;
 
-  lastScroll = 0
-  messagePopUpIndex = 0
-  key = 0
-  currentOfflinePage = 0
-  currentPage = 1
-  pageCount = 1
-  messageIndex = 0
+  lastScroll = 0;
+  messagePopUpIndex = 0;
+  key = 0;
+  currentOfflinePage = 0;
+  currentPage = 1;
+  pageCount = 1;
+  messageIndex = 0;
 
-  promptStatus = ''
+  promptStatus = '';
 
-  selectedMessages = [] as ObjectType[]
-  messages = [] as ObjectType[]
+  selectedMessages = [] as ObjectType[];
+  messages = [] as ObjectType[];
 
-  promise = null
-  capturedImage = null as ObjectType | null
-  offlineMessages = { messages: {} } as ObjectType
-  messageReply = {} as ObjectType
+  promise = null;
+  capturedImage = null as ObjectType | null;
+  offlineMessages = { messages: {} } as ObjectType;
+  messageReply = {} as ObjectType;
 
-  imageRegex = ImageRegex
-  videoRegex = VideoRegex
-  documentRegex = DocumentRegex
-  emailRegex = EmailRegex
-  websiteRegex = WebsiteRegex
+  imageRegex = ImageRegex;
+  videoRegex = VideoRegex;
+  documentRegex = DocumentRegex;
+  emailRegex = EmailRegex;
+  websiteRegex = WebsiteRegex;
 
-  checkAttachmentType = checkAttachmentType
-  throttleTimer = false
+  checkAttachmentType = checkAttachmentType;
+  throttleTimer = false;
 
   created () {
     this.handleConversationOpen()
@@ -356,7 +356,7 @@ export default class MessageContainer extends mixins(ConversationMixin) {
     )
 
     if (res.error) {
-      this.showToast('Check your connection.', 'error')
+      this.showToast('Failed to read messages.', 'error')
     }
   }
 
@@ -669,17 +669,17 @@ export default class MessageContainer extends mixins(ConversationMixin) {
 
   onMessageDelete (message: ObjectType) {
     const messageIndex = this.messages.findIndex((item: ObjectType[] | ObjectType) => {
-      if (Array.isArray(item)) return item.some((image) => image._id === message._id)
+      if (Array.isArray(item)) { return item.some((image) => image.content.local_id === message.content.local_id) }
 
-      return item._id === message._id
+      return item.content.local_id === message.content.local_id
     }) as number
 
     const offlineMessageIndex = this.offlineMessages.messages[
       this.currentConversation._id
     ].findIndex((item: ObjectType[] | ObjectType) => {
-      if (Array.isArray(item)) return item.some((image) => image._id === message._id)
+      if (Array.isArray(item)) { return item.some((image) => image.content.local_id === message.content.local_id) }
 
-      return item._id === message._id
+      return item.content.local_id === message.content.local_id
     }) as number
 
     if (messageIndex > -1) {
@@ -702,14 +702,14 @@ export default class MessageContainer extends mixins(ConversationMixin) {
   onImageDelete () {
     EventBus.$on('image-deleted', (message: ObjectType) => {
       const messageIndex = this.messages.findIndex((item: ObjectType | ObjectType[]) => {
-        if (Array.isArray(item)) return item.some((image) => image._id === message._id)
+        if (Array.isArray(item)) return item.some((image) => image.content.local_id === message.content.local_id)
         return false
       }) as number
 
       const offlineMessageIndex = this.offlineMessages.messages[
         this.currentConversation._id
       ].findIndex((item: ObjectType[]) => {
-        if (Array.isArray(item)) return item.some((image) => image._id === message._id)
+        if (Array.isArray(item)) return item.some((image) => image.content.local_id === message.content.local_id)
         return false
       }) as number
 
@@ -717,7 +717,7 @@ export default class MessageContainer extends mixins(ConversationMixin) {
         // Delete message from image grid.
         if (this.messages[messageIndex].length > 1) {
           const index = this.messages[messageIndex].findIndex(
-            (item: ObjectType) => item._id === message._id
+            (item: ObjectType) => item.content.local_id === message.content.local_id
           ) as number
 
           const data = [...(this.messages[messageIndex] as ObjectType[])] as ObjectType[]
@@ -735,7 +735,7 @@ export default class MessageContainer extends mixins(ConversationMixin) {
         if (offlineMessages[this.currentConversation._id][offlineMessageIndex].length > 1) {
           const index = offlineMessages[this.currentConversation._id][
             offlineMessageIndex
-          ].findIndex((item: any) => item._id === message._id) as number
+          ].findIndex((item: any) => item.content.local_id === message.content.local_id) as number
 
           offlineMessages[this.currentConversation._id][offlineMessageIndex].splice(index, 1)
 
@@ -853,7 +853,7 @@ export default class MessageContainer extends mixins(ConversationMixin) {
       this.handleReadReceipts(res.data.messages)
     } else {
       this.messageError = true
-      this.showToast('Check your connection', 'error')
+      this.showToast('Failed to load conversation messages.', 'error')
     }
   }
 
@@ -875,7 +875,7 @@ export default class MessageContainer extends mixins(ConversationMixin) {
       this.handleReadReceipts(res.data.messages)
     } else {
       this.messageError = true
-      this.showToast('Check your connection', 'error')
+      this.showToast('Failed to load new messages.', 'error')
     }
   }
 
@@ -987,7 +987,7 @@ export default class MessageContainer extends mixins(ConversationMixin) {
       this.promptOpen = false
       await this.getConversationMessages()
     } else {
-      this.showToast('Check your connection', 'error')
+      this.showToast('Failed to clear messages.', 'error')
     }
 
     store.setState('clearMessages', false)
@@ -1040,15 +1040,17 @@ export default class MessageContainer extends mixins(ConversationMixin) {
   }
 
   async deleteSelectedMessages () {
+    const messagesToDelete = [] as ObjectType[]
+
     this.selectedMessages.forEach(async (message) => {
       if (Array.isArray(message)) {
-        for (const item of message) {
-          await this.deleteMessage(item)
-        }
+        messagesToDelete.push(...message)
       } else {
-        await this.deleteMessage(message)
+        messagesToDelete.push(message)
       }
     })
+
+    await this.deleteMessage(messagesToDelete)
 
     if (!this.messageDeleteFailed) {
       this.showToast(
@@ -1057,7 +1059,7 @@ export default class MessageContainer extends mixins(ConversationMixin) {
       )
       this.closePrompt()
     } else {
-      this.showToast('Check your connection', 'error')
+      this.showToast('Failed to deleted selected messages.', 'error')
     }
   }
 
@@ -1070,7 +1072,7 @@ export default class MessageContainer extends mixins(ConversationMixin) {
     if (res && !res.error) {
       // EventBus.$emit('participant.left.group', { conversation_id: this.currentConversation._id, user_token: this.participantToken })
     } else {
-      this.showToast('Check your connection', 'error')
+      this.showToast('Failed to remove group participant.', 'error')
     }
   }
 
@@ -1129,7 +1131,7 @@ export default class MessageContainer extends mixins(ConversationMixin) {
 
       store.setState('exitGroup', false)
     } else {
-      this.showToast('Check your connection', 'error')
+      this.showToast('Failed to leave group.', 'error')
     }
   }
 
@@ -1226,28 +1228,33 @@ export default class MessageContainer extends mixins(ConversationMixin) {
     const message = this.offlineMessages.messages[this.currentConversation._id][
       this.messageIndex
     ] as ObjectType[] | ObjectType
+    const messagesToDelete = []
 
     if (Array.isArray(message)) {
-      for (const item of message) {
-        await this.deleteMessage(item)
-      }
+      messagesToDelete.push(...message)
     } else {
-      await this.deleteMessage(message)
+      messagesToDelete.push(message)
     }
+
+    await this.deleteMessage(messagesToDelete)
 
     if (!this.messageDeleteFailed) {
       this.showToast('Message Deleted', 'success')
       this.closePrompt()
     } else {
-      this.showToast('Check your connection', 'error')
+      this.showToast('Failed to delete message.', 'error')
     }
   }
 
-  async deleteMessage (message: ObjectType): Promise<void> {
-    const res = await this.$robin.deleteMessages([message._id], this.$user_token)
+  async deleteMessage (messages: ObjectType[]): Promise<void> {
+    const messageIds = messages.map((message) => message._id) as string[]
 
-    if (res && !res.errors) {
-      this.onMessageDelete(message)
+    const res = await this.$robin.deleteMessages(messageIds, this.$user_token)
+
+    if (res && !res.error) {
+      for (const message of messages) {
+        this.onMessageDelete(message)
+      }
       this.messageDeleteFailed = false
     } else {
       this.messageDeleteFailed = true

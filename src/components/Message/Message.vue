@@ -16,17 +16,15 @@
       <div
         class="robin-reactions"
         v-show="
-          message &&
-          message.reactions &&
-          message.reactions.length > 0 &&
-          isMessageReactionViewEnabled &&
-          !isMessagesLoading
+          message && msgReactions.length > 0 && isMessageReactionViewEnabled && !isMessagesLoading
         "
       >
         <div
-          class="robin-reaction"
-          :class="{ 'delete-enabled': isMessageReactionDeleteEnabled }"
           v-for="(value, key, reactionIndex) in reactions"
+          class="robin-reaction"
+          :class="{
+            'delete-enabled': isMessageReactionDeleteEnabled && isCurrentUserReaction(key)
+          }"
           :key="reactionIndex"
           @click="removeReaction(key)"
           v-show="value.length > 0"
@@ -142,7 +140,7 @@ const ComponentProps = mixins(ConversationMixin).extend({
     message: {
       type: Object as PropType<ObjectType>,
       default: () => {
-        return {}
+        return {} as ObjectType
       }
     },
     messages: {
@@ -174,21 +172,14 @@ const ComponentProps = mixins(ConversationMixin).extend({
     selectMessagesOpen: {
       handler (val) {
         if (!val) {
-          const checkbox = (this.$refs.checkbox as Vue).$el as HTMLElement
+          const checkbox = (this.$refs.checkbox as Vue).$el as HTMLElement;
 
-          ;(checkbox.childNodes[0] as HTMLInputElement).checked = false
+          (checkbox.childNodes[0] as HTMLInputElement).checked = false
         }
       }
     },
-    message: {
-      handler (_, newMessage) {
-        this.msgReactions = newMessage.reactions ?? []
-      },
-      deep: true
-    },
     isMessagesLoading: {
       handler () {
-        this.msgReactions = this.message.reactions ?? []
         this.injectHtml(this.message.content ? this.message.content.msg : null)
       }
     },
@@ -204,21 +195,20 @@ const ComponentProps = mixins(ConversationMixin).extend({
   }
 })
 export default class Message extends ComponentProps {
-  caretOpen = false
-  msgReactions = [] as Array<ObjectType>
-  emailRegex = EmailRegex
-  websiteRegex = WebsiteRegex
-  isMessageReactionViewEnabled!: boolean
-  isMessageReactionDeleteEnabled!: boolean
-  isReplyMessagesEnabled!: boolean
-  isDeleteMessagesEnabled!: boolean
-  isForwardMessagesEnabled!: boolean
-  selectMessagesOpen!: boolean
-  screenWidth!: number
-  currentTheme!: string
-  groupnameColors!: Array<string>
-  currentConversation!: ObjectType
-  getContactName!: (sender_token: string) => string
+  caretOpen = false;
+  emailRegex = EmailRegex;
+  websiteRegex = WebsiteRegex;
+  isMessageReactionViewEnabled!: boolean;
+  isMessageReactionDeleteEnabled!: boolean;
+  isReplyMessagesEnabled!: boolean;
+  isDeleteMessagesEnabled!: boolean;
+  isForwardMessagesEnabled!: boolean;
+  selectMessagesOpen!: boolean;
+  screenWidth!: number;
+  currentTheme!: string;
+  groupnameColors!: Array<string>;
+  currentConversation!: ObjectType;
+  getContactName!: (sender_token: string) => string;
 
   get isMessageClickable () {
     if (
@@ -247,11 +237,15 @@ export default class Message extends ComponentProps {
     return false
   }
 
+  get msgReactions () {
+    return this.message.reactions ?? []
+  }
+
   get reactions () {
     const newReactions = { '❤️': [], '👍': [], '👎': [], '😂': [], '⁉️': [] } as ObjectType
 
     for (const reaction of this.msgReactions) {
-      newReactions[reaction.reaction].push(reaction.reaction)
+      newReactions[reaction.reaction].push(reaction)
     }
 
     return newReactions
@@ -259,6 +253,18 @@ export default class Message extends ComponentProps {
 
   mounted () {
     this.injectHtml(this.message.content ? this.message.content.msg : null)
+  }
+
+  isCurrentUserReaction (reaction: string) {
+    const index = this.reactions[reaction].findIndex(
+      (user: ObjectType) => user.user_token === this.$user_token
+    )
+
+    if (index > -1) {
+      return true
+    }
+
+    return false
   }
 
   openModal () {
@@ -273,7 +279,7 @@ export default class Message extends ComponentProps {
     let returnedMessage = ''
 
     if (message) {
-      for (const word of message.split(' ')) {
+      for (const word of message.replace('\n', ' ').split(' ')) {
         if (this.emailRegex.test(word)) {
           returnedMessage += String.raw` <a target="_blank" href="mailto:${word}">${word}<a/>`
         } else if (this.websiteRegex.test(word) || word.includes('http://')) {
@@ -376,10 +382,12 @@ export default class Message extends ComponentProps {
   }
 
   removeReaction (reaction: string): void {
-    const messageReaction = this.message.reactions.find(
-      (item: ObjectType) => item.reaction === reaction
-    ) as ObjectType
-    this.$emit('remove-reaction', messageReaction, this.index)
+    if (this.isCurrentUserReaction(reaction)) {
+      const messageReaction = this.message.reactions.find((item: ObjectType) => {
+        return item.reaction === reaction && item.user_token === this.$user_token
+      }) as ObjectType
+      this.$emit('remove-reaction', messageReaction, this.index)
+    }
   }
 
   getTimestamp (value: string): string {

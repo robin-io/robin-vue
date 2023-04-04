@@ -54,7 +54,9 @@
         >
           {{
             getRecentMessageTime(
-              item.last_message && item.last_message.timestamp ? item.last_message.timestamp : item.updated_at
+              item.last_message && item.last_message.timestamp
+                ? item.last_message.timestamp
+                : item.updated_at
             )
           }}
         </message-content>
@@ -231,10 +233,10 @@ const ComponentProps = mixins(ConversationMixin).extend({
   }
 })
 export default class ChatListCard extends ComponentProps {
-  currentTheme!: string
-  screenWidth!: number
-  currentConversation!: ObjectType
-  getRecentMessageTime!: (time: string) => string
+  currentTheme!: string;
+  screenWidth!: number;
+  currentConversation!: ObjectType;
+  getRecentMessageTime!: (time: string) => string;
 
   openModal () {
     this.$emit('open-modal', this.index)

@@ -9,7 +9,7 @@ import { Colors } from '@/utils/constants'
   name: 'ConversationMixins'
 })
 export default class ConversationMixin extends Vue {
-  offlineMessages: ObjectType | undefined
+  offlineMessages: ObjectType | undefined;
 
   get unsortedRegularConversations () {
     return store.state.unsortedRegularConversations
@@ -209,11 +209,12 @@ export default class ConversationMixin extends Vue {
 
   formatDate (value: string): string {
     const today = new Date()
-    const formattedValue = new Date(value)
+    const time = value
+    const formattedValue = new Date(time)
 
     if (isSameDay(today, formattedValue)) return 'Today'
 
-    return formatTimestamp(new Date(value))
+    return formatTimestamp(new Date(time))
   }
 
   getRecentMessageTime (time: string): string {

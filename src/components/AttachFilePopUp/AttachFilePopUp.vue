@@ -109,8 +109,8 @@ import ConversationMixin from '@/mixins/conversation-mixins'
   }
 })
 export default class AttachFilePopOver extends mixins(ConversationMixin) {
-  acceptedDocFiles = 'application/*, text/*, audio/*' as string
-  acceptedVisualFiles = 'image/*, video/*' as string
+  acceptedDocFiles = 'application/*, text/*, audio/*' as string;
+  acceptedVisualFiles = 'image/*, video/*' as string;
 
   get currentTheme () {
     return store.state.currentTheme
@@ -143,7 +143,7 @@ export default class AttachFilePopOver extends mixins(ConversationMixin) {
             file: customFile
           })
         } else {
-          this.showToast('Image upload cannot be more than 5mb.', 'error')
+          this.showToast('Upload cannot be more than 5mb.', 'error')
         }
       })
     }

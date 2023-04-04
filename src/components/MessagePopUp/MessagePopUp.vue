@@ -161,8 +161,8 @@ export default class MessagePopUp extends ComponentProps {
   }
 
   /*
-  * This function applies to only messages that have failed to send.
-  */
+   * This function applies to only messages that have failed to send.
+   */
   async resendMessage () {
     let message = null
     const isMessageArray = Array.isArray(this.message)

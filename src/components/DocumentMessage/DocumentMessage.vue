@@ -16,17 +16,15 @@
       <div
         class="robin-reactions"
         v-if="
-          message &&
-          message.reactions &&
-          message.reactions.length > 0 &&
-          isMessageReactionViewEnabled &&
-          !isMessagesLoading
+          message && msgReactions.length > 0 && isMessageReactionViewEnabled && !isMessagesLoading
         "
       >
         <div
-          class="robin-reaction"
-          :class="{ 'delete-enabled': isMessageReactionDeleteEnabled }"
           v-for="(value, key, reactionIndex) in reactions"
+          class="robin-reaction"
+          :class="{
+            'delete-enabled': isMessageReactionDeleteEnabled && isCurrentUserReaction(key)
+          }"
           :key="reactionIndex"
           @click="removeReaction(key)"
           v-show="value.length > 0"
@@ -70,7 +68,8 @@
         <div
           class="robin-uploaded-document"
           v-if="
-            documentRegex.test(checkAttachmentType(message.content.attachment, message)) && !message.content.is_voice_note
+            documentRegex.test(checkAttachmentType(message.content.attachment, message)) &&
+            !message.content.is_voice_note
           "
         >
           <img v-if="extension.present" :src="extension.asset" alt="document" />
@@ -138,11 +137,13 @@
             as="p"
             class="robin-flex"
           >
-            {{ !message.pseudo ? getTimestamp(message.created_at || message.content.timestamp) : '' }}
+            {{
+              !message.pseudo ? getTimestamp(message.created_at || message.content.timestamp) : ''
+            }}
 
             <svg-icon
               name="read"
-              v-if="
+              v-show="
                 !validateMessages(message).includes('message-sender') &&
                 message.is_read &&
                 !message.pseudo
@@ -151,14 +152,14 @@
 
             <svg-icon
               name="not-read"
-              v-if="
+              v-show="
                 !validateMessages(message).includes('message-sender') &&
                 !message.is_read &&
                 !message.pseudo
               "
             />
 
-            <svg-icon name="scheduled" v-if="message.pseudo" />
+            <svg-icon name="scheduled" v-show="message.pseudo" />
           </message-content>
         </span>
       </div>
@@ -193,7 +194,7 @@ const ComponentProps = mixins(ConversationMixin).extend({
     message: {
       type: Object as PropType<ObjectType>,
       default: () => {
-        return {}
+        return {} as ObjectType
       }
     },
     messages: {
@@ -231,12 +232,6 @@ const ComponentProps = mixins(ConversationMixin).extend({
         }
       }
     },
-    message: {
-      handler (_, newMessage) {
-        this.msgReactions = newMessage.reactions ?? []
-      },
-      deep: true
-    },
     screenWidth: {
       handler () {
         if (this.screenWidth <= 1024) {
@@ -249,26 +244,25 @@ const ComponentProps = mixins(ConversationMixin).extend({
   }
 })
 export default class DocumentMessage extends ComponentProps {
-  caretOpen = false
-  msgReactions = [] as Array<ObjectType>
-  documentRegex = DocumentRegex
-  emailRegex = EmailRegex
-  websiteRegex = WebsiteRegex
-  assets = Assets
-  checkAttachmentType = checkAttachmentType
-  convertArrayBufferToFile = convertArrayBufferToFile
-  convertFileToURL = convertFileToURL
-  isMessageReactionViewEnabled!: boolean
-  isMessageReactionDeleteEnabled!: boolean
-  isDeleteMessagesEnabled!: boolean
-  isForwardMessagesEnabled!: boolean
-  selectMessagesOpen!: boolean
-  isReplyMessagesEnabled!: boolean
-  currentConversation!: ObjectType
-  screenWidth!: number
-  currentTheme!: string
-  groupnameColors!: Array<string>
-  getContactName!: (sender_token: string) => string
+  caretOpen = false;
+  documentRegex = DocumentRegex;
+  emailRegex = EmailRegex;
+  websiteRegex = WebsiteRegex;
+  assets = Assets;
+  checkAttachmentType = checkAttachmentType;
+  convertArrayBufferToFile = convertArrayBufferToFile;
+  convertFileToURL = convertFileToURL;
+  isMessageReactionViewEnabled!: boolean;
+  isMessageReactionDeleteEnabled!: boolean;
+  isDeleteMessagesEnabled!: boolean;
+  isForwardMessagesEnabled!: boolean;
+  selectMessagesOpen!: boolean;
+  isReplyMessagesEnabled!: boolean;
+  currentConversation!: ObjectType;
+  screenWidth!: number;
+  currentTheme!: string;
+  groupnameColors!: Array<string>;
+  getContactName!: (sender_token: string) => string;
 
   get extension () {
     const asset =
@@ -315,11 +309,15 @@ export default class DocumentMessage extends ComponentProps {
     return false
   }
 
+  get msgReactions () {
+    return this.message.reactions ?? []
+  }
+
   get reactions () {
     const newReactions = { '❤️': [], '👍': [], '👎': [], '😂': [], '⁉️': [] } as ObjectType
 
     for (const reaction of this.msgReactions) {
-      newReactions[reaction.reaction].push(reaction.reaction)
+      newReactions[reaction.reaction].push(reaction)
     }
 
     return newReactions
@@ -329,11 +327,22 @@ export default class DocumentMessage extends ComponentProps {
     this.injectHtml(this.message.content ? this.message.content.msg : null)
   }
 
+  isCurrentUserReaction (reaction: string) {
+    const user = this.reactions[reaction].find(
+      (user: ObjectType) => user.user_token === this.$user_token
+    )
+    if (user) {
+      return true
+    }
+
+    return false
+  }
+
   injectHtml (message: string): void {
     let returnedMessage = ''
 
     if (message) {
-      for (const word of message.split(' ')) {
+      for (const word of message.replace('\n', ' ').split(' ')) {
         if (this.emailRegex.test(word)) {
           returnedMessage += String.raw` <a target="_blank" href="mailto:${word}">${word}<a/>`
         } else if (this.websiteRegex.test(word) || word.includes('http://')) {
@@ -457,14 +466,16 @@ export default class DocumentMessage extends ComponentProps {
   }
 
   removeReaction (reaction: string): void {
-    const messageReaction = this.message.reactions.find(
-      (item: ObjectType) => item.reaction === reaction
-    ) as ObjectType
-    this.$emit('remove-reaction', messageReaction, this.index)
+    if (this.isCurrentUserReaction(reaction)) {
+      const messageReaction = this.message.reactions.find((item: ObjectType) => {
+        return item.reaction === reaction && item.user_token === this.$user_token
+      }) as ObjectType
+      this.$emit('remove-reaction', messageReaction, this.index)
+    }
   }
 
   getTimestamp (value: string): string {
-    return formatTimestamp(new Date(value), 'h:mma')
+    return formatTimestamp(new Date(value.replace('T', ' ').replace('Z', '')), 'h:mma')
   }
 
   validateLinkInMessage () {

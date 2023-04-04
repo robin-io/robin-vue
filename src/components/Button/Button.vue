@@ -39,7 +39,7 @@ const ComponentProps = Vue.extend({
   name: 'Button'
 })
 export default class Button extends ComponentProps {
-  root = null as any
+  root = null as any;
 
   mounted (): void {
     this.root = document.documentElement

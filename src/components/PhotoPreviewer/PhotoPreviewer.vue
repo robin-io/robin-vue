@@ -79,7 +79,7 @@
         class="robin-wrapper robin-w-100 robin-h-100 robin-flex robin-flex-column robin-flex-align-center robin-flex-space-between"
       >
         <div class="robin-image-preview" v-viewer="vOptions">
-          <img :src="imagePreview" alt="uploaded image">
+          <img :src="imagePreview" alt="uploaded image" />
         </div>
 
         <div
@@ -128,7 +128,7 @@ import ForwardMessage from '../ForwardMessage/ForwardMessage.vue'
 import ConversationMixin from '@/mixins/conversation-mixins'
 
 interface PopUpState {
-  opened: boolean
+  opened: boolean;
 }
 
 const ComponentProps = mixins(ConversationMixin).extend({
@@ -166,23 +166,37 @@ const ComponentProps = mixins(ConversationMixin).extend({
   }
 })
 export default class PhotoPreviewer extends ComponentProps {
-  selectedMessages = [] as Array<any>
-  forwardMessage = false as boolean
-  pseudoAttachmentUrl = '' as string
-  vOptions = { inline: false, button: false, navbar: false, title: false, toolbar: false, tooltip: false, movable: false, zoomable: true, rotatable: false, scalable: false, transition: true, fullscreen: false, keyboard: false }
+  selectedMessages = [] as Array<any>;
+  forwardMessage = false as boolean;
+  pseudoAttachmentUrl = '' as string;
+  vOptions = {
+    inline: false,
+    button: false,
+    navbar: false,
+    title: false,
+    toolbar: false,
+    tooltip: false,
+    movable: false,
+    zoomable: true,
+    rotatable: false,
+    scalable: false,
+    transition: true,
+    fullscreen: false,
+    keyboard: false
+  };
 
-  images = [] as Array<any>
-  id = 0 as number
-  imageSelected!: number
-  isReplyMessagesEnabled!: boolean
-  isDeleteMessagesEnabled!: boolean
-  isForwardMessagesEnabled!: boolean
-  imagesToPreview!: Array<ObjectType>
-  showToast!: (message: string, info: string) => void
+  images = [] as Array<any>;
+  id = 0 as number;
+  imageSelected!: number;
+  isReplyMessagesEnabled!: boolean;
+  isDeleteMessagesEnabled!: boolean;
+  isForwardMessagesEnabled!: boolean;
+  imagesToPreview!: Array<ObjectType>;
+  showToast!: (message: string, info: string) => void;
 
   popUpState: PopUpState = {
     opened: false
-  }
+  };
 
   get imagePreview (): string {
     const attachment = this.images[this.imageSelected]
@@ -289,7 +303,7 @@ export default class PhotoPreviewer extends ComponentProps {
         this.images.splice(this.imageSelected, 1)
       }, 300)
     } else {
-      this.showToast('Check your connection', 'error')
+      this.showToast('Failed delete image from preview.', 'error')
     }
   }
 

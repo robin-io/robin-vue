@@ -1,12 +1,5 @@
 {
-  "cSpell.words": [
-    "Vuex",
-    "camelcase",
-    "usertyping",
-    "vite",
-    "vnode",
-    "vueperslides"
-  ],
+  "cSpell.words": ["Vuex", "camelcase", "usertyping", "vite", "vnode", "vueperslides"],
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
   },

@@ -122,18 +122,18 @@ const ComponentProps = mixins(ConversationMixin).extend({
   }
 })
 export default class NewGroupChatList extends ComponentProps {
-  childHeight = [] as Array<number>
-  contacts = [] as Array<string | ObjectType>
-  checkBoxKeyState = 0 as number
-  users = [] as Array<ObjectType>
-  isLoading = false as boolean
-  isUploading = false as boolean
-  searchData = [] as Array<any>
-  updatingParticipants = false
-  conversationId = ''
-  currentConversation!: ObjectType
-  showToast!: (message: string, info: string) => void
-  currentTheme!: string
+  childHeight = [] as Array<number>;
+  contacts = [] as Array<string | ObjectType>;
+  checkBoxKeyState = 0 as number;
+  users = [] as Array<ObjectType>;
+  isLoading = false as boolean;
+  isUploading = false as boolean;
+  searchData = [] as Array<any>;
+  updatingParticipants = false;
+  conversationId = '';
+  currentConversation!: ObjectType;
+  showToast!: (message: string, info: string) => void;
+  currentTheme!: string;
 
   created () {
     this.handleAddGroupParticipants()
@@ -157,21 +157,17 @@ export default class NewGroupChatList extends ComponentProps {
 
     if (searchText.trim() === '') {
       this.$robin_users.forEach((user: ObjectType) => {
-        const filter = type !== 'create-group'
-          ? (item: ObjectType) =>
-              item.userToken !== this.$user_token &&
-              !this.isGroupParticipant(item) &&
-              this.validateContact(item.userName, user.userName)
-          : (item: ObjectType) =>
-              item.userToken !== this.$user_token &&
-              this.validateContact(item.userName, user.userName)
+        const filter =
+          type !== 'create-group'
+            ? (item: ObjectType) =>
+                item.userToken !== this.$user_token &&
+                !this.isGroupParticipant(item) &&
+                this.validateContact(item.userName, user.userName)
+            : (item: ObjectType) =>
+                item.userToken !== this.$user_token &&
+                this.validateContact(item.userName, user.userName)
 
-        contactMap.set(
-          this.getContactKey(user.userName),
-          this.$robin_users.filter(
-            filter
-          )
-        )
+        contactMap.set(this.getContactKey(user.userName), this.$robin_users.filter(filter))
       })
 
       for (const key of contactMap.keys()) {
@@ -207,20 +203,17 @@ export default class NewGroupChatList extends ComponentProps {
       const contactMap = new Map()
 
       this.searchData.forEach((user: any) => {
-        const filter = type !== 'create-group'
-          ? (item: ObjectType) =>
-              item.userToken !== this.$user_token &&
-              !this.isGroupParticipant(item) &&
-              this.validateContact(item.userName, user.userName)
-          : (item: ObjectType) => item.userToken !== this.$user_token &&
-              this.validateContact(item.userName, user.userName)
+        const filter =
+          type !== 'create-group'
+            ? (item: ObjectType) =>
+                item.userToken !== this.$user_token &&
+                !this.isGroupParticipant(item) &&
+                this.validateContact(item.userName, user.userName)
+            : (item: ObjectType) =>
+                item.userToken !== this.$user_token &&
+                this.validateContact(item.userName, user.userName)
 
-        contactMap.set(
-          this.getContactKey(user.userName),
-          this.searchData.filter(
-            filter
-          )
-        )
+        contactMap.set(this.getContactKey(user.userName), this.searchData.filter(filter))
       })
 
       let contactData = [] as Array<string | ObjectType>
@@ -243,7 +236,9 @@ export default class NewGroupChatList extends ComponentProps {
   }
 
   toggleSelectAllCheckAction (val: boolean) {
-    const checkboxes = document.querySelectorAll('.robin-card-info #checkbox') as NodeListOf<HTMLElement>
+    const checkboxes = document.querySelectorAll(
+      '.robin-card-info #checkbox'
+    ) as NodeListOf<HTMLElement>
 
     if (checkboxes) {
       if (!val) {
@@ -299,7 +294,7 @@ export default class NewGroupChatList extends ComponentProps {
         this.isUploading = false
       }
     } else {
-      this.showToast('Check your connection', 'error')
+      this.showToast('Failed to create group conversation.', 'error')
       this.isUploading = false
     }
   }
@@ -328,7 +323,7 @@ export default class NewGroupChatList extends ComponentProps {
 
       EventBus.$emit('update.group.conversation', res.data)
     } else {
-      this.showToast('Check your connection', 'error')
+      this.showToast('Failed to add member to group.', 'error')
       this.isUploading = false
     }
   }
@@ -372,7 +367,9 @@ export default class NewGroupChatList extends ComponentProps {
 
   isGroupParticipant (contact: ObjectType): boolean {
     if (Object.keys(this.currentConversation).length > 0) {
-      return this.currentConversation.participants.some((participant: ObjectType) => participant.user_token === contact.userToken)
+      return this.currentConversation.participants.some(
+        (participant: ObjectType) => participant.user_token === contact.userToken
+      )
     }
 
     return false
@@ -399,7 +396,10 @@ export default class NewGroupChatList extends ComponentProps {
     })
 
     this.searchData = [...data]
-    this.getContacts(searchText, !this.updatingParticipants ? 'create-group' : 'update-participants')
+    this.getContacts(
+      searchText,
+      !this.updatingParticipants ? 'create-group' : 'update-participants'
+    )
     setTimeout(() => {
       this.isLoading = false
     }, 300)

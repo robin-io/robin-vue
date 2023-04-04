@@ -82,9 +82,9 @@ import ArchivedChatList from '@/components/ArchivedChatList/ArchivedChatList.vue
   }
 })
 export default class SideContainer extends Vue {
-  searchText = '' as string
-  groupName = ''
-  groupIcon = {}
+  searchText = '' as string;
+  groupName = '';
+  groupIcon = {};
 
   created () {
     this.showNewGroupModal()

@@ -49,4 +49,11 @@ function convertFileToURL (file: File): string {
   return URL.createObjectURL(file)
 }
 
-export { createUUID, arrayBufferToBlob, blobToArrayBuffer, checkAttachmentType, convertArrayBufferToFile, convertFileToURL }
+export {
+  createUUID,
+  arrayBufferToBlob,
+  blobToArrayBuffer,
+  checkAttachmentType,
+  convertArrayBufferToFile,
+  convertFileToURL
+}
