@@ -1,5 +1,10 @@
 <template>
-  <div class="robin-virtual-scroller" :style="{ overflow: 'auto', height: height === 0 ? '100%' : height + 'px' }" ref="scroller" @scroll="getScrollTop">
+  <div
+    class="robin-virtual-scroller"
+    :style="{ overflow: 'auto', height: height === 0 ? '100%' : height + 'px' }"
+    ref="scroller"
+    @scroll="getScrollTop"
+  >
     <div
       class="viewport"
       :style="{
@@ -9,8 +14,15 @@
         position: 'relative'
       }"
     >
-      <div :style="{ willChange: 'transform', transform: `translateY(${offsetY}px)` }" class="wrapper">
-        <slot v-for="(_, index) in visibleNodeCount" :index="index + startNode" :item="items[index + startNode]"></slot>
+      <div
+        :style="{ willChange: 'transform', transform: `translateY(${offsetY}px)` }"
+        class="wrapper"
+      >
+        <slot
+          v-for="(_, index) in visibleNodeCount"
+          :index="index + startNode"
+          :item="items[index + startNode]"
+        ></slot>
       </div>
     </div>
   </div>
@@ -24,7 +36,7 @@ const ComponentProps = Vue.extend({
   props: {
     items: {
       type: Array as PropType<(string | ObjectType)[]>,
-      default: () => ([])
+      default: () => []
     },
     itemCount: {
       type: Number,
@@ -40,7 +52,7 @@ const ComponentProps = Vue.extend({
     },
     childHeight: {
       type: Array as PropType<Array<number>>,
-      default: () => ([0])
+      default: () => [0]
     },
     renderAfter: {
       type: Number,
@@ -53,11 +65,11 @@ const ComponentProps = Vue.extend({
   name: 'VirtualScroller'
 })
 export default class VirtualScroller extends ComponentProps {
-  scrollTop = 0
-  animationFrame = null as null | number
+  scrollTop = 0;
+  animationFrame = null as null | number;
 
   mounted () {
-    const wrapper = (this.$refs.scroller as HTMLElement)
+    const wrapper = this.$refs.scroller as HTMLElement
     this.scrollTop = wrapper ? wrapper.scrollTop : 0
   }
 
@@ -107,7 +119,10 @@ export default class VirtualScroller extends ComponentProps {
     while (startRange !== endRange) {
       const middle = Math.floor((endRange - startRange) / 2 + startRange)
 
-      if (this.childPositions[middle] <= this.scrollTop && this.childPositions[middle + 1] > this.scrollTop) {
+      if (
+        this.childPositions[middle] <= this.scrollTop &&
+        this.childPositions[middle + 1] > this.scrollTop
+      ) {
         return middle
       }
 

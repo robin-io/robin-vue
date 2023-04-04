@@ -39,7 +39,9 @@
           id="group-icon-upload"
           data-testid="group-icon-upload"
         />
-        <message-content :color="currentTheme === 'light' ? '#fff' : '#1E1E1E'" :fontSize="24">RG</message-content>
+        <message-content :color="currentTheme === 'light' ? '#fff' : '#1E1E1E'" :fontSize="24"
+          >RG</message-content
+        >
       </div>
 
       <img
@@ -107,12 +109,12 @@ const ComponentProps = mixins(ConversationMixin).extend({
   }
 })
 export default class NewGroupChatList extends ComponentProps {
-  name = ''
-  icon = {} as any
-  resetInput = false
-  acceptedVisualFiles = 'image/png, image/jpg, image/jpeg' as string
-  showToast!: (message: string, info: string) => void
-  currentTheme!: string
+  name = '';
+  icon = {} as any;
+  resetInput = false;
+  acceptedVisualFiles = 'image/png, image/jpg, image/jpeg' as string;
+  showToast!: (message: string, info: string) => void;
+  currentTheme!: string;
 
   userTyping (val: string): void {
     this.name = val
@@ -146,7 +148,7 @@ export default class NewGroupChatList extends ComponentProps {
 
   async handleFileChange (event: Event): Promise<void> {
     const input = event.target as HTMLInputElement
-    const file = input.files ? input.files[0] : {} as File
+    const file = input.files ? input.files[0] : ({} as File)
     let fileURL
 
     try {
@@ -167,7 +169,7 @@ export default class NewGroupChatList extends ComponentProps {
         file: file
       }
     } else {
-      this.showToast('Image upload cannot be more than 5mb', 'error')
+      this.showToast('Upload cannot be more than 5mb', 'error')
     }
   }
 }

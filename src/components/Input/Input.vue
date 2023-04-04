@@ -1,5 +1,14 @@
 <template>
-  <input type="text" :placeholder="placeholder" @input="userTyping($event)" autocomplete="off" class="robin-input" ref="input" :style="getStyles" data-testid="input" />
+  <input
+    type="text"
+    :placeholder="placeholder"
+    @input="userTyping($event)"
+    autocomplete="off"
+    class="robin-input"
+    ref="input"
+    :style="getStyles"
+    data-testid="input"
+  />
 </template>
 
 <script lang="ts">

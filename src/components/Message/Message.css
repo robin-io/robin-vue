@@ -26,6 +26,6 @@
 
 @media (min-width: 1025px) {
   .robin-message-bubble-inner:hover {
-    background-color:  var(--rb-color11);
+    background-color: var(--rb-color11);
   }
 }

@@ -15,7 +15,13 @@
       />
     </svg>
 
-    <img v-if="imgUrl != ''" :src="imgUrl" :data-src="imgUrl" class="blur-up lazyload" alt="profile" />
+    <img
+      v-if="imgUrl != ''"
+      :src="imgUrl"
+      :data-src="imgUrl"
+      class="blur-up lazyload"
+      alt="profile"
+    />
   </div>
 </template>
 

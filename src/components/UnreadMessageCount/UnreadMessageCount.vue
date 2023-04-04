@@ -1,5 +1,9 @@
 <template>
-  <div v-if="unread > 0 && unread <= 9" class="robin-unread-message-count" data-testid="unread-count">
+  <div
+    v-if="unread > 0 && unread <= 9"
+    class="robin-unread-message-count"
+    data-testid="unread-count"
+  >
     {{ unread }}
   </div>
   <div v-else-if="unread > 9" class="robin-unread-message-count" data-testid="unread-count">9+</div>

@@ -66,7 +66,7 @@ import assets from '@/utils/assets.json'
   }
 })
 export default class NoChatList extends Vue {
-  key = 0 as number
+  key = 0 as number;
 
   get assets (): any {
     return assets

@@ -7,7 +7,13 @@
 
       <div class="robin-details">
         <svg-icon name="largeEncryption" />
-        <message-content :font-size="18" class="robin-mt-24" text-align="center" text-wrap="normal" as="span">
+        <message-content
+          :font-size="18"
+          class="robin-mt-24"
+          text-align="center"
+          text-wrap="normal"
+          as="span"
+        >
           You’ve used a blocked word in your conversation, which won’t be sent.
         </message-content>
       </div>

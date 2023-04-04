@@ -31,7 +31,7 @@
     <encryption-details v-if="encryptionDetailsOpen" />
     <moderated-word v-if="moderatedWordFound" />
     <toast-container v-if="isToastOpen" />
-    <audio :src="assets['notification']" ref="notification" @click="playAudio($event)">
+    <audio :src="assets['notification']" muted ref="notification">
       Your browser does not support the audio feature
     </audio>
   </div>
@@ -42,7 +42,7 @@ import Vue, { PropType } from 'vue'
 import Component, { mixins } from 'vue-class-component'
 import store from './store/index'
 import { Robin } from 'robin.io-js'
-import axios from 'axios'
+// import axios from 'axios'
 import EventBus from './event-bus'
 import SideContainer from './components/SideContainer/SideContainer.vue'
 import MessageContainer from './components/MessageContainer/MessageContainer.vue'
@@ -73,11 +73,11 @@ const ComponentProps = mixins(ConversationMixin).extend({
     },
     channel: {
       type: String as PropType<string>,
-      default: 'private_channel'
+      default: 'private_channelprivate_channel'
     },
     userName: {
       type: String as PropType<string>,
-      default: 'Enoch Chejieh'
+      default: 'Enoch ChejiehEnoch Chejieh'
     },
     secretKey: {
       type: String as PropType<string>,
@@ -85,36 +85,38 @@ const ComponentProps = mixins(ConversationMixin).extend({
     },
     users: {
       type: Array as PropType<Array<ObjectType>>,
-      default: (): Array<ObjectType> => [{
-        _id: '6200d11a9efb65bddc0124ee',
-        created_at: '2022-02-07T07:58:18.13Z',
-        updated_at: '2022-02-07T07:58:18.13Z',
-        fullname: 'Elvis Chuks',
-        user_token: 'FefXITDgAeTVrghcOHiimDVB',
-        password: '$2a$14$b9wbYBQIZX30BTRJ/C8WROClya42EIUwimkkFh40S2ASISwJwzFZG',
-        profile_image: '',
-        email: 'elvis@acumen.com.ng'
-      },
-      {
-        _id: '62d90ae988cc48b2e8fa64f5',
-        created_at: '2022-07-21T08:14:33.784Z',
-        updated_at: '2022-07-21T08:14:33.784Z',
-        fullname: 'Gloria',
-        user_token: 'xxuCjaUVTPsZgrtuzMghoklu',
-        password: '$2a$14$cFQ5S1l727mNqevoOa8XmuceBtDO3cXIBTcnnbekWu2MamxuHLGfe',
-        profile_image: '',
-        email: 'gloria@acumen.digital '
-      },
-      {
-        _id: '621436282dc9a4e040d741bb',
-        created_at: '2022-02-22T01:02:32.517Z',
-        updated_at: '2022-02-22T01:02:32.517Z',
-        fullname: 'Testing Tester',
-        user_token: 'GmStKZeaAzsYzxsdIlFvoJSa',
-        password: '$2a$14$ynUAMEo0StZa7FnbipS6l.qgAObpZJL.SkvXXVKjRalPKTK0Y51ce',
-        profile_image: '',
-        email: 'testingtester@gmail.com'
-      }]
+      default: (): Array<ObjectType> => [
+        {
+          _id: '6200d11a9efb65bddc0124ee',
+          created_at: '2022-02-07T07:58:18.13Z',
+          updated_at: '2022-02-07T07:58:18.13Z',
+          fullname: 'Elvis Chuks',
+          user_token: 'FefXITDgAeTVrghcOHiimDVB',
+          password: '$2a$14$b9wbYBQIZX30BTRJ/C8WROClya42EIUwimkkFh40S2ASISwJwzFZG',
+          profile_image: '',
+          email: 'elvis@acumen.com.ng'
+        },
+        {
+          _id: '62d90ae988cc48b2e8fa64f5',
+          created_at: '2022-07-21T08:14:33.784Z',
+          updated_at: '2022-07-21T08:14:33.784Z',
+          fullname: 'Gloria',
+          user_token: 'xxuCjaUVTPsZgrtuzMghoklu',
+          password: '$2a$14$cFQ5S1l727mNqevoOa8XmuceBtDO3cXIBTcnnbekWu2MamxuHLGfe',
+          profile_image: '',
+          email: 'gloria@acumen.digital '
+        },
+        {
+          _id: '621436282dc9a4e040d741bb',
+          created_at: '2022-02-22T01:02:32.517Z',
+          updated_at: '2022-02-22T01:02:32.517Z',
+          fullname: 'Testing Tester',
+          user_token: 'GmStKZeaAzsYzxsdIlFvoJSa',
+          password: '$2a$14$ynUAMEo0StZa7FnbipS6l.qgAObpZJL.SkvXXVKjRalPKTK0Y51ce',
+          profile_image: '',
+          email: 'testingtester@gmail.com'
+        }
+      ]
     },
     logo: {
       type: String as PropType<string>,
@@ -183,31 +185,31 @@ const ComponentProps = mixins(ConversationMixin).extend({
   }
 })
 export default class App extends ComponentProps {
-  robin = null as Robin | null
-  conn = null as any
-  messageEvent = null as any
-  notification = null as HTMLElement | null
-  debouncedConnect = null as null | (() => void)
-  sideBarType!: string
-  screenWidth!: number
-  conversationOpen!: boolean
-  profileOpen!: boolean
-  currentTheme!: string
-  showDefaultProfileDetails!: boolean
-  groupPromptOpen!: boolean
-  isToastOpen!: boolean
-  isMessageReactionDeleteEnabled!: boolean
-  currentConversation!: ObjectType
-  groupnameColors!: Array<string>
-  imagePreviewOpen!: boolean
+  robin = null as Robin | null;
+  conn = null as any;
+  messageEvent = null as any;
+  notification = null as HTMLAudioElement | null;
+  debouncedConnect = null as null | (() => void);
+  sideBarType!: string;
+  screenWidth!: number;
+  conversationOpen!: boolean;
+  profileOpen!: boolean;
+  currentTheme!: string;
+  showDefaultProfileDetails!: boolean;
+  groupPromptOpen!: boolean;
+  isToastOpen!: boolean;
+  isMessageReactionDeleteEnabled!: boolean;
+  currentConversation!: ObjectType;
+  groupnameColors!: Array<string>;
+  imagePreviewOpen!: boolean;
+  showToast!: (message: string, info: string) => void;
+  isPageLoading!: boolean;
+  encryptionDetailsOpen!: boolean;
+  encryptionKey: string | undefined;
+  iv!: string;
   moderatedWordFound!: boolean
-  showToast!: (message: string, info: string) => void
-  isPageLoading!: boolean
-  encryptionDetailsOpen!: boolean
-  encryptionKey: string | undefined
-  iv!: string
-  encrypt!: (message: ObjectType) => string
-  decrypt!: (message: string) => string
+  encrypt!: (message: ObjectType) => string;
+  decrypt!: (message: string) => string;
 
   created (): void {
     this.initiateRobin()
@@ -231,7 +233,7 @@ export default class App extends ComponentProps {
   }
 
   mounted () {
-    this.notification = this.$refs.notification as HTMLElement
+    this.notification = this.$refs.notification as HTMLAudioElement
 
     this.$nextTick(() => {
       this.onResize()
@@ -422,7 +424,7 @@ export default class App extends ComponentProps {
         this.messageEvent = message
 
         if (this.notification) {
-          this.notification.click()
+          this.playAudio()
         }
       } else {
         this.handleEvents(message)
@@ -551,10 +553,12 @@ export default class App extends ComponentProps {
     }, 100)
   }
 
-  playAudio (event: any): void {
+  playAudio (): void {
     if (this.messageEvent) {
       if (this.messageEvent.content.receiver_token === this.$user_token) {
-        event.target.play()
+        this.notification!.muted = false
+        this.notification!.play()
+        setTimeout(() => this.notification!.pause(), 100)
       }
     }
   }
@@ -589,11 +593,10 @@ export default class App extends ComponentProps {
   }
 
   async getBlockedList () {
-    const response = await axios.get('https://api.robinapp.io/api/v1/chat/blocked_words', {
-      headers: { 'x-api-key': this.apiKey }
-    })
-
-    console.log(response)
+    // const response = await axios.get('https://api.robinapp.io/api/v1/chat/blocked_words', {
+    //   headers: { 'x-api-key': this.apiKey }
+    // })
+    // console.log(response)
   }
 
   onModeratedWordFound () {

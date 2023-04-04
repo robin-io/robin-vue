@@ -20,17 +20,15 @@
       <div
         class="robin-reactions"
         v-if="
-          message &&
-          message[0].reactions &&
-          message[0].reactions.length > 0 &&
-          isMessageReactionViewEnabled &&
-          !isMessagesLoading
+          message && msgReactions.length > 0 && isMessageReactionViewEnabled && !isMessagesLoading
         "
       >
         <div
-          class="robin-reaction"
-          :class="{ 'delete-enabled': isMessageReactionDeleteEnabled }"
           v-for="(value, key, reactionIndex) in reactions"
+          class="robin-reaction"
+          :class="{
+            'delete-enabled': isMessageReactionDeleteEnabled && isCurrentUserReaction(key)
+          }"
           :key="reactionIndex"
           @click="removeReaction(key)"
           v-show="value.length > 0"
@@ -142,7 +140,7 @@
 
           <svg-icon
             name="read"
-            v-if="
+            v-show="
               !validateMessages(message).includes('message-sender') &&
               message[0].is_read &&
               !message[0].pseudo
@@ -151,14 +149,14 @@
 
           <svg-icon
             name="not-read"
-            v-if="
+            v-show="
               !validateMessages(message).includes('message-sender') &&
               !message[0].is_read &&
               !message[0].pseudo
             "
           />
 
-          <svg-icon name="scheduled" v-if="message[0].pseudo" />
+          <svg-icon name="scheduled" v-show="message[0].pseudo" />
         </message-content>
       </span>
 
@@ -226,7 +224,6 @@ const ComponentProps = mixins(ConversationMixin).extend({
         let val = newMessages || oldMessages
         val = val.filter((item: ObjectType) => !item.is_deleted).slice(0, 4)
         this.images = val as Array<ObjectType>
-        this.msgReactions = val[0]?.reactions ?? []
       },
       immediate: true
     },
@@ -250,24 +247,23 @@ const ComponentProps = mixins(ConversationMixin).extend({
   }
 })
 export default class PhotoMessage extends ComponentProps {
-  images: Array<ObjectType> = []
-  caretOpen = false
-  msgReactions = [] as Array<ObjectType>
-  emailRegex = EmailRegex
-  websiteRegex = WebsiteRegex
-  convertFileToURL = convertFileToURL
-  convertArrayBufferToFile = convertArrayBufferToFile
-  isMessageReactionViewEnabled!: boolean
-  isMessageReactionDeleteEnabled!: boolean
-  isReplyMessagesEnabled!: boolean
-  isDeleteMessagesEnabled!: boolean
-  selectMessagesOpen!: boolean
-  isForwardMessagesEnabled!: boolean
-  screenWidth!: number
-  currentTheme!: string
-  groupnameColors!: Array<string>
-  currentConversation!: ObjectType
-  getContactName!: (sender_token: string) => string
+  images: Array<ObjectType> = [];
+  caretOpen = false;
+  emailRegex = EmailRegex;
+  websiteRegex = WebsiteRegex;
+  convertFileToURL = convertFileToURL;
+  convertArrayBufferToFile = convertArrayBufferToFile;
+  isMessageReactionViewEnabled!: boolean;
+  isMessageReactionDeleteEnabled!: boolean;
+  isReplyMessagesEnabled!: boolean;
+  isDeleteMessagesEnabled!: boolean;
+  selectMessagesOpen!: boolean;
+  isForwardMessagesEnabled!: boolean;
+  screenWidth!: number;
+  currentTheme!: string;
+  groupnameColors!: Array<string>;
+  currentConversation!: ObjectType;
+  getContactName!: (sender_token: string) => string;
 
   get getSizeOfGridClass () {
     if (this.message.length >= 4) {
@@ -308,11 +304,15 @@ export default class PhotoMessage extends ComponentProps {
     return false
   }
 
+  get msgReactions () {
+    return this.images[0]?.reactions ?? []
+  }
+
   get reactions () {
     const newReactions = { '❤️': [], '👍': [], '👎': [], '😂': [], '⁉️': [] } as ObjectType
 
     for (const reaction of this.msgReactions) {
-      newReactions[reaction.reaction].push(reaction.reaction)
+      newReactions[reaction.reaction].push(reaction)
     }
 
     return newReactions
@@ -322,11 +322,23 @@ export default class PhotoMessage extends ComponentProps {
     this.injectHtml(this.message[0].content ? this.message[0].content.msg : null)
   }
 
+  isCurrentUserReaction (reaction: string) {
+    const user = this.reactions[reaction].find(
+      (user: ObjectType) => user.user_token === this.$user_token
+    )
+
+    if (user) {
+      return true
+    }
+
+    return false
+  }
+
   injectHtml (message: string): void {
     let returnedMessage = ''
 
     if (message) {
-      for (const word of message.split(' ')) {
+      for (const word of message.replace('\n', ' ').split(' ')) {
         if (this.emailRegex.test(word)) {
           returnedMessage += String.raw` <a target="_blank" href="mailto:${word}">${word}<a/>`
         } else if (this.websiteRegex.test(word) || word.includes('http://')) {
@@ -452,14 +464,16 @@ export default class PhotoMessage extends ComponentProps {
   }
 
   removeReaction (reaction: string): void {
-    const messageReaction = this.message[0].reactions.find(
-      (item: ObjectType) => item.reaction === reaction
-    ) as ObjectType
-    this.$emit('remove-reaction', messageReaction, this.index)
+    if (this.isCurrentUserReaction(reaction)) {
+      const messageReaction = this.message[0].reactions.find((item: ObjectType) => {
+        return item.reaction === reaction && item.user_token === this.$user_token
+      }) as ObjectType
+      this.$emit('remove-reaction', messageReaction, this.index)
+    }
   }
 
   getTimestamp (value: string): string {
-    return formatTimestamp(new Date(value), 'h:mma')
+    return formatTimestamp(new Date(value.replace('T', ' ').replace('Z', '')), 'h:mma')
   }
 
   validateLinkInMessage () {

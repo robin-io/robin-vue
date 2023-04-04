@@ -1,9 +1,9 @@
 .robin-toast-container {
-    position: absolute;
-    z-index: 10000;
-    bottom: 5%;
-    left: 2.5%;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem 0;
+  position: absolute;
+  z-index: 10000;
+  bottom: 5%;
+  left: 2.5%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem 0;
 }

@@ -29,7 +29,7 @@
         :child-height="childHeight"
         v-slot="slotProps"
         ref="conversations-wrapper"
-        v-show="conversations.length > 1"
+        v-show="conversations.length > 0"
         @scroll="handleInfiniteScroll"
       >
         <div :key="slotProps.index" :id="slotProps.index">
@@ -46,7 +46,7 @@
         </div>
       </virtual-scroller>
       <div
-        v-show="conversations.length <  1"
+        v-show="conversations.length < 1"
         class="robin-flex robin-flex-justify-center robin-pt-15"
       >
         <message-content :font-size="18" color="#15AE73">No archived chat</message-content>
@@ -112,15 +112,15 @@ const Content = () => import('../Content/Content.vue')
   }
 })
 export default class ArchivedChatList extends mixins(ConversationMixin) {
-  conversationIndex = 0
-  conversations = [] as Array<ObjectType>
-  paginatedConversations = [] as Array<ObjectType>
-  currentPage = 1
-  pageCount = 0
-  childHeight = [] as number[]
-  scroll = false as boolean
-  throttleTimer = false as boolean
-  showToast!: (message: string, type: string) => void
+  conversationIndex = 0;
+  conversations = [] as Array<ObjectType>;
+  paginatedConversations = [] as Array<ObjectType>;
+  currentPage = 1;
+  pageCount = 0;
+  childHeight = [] as number[];
+  scroll = false as boolean;
+  throttleTimer = false as boolean;
+  showToast!: (message: string, type: string) => void;
 
   created () {
     this.handleAddArchivedConversation()

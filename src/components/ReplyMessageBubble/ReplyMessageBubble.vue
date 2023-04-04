@@ -267,7 +267,7 @@ import assets from '@/utils/assets.json'
 import ConversationMixin from '@/mixins/conversation-mixins'
 
 interface ReplyMessage {
-  [index: string]: any
+  [index: string]: any;
 }
 
 const ComponentProps = mixins(ConversationMixin).extend({
@@ -300,15 +300,15 @@ const ComponentProps = mixins(ConversationMixin).extend({
   }
 })
 export default class ReplyMessageBubble extends ComponentProps {
-  props = {} as any
-  imageRegex = ImageRegex as any
-  videoRegex = VideoRegex as any
-  documentRegex = DocumentRegex
-  emailRegex = EmailRegex
-  websiteRegex = WebsiteRegex
-  checkAttachmentType = checkAttachmentType
-  convertArrayBufferToFile = convertArrayBufferToFile
-  getContactName!: (sender_token: string) => string
+  props = {} as any;
+  imageRegex = ImageRegex as any;
+  videoRegex = VideoRegex as any;
+  documentRegex = DocumentRegex;
+  emailRegex = EmailRegex;
+  websiteRegex = WebsiteRegex;
+  checkAttachmentType = checkAttachmentType;
+  convertArrayBufferToFile = convertArrayBufferToFile;
+  getContactName!: (sender_token: string) => string;
 
   get imageSelected () {
     return store.state.imageSelected
@@ -400,7 +400,9 @@ export default class ReplyMessageBubble extends ComponentProps {
   injectHtml (): string {
     let returnedMessage = ''
 
-    for (const word of this.getReplyMessage(this.message.reply_to).content.msg.split(' ')) {
+    for (const word of this.getReplyMessage(this.message.reply_to)
+      .content.msg.replace('\n', ' ')
+      .split(' ')) {
       if (this.emailRegex.test(word)) {
         returnedMessage += String.raw` <a target="_blank" href="mailto:${word}">${word}<a/>`
       } else if (this.websiteRegex.test(word) || word.includes('http://')) {

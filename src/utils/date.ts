@@ -1,8 +1,14 @@
 const isSameDay = (d1: Date, d2: Date) =>
-  d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate()
+  d1.getFullYear() === d2.getFullYear() &&
+  d1.getMonth() === d2.getMonth() &&
+  d1.getDate() === d2.getDate()
 
 const formatTimestamp = (date: Date, format?: string) => {
-  let timestampFormat = isSameDay(date, new Date()) ? 'h:mma' : format ? 'YYYY-MM-DD' : 'MMM DD YYYY'
+  let timestampFormat = isSameDay(date, new Date())
+    ? 'h:mma'
+    : format
+      ? 'YYYY-MM-DD'
+      : 'MMM DD YYYY'
 
   if (format) {
     timestampFormat = format
@@ -34,7 +40,7 @@ const formatTimestamp = (date: Date, format?: string) => {
 
 const getDate = (options: ObjectType, date: Date): string => {
   try {
-    return new Intl.DateTimeFormat('en-US', options).format(date)
+    return new Intl.DateTimeFormat('en-US', options).format(new Date(date))
   } catch (e) {
     return ''
   }

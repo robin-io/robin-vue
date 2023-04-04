@@ -106,12 +106,12 @@ import ConversationMixin from '@/mixins/conversation-mixins'
   }
 })
 export default class NewChatList extends mixins(ConversationMixin) {
-  childHeight = [] as Array<number>
-  contacts = [] as Array<string | ObjectType>
-  isLoading = false as boolean
-  searchData = [] as Array<ObjectType>
-  key = 0 as number
-  debouncedGetConversations = null as null | ((user: ObjectType) => void)
+  childHeight = [] as Array<number>;
+  contacts = [] as Array<string | ObjectType>;
+  isLoading = false as boolean;
+  searchData = [] as Array<ObjectType>;
+  key = 0 as number;
+  debouncedGetConversations = null as null | ((user: ObjectType) => void);
 
   created () {
     this.getContacts('')
@@ -139,7 +139,7 @@ export default class NewChatList extends mixins(ConversationMixin) {
       EventBus.$emit('open-conversation')
       this.openPreviousModal()
     } else {
-      this.showToast('Check your connection.', 'error')
+      this.showToast('Failed to create conversation.', 'error')
     }
   }
 
@@ -177,9 +177,7 @@ export default class NewChatList extends mixins(ConversationMixin) {
       contactData = [...contactData, ...contactMap.get(key)]
     }
 
-    const childHeight = contactData.map(
-      (item: any) => (typeof item === 'string' ? 42 : 80)
-    )
+    const childHeight = contactData.map((item: any) => (typeof item === 'string' ? 42 : 80))
 
     this.childHeight = childHeight
     this.contacts = contactData

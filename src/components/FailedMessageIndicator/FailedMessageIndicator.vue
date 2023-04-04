@@ -1,10 +1,18 @@
 <template>
   <div class="robin-failed-message-indicator">
-    <message-content :font-size="14" color="#EA8D51" textWrap="pre-line" wordBreak="break-word" as="span">
+    <message-content
+      :font-size="14"
+      color="#EA8D51"
+      textWrap="pre-line"
+      wordBreak="break-word"
+      as="span"
+    >
       Failed to send.
     </message-content>
 
-    <custom-button emit="clicked" @clicked="showModal"> <svg-icon name="failedToSend" /> </custom-button>
+    <custom-button emit="clicked" @clicked="showModal">
+      <svg-icon name="failedToSend" />
+    </custom-button>
   </div>
 </template>
 

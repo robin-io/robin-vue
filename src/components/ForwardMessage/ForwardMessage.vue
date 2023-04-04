@@ -11,7 +11,11 @@
             :to-click-away="false"
           />
 
-          <message-content class="robin-ml-8" :color="currentTheme === 'light' ? '#000000' : '#F9F9F9'">Forward Message</message-content>
+          <message-content
+            class="robin-ml-8"
+            :color="currentTheme === 'light' ? '#000000' : '#F9F9F9'"
+            >Forward Message</message-content
+          >
         </header>
 
         <div class="robin-search">
@@ -25,7 +29,9 @@
         <div
           class="robin-select robin-flex robin-flex-align-center robin-flex-justify-end robin-w-100 robin-pl-16 robin-pr-16 robin-pt-17 robin-pb-17"
         >
-          <message-content :color="currentTheme == 'light' ? '#9999BC' : '#B6B6B6'"> Select All </message-content>
+          <message-content :color="currentTheme == 'light' ? '#9999BC' : '#B6B6B6'">
+            Select All
+          </message-content>
 
           <check-box class="robin-ml-8" @clicked="toggleSelectAllCheckAction($event)" />
         </div>
@@ -40,13 +46,17 @@
               :render-after="0"
               v-slot="slotProps"
             >
-             <div :key="slotProps.index" :id="slotProps.index">
-              <alphabet-block v-if="typeof slotProps.item == 'string'" :text="slotProps.item" />
+              <div :key="slotProps.index" :id="slotProps.index">
+                <alphabet-block v-if="typeof slotProps.item == 'string'" :text="slotProps.item" />
 
-              <div v-else class="robin-card-container robin-flex robin-flex-column">
-                <chat-list-card :item="slotProps.item" :type="2" @toggle-check-action="toggleCheckAction" />
+                <div v-else class="robin-card-container robin-flex robin-flex-column">
+                  <chat-list-card
+                    :item="slotProps.item"
+                    :type="2"
+                    @toggle-check-action="toggleCheckAction"
+                  />
+                </div>
               </div>
-             </div>
             </virtual-scroller>
           </div>
         </div>
@@ -102,18 +112,18 @@ const ComponentProps = mixins(ConversationMixin).extend({
   }
 })
 export default class ForwardMessage extends ComponentProps {
-  childHeight = [] as Array<number>
-  conversations = [] as Array<string | ObjectType>
-  isLoading = false as boolean
-  isSending = false as boolean
-  selectedConversations = [] as Array<any>
-  checkBoxKeyState = 0 as number
-  searchData = [] as Array<any>
-  generalConversations!: Array<ObjectType>
-  screenWidth!: number
-  currentConversation!: ObjectType
-  currentTheme!: string
-  showToast!: (message: string, info: string) => void
+  childHeight = [] as Array<number>;
+  conversations = [] as Array<string | ObjectType>;
+  isLoading = false as boolean;
+  isSending = false as boolean;
+  selectedConversations = [] as Array<any>;
+  checkBoxKeyState = 0 as number;
+  searchData = [] as Array<any>;
+  generalConversations!: Array<ObjectType>;
+  screenWidth!: number;
+  currentConversation!: ObjectType;
+  currentTheme!: string;
+  showToast!: (message: string, info: string) => void;
 
   mounted () {
     this.getConversations('')
@@ -124,26 +134,29 @@ export default class ForwardMessage extends ComponentProps {
 
     if (searchText.trim() === '') {
       for (const conversation of this.generalConversations) {
-        conversationMap.set(conversation.name[0]
-          ? this.getContactKey(conversation.name)
-          : this.getContactKey(
-            conversation.sender_token !== this.$user_token
-              ? conversation.sender_name
-              : conversation.receiver_name
-          ), this.generalConversations.filter((item) => {
-          const conversationName = conversation.is_group
-            ? conversation.name
-            : conversation.sender_token !== this.$user_token
-              ? conversation.sender_name
-              : conversation.receiver_name
-          const itemName = item.is_group
-            ? item.name
-            : item.sender_token !== this.$user_token
-              ? item.sender_name
-              : item.receiver_name
+        conversationMap.set(
+          conversation.name[0]
+            ? this.getContactKey(conversation.name)
+            : this.getContactKey(
+              conversation.sender_token !== this.$user_token
+                ? conversation.sender_name
+                : conversation.receiver_name
+            ),
+          this.generalConversations.filter((item) => {
+            const conversationName = conversation.is_group
+              ? conversation.name
+              : conversation.sender_token !== this.$user_token
+                ? conversation.sender_name
+                : conversation.receiver_name
+            const itemName = item.is_group
+              ? item.name
+              : item.sender_token !== this.$user_token
+                ? item.sender_name
+                : item.receiver_name
 
-          return this.validateContact(itemName, conversationName)
-        }))
+            return this.validateContact(itemName, conversationName)
+          })
+        )
       }
 
       const sortedConversationMap = this.sortConversations(conversationMap)
@@ -158,7 +171,7 @@ export default class ForwardMessage extends ComponentProps {
 
       for (const item of conversationData) {
         if (typeof item === 'string') {
-        // AlphabetBlock height
+          // AlphabetBlock height
           childHeight.push(45)
         } else {
           // Contact card height
@@ -180,7 +193,8 @@ export default class ForwardMessage extends ComponentProps {
               conversation.sender_token !== this.$user_token
                 ? conversation.sender_name
                 : conversation.receiver_name
-            ), this.searchData.filter((item) => {
+            ),
+          this.searchData.filter((item) => {
             const conversationName = conversation.is_group
               ? conversation.name
               : conversation.sender_token !== this.$user_token
@@ -193,7 +207,8 @@ export default class ForwardMessage extends ComponentProps {
                 : item.receiver_name
 
             return this.validateContact(itemName, conversationName)
-          }))
+          })
+        )
       }
 
       const sortedConversationMap = this.sortConversations(conversationMap)
@@ -321,7 +336,7 @@ export default class ForwardMessage extends ComponentProps {
       return new Promise((resolve) => resolve)
     } else {
       this.isSending = false
-      this.showToast('Check your connection.', 'error')
+      this.showToast('Failed to forward messages.', 'error')
       return new Promise((resolve, reject) => reject)
     }
   }

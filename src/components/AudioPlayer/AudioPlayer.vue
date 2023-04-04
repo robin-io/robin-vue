@@ -1,6 +1,8 @@
 <template>
   <div class="robin-ap robin-flex robin-flex-align-start">
-    <i class="robin-material-icon robin-material-symbols-outlined robin-disabled" v-if="message.pseudo"
+    <i
+      class="robin-material-icon robin-material-symbols-outlined robin-disabled"
+      v-if="message.pseudo"
       >play_disabled</i
     >
     <i
@@ -46,6 +48,7 @@
           ? message.content.attachment
           : convertFileToURL(convertArrayBufferToFile(message.content.attachment, message))
       "
+      muted
     >
       Your browser does not support the
     </audio>
@@ -85,16 +88,16 @@ const ComponentProps = Vue.extend({
   }
 })
 export default class AudioPlayer extends ComponentProps {
-  isPlaying = false as boolean
-  isMouseDown = false as boolean
-  percentage = 0 as number
-  pos = 0 as number
-  duration = this.convertTimeMMSS(0) as string
-  playedTime = this.convertTimeMMSS(0) as string
-  player = null as any
-  progressTime = '- : -' as string
-  convertFileToURL = convertFileToURL
-  convertArrayBufferToFile = convertArrayBufferToFile
+  isPlaying = false as boolean;
+  isMouseDown = false as boolean;
+  percentage = 0 as number;
+  pos = 0 as number;
+  duration = this.convertTimeMMSS(0) as string;
+  playedTime = this.convertTimeMMSS(0) as string;
+  player = null as any;
+  progressTime = '- : -' as string;
+  convertFileToURL = convertFileToURL;
+  convertArrayBufferToFile = convertArrayBufferToFile;
 
   mounted () {
     this.player = document.getElementById(`audio-${this.index}`) as any

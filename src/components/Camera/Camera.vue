@@ -62,12 +62,12 @@ const ComponentProps = mixins(ConversationMixin).extend({
   }
 })
 export default class Camera extends ComponentProps {
-  camera = null as any
-  deviceId = null as any
-  devices = [] as Array<any>
-  isPhotoTaken = false as boolean
-  isShotPhoto = false as boolean
-  screenWidth!: number
+  camera = null as any;
+  deviceId = null as any;
+  devices = [] as Array<any>;
+  isPhotoTaken = false as boolean;
+  isShotPhoto = false as boolean;
+  screenWidth!: number;
 
   setupMedia () {
     const navigatorExtended = navigator as any

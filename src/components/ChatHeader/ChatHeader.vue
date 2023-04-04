@@ -134,7 +134,7 @@ import EventBus from '@/event-bus'
 import ConversationMixin from '@/mixins/conversation-mixins'
 
 interface PopUpState {
-  opened: boolean
+  opened: boolean;
 }
 
 const ComponentProps = mixins(ConversationMixin).extend({
@@ -165,19 +165,19 @@ const ComponentProps = mixins(ConversationMixin).extend({
   }
 })
 export default class ChatHeader extends ComponentProps {
-  avatarKey = 0 as number
-  screenWidth!: number
-  profileOpen!: boolean
-  showDefaultProfileDetails!: boolean
-  selectMessagesOpen!: boolean
-  isForwardMessagesEnabled!: boolean
-  isDeleteMessagesEnabled!: boolean
-  currentConversation!: ObjectType
-  currentTheme!: string
+  avatarKey = 0 as number;
+  screenWidth!: number;
+  profileOpen!: boolean;
+  showDefaultProfileDetails!: boolean;
+  selectMessagesOpen!: boolean;
+  isForwardMessagesEnabled!: boolean;
+  isDeleteMessagesEnabled!: boolean;
+  currentConversation!: ObjectType;
+  currentTheme!: string;
 
   popUpState: PopUpState = {
     opened: false
-  }
+  };
 
   created () {
     this.handleUserConnect()

@@ -12,8 +12,12 @@ describe('MessageContainer component', () => {
     cy.findByTestId('conversation-0').click()
 
     cy.get('[data-testid=message]').then((element) => {
-      if (element.find('.robin-message-sender').length) senderLength = element.find('.robin-message-sender').length
-      if (element.find('.robin-message-receiver').length) receiverLength = element.find('.robin-message-receiver').length
+      if (element.find('.robin-message-sender').length) {
+        senderLength = element.find('.robin-message-sender').length
+      }
+      if (element.find('.robin-message-receiver').length) {
+        receiverLength = element.find('.robin-message-receiver').length
+      }
 
       prevMessagesLength = senderLength + receiverLength
     })
@@ -26,8 +30,12 @@ describe('MessageContainer component', () => {
     cy.wait(2000)
 
     cy.get('[data-testid=message]').then((element) => {
-      if (element.find('.robin-message-sender').length) senderLength = element.find('.robin-message-sender').length
-      if (element.find('.robin-message-receiver').length) receiverLength = element.find('.robin-message-receiver').length
+      if (element.find('.robin-message-sender').length) {
+        senderLength = element.find('.robin-message-sender').length
+      }
+      if (element.find('.robin-message-receiver').length) {
+        receiverLength = element.find('.robin-message-receiver').length
+      }
 
       newMessagesLength = senderLength + receiverLength
 
@@ -44,7 +52,9 @@ describe('MessageContainer component', () => {
     cy.wait(2000)
 
     cy.get('[data-testid=message]').then((element) => {
-      if (element.find('[data-testid=scroll-bottom-button]').length) element.find('[data-testid=scroll-bottom-button]').click()
+      if (element.find('[data-testid=scroll-bottom-button]').length) {
+        element.find('[data-testid=scroll-bottom-button]').click()
+      }
     })
   })
 })

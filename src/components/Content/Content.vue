@@ -14,7 +14,13 @@
   <span v-else-if="as == 'span'" class="robin-text" :style="styles">
     <slot></slot>
   </span>
-  <label data-testid="label" v-else-if="as == 'label'" :for="forRef" class="robin-text" :style="styles">
+  <label
+    data-testid="label"
+    v-else-if="as == 'label'"
+    :for="forRef"
+    class="robin-text"
+    :style="styles"
+  >
     <slot></slot>
   </label>
 </template>
@@ -87,8 +93,8 @@ const ComponentProps = Vue.extend({
   }
 })
 export default class Content extends ComponentProps {
-  root = null as any
-  styles = {} as Record<string, any>
+  root = null as any;
+  styles = {} as Record<string, any>;
 
   mounted (): void {
     this.root = document.documentElement

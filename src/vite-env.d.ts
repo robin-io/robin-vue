@@ -2,7 +2,7 @@
 
 /* General types */
 
-type ObjectType = Record<string, any>
+type ObjectType = Record<string, any>;
 
 /* Package declarations */
 
@@ -11,10 +11,10 @@ declare module '*.vue' {
   export default Vue
 }
 
-declare module 'mime'
-declare module 'audio-recorder-polyfill/mpeg-encoder'
-declare module 'lodash.debounce'
-declare module 'vue-zoom-on-hover'
+declare module 'mime';
+declare module 'audio-recorder-polyfill/mpeg-encoder';
+declare module 'lodash.debounce';
+declare module 'vue-zoom-on-hover';
 
 declare namespace JSX {
   interface IntrinsicElements {

@@ -26,7 +26,7 @@
   border-radius: 0 0 6px 6px;
 }
 
-.robin-chat-list-popup  .robin-wrapper:hover {
+.robin-chat-list-popup .robin-wrapper:hover {
   background-color: var(--rb-color6);
 }
 

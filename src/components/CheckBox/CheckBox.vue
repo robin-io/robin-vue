@@ -43,8 +43,8 @@ const ComponentProps = mixins(conversationMixins).extend({
   }
 })
 export default class CheckBox extends ComponentProps {
-  root = null as any
-  checked = false as boolean
+  root = null as any;
+  checked = false as boolean;
 
   mounted (): void {
     this.root = document.documentElement

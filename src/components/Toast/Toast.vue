@@ -1,10 +1,18 @@
 <template>
-  <div v-if="type == 'success'" class="robin-toast robin-toast-success robin-come-up" @click="closeToast(message)">
+  <div
+    v-if="type == 'success'"
+    class="robin-toast robin-toast-success robin-come-up"
+    @click="closeToast(message)"
+  >
     <div class="robin-toast-icon"></div>
     {{ message }}
   </div>
 
-  <div v-else-if="type == 'error'" class="robin-toast robin-toast-error robin-come-up" @click="closeToast(message)">
+  <div
+    v-else-if="type == 'error'"
+    class="robin-toast robin-toast-error robin-come-up"
+    @click="closeToast(message)"
+  >
     <div class="robin-toast-icon"></div>
     {{ message }}
   </div>
@@ -36,6 +44,6 @@ const ComponentProps = mixins(ConversationMixin).extend({
   name: 'Toast'
 })
 export default class Toast extends ComponentProps {
-    closeToast!: (message: string) => void
+  closeToast!: (message: string) => void;
 }
 </script>

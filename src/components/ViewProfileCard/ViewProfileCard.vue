@@ -25,10 +25,7 @@
       'robin-clickable': currentConversation.is_group && item.user_token !== $user_token
     }"
   >
-    <div
-      class="robin-card-info robin-mr-12"
-      @click="$emit('open-group-prompt')"
-    >
+    <div class="robin-card-info robin-mr-12" @click="$emit('open-group-prompt')">
       <avatar :sender-token="item.user_token == $user_token ? '' : item.user_token" />
     </div>
 
@@ -36,20 +33,13 @@
       class="robin-card-info robin-h-100 robin-h-100 robin-flex robin-flex-align-center robin-pt-4 robin-pb-4 robin-flex-1"
       @click.self="$emit('open-group-prompt')"
     >
-      <div
-        class="robin-flex"
-        @click="$emit('open-group-prompt')"
-      >
+      <div class="robin-flex" @click="$emit('open-group-prompt')">
         <message-content :font-size="14" :line-height="18">{{
           item.user_token === $user_token ? 'You' : item.meta_data.display_name
         }}</message-content>
       </div>
 
-      <div
-        class="robin-ml-auto"
-        v-show="!item.is_moderator"
-        @click="$emit('remove-participant')"
-      >
+      <div class="robin-ml-auto" v-show="!item.is_moderator" @click="$emit('remove-participant')">
         <icon-button name="remove2" :to-emit="false" :to-click-away="false" />
       </div>
 
