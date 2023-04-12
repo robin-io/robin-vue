@@ -61,11 +61,11 @@ const ComponentProps = mixins(ConversationMixin).extend({
   props: {
     userToken: {
       type: String as PropType<string>,
-      default: 'OykUCsrYJddWcJsDfHDQKKop'
+      default: ''
     },
     apiKey: {
       type: String as PropType<string>,
-      default: 'NT-XmIzEmWUlsrQYypZOFRlogDFvQUsaEuxMfZf'
+      default: ''
     },
     pageLoader: {
       type: Boolean as PropType<boolean>,
@@ -73,50 +73,19 @@ const ComponentProps = mixins(ConversationMixin).extend({
     },
     channel: {
       type: String as PropType<string>,
-      default: 'private_channelprivate_channel'
+      default: ''
     },
     userName: {
       type: String as PropType<string>,
-      default: 'Enoch ChejiehEnoch Chejieh'
+      default: ''
     },
     secretKey: {
       type: String as PropType<string>,
-      default: 'NT-ENC-ScauRDacGPzhLJsoprwpVPMBaEXFWcUDSonb'
+      default: ''
     },
     users: {
       type: Array as PropType<Array<ObjectType>>,
-      default: (): Array<ObjectType> => [
-        {
-          _id: '6200d11a9efb65bddc0124ee',
-          created_at: '2022-02-07T07:58:18.13Z',
-          updated_at: '2022-02-07T07:58:18.13Z',
-          fullname: 'Elvis Chuks',
-          user_token: 'FefXITDgAeTVrghcOHiimDVB',
-          password: '$2a$14$b9wbYBQIZX30BTRJ/C8WROClya42EIUwimkkFh40S2ASISwJwzFZG',
-          profile_image: '',
-          email: 'elvis@acumen.com.ng'
-        },
-        {
-          _id: '62d90ae988cc48b2e8fa64f5',
-          created_at: '2022-07-21T08:14:33.784Z',
-          updated_at: '2022-07-21T08:14:33.784Z',
-          fullname: 'Gloria',
-          user_token: 'xxuCjaUVTPsZgrtuzMghoklu',
-          password: '$2a$14$cFQ5S1l727mNqevoOa8XmuceBtDO3cXIBTcnnbekWu2MamxuHLGfe',
-          profile_image: '',
-          email: 'gloria@acumen.digital '
-        },
-        {
-          _id: '621436282dc9a4e040d741bb',
-          created_at: '2022-02-22T01:02:32.517Z',
-          updated_at: '2022-02-22T01:02:32.517Z',
-          fullname: 'Testing Tester',
-          user_token: 'GmStKZeaAzsYzxsdIlFvoJSa',
-          password: '$2a$14$ynUAMEo0StZa7FnbipS6l.qgAObpZJL.SkvXXVKjRalPKTK0Y51ce',
-          profile_image: '',
-          email: 'testingtester@gmail.com'
-        }
-      ]
+      default: (): Array<ObjectType> => []
     },
     logo: {
       type: String as PropType<string>,
