@@ -14,5 +14,6 @@ declare module 'vue/types/vue' {
     $archivedConversations: Array<Record<string, any>>;
     $senderName: string;
     $apiKey: string;
+    $sessionKey: string;
   }
 }

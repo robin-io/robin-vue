@@ -32,7 +32,7 @@
     "localforage": "^1.10.0",
     "lodash.debounce": "^4.0.8",
     "mime": "^2.5.2",
-    "robin.io-js": "^0.4.0",
+    "robin.io-js": "^0.4.2",
     "v-emoji-picker": "^2.3.3",
     "v-viewer": "^1.6.4",
     "vue-class-component": "^7.2.6"

@@ -230,9 +230,6 @@ export default class ArchivedChatList extends mixins(ConversationMixin) {
 
   async getConversations () {
     const res = await this.$robin.getArchivedConversation(
-      {
-        user_token: this.$user_token
-      },
       10,
       this.currentPage
     )
@@ -247,9 +244,9 @@ export default class ArchivedChatList extends mixins(ConversationMixin) {
 
   async paginateConversations (page = 1) {
     const res = await this.$robin.getUserToken(
-      {
-        user_token: this.$user_token
-      },
+      // {
+      //   user_token: this.$user_token
+      // },
       10,
       page
     )

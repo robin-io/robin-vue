@@ -358,7 +358,7 @@ export default class PrimaryChatList extends mixins(ConversationMixin) {
   async getConversations () {
     try {
       const res = await this.$robin.getUserToken(
-        { user_token: this.$user_token },
+        // { user_token: this.$user_token },
         10,
         this.currentPage
       )
@@ -387,7 +387,10 @@ export default class PrimaryChatList extends mixins(ConversationMixin) {
         data: {
           paginated_conversations: { conversations }
         }
-      } = await this.$robin.getUserToken({ user_token: this.$user_token }, 10, page)
+      } = await this.$robin.getUserToken(
+        // { user_token: this.$user_token },
+        10, page
+      )
       this.status = 'regular'
       const regularConv = this.getRegularConversations(conversations)
       this.filteredConversations.push(...regularConv)

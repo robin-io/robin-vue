@@ -60,7 +60,11 @@ const ComponentProps = mixins(ConversationMixin).extend({
       type: String as PropType<string>,
       default: ''
     },
-    apiKey: {
+    // apiKey: {
+    //   type: String as PropType<string>,
+    //   default: ''
+    // },
+    sessionKey: {
       type: String as PropType<string>,
       default: ''
     },
@@ -294,7 +298,8 @@ export default class App extends ComponentProps {
 
   setPrototypes () {
     Vue.prototype.$robin = this.robin
-    Vue.prototype.$apiKey = this.apiKey
+    // Vue.prototype.$apiKey = this.apiKey
+    Vue.prototype.$sessionKey = this.sessionKey
     Vue.prototype.$user_token = this.userToken
     Vue.prototype.$channel = this.channel
     Vue.prototype.$senderName = this.userName
@@ -315,7 +320,11 @@ export default class App extends ComponentProps {
   }
 
   initiateRobin () {
-    this.robin = new Robin(this.apiKey, true, 0, 'production')
+    // this.robin = new Robin('', true, 0, 'production', 'hey')
+    // console.log(this.robin)
+
+    this.robin = new Robin('', true, 0, 'production', this.sessionKey)
+    console.log(this.robin)
     this.debouncedConnect = debounce(() => this.connect(), 3000)
     this.debouncedConnect?.()
     this.setPrototypes()
@@ -529,7 +538,7 @@ export default class App extends ComponentProps {
     const missingProperties = []
     if (this.userName === '') missingProperties.push('Username')
     if (this.userToken === '') missingProperties.push('UserToken')
-    if (this.apiKey === '') missingProperties.push('ApiKey')
+    if (this.sessionKey === '') missingProperties.push('SessionKey')
     if (this.secretKey === '') missingProperties.push('SecretKey')
 
     if (missingProperties.length) {
