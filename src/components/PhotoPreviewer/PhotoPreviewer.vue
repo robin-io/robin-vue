@@ -290,8 +290,7 @@ export default class PhotoPreviewer extends ComponentProps {
 
   async deleteImage (): Promise<void> {
     const res = await this.$robin.deleteMessages(
-      [this.images[this.imageSelected]._id],
-      this.$user_token
+      [this.images[this.imageSelected]._id]
     )
 
     if (res && !res.error) {

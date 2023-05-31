@@ -276,7 +276,7 @@ export default class NewGroupChatList extends ComponentProps {
     })
 
     this.isUploading = true
-    const res = await this.$robin.createGroupConversation(this.groupName, moderator, users)
+    const res = await this.$robin.createGroupConversation(this.groupName, users)
 
     if (res && !res.error) {
       if (this.groupIcon.file) {

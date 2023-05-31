@@ -678,7 +678,6 @@ export default class MessageInputBar extends ComponentProps {
       }
 
       await this.$robin.sendMessageAttachment(
-        this.$user_token,
         this.currentConversation._id,
         file.file,
         this.$senderName,

@@ -189,7 +189,7 @@ export default class ArchivedChatList extends mixins(ConversationMixin) {
   }
 
   async unArchiveChat (id: string): Promise<void> {
-    const res = await this.$robin.unarchiveConversation(id, this.$user_token)
+    const res = await this.$robin.unarchiveConversation(id)
 
     if (!res.error) {
       const index = this.conversations.findIndex((conversation) => conversation._id === id)

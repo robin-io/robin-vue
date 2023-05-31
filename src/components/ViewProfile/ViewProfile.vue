@@ -476,8 +476,7 @@ export default class ViewProfile extends mixins(ConversationMixin) {
     this.isProfileLoading = true
 
     const res = await this.$robin.getConversationDetails(
-      this.currentConversation._id,
-      this.$user_token
+      this.currentConversation._id
     )
 
     if (res && !res.error) {

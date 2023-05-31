@@ -357,7 +357,7 @@ export default class App extends ComponentProps {
   }
 
   connect () {
-    this.conn = this.robin?.connect(this.userToken)
+    this.conn = this.robin?.connect()
 
     this.conn.onopen = (event: ObjectType) => {
       if (event.target.readyState > 1) {

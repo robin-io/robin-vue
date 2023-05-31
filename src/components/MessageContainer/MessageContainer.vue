@@ -351,8 +351,7 @@ export default class MessageContainer extends mixins(ConversationMixin) {
   async initializeReadReceipts (messageIds: Array<string>): Promise<void> {
     const res = await this.$robin.sendReadReceipts(
       messageIds,
-      this.currentConversation._id,
-      this.$user_token
+      this.currentConversation._id
     )
 
     if (res.error) {
@@ -826,7 +825,6 @@ export default class MessageContainer extends mixins(ConversationMixin) {
   async getConversationMessages (): Promise<void> {
     const res = await this.$robin.getConversationMessages(
       this.currentConversation._id,
-      this.$user_token,
       20,
       this.currentPage
     )
@@ -860,7 +858,6 @@ export default class MessageContainer extends mixins(ConversationMixin) {
   async paginateConversationMessages (page: number) {
     const res = await this.$robin.getConversationMessages(
       this.currentConversation._id,
-      this.$user_token,
       20,
       page
     )
@@ -981,7 +978,7 @@ export default class MessageContainer extends mixins(ConversationMixin) {
   }
 
   async clearAllMessages (): Promise<void> {
-    const res = await this.$robin.deleteAllMessages(this.currentConversation._id, this.$user_token)
+    const res = await this.$robin.deleteAllMessages(this.currentConversation._id)
     if (!res.error) {
       this.showToast('Messages Deleted', 'success')
       this.promptOpen = false
@@ -1249,7 +1246,7 @@ export default class MessageContainer extends mixins(ConversationMixin) {
   async deleteMessage (messages: ObjectType[]): Promise<void> {
     const messageIds = messages.map((message) => message._id) as string[]
 
-    const res = await this.$robin.deleteMessages(messageIds, this.$user_token)
+    const res = await this.$robin.deleteMessages(messageIds)
 
     if (res && !res.error) {
       for (const message of messages) {

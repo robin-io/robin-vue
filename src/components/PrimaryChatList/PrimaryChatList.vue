@@ -283,7 +283,7 @@ export default class PrimaryChatList extends mixins(ConversationMixin) {
 
   async archiveChat (): Promise<void> {
     const conversation = this.filteredConversations[this.conversationIndex] as ObjectType
-    const res = await this.$robin.archiveConversation(conversation._id, this.$user_token)
+    const res = await this.$robin.archiveConversation(conversation._id)
 
     if (!res.error) {
       EventBus.$emit('regular-conversation.delete', conversation)
@@ -441,7 +441,7 @@ export default class PrimaryChatList extends mixins(ConversationMixin) {
 
   async handleDeleteConversation () {
     const conversation = this.filteredConversations[this.conversationIndex]
-    const res = await this.$robin.deleteConversation(this.$user_token, conversation._id)
+    const res = await this.$robin.deleteConversation(conversation._id)
 
     if (res && !res.error) {
       EventBus.$emit('regular-conversation.delete', conversation)

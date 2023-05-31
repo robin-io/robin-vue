@@ -322,7 +322,7 @@ export default class ForwardMessage extends ComponentProps {
 
   async forwardMessages (messageIds: Array<string>, conversationIds: Array<string>): Promise<void> {
     this.isSending = true
-    const res = await this.$robin.forwardMessages(this.$user_token, messageIds, conversationIds)
+    const res = await this.$robin.forwardMessages(messageIds, conversationIds)
 
     if (res && !res.error) {
       const conversation = this.generalConversations.find(
