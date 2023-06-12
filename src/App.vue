@@ -304,6 +304,7 @@ export default class App extends ComponentProps {
     Vue.prototype.$robin = this.robin
     // Vue.prototype.$apiKey = this.apiKey
     Vue.prototype.$sessionKey = this.sessionKey
+    Vue.prototype.$secretKey = this.secretKey
     Vue.prototype.$user_token = this.userToken
     Vue.prototype.$channel = this.channel
     Vue.prototype.$senderName = this.userName
