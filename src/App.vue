@@ -122,6 +122,10 @@ const ComponentProps = mixins(ConversationMixin).extend({
     imageUrl: {
       type: String as PropType<string>,
       default: ''
+    },
+    theme: {
+      type: String as PropType<string>,
+      default: 'dark'
     }
   }
 })
@@ -211,7 +215,7 @@ export default class App extends ComponentProps {
 
     this.handleVisibilityChange()
 
-    const matchMedia = window.matchMedia('(prefers-color-scheme: dark)')
+    const matchMedia = window.matchMedia(`(prefers-color-scheme: ${this.theme})`)
 
     matchMedia.addEventListener('change', this.getCurrentTheme)
 
@@ -320,11 +324,8 @@ export default class App extends ComponentProps {
   }
 
   initiateRobin () {
-    // this.robin = new Robin('', true, 0, 'production', 'hey')
-    // console.log(this.robin)
-
     this.robin = new Robin('', true, 0, 'production', this.sessionKey)
-    console.log(this.robin)
+    // console.log(this.robin)
     this.debouncedConnect = debounce(() => this.connect(), 3000)
     this.debouncedConnect?.()
     this.setPrototypes()
