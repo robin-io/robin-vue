@@ -160,14 +160,14 @@ export default class NewGroupChatList extends ComponentProps {
         const filter =
           type !== 'create-group'
             ? (item: ObjectType) =>
-                item.userToken !== this.$user_token &&
+                item.user_token !== this.$user_token &&
                 !this.isGroupParticipant(item) &&
-                this.validateContact(item.userName, user.userName)
+                this.validateContact(item.username, user.username)
             : (item: ObjectType) =>
-                item.userToken !== this.$user_token &&
-                this.validateContact(item.userName, user.userName)
+                item.user_token !== this.$user_token &&
+                this.validateContact(item.username, user.username)
 
-        contactMap.set(this.getContactKey(user.userName), this.$robin_users.filter(filter))
+        contactMap.set(this.getContactKey(user.username), this.$robin_users.filter(filter))
       })
 
       for (const key of contactMap.keys()) {
@@ -206,14 +206,14 @@ export default class NewGroupChatList extends ComponentProps {
         const filter =
           type !== 'create-group'
             ? (item: ObjectType) =>
-                item.userToken !== this.$user_token &&
+                item.user_token !== this.$user_token &&
                 !this.isGroupParticipant(item) &&
-                this.validateContact(item.userName, user.userName)
+                this.validateContact(item.username, user.username)
             : (item: ObjectType) =>
-                item.userToken !== this.$user_token &&
-                this.validateContact(item.userName, user.userName)
+                item.user_token !== this.$user_token &&
+                this.validateContact(item.username, user.username)
 
-        contactMap.set(this.getContactKey(user.userName), this.searchData.filter(filter))
+        contactMap.set(this.getContactKey(user.username), this.searchData.filter(filter))
       })
 
       let contactData = [] as Array<string | ObjectType>
@@ -267,10 +267,10 @@ export default class NewGroupChatList extends ComponentProps {
 
     const users = this.users.map((user) => {
       return {
-        user_token: user.userToken,
+        user_token: user.user_token,
         meta_data: {
-          profile_image: user.profileImage,
-          display_name: user.userName
+          profile_image: user.display_photo,
+          display_name: user.username
         }
       }
     })
@@ -302,10 +302,10 @@ export default class NewGroupChatList extends ComponentProps {
   async addGroupParticipants () {
     const users = this.users.map((user) => {
       return {
-        user_token: user.userToken,
+        user_token: user.user_token,
         meta_data: {
-          profile_image: user.profileImage,
-          display_name: user.userName
+          profile_image: user.display_photo,
+          display_name: user.username
         }
       }
     })
@@ -347,7 +347,7 @@ export default class NewGroupChatList extends ComponentProps {
   }
 
   addUser (user: ObjectType): void {
-    const userIndex = this.users.findIndex((item) => item.userToken === user.userToken)
+    const userIndex = this.users.findIndex((item) => item.user_token === user.user_token)
 
     if (userIndex > -1) {
       this.removeUser(user)
@@ -357,7 +357,7 @@ export default class NewGroupChatList extends ComponentProps {
   }
 
   removeUser (user: ObjectType): void {
-    const userIndex = this.users.findIndex((item) => item.userToken === user.userToken)
+    const userIndex = this.users.findIndex((item) => item.user_token === user.user_token)
     this.users.splice(userIndex, 1)
 
     if (this.users.length < 1) {
@@ -368,7 +368,7 @@ export default class NewGroupChatList extends ComponentProps {
   isGroupParticipant (contact: ObjectType): boolean {
     if (Object.keys(this.currentConversation).length > 0) {
       return this.currentConversation.participants.some(
-        (participant: ObjectType) => participant.user_token === contact.userToken
+        (participant: ObjectType) => participant.user_token === contact.user_token
       )
     }
 

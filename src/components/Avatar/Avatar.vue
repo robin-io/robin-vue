@@ -57,12 +57,12 @@ const ComponentProps = Vue.extend({
 export default class Avatar extends ComponentProps {
   get getContactName (): string {
     const index = this.$robin_users.findIndex(
-      (user: any) => user.userToken === this.senderToken
+      (user: any) => user.user_token === this.senderToken
     ) as number
     const user = this.$robin_users[index] as any
 
     if (user) {
-      return user.userName && user.userName !== '' ? user.userName.trim().split(' ') : ''
+      return user.username && user.username !== '' ? user.username.trim().split(' ') : ''
     }
 
     return ''

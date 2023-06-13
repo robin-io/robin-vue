@@ -286,18 +286,20 @@ export default class App extends ComponentProps {
     }
   }
 
-  filterUsers (): void {
-    const filteredUsers: Array<any> = []
-    this.users.forEach((user) => {
-      const newUser = {
-        userToken: user[this.keys?.userToken],
-        profileImage: user[this.keys?.profileImage],
-        userName: user[this.keys?.userName]
-      }
-      filteredUsers.push(newUser)
-    })
+  async filterUsers () {
+    // const filteredUsers: Array<any> = []
+    const userTokensResponse = await this.robin?.getUserTokens(1000, 1)
+    const users = userTokensResponse.data.user_tokens
+    // users.forEach((user: ) => {
+    //   const newUser = {
+    //     userToken: user[this.keys?.userToken],
+    //     profileImage: user[this.keys?.profileImage],
+    //     userName: user[this.keys?.userName]
+    //   }
+    //   filteredUsers.push(newUser)
+    // })
 
-    this.$robin_users = [...filteredUsers]
+    this.$robin_users = [...users]
   }
 
   setPrototypes () {

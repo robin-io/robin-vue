@@ -69,7 +69,7 @@ export default class ConversationMixin extends Vue {
     const userColors = {} as ObjectType
 
     for (const user of this.$robin_users) {
-      userColors[user.userToken] = Colors[Math.floor(Math.random() * Colors.length)]
+      userColors[user.user_token] = Colors[Math.floor(Math.random() * Colors.length)]
     }
 
     return userColors
@@ -251,9 +251,9 @@ export default class ConversationMixin extends Vue {
   }
 
   getContactName (sender_token: string): string {
-    const index = this.$robin_users.findIndex((user) => user.userToken === sender_token) as number
+    const index = this.$robin_users.findIndex((user) => user.user_token === sender_token) as number
     const user = this.$robin_users[index] as ObjectType
-    return user ? user.userName : ''
+    return user ? user.username : ''
   }
 
   showToast (message: string, type: string): void {

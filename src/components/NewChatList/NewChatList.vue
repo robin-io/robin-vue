@@ -126,8 +126,8 @@ export default class NewChatList extends mixins(ConversationMixin) {
     const res = await this.$robin.createConversation({
       sender_name: this.$senderName,
       sender_token: this.$user_token,
-      receiver_token: user.userToken,
-      receiver_name: user.userName
+      receiver_token: user.user_token,
+      receiver_name: user.username
     })
 
     if (res && !res.error) {
@@ -160,12 +160,12 @@ export default class NewChatList extends mixins(ConversationMixin) {
     data.forEach((user: any) => {
       const filteredData = data.filter(
         (item: ObjectType) =>
-          item.userToken !== this.$user_token &&
-          this.validateContact(item.userName.trim(), user.userName.trim())
+          item.user_token !== this.$user_token &&
+          this.validateContact(item.username.trim(), user.username.trim())
       )
 
       if (filteredData.length > 0) {
-        contactMap.set(this.getContactKey(user.userName.trim()), filteredData)
+        contactMap.set(this.getContactKey(user.username.trim()), filteredData)
       }
     })
 

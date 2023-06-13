@@ -516,10 +516,10 @@ export default class ViewProfile extends mixins(ConversationMixin) {
 
   getProfileImage (conversation: any) {
     const index = this.$robin_users.findIndex(
-      (user: any) => user.userToken === conversation.sender_token
+      (user: any) => user.user_token === conversation.sender_token
     )
 
-    return this.$robin_users[index] ? this.$robin_users[index].profileImage : null
+    return this.$robin_users[index] ? this.$robin_users[index].display_photo : null
   }
 
   handleConversationMessages () {
@@ -593,7 +593,7 @@ export default class ViewProfile extends mixins(ConversationMixin) {
   }
 
   getUser (userToken: string) {
-    const index = this.$robin_users.findIndex((user: any) => user.userToken === userToken)
+    const index = this.$robin_users.findIndex((user: any) => user.user_token === userToken)
     return this.$robin_users[index]
   }
 

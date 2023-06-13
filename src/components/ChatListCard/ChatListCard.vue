@@ -152,7 +152,7 @@
   </div>
   <div v-else-if="type === 3" class="robin-card robin-flex robin-flex-align-center">
     <div class="robin-card-info robin-mr-12">
-      <avatar :img-url="item.profileImage" :sender-token="item.userToken" />
+      <avatar :img-url="item.display_photo" :sender-token="item.user_token" />
     </div>
 
     <div
@@ -160,7 +160,7 @@
     >
       <div class="robin-flex">
         <message-content :font-size="14" :line-height="18" data-testid="content">
-          {{ item.userName }}
+          {{ item.username }}
         </message-content>
       </div>
       <div class="robin-ml-auto">
@@ -175,7 +175,7 @@
     @click="$emit('create-conversation')"
   >
     <div class="robin-card-info robin-mr-12">
-      <avatar :img-url="item.profileImage" :sender-token="item.userToken" />
+      <avatar :img-url="item.display_photo" :sender-token="item.user_token" />
     </div>
 
     <div
@@ -186,7 +186,7 @@
           :font-size="14"
           :color="currentTheme === 'light' ? '#000000' : '#F9F9F9'"
           :line-height="18"
-          >{{ item.userName }}</message-content
+          >{{ item.username }}</message-content
         >
       </div>
     </div>
@@ -252,10 +252,10 @@ export default class ChatListCard extends ComponentProps {
 
   getProfileImage (conversation: ObjectType) {
     const index = this.$robin_users.findIndex(
-      (user: any) => user.userToken === conversation.sender_token
+      (user: any) => user.user_token === conversation.sender_token
     )
 
-    return this.$robin_users[index] ? this.$robin_users[index].profileImage : null
+    return this.$robin_users[index] ? this.$robin_users[index].display_photo : null
   }
 
   toggleCheckAction (val: boolean) {
