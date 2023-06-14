@@ -822,7 +822,31 @@ export default class MessageContainer extends mixins(ConversationMixin) {
     }
   }
 
+  async getLastThreeMessages () {
+    const messages = this.currentConversation.last_messages.map((msg: any) => {
+      return {
+        _id: msg.local_id,
+        created_at: msg.timestamp,
+        updated_at: msg.timestamp,
+        content: msg,
+        conversation_id: msg.conversation_id,
+        sender_token: msg.sender_token
+      }
+    })
+    const offlineMessages =
+        this.offlineMessages.messages[this.currentConversation._id] && messages.length > 0
+          ? [...this.offlineMessages.messages[this.currentConversation._id]]
+          : ([] as ObjectType[])
+
+    this.testMessages(messages)
+
+    await this.sortOfflineMessages(offlineMessages)
+
+    this.setOfflineMessages([...this.offlineMessages.messages[this.currentConversation._id]])
+  }
+
   async getConversationMessages (): Promise<void> {
+    this.getLastThreeMessages()
     const res = await this.$robin.getConversationMessages(
       this.currentConversation._id,
       20,
@@ -1191,11 +1215,12 @@ export default class MessageContainer extends mixins(ConversationMixin) {
       ...messages.filter(findMessage)
     ]
       .filter((item: ObjectType) => {
-        const _id = Array.isArray(item) ? item[0]._id : item._id
+        // const _id = Array.isArray(item) ? item[0]._id : item._id
         const itemId = Array.isArray(item) ? item[0].content.local_id : item.content.local_id
         const forwarded = Array.isArray(item) ? item[0].is_forwarded : item.is_forwarded
 
-        const obj = JSON.stringify({ _id, is_forwarded: forwarded ?? false, item_id: itemId })
+        // const obj = JSON.stringify({ _id, is_forwarded: forwarded ?? false, item_id: itemId })
+        const obj = JSON.stringify({ is_forwarded: forwarded ?? false, item_id: itemId })
 
         if (!messageIds.has(obj)) {
           messageIds.add(obj)
