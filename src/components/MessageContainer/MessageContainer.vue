@@ -1078,6 +1078,7 @@ export default class MessageContainer extends mixins(ConversationMixin) {
         this.selectedMessages.length > 0 ? 'Messages Deleted.' : 'Message Deleted.',
         'success'
       )
+      EventBus.$emit('message-deleted', messagesToDelete)
       this.closePrompt()
     } else {
       this.showToast('Failed to deleted selected messages.', 'error')
@@ -1262,6 +1263,7 @@ export default class MessageContainer extends mixins(ConversationMixin) {
 
     if (!this.messageDeleteFailed) {
       this.showToast('Message Deleted', 'success')
+      EventBus.$emit('message-deleted', messagesToDelete)
       this.closePrompt()
     } else {
       this.showToast('Failed to delete message.', 'error')

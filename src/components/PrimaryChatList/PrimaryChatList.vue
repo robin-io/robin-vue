@@ -189,6 +189,7 @@ export default class PrimaryChatList extends mixins(ConversationMixin) {
 
   created () {
     this.onGroupIconUpdate()
+    this.onMessageDelete()
     this.handleMarkAsRead()
     this.handleMarkAsUnread()
     this.handleAddRegularConversation()
@@ -229,6 +230,19 @@ export default class PrimaryChatList extends mixins(ConversationMixin) {
       data.group_icon = conversation.group_icon
       this.regularConversations.splice(index, 1, data)
       store.setState('regularConversations', [...this.regularConversations])
+    })
+  }
+
+  async onMessageDelete (): Promise<void> {
+    EventBus.$on('message-deleted', async (messages: any[]) => {
+      const conversationId = messages[0].conversation_id
+      const conversation = await this.$robin.getConversation(conversationId)
+      const conversationIndex = this.filteredConversations.findIndex(conv => conv._id === conversationId)
+      conversation.data.last_message = conversation.data.last_messages[0]
+
+      const tempArr = [...this.filteredConversations]
+      tempArr[conversationIndex] = conversation.data
+      this.filteredConversations = tempArr
     })
   }
 
@@ -372,7 +386,11 @@ export default class PrimaryChatList extends mixins(ConversationMixin) {
           }
         } = res.data
         this.pageCount = totalPage
-        store.setState('unsortedRegularConversations', conversations ?? [])
+        const tempConversations = conversations.map((conv: any) => {
+          conv.last_message = conv.last_messages[0]
+          return conv
+        })
+        store.setState('unsortedRegularConversations', tempConversations ?? [])
         store.setState('isPageLoading', false)
         this.status = 'regular'
       }
@@ -391,12 +409,16 @@ export default class PrimaryChatList extends mixins(ConversationMixin) {
         // { user_token: this.$user_token },
         10, page
       )
+      const tempConversations = conversations.map((conv: any) => {
+        conv.last_message = conv.last_messages[0]
+        return conv
+      })
       this.status = 'regular'
-      const regularConv = this.getRegularConversations(conversations)
+      const regularConv = this.getRegularConversations(tempConversations)
       this.filteredConversations.push(...regularConv)
       store.setState('unsortedRegularConversations', [
         ...this.unsortedRegularConversations,
-        ...conversations
+        ...tempConversations
       ])
       this.isPageLoading2 = false
     } catch (error) {
