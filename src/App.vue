@@ -288,8 +288,9 @@ export default class App extends ComponentProps {
 
   async filterUsers () {
     // const filteredUsers: Array<any> = []
+    this.$robin_users = []
     const userTokensResponse = await this.robin?.getUserTokens(1000, 1)
-    const users = userTokensResponse.data.user_tokens
+    const users = userTokensResponse?.data.user_tokens
     // users.forEach((user: ) => {
     //   const newUser = {
     //     userToken: user[this.keys?.userToken],
