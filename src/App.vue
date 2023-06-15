@@ -328,7 +328,7 @@ export default class App extends ComponentProps {
   }
 
   initiateRobin () {
-    this.robin = new Robin('', true, 0, 'production', this.sessionKey)
+    this.robin = new Robin('', true, 0, 'dev', this.sessionKey)
     // console.log(this.robin)
     this.debouncedConnect = debounce(() => this.connect(), 3000)
     this.debouncedConnect?.()
