@@ -68,6 +68,7 @@
     >
       <div v-show="isPageLoading" class="robin-spinner"></div>
       <virtual-scroller
+        v-show="!isPageLoading"
         :items="filteredConversations"
         :item-count="filteredConversations.length"
         :height="filteredConversations.length >= 10 ? childHeight.length * 83 - 1 : 0"
@@ -140,7 +141,7 @@ import assets from '@/utils/assets.json'
     status: {
       handler () {
         if (this.status === 'filterByUnread') {
-          this.filteredConversations = [...this.filterUnreadConversations()]
+          this.filterUnreadConversations()
         } else if (this.status === 'regular') {
           this.filteredConversations = [...this.regularConversations]
         }
@@ -214,13 +215,11 @@ export default class PrimaryChatList extends mixins(ConversationMixin) {
     }
   }
 
-  filterUnreadConversations () {
-    return [
-      ...this.regularConversations.filter(
-        (conversation) =>
-          conversation.unread_messages > 0 || conversation.unread_messages === 'marked'
-      )
-    ]
+  async filterUnreadConversations () {
+    store.setState('isPageLoading', true)
+    const unreadConversations = await this.$robin.getUnreadConversations()
+    this.filteredConversations = this.addUnreadMessagesToConversation(unreadConversations.data?.conversations)
+    store.setState('isPageLoading', false)
   }
 
   onGroupIconUpdate (): void {
