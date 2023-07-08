@@ -1,0 +1,23 @@
+.robin-banner {
+  width: 100%;
+  background-color: #f7471c;
+  font-size: 0.9rem;
+  text-align: center;
+  max-height: 0px;
+  overflow: hidden;
+  padding: 0;
+  transition: 0.5s;
+  -webkit-transition: 0.5s;
+  -moz-transition: 0.5s;
+  -ms-transition: 0.5s;
+  -o-transition: 0.5s;
+}
+
+.robin-banner.open {
+  max-height: 100px;
+  padding: 0.5rem 1rem;
+}
+
+.robin-banner.info {
+  background-color: #1c85d5;
+}

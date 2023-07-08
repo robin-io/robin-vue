@@ -328,7 +328,7 @@ export default class App extends ComponentProps {
   }
 
   initiateRobin () {
-    this.robin = new Robin('', true, 0, 'dev', this.sessionKey)
+    this.robin = new Robin('', true, 0, 'production', this.sessionKey)
     // console.log(this.robin)
     this.debouncedConnect = debounce(() => this.connect(), 3000)
     this.debouncedConnect?.()
@@ -462,6 +462,9 @@ export default class App extends ComponentProps {
         break
       case 'group.icon.update':
         EventBus.$emit('group.icon.update', message.value)
+        break
+      case 'user_token.disabled':
+        EventBus.$emit('user_token.disabled', message.value)
         break
       default:
         break

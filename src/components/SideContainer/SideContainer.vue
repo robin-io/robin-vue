@@ -1,5 +1,6 @@
 <template>
   <div class="robin-chat-list-container">
+    <Banner :class="{ open: isUserDisabled }" />
     <PrimaryChatList
       v-show="conversations.length > 0 || isPageLoading"
       @opennewchatmodal="openModal('slide-1', $event)"
@@ -68,6 +69,7 @@ import NoChatList from '@/components/NoChatList/NoChatList.vue'
 import NewGroupChat from '@/components/NewGroupChat/NewGroupChat.vue'
 import NewGroupChatList from '@/components/NewGroupChatList/NewGroupChatList.vue'
 import ArchivedChatList from '@/components/ArchivedChatList/ArchivedChatList.vue'
+import Banner from '../Banner/Banner.vue'
 
 // eslint-disable-next-line
 @Component<SideContainer>({
@@ -78,7 +80,8 @@ import ArchivedChatList from '@/components/ArchivedChatList/ArchivedChatList.vue
     NoChatList,
     NewGroupChat,
     NewGroupChatList,
-    ArchivedChatList
+    ArchivedChatList,
+    Banner
   }
 })
 export default class SideContainer extends Vue {
@@ -92,6 +95,10 @@ export default class SideContainer extends Vue {
 
   get conversations () {
     return store.state.unsortedRegularConversations
+  }
+
+  get isUserDisabled () {
+    return store.state.isUserDisabled
   }
 
   get sideBarType () {

@@ -5,6 +5,7 @@
       :selected-messages="selectedMessages"
       @delete-selected-messages="openPrompt('delete select')"
     />
+    <Banner :class="{ open: currentConversation.is_disabled }" text="This user's account has been disabled. Contact admin" />
     <div
       class="robin-wrapper robin-flex robin-flex-column robin-flex-space-between"
       id="message-container"
@@ -177,6 +178,7 @@ import Prompt from '../Prompt/Prompt.vue'
 import MessagePopUp from '../MessagePopUp/MessagePopUp.vue'
 import ReactionPopUp from '../ReactionPopUp/ReactionPopUp.vue'
 import SvgIcon from '../SvgIcon/SvgIcon.vue'
+import Banner from '../Banner/Banner.vue'
 
 // eslint-disable-next-line
 @Component<MessageContainer>({
@@ -195,7 +197,8 @@ import SvgIcon from '../SvgIcon/SvgIcon.vue'
     Prompt,
     MessagePopUp,
     ReactionPopUp,
-    SvgIcon
+    SvgIcon,
+    Banner
   },
   watch: {
     messages: {

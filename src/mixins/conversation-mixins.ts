@@ -221,6 +221,18 @@ export default class ConversationMixin extends Vue {
     return formatTimestamp(new Date(time))
   }
 
+  /**
+   * Function to get a user token from conversation object from receiver/sender token that does not belong to current auth user
+   * @param conversation
+   * @returns a user token string
+   */
+  getUserTokenFromConversation (conversation: ObjectType): string {
+    if (conversation.receiver_token === this.$user_token) {
+      return conversation.sender_token
+    }
+    return conversation.receiver_token
+  }
+
   addUnreadMessagesToConversation (conversations: Array<ObjectType>) {
     return conversations.map((conversation: ObjectType) => {
       if (

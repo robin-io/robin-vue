@@ -23,6 +23,7 @@ interface State {
   participantToken: string;
   removeParticipant: boolean;
   isParticipantModerator: boolean;
+  isUserDisabled: boolean;
   currentAudioPlaying: number;
   forwardMessagesEnabled: boolean;
   deleteMessagesEnabled: boolean;
@@ -64,6 +65,7 @@ const state: State = {
   participantToken: '',
   removeParticipant: false,
   isParticipantModerator: false,
+  isUserDisabled: false,
   currentAudioPlaying: 0,
   forwardMessagesEnabled: false,
   deleteMessagesEnabled: false,

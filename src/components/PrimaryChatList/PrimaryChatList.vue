@@ -199,6 +199,7 @@ export default class PrimaryChatList extends mixins(ConversationMixin) {
     this.handleMessageForward()
     this.onNewConversationCreated()
     this.onGroupConversationCreated()
+    this.onUserDisabled()
   }
 
   get assets () {
@@ -218,7 +219,7 @@ export default class PrimaryChatList extends mixins(ConversationMixin) {
   async filterUnreadConversations () {
     store.setState('isPageLoading', true)
     const unreadConversations = await this.$robin.getUnreadConversations()
-    this.filteredConversations = this.addUnreadMessagesToConversation(unreadConversations.data?.conversations)
+    this.filteredConversations = this.addUnreadMessagesToConversation(unreadConversations?.data?.conversations || [])
     store.setState('isPageLoading', false)
   }
 
@@ -242,6 +243,24 @@ export default class PrimaryChatList extends mixins(ConversationMixin) {
       const tempArr = [...this.filteredConversations]
       tempArr[conversationIndex] = conversation.data
       this.filteredConversations = tempArr
+    })
+  }
+
+  async onUserDisabled (): Promise<void> {
+    EventBus.$on('user_token.disabled', async (data: any) => {
+      if (data.user_token === this.$user_token) {
+        // IF DISABLED USER IS CURRENT AUTH USER
+        store.setState('isUserDisabled', true)
+      } else {
+        // IF DISABLED USER IS IN A CONVERSATION WITH CURRENT AUTH USER
+        const tempArr = [...this.filteredConversations]
+        tempArr.forEach(conv => {
+          if (conv.receiver_token === data.user_token || conv.sender_token === data.user_token) {
+            conv.is_disabled = true
+          }
+        })
+        this.filteredConversations = tempArr
+      }
     })
   }
 
@@ -391,10 +410,13 @@ export default class PrimaryChatList extends mixins(ConversationMixin) {
         })
         store.setState('unsortedRegularConversations', tempConversations ?? [])
         store.setState('isPageLoading', false)
+        store.setState('isUserDisabled', false)
         this.status = 'regular'
       }
     } catch (error) {
       console.error(error)
+      store.setState('isPageLoading', false)
+      store.setState('isUserDisabled', true)
     }
   }
 
