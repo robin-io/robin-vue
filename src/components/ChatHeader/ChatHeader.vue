@@ -37,27 +37,29 @@
         >
           <div class="robin-mt-6">
             <message-content
+              v-if="!currentConversation.is_group"
               font-weight="normal"
               :color="currentTheme === 'light' ? '#000000' : '#F9F9F9'"
               :font-size="14"
               :line-height="24"
-              v-if="!currentConversation.is_group"
             >
               {{
                 currentConversation.sender_token != $user_token
                   ? currentConversation.sender_name
                   : currentConversation.receiver_name
               }}
+              <div v-if="isTypingEvent" v-show="isTypingEvent.conversation_id === currentConversation._id">Typing...</div>
             </message-content>
 
             <message-content
+              v-else
               font-weight="normal"
               :color="currentTheme === 'light' ? '#000000' : '#F9F9F9'"
               :font-size="14"
               :line-height="24"
-              v-else
             >
               {{ currentConversation.name }}
+              <div v-if="isTypingEvent" v-show="isTypingEvent.conversation_id === currentConversation._id">{{ isTypingEvent.value }}</div>
             </message-content>
           </div>
         </div>
@@ -176,7 +178,7 @@ export default class ChatHeader extends ComponentProps {
   isDeleteMessagesEnabled!: boolean;
   currentConversation!: ObjectType;
   currentTheme!: string;
-
+  messageTypingTimer = null as NodeJS.Timeout | null;
   popUpState: PopUpState = {
     opened: false
   };
@@ -184,6 +186,24 @@ export default class ChatHeader extends ComponentProps {
   created () {
     this.handleUserConnect()
     this.handleUserDisconnect()
+    this.handleRecipientTyping()
+  }
+
+  get isTypingEvent () {
+    return store.state.isTypingEvent
+  }
+
+  handleRecipientTyping () {
+    EventBus.$on('typing_indicator', (event: ObjectType) => {
+      if (!this.messageTypingTimer) {
+        store.setState('isTypingEvent', event)
+        const timeout = setTimeout(() => {
+          this.messageTypingTimer = null
+          store.setState('isTypingEvent', null)
+        }, 2000)
+        this.messageTypingTimer = timeout
+      }
+    })
   }
 
   handleOpenPopUp (event: ObjectType): void {

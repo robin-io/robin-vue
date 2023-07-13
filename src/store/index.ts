@@ -40,6 +40,7 @@ interface State {
   secretKey: string;
   toastMessages: Map<any, any>;
   resetCheckedState: boolean;
+  isTypingEvent: any;
 }
 
 const state: State = {
@@ -81,7 +82,8 @@ const state: State = {
   sideBarType: 'primary',
   secretKey: '',
   toastMessages: new Map(),
-  resetCheckedState: false
+  resetCheckedState: false,
+  isTypingEvent: {}
 }
 
 const store = {

@@ -311,6 +311,7 @@ export default class App extends ComponentProps {
     Vue.prototype.$user_token = this.userToken
     Vue.prototype.$channel = this.channel
     Vue.prototype.$senderName = this.userName
+    Vue.prototype.$senderFirstName = this.userName?.split(' ')?.at(0)
     Vue.prototype.$logo = this.logo
     store.setState('forwardMessagesEnabled', this.features.includes('forward-messages'))
     store.setState('deleteMessagesEnabled', this.features.includes('delete-messages'))
@@ -465,6 +466,9 @@ export default class App extends ComponentProps {
         break
       case 'user_token.disabled':
         EventBus.$emit('user_token.disabled', message.value)
+        break
+      case 'typing_indicator':
+        EventBus.$emit('typing_indicator', message)
         break
       default:
         break

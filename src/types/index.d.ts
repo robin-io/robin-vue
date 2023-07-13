@@ -13,6 +13,7 @@ declare module 'vue/types/vue' {
     $regularConversations: Array<Record<string, any>>;
     $archivedConversations: Array<Record<string, any>>;
     $senderName: string;
+    $senderFirstName: string;
     $apiKey: string;
     $sessionKey: string;
   }

@@ -330,6 +330,7 @@ export default class MessageInputBar extends ComponentProps {
   isUploading = false as boolean;
   replying = false as boolean;
   currentTime = '00:00' as string;
+  messageInputTimer = null as NodeJS.Timeout | null;
   elapsedTimer = null as any;
   recorder = null as any;
   isRecording = false as boolean;
@@ -397,6 +398,17 @@ export default class MessageInputBar extends ComponentProps {
     this.currentTime = '00:00'
     this.sendRecording = false
     this.manualTimestamp = ''
+  }
+
+  onMessageInput () {
+    if (!this.messageInputTimer) {
+      this.sendTypingIndicatorEvent()
+      const timeout = setTimeout(() => {
+        this.sendTypingIndicatorEvent()
+        this.messageInputTimer = null
+      }, 2000)
+      this.messageInputTimer = timeout
+    }
   }
 
   onManualSend () {
@@ -658,6 +670,19 @@ export default class MessageInputBar extends ComponentProps {
         this.showToast('Opps, something went wrong.', 'error')
       }
     }
+  }
+
+  async sendTypingIndicatorEvent () {
+    const WebSocketMessage = {
+      type: 9,
+      event: {
+        name: 'typing_indicator',
+        value: `${this.$senderFirstName} is typing`,
+        is_event: true,
+        conversation_id: this.currentConversation._id
+      }
+    }
+    return this.$robin.sendMessageToConversation(this.encrypt(WebSocketMessage), this.$conn)
   }
 
   async sendFileMessage (
@@ -948,6 +973,7 @@ export default class MessageInputBar extends ComponentProps {
 
   enterText (event: any): void {
     this.text = event.target.value
+    this.onMessageInput()
     this.calculateTextareaHeight()
   }
 
