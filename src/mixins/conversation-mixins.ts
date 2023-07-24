@@ -265,7 +265,7 @@ export default class ConversationMixin extends Vue {
   getContactName (sender_token: string): string {
     const index = this.$robin_users.findIndex((user) => user.user_token === sender_token) as number
     const user = this.$robin_users[index] as ObjectType
-    return user ? user.username : ''
+    return user ? (user.username || user?.meta_data?.name) : ''
   }
 
   showToast (message: string, type: string): void {

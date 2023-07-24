@@ -61,8 +61,13 @@ export default class Avatar extends ComponentProps {
     ) as number
     const user = this.$robin_users[index] as any
 
+    // if (user) {
+    //   return user.username && user.username !== '' ? user.username.trim().split(' ') : ''
+    // }
+
     if (user) {
-      return user.username && user.username !== '' ? user.username.trim().split(' ') : ''
+      const name = user?.username || user?.meta_data?.name || ''
+      return name.trim().split(' ')
     }
 
     return ''

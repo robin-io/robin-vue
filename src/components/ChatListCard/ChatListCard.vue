@@ -1,4 +1,5 @@
 <template>
+  <!-- TYPE 1 -->
   <div
     v-if="type === 1"
     class="robin-card robin-flex robin-flex-align-center"
@@ -107,6 +108,8 @@
       </div>
     </div>
   </div>
+
+  <!-- TYPE 2 -->
   <div
     v-else-if="type === 2"
     class="robin-card robin-flex robin-flex-align-center"
@@ -150,6 +153,8 @@
       </div>
     </div>
   </div>
+
+  <!-- TYPE 3 -->
   <div v-else-if="type === 3" class="robin-card robin-flex robin-flex-align-center">
     <div class="robin-card-info robin-mr-12">
       <avatar :img-url="item.display_photo" :sender-token="item.user_token" />
@@ -160,7 +165,7 @@
     >
       <div class="robin-flex">
         <message-content :font-size="14" :line-height="18" data-testid="content">
-          {{ item.username }}
+          {{ item.username || item.meta_data.name || '' }}
         </message-content>
       </div>
       <div class="robin-ml-auto">
@@ -169,6 +174,7 @@
     </div>
   </div>
 
+  <!-- TYPE 4 -->
   <div
     v-else
     class="robin-card robin-flex robin-flex-align-center robin-clickable"
@@ -186,7 +192,7 @@
           :font-size="14"
           :color="currentTheme === 'light' ? '#000000' : '#F9F9F9'"
           :line-height="18"
-          >{{ item.username }}</message-content
+          >{{ item.username || item.meta_data.name || '' }}</message-content
         >
       </div>
     </div>
