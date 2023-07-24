@@ -161,7 +161,8 @@ export default class NewChatList extends mixins(ConversationMixin) {
       const filteredData = data.filter(
         (item: ObjectType) =>
           item.user_token !== this.$user_token &&
-          this.validateContact(item.username.trim(), user.username.trim())
+          this.validateContact(item.username.trim(), user.username.trim()) &&
+          this.getContactName(user.user_token) !== ''
       )
 
       if (filteredData.length > 0) {
