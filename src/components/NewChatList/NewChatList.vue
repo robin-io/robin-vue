@@ -127,7 +127,7 @@ export default class NewChatList extends mixins(ConversationMixin) {
       sender_name: this.$senderName,
       sender_token: this.$user_token,
       receiver_token: user.user_token,
-      receiver_name: user.username
+      receiver_name: user.username || user?.meta_data?.name || user?.meta_data?.fullname
     })
 
     if (res && !res.error) {

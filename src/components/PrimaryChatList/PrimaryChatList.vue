@@ -405,7 +405,7 @@ export default class PrimaryChatList extends mixins(ConversationMixin) {
         } = res.data
         this.pageCount = totalPage
         const tempConversations = conversations.map((conv: any) => {
-          conv.last_message = conv.last_messages[0]
+          conv.last_message = conv.last_messages?.at(0)
           return conv
         })
         store.setState('unsortedRegularConversations', tempConversations ?? [])
